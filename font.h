@@ -1,0 +1,356 @@
+/***************************************************************************
+ *   Copyright (C) 2010 by Terraneo Federico                               *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   As a special exception, if other files instantiate templates or use   *
+ *   macros or inline functions from this file, or you compile this file   *
+ *   and link it with other works to produce a work based on this file,    *
+ *   this file does not by itself cause the resulting work to be covered   *
+ *   by the GNU General Public License. However the source code for this   *
+ *   file must still be made available in accordance with the GNU General  *
+ *   Public License. This exception does not invalidate any other reasons  *
+ *   why a work based on this file might be covered by the GNU General     *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
+ ***************************************************************************/
+
+#ifndef FONT_H
+#define	FONT_H
+
+#include "color.h"
+#include "point.h"
+#include "iterator_direction.h"
+#include <algorithm>
+
+namespace mxgui {
+
+/**
+ * A Font that can be used to draw text. Fonts are immutable except they can be
+ * assigned with operator=
+ */
+class Font
+{
+public:
+    /**
+     * Creates a fixed width font.
+     * \param startChar the first character available, example ' ' (ASCII space)
+     * \param endChar the last character available (including)
+     * \param height the height of the glyphs
+     * \param width the width of the glyphs (fixed width font)
+     * \param dataSize can be 8,16 or 32, it is the size of one element of data
+     * \param antialiased true if font is antialiased
+     * \param data pinter to the font data. This must point to a static array
+     * so that no memeory leak problems occur
+     */
+    Font(unsigned char startChar, unsigned char endChar, unsigned char height,
+        unsigned char width, unsigned char dataSize, bool antialiased,
+        const void *data);
+    /**
+     * Creates a variable width font.
+     * \param startChar the first character available, example ' ' (ASCII space)
+     * \param endChar the last character available (including)
+     * \param height the height of the glyphs
+     * \param dataSize can be 8,16 or 32, it is the size of one element of data
+     * \param antialiased true if font is antialiased
+     * \param widths pointer to a table that contains the widths of each glyph.
+     * This must point to a static arra so that no memeory leak problems occur
+     * \param offset pointer to a table that contains where in data each glyph
+     * begins ( data[offset[c]])
+     * This must point to a static arra so that no memeory leak problems occur
+     * \param data pinter to the font data. This must point to a static array
+     * so that no memeory leak problems occur
+     */
+    Font(unsigned char startChar, unsigned char endChar, unsigned char height,
+        unsigned char dataSize, bool antialiased, const unsigned char *widths,
+        const unsigned short *offset, const void *data);
+
+    /**
+     * Draw a string on a surface.
+     * \param surface an object that provides pixel iterators.
+     * \param s string to write
+     */
+    template<typename T>
+    void draw(T& surface, Color colors[4], Point p, const char *s) const;
+
+    /**
+     * Given a string, determine the length in pixels required to draw it.
+     * If the string contains characters not between getStartChar and getEndChar
+     * their width is supposed to be the length of the character returned by
+     * getStartChar.
+     * \param s a null terminated string
+     * \return the length in pixels
+     */
+    short int calculateLength(const char *s) const;
+
+    /**
+     * \return true if the Font is fixed width
+     */
+    bool isFixedWidth() const { return width!=0; }
+
+    /**
+     * \return true if the Font is antialiased
+     */
+    bool isAntialiased() const { return antialiased; }
+
+    /**
+     * \return the Font's first character available in its table
+     */
+    unsigned char getStartChar() const { return startChar; }
+
+    /**
+     * \return the Font's last character available in its table
+     */
+    unsigned char getEndChar() const { return endChar; }
+
+    /**
+     * \return the Font's height
+     */
+    unsigned char getHeight() const { return height; }
+
+    /**
+     * \return the Font's width. Use this member function only if the Font is
+     * fixed width, otherwise see getWidths()
+     */
+    unsigned char getWidth() const { return width; }
+
+    /**
+     * \return the size in bits of the data's data type.
+     * Can be 8,16,32. For example if it is 16, data can be cast from
+     * void* to unsigned short*
+     */
+    unsigned char getDataSize() const { return dataSize; }
+
+    /**
+     * \return the widths of the characters, only if it is a variable width
+     * Font. If you want to know the with of character c when
+     * using font f, use:
+     * \code if(c>=f.getStartChar() && f<=f.getEndChar())
+     * result=f.getWidths()[c-f.getStartChar()] \endcode
+     */
+    const unsigned char *getWidths() const { return widths; }
+
+    /**
+     * \return a table with the offset within data where a character starts
+     * For example, character c in font f starts at:
+     * \code if(c>=f.getStartChar() && f<=f.getEndChar())
+     * result=f.getOffset()[c-f.getStartChar()] \endcode
+     */
+    const unsigned short *getOffset() const { return offset; }
+
+    /**
+     * \return a pointer to the font data, that can be used to draw a font.
+     * The real datatype depends on getDataType()
+     */
+    const void *getData() const { return data; }
+
+    //Uses default copy constructor and operator=. The pointers can be shared
+    //without problems since there is no member function to modify them
+    //nor to return a non-const pointer to them
+private:
+
+    /*
+     * This is one nifty use of C++ templates. For size optimization purposes,
+     * the elements in the font tables can either be 8, 16 or 32 bytes. This
+     * however require 3 specialized algorithms for supporting them that only
+     * differ in the cast from void* to unsigned char*, unsigned short* or
+     * unsigned int*.
+     * And that triplication has to be done for each of the three font drawing
+     * algorithms that deal with fixed width, variable width and antialiased
+     * fonts.
+     * Instead of writing each of these algorithms three times, it is written
+     * only once using the U template parameter to specialize the code.
+     * In the end, on code size it does nothing worse since the alternative
+     * would have been to write nine functions by hand, but on code compactness
+     * it allows to write only three functions and let template instantiation
+     * do the boring job.
+     */
+
+    /**
+     * Deal with fixed width (monospace) fonts.
+     * \param surface surface object providing pixel iterators.
+     * \param fgcolor foreground color
+     * \param bgcolor background color
+     * \param s string to write
+     */
+    template<typename T, typename U>
+    void fixedWidthDrawingEngine(typename T::pixel_iterator first,
+            typename T::pixel_iterator last, Color fgcolor, Color bgcolor,
+            const char *s) const;
+
+    /**
+     * Deal with variable width fonts.
+     * \param surface surface object providing pixel iterators.
+     * \param fgcolor foreground color
+     * \param bgcolor background color
+     * \param s string to write
+     */
+    template<typename T, typename U>
+    void variableWidthDrawingEngine(typename T::pixel_iterator first,
+            typename T::pixel_iterator last, Color fgcolor, Color bgcolor,
+            const char *s) const;
+
+    /**
+     * Deal with variable antialiased width fonts.
+     * \param surface surface object providing pixel iterators.
+     * \param fgcolor foreground color
+     * \param bgcolor background color
+     * \param s string to write
+     */
+    template<typename T, typename U>
+    void variableWidthAADrawingEngine(typename T::pixel_iterator first,
+            typename T::pixel_iterator last, Color colors[4], const char *s) const;
+
+    unsigned char startChar;
+    unsigned char endChar;
+    unsigned char height;
+    unsigned char width;// set to zero if variable width font
+    unsigned char dataSize;
+    bool antialiased;
+    const unsigned char *widths;// set to zero (NULL) if fixed width
+    const unsigned short *offset;// set to zero (NULL) if fixed width
+    const void *data;
+};
+
+template<typename T>
+void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
+{
+    //If no Y space to draw font, stop
+    if(p.y()+height>surface.getHeight()) return;
+    //If no X space to draw font, draw it until the screen margin reached
+    short int surfaceWidth=surface.getWidth();
+    short int last=std::min<short>(p.x()+calculateLength(s),surfaceWidth)-1;
+    typename T::pixel_iterator it=surface.begin(p,Point(last,p.y()+height-1),DR);
+    // For code size minimization not all the combinations of 8,16,32,64 bit
+    // fixed, variable width and antialiased fonts are supported, but only these
+    //  8 bit : none (too small for large displays)
+    // 16 bit : fixedWidth, variableWidth
+    // 32 bit : fixedWidth, variableWidth, variableWidthAntialiased
+    // 64 bit : variableWidthAntialiased
+    switch(dataSize)
+    {
+        case 16:
+            if(isAntialiased()) return;
+            if(isFixedWidth())
+                fixedWidthDrawingEngine<T,unsigned short>(it,
+                        surface.end(),colors[3],colors[0],s);
+            else variableWidthDrawingEngine<T,unsigned short>(it,
+                        surface.end(),colors[3],colors[0],s);
+            break;
+        case 32:
+            if(isAntialiased())
+            {
+                if(isFixedWidth()) return;
+                variableWidthAADrawingEngine<T,unsigned int>(it,
+                            surface.end(),colors,s);
+            } else {
+                if(isFixedWidth())
+                    fixedWidthDrawingEngine<T,unsigned int>(it,
+                            surface.end(),colors[3],colors[0],s);
+                else variableWidthDrawingEngine<T,unsigned int>(it,
+                            surface.end(),colors[3],colors[0],s);
+            }
+            break;
+        case 64:
+            if(isAntialiased()==false || isFixedWidth()) return;
+            variableWidthAADrawingEngine<T,unsigned long long>(it,
+                            surface.end(),colors,s);
+            break;
+    }
+}
+
+template<typename T, typename U>
+void Font::fixedWidthDrawingEngine(typename T::pixel_iterator first,
+            typename T::pixel_iterator last, Color fgcolor, Color bgcolor,
+            const char *s) const
+{
+    const U *fontData=reinterpret_cast<const U *>(getData());
+    for(;;)
+    {
+        unsigned char c=*s;
+        if(*s=='\0') break;
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        for(unsigned int i=0;i<width;i++)
+        {
+            if(first==last) return;
+            U row=fontData[c*width+i];
+            for(int j=0;j<height;j++)
+            {
+                if(row & 0x1) *first=fgcolor;
+                else *first=bgcolor;
+                row>>=1;
+                first++;
+            }      
+        }
+        s++;
+    }
+}
+
+template<typename T, typename U>
+void Font::variableWidthDrawingEngine(typename T::pixel_iterator first,
+            typename T::pixel_iterator last, Color fgcolor, Color bgcolor,
+            const char *s) const
+{
+    const U *fontData=reinterpret_cast<const U *>(getData());
+    for(;;)
+    {
+        unsigned char c=*s;
+        if(*s=='\0') break;
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        for(unsigned int i=0;i<widths[c];i++)
+        {
+            if(first==last) return;
+            U row=fontData[offset[c]+i];
+            for(int j=0;j<height;j++)
+            {
+                if(row & 0x1) *first=fgcolor;
+                else *first=bgcolor;
+                row>>=1;
+                first++;
+            }
+        }
+        s++;
+    }
+}
+
+template<typename T, typename U>
+void Font::variableWidthAADrawingEngine(typename T::pixel_iterator first,
+            typename T::pixel_iterator last, Color colors[4], const char *s) const
+{
+    const U *fontData=reinterpret_cast<const U *>(getData());
+    for(;;)
+    {
+        unsigned char c=*s;
+        if(*s=='\0') break;
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        for(unsigned int i=0;i<widths[c];i++)
+        {
+            if(first==last) return;
+            U row=fontData[offset[c]+i];
+            for(int j=0;j<height;j++)
+            {
+                *first=colors[row & 0x3];
+                row>>=2;
+                first++;
+            }
+        }
+        s++;
+    }
+}
+
+} //namespace mxgui
+
+#endif //FONT_H

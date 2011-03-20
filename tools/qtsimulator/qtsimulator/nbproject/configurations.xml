@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="69">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <df name="mxgui" root="../../..">
+      <df name="drivers" kind="SOURCE_LOGICAL_FOLDER">
+        <in>backend_lpc2138spi.cpp</in>
+        <in>backend_lpc2138spi.h</in>
+        <in>backend_stm32fsmc.cpp</in>
+        <in>backend_stm32fsmc.h</in>
+        <in>display_qt.cpp</in>
+        <in>display_qt.h</in>
+        <in>display_s6e63d6.cpp</in>
+        <in>display_s6e63d6.h</in>
+        <in>display_spfd5408.cpp</in>
+        <in>display_spfd5408.h</in>
+      </df>
+      <df name="fonts" kind="SOURCE_LOGICAL_FOLDER">
+        <in>droid11.h</in>
+        <in>droid11.png</in>
+        <in>droid11b.h</in>
+        <in>droid11b.png</in>
+        <in>droid21.h</in>
+        <in>droid21.png</in>
+        <in>droid21b.h</in>
+        <in>droid21b.png</in>
+        <in>miscfixed.h</in>
+        <in>miscfixed.png</in>
+        <in>miscfixed_bold.h</in>
+        <in>miscfixed_bold.png</in>
+        <in>tahoma.h</in>
+        <in>tahoma.png</in>
+      </df>
+      <df name="tools" kind="SOURCE_LOGICAL_FOLDER">
+        <df name="font_collection" kind="SOURCE_LOGICAL_FOLDER">
+          <df name="droid" kind="SOURCE_LOGICAL_FOLDER">
+            <in>DroidSans-Bold.ttf</in>
+            <in>DroidSans.ttf</in>
+            <in>DroidSans11.fixes</in>
+            <in>DroidSansBold11.fixes</in>
+            <in>DroidSansMono.ttf</in>
+            <in>DroidSerif-Bold.ttf</in>
+            <in>DroidSerif-Italic.ttf</in>
+            <in>DroidSerif-Regular.ttf</in>
+            <in>NOTICE</in>
+          </df>
+          <df name="miscfixed" kind="SOURCE_LOGICAL_FOLDER">
+            <in>8x13B.bdf</in>
+            <in>9x15.bdf</in>
+            <in>Changes.txt</in>
+          </df>
+          <df name="tahoma" kind="SOURCE_LOGICAL_FOLDER">
+            <in>Changes.txt</in>
+            <in>tahoma-11.bdf</in>
+          </df>
+        </df>
+        <df name="qtsimulator" kind="SOURCE_LOGICAL_FOLDER">
+          <df name="qtsimulator" kind="SOURCE_LOGICAL_FOLDER">
+            <in>qtsimulator-Makefile.mk</in>
+          </df>
+          <in>CMakeLists.txt</in>
+          <in>qtbackend.cpp</in>
+          <in>qtbackend.h</in>
+          <in>qtsimulator.cpp</in>
+          <in>window.cpp</in>
+          <in>window.h</in>
+        </df>
+        <df name="test_image" kind="SOURCE_LOGICAL_FOLDER">
+          <in>dispersion.png</in>
+        </df>
+      </df>
+      <in>Makefile</in>
+      <in>color.h</in>
+      <in>display.h</in>
+      <in>display_base.h</in>
+      <in>font.cpp</in>
+      <in>font.h</in>
+      <in>image.h</in>
+      <in>iterator_direction.h</in>
+      <in>misc_inst.cpp</in>
+      <in>misc_inst.h</in>
+      <in>mxgui_settings.h</in>
+      <in>point.h</in>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>../build/Makefile</itemPath>
+      <itemPath>qtsimulator-Makefile.mk</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject|build|test|tests|code_generators)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>../../..</Elem>
+  </sourceRootList>
+  <projectmakefile>qtsimulator-Makefile.mk</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>../build</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>../build/qtsimulator</executablePath>
+          <ccTool>
+            <incDir>
+              <pElem>..</pElem>
+              <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+              <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+              <pElem>/usr/include/QtGui</pElem>
+              <pElem>/usr/include/QtCore</pElem>
+              <pElem>../../..</pElem>
+              <pElem>../../../..</pElem>
+              <pElem>../../test_image</pElem>
+            </incDir>
+          </ccTool>
+        </makeTool>
+      </makefileType>
+    </conf>
+  </confs>
+</configurationDescriptor>

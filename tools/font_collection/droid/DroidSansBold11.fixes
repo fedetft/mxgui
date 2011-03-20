@@ -1,0 +1,106 @@
+
+# Fixes for not having support for kerning in the output format
+
+glyph B
+{
+	lshift 1
+}
+
+glyph C
+{
+	lshift 1
+}
+
+glyph D
+{
+	lshift 1
+}
+
+glyph E
+{
+	lshift 1
+}
+
+glyph F
+{
+	lshift 1
+}
+
+glyph G
+{
+	lshift 1
+}
+
+glyph H
+{
+	lshift 1
+}
+
+glyph J
+{
+	rpad 1
+}
+
+glyph K
+{
+	lshift 1
+	rpad 1
+}
+
+glyph L
+{
+	lshift 1
+	rpad 1
+}
+
+glyph M
+{
+	lshift 1
+}
+
+glyph N
+{
+	lshift 1
+}
+
+glyph O
+{
+	lshift 1
+}
+
+glyph P
+{
+	lshift 1
+}
+
+glyph Q
+{
+	lshift 1
+}
+
+glyph R
+{
+	lshift 1
+}
+
+glyph S
+{
+	lshift 1
+}
+
+glyph U
+{
+	lshift 1
+}
+
+glyph Z
+{
+	lshift 1
+	rpad 1
+}
+
+glyph i
+{
+	rpad 1
+}
+

@@ -1,0 +1,225 @@
+
+# Fixes for not having support for kerning in the output format
+
+glyph #
+{
+	contrast 0.6
+}
+
+glyph (
+{
+	contrast 0.9
+}
+
+glyph )
+{
+	contrast 0.9
+}
+
+glyph *
+{
+	contrast 0.8
+}
+
+glyph ,
+{ 
+	contrast 0.6
+}
+
+glyph ;
+{
+	contrast 0.7
+}
+
+glyph <
+{
+	contrast 0.7
+}
+
+glyph >
+{
+	contrast 0.7
+}
+
+glyph @
+{
+	contrast 0.8
+}
+
+glyph A
+{
+	contrast 0.9
+}
+
+glyph B
+{
+	lshift 1
+}
+
+glyph C
+{
+	lshift 1
+	rpad 1
+}
+
+glyph D
+{
+	lshift 1
+}
+
+glyph E
+{
+	lshift 1
+}
+
+glyph F
+{
+	lshift 1
+	rpad 1
+}
+
+glyph G
+{
+	lshift 1
+}
+
+glyph H
+{
+	lshift 1
+}
+
+glyph I
+{
+	rpad 1
+}
+
+glyph J
+{
+	rpad 1
+}
+
+glyph K
+{
+	lshift 1
+	rpad 1
+	contrast 0.75
+}
+
+glyph L
+{
+	lshift 1
+	rpad 1
+}
+
+glyph M
+{
+	lshift 1
+	contrast 0.5
+}
+
+glyph N
+{
+	lshift 1
+	contrast 0.6
+}
+
+glyph O
+{
+	lshift 1
+}
+
+glyph P
+{
+	lshift 1
+}
+
+glyph Q
+{
+	lshift 1
+	contrast 0.9
+}
+
+glyph R
+{
+	lshift 1
+}
+
+glyph S
+{
+	lshift 1
+}
+
+glyph T
+{
+	rpad 1
+}
+
+glyph U
+{
+	lshift 1
+}
+
+glyph W
+{
+	contrast 0.75
+}
+
+glyph X
+{
+	contrast 0.75
+}
+
+glyph Z
+{
+	lshift 1
+}
+
+glyph ^
+{
+	contrast 0.8
+}
+
+glyph c
+{
+	contrast 0.9
+}
+
+glyph k
+{
+	contrast 0.8
+}
+
+glyph o
+{
+	contrast 0.9
+}
+
+glyph s
+{
+	rpad 1
+}
+
+glyph t
+{
+	contrast 0.6
+}
+
+glyph w
+{
+	contrast 0.7
+}
+
+glyph y
+{
+	contrast 0.7
+}
+
+glyph z
+{
+	contrast 0.8
+}
+
+glyph ~
+{
+	contrast 0.5
+}

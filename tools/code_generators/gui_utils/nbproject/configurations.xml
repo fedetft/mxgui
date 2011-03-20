@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="69">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <df name="code" root="..">
+      <df name="gui_utils" kind="SOURCE_LOGICAL_FOLDER">
+      </df>
+      <df name="libs" kind="SOURCE_LOGICAL_FOLDER">
+        <df name="png++" kind="SOURCE_LOGICAL_FOLDER">
+          <df name="example" kind="SOURCE_LOGICAL_FOLDER">
+            <in>pixel_generator.cpp</in>
+          </df>
+          <in>color.hpp</in>
+          <in>config.hpp</in>
+          <in>consumer.hpp</in>
+          <in>convert_color_space.hpp</in>
+          <in>end_info.hpp</in>
+          <in>error.hpp</in>
+          <in>ga_pixel.hpp</in>
+          <in>generator.hpp</in>
+          <in>gray_pixel.hpp</in>
+          <in>image.hpp</in>
+          <in>image_info.hpp</in>
+          <in>index_pixel.hpp</in>
+          <in>info.hpp</in>
+          <in>info_base.hpp</in>
+          <in>io_base.hpp</in>
+          <in>packed_pixel.hpp</in>
+          <in>palette.hpp</in>
+          <in>pixel_buffer.hpp</in>
+          <in>pixel_traits.hpp</in>
+          <in>png.hpp</in>
+          <in>reader.hpp</in>
+          <in>require_color_space.hpp</in>
+          <in>rgb_pixel.hpp</in>
+          <in>rgba_pixel.hpp</in>
+          <in>streaming_base.hpp</in>
+          <in>tRNS.hpp</in>
+          <in>types.hpp</in>
+          <in>writer.hpp</in>
+        </df>
+      </df>
+      <in>bdfparser.cpp</in>
+      <in>bdfparser.h</in>
+      <in>fixed_width_generator.cpp</in>
+      <in>fixed_width_generator.h</in>
+      <in>fixes_parser.cpp</in>
+      <in>fixes_parser.h</in>
+      <in>font_core.cpp</in>
+      <in>font_core.h</in>
+      <in>fontrendering.cpp</in>
+      <in>pngconverter.cpp</in>
+      <in>ttfparser.cpp</in>
+      <in>ttfparser.h</in>
+      <in>variable_width_generator.cpp</in>
+      <in>variable_width_generator.h</in>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>../build/Makefile</itemPath>
+      <itemPath>gui_utils-Makefile.mk</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject|build|test|tests|out|reference)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>..</Elem>
+  </sourceRootList>
+  <projectmakefile>gui_utils-Makefile.mk</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>../build</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath></executablePath>
+          <ccTool>
+            <incDir>
+              <pElem>/usr/X11/include</pElem>
+              <pElem>/usr/local/include/freetype2</pElem>
+              <pElem>/usr/include/freetype2</pElem>
+              <pElem>/usr/include/bits</pElem>
+            </incDir>
+          </ccTool>
+        </makeTool>
+      </makefileType>
+      <folder path="code/libs">
+        <ccTool>
+          <incDir>
+            <pElem>../libs/png++</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+    </conf>
+  </confs>
+</configurationDescriptor>

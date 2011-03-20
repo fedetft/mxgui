@@ -1,0 +1,29 @@
+ 
+Converted using FontForge from original file
+tahoma.sfd found at winehq's git tree
+(wine.git/fonts/tahoma.sfd)
+
+NOTE: FontForge does not seem to export char 32 (ASCII space)
+in the bdf, so it has been added manually
+
+STARTCHAR space
+ENCODING 32
+SWIDTH 332 0
+DWIDTH 3 0
+BBX 3 8 0 0
+BITMAP
+00
+00
+00
+00
+00
+00
+00
+00
+ENDCHAR
+
+FONTDESCENT changed to 3 to have a 12pixel font
+
+Changed bbxC of glyph & from 1 to 0
+Now it is BBX 6 8 0 0
+because it had one row of pixels out

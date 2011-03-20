@@ -1,0 +1,301 @@
+/***************************************************************************
+ *   Copyright (C) 2010 by Terraneo Federico                               *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   As a special exception, if other files instantiate templates or use   *
+ *   macros or inline functions from this file, or you compile this file   *
+ *   and link it with other works to produce a work based on this file,    *
+ *   this file does not by itself cause the resulting work to be covered   *
+ *   by the GNU General Public License. However the source code for this   *
+ *   file must still be made available in accordance with the GNU General  *
+ *   Public License. This exception does not invalidate any other reasons  *
+ *   why a work based on this file might be covered by the GNU General     *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
+ ***************************************************************************/
+
+#ifndef DISPLAY_QT_H
+#define	DISPLAY_QT_H
+
+#include "mxgui/mxgui_settings.h"
+
+#ifdef MXGUI_DISPLAY_TYPE_QT
+
+#include "mxgui/point.h"
+#include "mxgui/color.h"
+#include "mxgui/font.h"
+#include "mxgui/image.h"
+#include "mxgui/iterator_direction.h"
+#include "mxgui/tools/qtsimulator/qtbackend.h"
+#include <stdexcept>
+
+//This display is 16 bit per pixel, check that the color depth is properly
+//configured
+#ifndef MXGUI_COLOR_DEPTH_16_BIT
+#error The Qt driver requires a color depth of 16bit per pixel
+#endif
+
+namespace mxgui {
+
+class DisplayQt
+{
+public:
+    /**
+     * Constructor.
+     * Do not instantiate objects of this type directly from application code,
+     * use Display::instance() instead.
+     */
+    DisplayQt();
+    
+    /**
+     * Write text to the display. If text is too long it will be truncated
+     * \param p point where the upper left corner of the text will be printed
+     * \param text, text to print.
+     */
+    void write(Point p, const char *text);
+
+    /**
+     * Clear the Display. The screen will be filled with the desired color
+     * \param color fill color
+     */
+    void clear(Color color);
+
+    /**
+     * Clera an area of the screen
+     * \param p1 upper left corner of area to clear
+     * \param p2 lower right corner of area to clear
+     * \param color fill color
+     */
+    void clear(Point p1, Point p2, Color color);
+
+    /**
+     * Draw a pixel with desired color
+     * \param p point where to draw pixel
+     * \param color pixel color
+     */
+    void setPixel(Point p, Color color);
+
+    /**
+     * Draw a line between point a and point b, with color c
+     * \param a first point
+     * \param b second point
+     * \param c line color
+     */
+    void line(Point a, Point b, Color color);
+
+    /**
+     * Draw an image on the screen
+     * \param p point of the upper left corner where the image will be drawn
+     * \param i image to draw
+     */
+    void drawImage(Point p, Image i);
+
+    /**
+     * Draw a rectangle (not filled) with the desired color
+     * \param a upper left corner of the rectangle
+     * \param b lower right corner of the rectangle
+     * \param c color of the line
+     */
+    void drawRectangle(Point a, Point b, Color c);
+
+    /**
+     * \return the display's height
+     */
+    short int getHeight() const { return height; }
+
+    /**
+     * \return the display's width
+     */
+    short int getWidth() const { return width; }
+
+    /**
+     * Turn the display On after it has been turned Off.
+     * Display initial state is On.
+     */
+    void turnOn();
+
+    /**
+     * Turn the display Off. It can be later turned back On.
+     */
+    void turnOff();
+
+    /**
+     * Set colors used for writing text
+     * \param fgcolor text color
+     * \param bgcolor background color
+     */
+    void setTextColor(Color fgcolor, Color bgcolor);
+
+    /**
+     * \return the current foreground color.
+     * The foreground color is used to draw text on screen
+     */
+    Color getForeground() const { return textColor[3]; }
+
+    /**
+     * \return the current background color.
+     * The foreground color is used to draw text on screen
+     */
+    Color getBackground() const { return textColor[0]; }
+
+    /**
+     * Set the font used for writing text
+     * \param font new font
+     */
+    void setFont(const Font& font);
+
+    /**
+     * \return the current font used to draw text
+     */
+    Font getFont() const { return font; }
+
+    /**
+     * Make all changes done to the display since the last call to update()
+     * visible. This backends require it.
+     */
+    void update();
+
+    /**
+     * Pixel iterator. A pixel iterator is an output iterator that allows to
+     * define a window on the display and write to its pixels.
+     */
+    class pixel_iterator
+    {
+    public:
+        /**
+         * Default constructor, results in an invalid iterator.
+         */
+        pixel_iterator(): disp(0) {}
+
+        /**
+         * Set a pixel and move the pointer to the next one
+         * \param color color to set the current pixel
+         * \return a reference to this
+         */
+        pixel_iterator& operator= (Color color)
+        {
+            //Safety checks.
+            if(cur.x()>end.x() || cur.y()>end.y())
+                throw(std::logic_error("pixel iterator out of bounds"));
+            if(disp==0)
+                throw(std::logic_error("default constructed pixel iterator"));
+
+            disp->backend.getFrameBuffer().
+                    setPixel(cur.x(),cur.y(),color.value());
+            if(direction==DR)
+            {
+                if(cur.y()<end.y()) cur=Point(cur.x(),cur.y()+1);
+                else cur=Point(cur.x()+1,start.y());
+
+                if(cur.x()>end.x()) disp->iterating=false;
+            } else {
+                if(cur.x()<end.x()) cur=Point(cur.x()+1,cur.y());
+                else cur=Point(start.x(),cur.y()+1);
+
+                if(cur.y()>end.y()) disp->iterating=false;
+            }
+            return *this;
+        }
+
+        /**
+         * Compare two pixel_iterators for equality.
+         * They are equal if they point to the same location.
+         */
+        bool operator== (const pixel_iterator& itr)
+        {
+            return this->cur==itr.cur;
+        }
+
+        /**
+         * Compare two pixel_iterators for inequality.
+         * They different if they point to different locations.
+         */
+        bool operator!= (const pixel_iterator& itr)
+        {
+            return this->cur!=itr.cur;
+        }
+
+        /**
+         * \return a reference to this.
+         */
+        pixel_iterator& operator* () { return *this; }
+
+        /**
+         * \return a reference to this. Does not increment pixel pointer.
+         */
+        pixel_iterator& operator++ ()  { return *this; }
+
+        /**
+         * \return a reference to this. Does not increment pixel pointer.
+         */
+        pixel_iterator& operator++ (int)  { return *this; }
+
+    private:
+        /**
+         * Constructor
+         * \param start Upper left corner of window
+         * \param end Lower right corner of window
+         * \param direction Iterator direction
+         * \param disp Display we're associated
+         */
+        pixel_iterator(Point start, Point end, IteratorDirection direction,
+                DisplayQt *disp): start(start), cur(start), end(end),
+                direction(direction), disp(disp) {}
+
+        Point start; ///< Upper left corner of window
+        Point cur; ///< Current pixel we're pointing at
+        Point end; ///< Lower right corner of window
+        IteratorDirection direction; ///< Iterator direction
+        DisplayQt *disp; ///< Display we're associated
+
+        friend class DisplayQt; //Needs access to ctor
+    };
+
+    /**
+     * Specify a window on screen and return an object that allows to write
+     * its pixels.
+     * Note: a call to begin() will invalidate any previous iterator.
+     * \param p1 upper left corner of window
+     * \param p2 lower right corner (included)
+     * \param d increment direction
+     * \return a pixel iterator
+     */
+    pixel_iterator begin(Point p1, Point p2, IteratorDirection d);
+
+    /**
+     * \return an iterator which is one past the last pixel in the pixel
+     * specified by begin. Behaviour is undefined if called before calling
+     * begin()
+     */
+    pixel_iterator end() const { return last; }
+
+private:
+    static const short int width=FrameBuffer::width;
+    static const short int height=FrameBuffer::height;
+
+    /// textColors[0] is the background color, textColor[3] the foreground
+    /// while the other two are the intermediate colors for drawing antialiased
+    /// fonts.
+    Color textColor[4];
+    Font font; ///< Current font selected for writing text
+    pixel_iterator last; ///< Last iterator for end of iteration check
+    bool iterating; ///< Used to test iterator correctness
+    QTBackend& backend; ///< Backend which contains the framebuffer
+};
+
+} //namespace mxgui
+
+#endif //MXGUI_DISPLAY_TYPE_QT
+
+#endif //DISPLAY_QT_H
