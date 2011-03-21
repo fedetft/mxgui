@@ -31,20 +31,24 @@
 #include "mxgui_settings.h"
 #include "display_base.h"
 #include "misc_inst.h"
-#include "drivers/display_spfd5408.h"
-#include "drivers/display_s6e63d6.h"
+#include "drivers/display_stm3210e-eval.h"
+#include "drivers/display_mp3v2.h"
 #include "drivers/display_qt.h"
 
 namespace mxgui {
 
-#ifdef MXGUI_DISPLAY_TYPE_SPFD5408
-typedef basic_display<DisplaySPFD5408> Display;
-#elif defined MXGUI_DISPLAY_TYPE_S6E63D6
-typedef basic_display<DisplayS6E63D6> Display;
-#elif defined MXGUI_DISPLAY_TYPE_QT
-typedef basic_display<DisplayQt> Display;
+//
+// Select display type based on board name. The _BOARD macros are defined
+// in Miosix's Makefile.inc depending on board selected.
+// If no board selected, we assume we are building for the Qt simulator to test
+// the GUI on a PC.
+//
+#if defined(_BOARD_STM3210E_EVAL)
+typedef basic_display<DisplayStm3210e_eval> Display;
+#elif defined(_BOARD_MP3V2)
+typedef basic_display<DisplayMP3V2> Display;
 #else
-#error No display type selected in mxgui_settings.h
+typedef basic_display<DisplayQt> Display;
 #endif
 
 } //namespace mxgui

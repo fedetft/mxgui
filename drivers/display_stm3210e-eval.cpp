@@ -25,10 +25,9 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "display_spfd5408.h"
+#ifdef _BOARD_STM3210E_EVAL
 
-#ifdef MXGUI_DISPLAY_TYPE_SPFD5408
-
+#include "display_stm3210e-eval.h"
 #include "mxgui/misc_inst.h"
 #include "miosix.h"
 #include <cstdio>
@@ -48,10 +47,10 @@ namespace mxgui {
 #define DBG (void)
 
 //
-// Class DisplaySPFD5408
+// Class DisplayStm32e_eval
 //
 
-DisplaySPFD5408::DisplaySPFD5408(): displayType(UNKNOWN), textColor(),
+DisplayStm3210e_eval::DisplayStm3210e_eval(): displayType(UNKNOWN), textColor(),
         font(droid11)
 {
     hardwareInit();
@@ -62,17 +61,17 @@ DisplaySPFD5408::DisplaySPFD5408(): displayType(UNKNOWN), textColor(),
     clear(black);
 }
 
-void DisplaySPFD5408::write(Point p, const char *text)
+void DisplayStm3210e_eval::write(Point p, const char *text)
 {
     font.draw(*this,textColor,p,text);
 }
 
-void DisplaySPFD5408::clear(Color color)
+void DisplayStm3210e_eval::clear(Color color)
 {
     clear(Point(0,0),Point(width-1,height-1),color);
 }
 
-void DisplaySPFD5408::clear(Point p1, Point p2, Color color)
+void DisplayStm3210e_eval::clear(Point p1, Point p2, Color color)
 {
     imageWindow(p1,p2);
     writeIdx(0x22);//Write to GRAM
@@ -85,14 +84,14 @@ void DisplaySPFD5408::clear(Point p1, Point p2, Color color)
     textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
 }
 
-void DisplaySPFD5408::setPixel(Point p, Color color)
+void DisplayStm3210e_eval::setPixel(Point p, Color color)
 {
     setCursor(p);
     writeIdx(0x22);//Write to GRAM
     writeRam(color.value());
 }
 
-void DisplaySPFD5408::line(Point a, Point b, Color color)
+void DisplayStm3210e_eval::line(Point a, Point b, Color color)
 {
     //Horizontal line speed optimization
     //The height-8 and width-8 condition is because from the spfd5408 datasheet
@@ -158,7 +157,7 @@ void DisplaySPFD5408::line(Point a, Point b, Color color)
     }
 }
 
-void DisplaySPFD5408::drawImage(Point p, Image img)
+void DisplayStm3210e_eval::drawImage(Point p, Image img)
 {
     short int xEnd=p.x()+img.getWidth()-1;
     short int yEnd=p.y()+img.getHeight()-1;
@@ -193,7 +192,7 @@ void DisplaySPFD5408::drawImage(Point p, Image img)
     }
 }
 
-void DisplaySPFD5408::drawRectangle(Point a, Point b, Color c)
+void DisplayStm3210e_eval::drawRectangle(Point a, Point b, Color c)
 {
     line(a,Point(b.x(),a.y()),c);
     line(Point(b.x(),a.y()),b,c);
@@ -201,7 +200,7 @@ void DisplaySPFD5408::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplaySPFD5408::turnOn()
+void DisplayStm3210e_eval::turnOn()
 {
     switch(displayType)
     {
@@ -217,7 +216,7 @@ void DisplaySPFD5408::turnOn()
     }//TODO: test me
 }
 
-void DisplaySPFD5408::turnOff()
+void DisplayStm3210e_eval::turnOff()
 {
     switch(displayType)
     {
@@ -236,7 +235,7 @@ void DisplaySPFD5408::turnOff()
     }//TODO: test me
 }
 
-void DisplaySPFD5408::setTextColor(Color fgcolor, Color bgcolor)
+void DisplayStm3210e_eval::setTextColor(Color fgcolor, Color bgcolor)
 {
     unsigned short fgR=fgcolor.value(); //& 0xf800; Optimization, & not required
     unsigned short bgR=bgcolor.value(); //& 0xf800; Optimization, & not required
@@ -256,12 +255,12 @@ void DisplaySPFD5408::setTextColor(Color fgcolor, Color bgcolor)
     //        textColor[2].value()<<","<<textColor[3].value()<<">"<<endl;
 }
 
-void DisplaySPFD5408::setFont(const Font& font)
+void DisplayStm3210e_eval::setFont(const Font& font)
 {
     this->font=font;
 }
 
-DisplaySPFD5408::pixel_iterator DisplaySPFD5408::begin(Point p1, Point p2,
+DisplayStm3210e_eval::pixel_iterator DisplayStm3210e_eval::begin(Point p1, Point p2,
         IteratorDirection d)
 {
     if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return pixel_iterator();
@@ -277,7 +276,7 @@ DisplaySPFD5408::pixel_iterator DisplaySPFD5408::begin(Point p1, Point p2,
     return pixel_iterator(numPixels);
 }
 
-void DisplaySPFD5408::displayDetectAndInit()
+void DisplayStm3210e_eval::displayDetectAndInit()
 {
     delayMs(10);
     unsigned short id=readReg(0);
@@ -301,7 +300,7 @@ void DisplaySPFD5408::displayDetectAndInit()
     }
 }
 
-void DisplaySPFD5408::initSPFD5408()
+void DisplayStm3210e_eval::initSPFD5408()
 {
     //Start Initial Sequence
     writeReg(1, 0x0100);  //Set SS bit
@@ -377,7 +376,7 @@ void DisplaySPFD5408::initSPFD5408()
     writeReg(7, 0x0112); //262K color and display ON
 }
 
-void DisplaySPFD5408::initILI9320()
+void DisplayStm3210e_eval::initILI9320()
 {
     //Start Initial Sequence
     writeReg(229,0x8000); //Set the internal vcore voltage
@@ -448,6 +447,38 @@ void DisplaySPFD5408::initILI9320()
     writeReg(7, 0x0173); //262K color and display ON
 }
 
+void DisplayStm3210e_eval::hardwareInit()
+{
+    //FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
+    //NWE are correctly initialized
+
+    //Set portG12 (Display CS) as alternate function push pull 50MHz
+    Gpio<GPIOG_BASE,12>::mode(Mode::ALTERNATE);
+
+    //The way BCR and BTR are specified in stm32f10x.h sucks, trying to work
+    //around it...
+    volatile uint32_t& BCR4=FSMC_Bank1->BTCR[6];
+    volatile uint32_t& BTR4=FSMC_Bank1->BTCR[7];
+    volatile uint32_t& BWTR4=FSMC_Bank1E->BWTR[6];
+
+    //Timings for spfd5408 and ili9320
+
+    //Write burst disabled, Extended mode enabled, Wait signal disabled
+    //Write enabled, Wait signal active before wait state, Wrap disabled
+    //Burst disabled, Data width 16bit, Memory type SRAM, Data mux disabled
+    BCR4 = FSMC_BCR4_WREN | FSMC_BCR4_MWID_0 | FSMC_BCR4_MBKEN | FSMC_BCR4_EXTMOD;
+    // Write timings
+    //Address setup=0, Data setup=4, Access mode=A
+    BWTR4 = FSMC_BTR4_DATAST_2;
+    // Read timings
+    //Address setup=13, Data setup=10, Access mode=A
+    BTR4 = FSMC_BTR4_DATAST_3 | FSMC_BTR4_DATAST_1 | FSMC_BTR4_ADDSET_3 |
+           FSMC_BTR4_ADDSET_2 | FSMC_BTR4_ADDSET_0;
+}
+
+DisplayStm3210e_eval::DisplayMemLayout *const DisplayStm3210e_eval::DISPLAY=
+        reinterpret_cast<DisplayStm3210e_eval::DisplayMemLayout*>(0x6c000000);
+
 } //namespace mxgui
 
-#endif //MXGUI_DISPLAY_TYPE_SPFD5408
+#endif //_BOARD_STM3210E_EVAL

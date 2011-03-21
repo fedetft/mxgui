@@ -25,26 +25,17 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef DISPLAY_S6E63D6_H
-#define	DISPLAY_S6E63D6_H
+#ifndef DISPLAY_MP3V2_H
+#define	DISPLAY_MP3V2_H
+
+#ifdef _BOARD_MP3V2
 
 #include "mxgui/mxgui_settings.h"
-
-#ifdef MXGUI_DISPLAY_TYPE_S6E63D6
-
 #include "mxgui/point.h"
 #include "mxgui/color.h"
 #include "mxgui/font.h"
 #include "mxgui/image.h"
 #include "mxgui/iterator_direction.h"
-
-#ifdef MXGUI_BACKEND_STM32FSMC
-#include "backend_stm32fsmc.h"
-#elif defined MXGUI_BACKEND_LPC2138SPI
-#include "backend_lpc2138spi.h"
-#else
-#error No hardware backend has been configured
-#endif
 
 namespace mxgui {
 
@@ -54,7 +45,7 @@ namespace mxgui {
 #error The S6E63D6 driver requires a color depth of 16bit per pixel
 #endif
 
-class DisplayS6E63D6
+class DisplayMP3V2
 {
 public:
     /**
@@ -62,7 +53,7 @@ public:
      * Do not instantiate objects of this type directly from application code,
      * use Display::instance() instead.
      */
-    DisplayS6E63D6();
+    DisplayMP3V2();
 
     /**
      * Write text to the display. If text is too long it will be truncated
@@ -240,7 +231,7 @@ public:
 
         unsigned int pixelLeft; ///< How many pixels are left to draw
 
-        friend class DisplayS6E63D6; //Needs access to ctor
+        friend class DisplayMP3V2; //Needs access to ctor
     };
 
     /**
@@ -370,6 +361,77 @@ private:
         setCursor(p1);
         #endif
     }
+
+    /**
+     * Memory layout of the display.
+     * This backend is meant to connect an stm32f103ve to an OLED display with
+     * an s6e63d6 controller on the mp3v2 board.
+     */
+    struct DisplayMemLayout
+    {
+        volatile unsigned short IDX;//Index, select register to write
+        unsigned char padding[131070];
+        volatile unsigned short RAM;//Ram, read and write from registers and GRAM
+    };
+
+    /**
+     * Pointer to the memory mapped display.
+     */
+    static DisplayMemLayout *const DISPLAY;
+
+    /**
+     * Set the index register
+     * \param reg register to select
+     */
+    static void writeIdx(unsigned char reg)
+    {
+        DISPLAY->IDX=reg;
+    }
+
+    /**
+     * Write data to selected register
+     * \param data data to write
+     */
+    static void writeRam(unsigned short data)
+    {
+        DISPLAY->RAM=data;
+    }
+
+    /**
+     * Write data from selected register
+     * \return data read from register
+     */
+    static unsigned short readRam()
+    {
+        return DISPLAY->RAM;
+    }
+
+    /**
+     * Write data to a display register
+     * \param reg which register?
+     * \param data data to write
+     */
+    static void writeReg(unsigned char reg, unsigned short data)
+    {
+        DISPLAY->IDX=reg;
+        DISPLAY->RAM=data;
+    }
+
+    /**
+     * Read data from a display register
+     * \param reg which register?
+     * \return data read from register
+     */
+    static unsigned short readReg(unsigned char reg)
+    {
+        DISPLAY->IDX=reg;
+        return DISPLAY->RAM;
+    }
+
+    /**
+     * Initializes the hardware backend
+     */
+    void hardwareInit();
     
     /// textColors[0] is the background color, textColor[3] the foreground
     /// while the other two are the intermediate colors for drawing antialiased
@@ -380,6 +442,6 @@ private:
 
 } //namespace mxgui
 
-#endif //MXGUI_DISPLAY_TYPE_S6E63D6
+#endif //_BOARD_MP3V2
 
-#endif //DISPLAY_S6E63D6_H
+#endif //DISPLAY_MP3V2_H

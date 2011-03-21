@@ -33,19 +33,6 @@ namespace mxgui {
 #ifdef _MIOSIX
 
 //
-// Choose display type among the list of supported devices
-//
-//#define MXGUI_DISPLAY_TYPE_SPFD5408 //Also supports ILI9320, but untested
-#define MXGUI_DISPLAY_TYPE_S6E63D6
-//#define MXGUI_DISPLAY_TYPE_QT
-
-//
-// Choose hardware backend
-//
-#define MXGUI_BACKEND_STM32FSMC
-//#define MXGUI_BACKEND_LPC2138SPI
-
-//
 // Choose color depth.
 //
 //#define MXGUI_COLOR_DEPTH_1_BIT //Untested
@@ -62,19 +49,6 @@ namespace mxgui {
 //#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
 
 #else //_MIOSIX
-
-//
-// Choose display type among the list of supported devices
-//
-//#define MXGUI_DISPLAY_TYPE_SPFD5408 //Also supports ILI9320, but untested
-//#define MXGUI_DISPLAY_TYPE_S6E63D6
-#define MXGUI_DISPLAY_TYPE_QT
-
-//
-// Choose hardware backend
-//
-//#define MXGUI_BACKEND_STM32FSMC
-//#define MXGUI_BACKEND_LPC2138SPI
 
 //
 // Choose color depth.

@@ -25,10 +25,12 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "display_s6e63d6.h"
+#ifdef _BOARD_MP3V2
 
-#ifdef MXGUI_DISPLAY_TYPE_S6E63D6
+//This includes the definitions of the disp::reset and disp::npcEn GPIOs
+#include "hwmapping.h"
 
+#include "display_mp3v2.h"
 #include "mxgui/misc_inst.h"
 #include "miosix.h"
 #include <cstdio>
@@ -48,10 +50,10 @@ namespace mxgui {
 #define DBG (void)
 
 //
-// Class DisplayS6E63D6
+// Class DisplayMP3V2
 //
 
-DisplayS6E63D6::DisplayS6E63D6(): textColor(), font(droid11)
+DisplayMP3V2::DisplayMP3V2(): textColor(), font(droid11)
 {
     hardwareInit();
     //
@@ -62,10 +64,8 @@ DisplayS6E63D6::DisplayS6E63D6(): textColor(), font(droid11)
     delayMs(1);
     disp::reset::high();
     delayMs(10);//Wait 10ms before waking up the display
-    #ifdef BACKEND_STM32FSMC
     writeIdx(0x23); //These additional instrutions set up 16bit parallel iface
     writeReg(0x02,0x0000);
-    #endif //BACKEND_STM32FSMC
     writeReg(0x10,0x0000);//STB = 0 (out of standby)
     delayMs(100);//Let internal voltages stabilize
     //misc settings
@@ -96,17 +96,17 @@ DisplayS6E63D6::DisplayS6E63D6(): textColor(), font(droid11)
     clear(black);
 }
 
-void DisplayS6E63D6::write(Point p, const char *text)
+void DisplayMP3V2::write(Point p, const char *text)
 {
     font.draw(*this,textColor,p,text);
 }
 
-void DisplayS6E63D6::clear(Color color)
+void DisplayMP3V2::clear(Color color)
 {
     clear(Point(0,0),Point(width-1,height-1),color);
 }
 
-void DisplayS6E63D6::clear(Point p1, Point p2, Color color)
+void DisplayMP3V2::clear(Point p1, Point p2, Color color)
 {
     imageWindow(p1,p2);
     writeIdx(0x22);//Write to GRAM
@@ -135,14 +135,14 @@ void DisplayS6E63D6::clear(Point p1, Point p2, Color color)
     textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
 }
 
-void DisplayS6E63D6::setPixel(Point p, Color color)
+void DisplayMP3V2::setPixel(Point p, Color color)
 {
     setCursor(p);
     writeIdx(0x22);//Write to GRAM
     writeRam(color.value());
 }
 
-void DisplayS6E63D6::line(Point a, Point b, Color color)
+void DisplayMP3V2::line(Point a, Point b, Color color)
 {
     //Horizontal line speed optimization
     //The height-8 and width-8 condition is because from the spfd5408 datasheet
@@ -208,7 +208,7 @@ void DisplayS6E63D6::line(Point a, Point b, Color color)
     }
 }
 
-void DisplayS6E63D6::drawImage(Point p, Image img)
+void DisplayMP3V2::drawImage(Point p, Image img)
 {
     short int xEnd=p.x()+img.getWidth()-1;
     short int yEnd=p.y()+img.getHeight()-1;
@@ -243,7 +243,7 @@ void DisplayS6E63D6::drawImage(Point p, Image img)
     }
 }
 
-void DisplayS6E63D6::drawRectangle(Point a, Point b, Color c)
+void DisplayMP3V2::drawRectangle(Point a, Point b, Color c)
 {
     line(a,Point(b.x(),a.y()),c);
     line(Point(b.x(),a.y()),b,c);
@@ -251,7 +251,7 @@ void DisplayS6E63D6::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplayS6E63D6::turnOn()
+void DisplayMP3V2::turnOn()
 {
     writeReg(0x10,0x0000);//STB = 0 (out of standby)
     delayMs(100);//Let internal voltages stabilize
@@ -260,7 +260,7 @@ void DisplayS6E63D6::turnOn()
     writeReg(0x05,0x0001);//DISP_ON = 1 (display active)
 }
 
-void DisplayS6E63D6::turnOff()
+void DisplayMP3V2::turnOff()
 {
     writeReg(0x05,0x0000);//DISP_ON = 0 (display blank)
     delayMs(32);
@@ -270,7 +270,7 @@ void DisplayS6E63D6::turnOff()
     delayMs(500);
 }
 
-void DisplayS6E63D6::setTextColor(Color fgcolor, Color bgcolor)
+void DisplayMP3V2::setTextColor(Color fgcolor, Color bgcolor)
 {
     unsigned short fgR=fgcolor.value(); //& 0xf800; Optimization, & not required
     unsigned short bgR=bgcolor.value(); //& 0xf800; Optimization, & not required
@@ -290,12 +290,12 @@ void DisplayS6E63D6::setTextColor(Color fgcolor, Color bgcolor)
     //        textColor[2].value()<<","<<textColor[3].value()<<">"<<endl;
 }
 
-void DisplayS6E63D6::setFont(const Font& font)
+void DisplayMP3V2::setFont(const Font& font)
 {
     this->font=font;
 }
 
-DisplayS6E63D6::pixel_iterator DisplayS6E63D6::begin(Point p1, Point p2,
+DisplayMP3V2::pixel_iterator DisplayMP3V2::begin(Point p1, Point p2,
         IteratorDirection d)
 {
     if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return pixel_iterator();
@@ -311,6 +311,53 @@ DisplayS6E63D6::pixel_iterator DisplayS6E63D6::begin(Point p1, Point p2,
     return pixel_iterator(numPixels);
 }
 
+void DisplayMP3V2::hardwareInit()
+{
+     //FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
+    //NWE are correctly initialized
+    RCC->AHBENR |= RCC_AHBENR_FSMCEN;
+
+    //The way BCR and BTR are specified in stm32f10x.h sucks, trying to work
+    //around it...
+    volatile uint32_t& BCR1=FSMC_Bank1->BTCR[0];
+    volatile uint32_t& BTR1=FSMC_Bank1->BTCR[1];
+    volatile uint32_t& BWTR1=FSMC_Bank1E->BWTR[0];
+
+    //Timings for s6e63d6
+
+    //Write burst disabled, Extended mode enabled, Wait signal disabled
+    //Write enabled, Wait signal active before wait state, Wrap disabled
+    //Burst disabled, Data width 16bit, Memory type SRAM, Data mux disabled
+    BCR1 = FSMC_BCR1_WREN | FSMC_BCR1_MWID_0 | FSMC_BCR1_MBKEN | FSMC_BCR1_EXTMOD;
+
+    //--Write timings--
+    //Address setup=0 (+1), Data setup=3 (+1), Access mode=A
+    //NWE low    3 cycle 42ns: pass tWLW80(27.5ns)
+    //Data setup 3 cycle 42ns: pass tWDS80(40ns)
+    //NWE high   2 cycle 28ns: pass tWHW80(27.5ns)
+    //Data hold  1 cycle 14ns: nearly pass tWDH80(15ns)
+    //Cycle time 5 cycle 70ns: fail tCYCW80(85ns)
+    //The fail is done on purpose to gain speed. Can be fixed if *really* needed
+    //with an address setup of 1 instead of zero.
+    //Maximum theoretical framerate is 187.5fps
+    BWTR1 = FSMC_BWTR1_DATAST_1 | FSMC_BWTR1_DATAST_0;
+    //--Read timings--
+    //Address setup=15 (+1), Data setup=15 (+3), Access mode=A
+    //NOE low    18 cycle 252ns: pass tWLR80(250ns)
+    //Data setup 15 cycle 210ns: pass tRDD80(200ns)
+    //NOE high   16 cycle 224ns: fail tWHR80(250ns)
+    //Cycle time 34 cycle 476ns: fail tCYCR80(500ns)
+    //The failures are the result of the fact that the maximum value of DATAST
+    //and ADDSET is 15 so there's no simple way to fix them
+    //Maximum theoretical framerate is 27.6fps
+    BTR1 = FSMC_BTR1_DATAST_3 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_DATAST_1 |
+           FSMC_BTR1_DATAST_0 | FSMC_BTR1_ADDSET_3 | FSMC_BTR1_ADDSET_2 |
+           FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_0;
+}
+
+DisplayMP3V2::DisplayMemLayout *const DisplayMP3V2::DISPLAY=
+        reinterpret_cast<DisplayMP3V2::DisplayMemLayout*>(0x60000000);
+
 } //namespace mxgui
 
-#endif //MXGUI_DISPLAY_TYPE_S6E63D6
+#endif //_BOARD_MP3V2

@@ -7,13 +7,11 @@ include ../miosix/config/Makefile.inc
 
 ## List of all mxgui source files (both .c and .cpp)
 ## These files will end up in libmxgui.a
-SRC :=                         \
-font.cpp                       \
-misc_inst.cpp                  \
-drivers/display_spfd5408.cpp   \
-drivers/display_s6e63d6.cpp    \
-drivers/backend_stm32fsmc.cpp  \
-drivers/backend_lpc2138spi.cpp
+SRC :=                              \
+font.cpp                            \
+misc_inst.cpp                       \
+drivers/display_stm3210e-eval.cpp   \
+drivers/display_mp3v2.cpp
 
 ## Replaces both "foo.cpp"-->"foo.o" and "foo.c"-->"foo.o"
 OBJ := $(addsuffix .o, $(basename $(SRC)))

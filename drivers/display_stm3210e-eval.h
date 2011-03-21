@@ -25,26 +25,17 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef DISPLAY_SPFD5408_H
-#define	DISPLAY_SPFD5408_H
+#ifndef DISPLAY_STM3210E_EVAL_H
+#define	DISPLAY_STM3210E_EVAL_H
+
+#ifdef _BOARD_STM3210E_EVAL
 
 #include "mxgui/mxgui_settings.h"
-
-#ifdef MXGUI_DISPLAY_TYPE_SPFD5408
-
 #include "mxgui/point.h"
 #include "mxgui/color.h"
 #include "mxgui/font.h"
 #include "mxgui/image.h"
 #include "mxgui/iterator_direction.h"
-
-#ifdef MXGUI_BACKEND_STM32FSMC
-#include "backend_stm32fsmc.h"
-#elif defined MXGUI_BACKEND_LPC2138SPI
-#include "backend_lpc2138spi.h"
-#else
-#error No hardware backend has been configured
-#endif
 
 namespace mxgui {
 
@@ -54,7 +45,7 @@ namespace mxgui {
 #error The SPFD5408 driver requires a color depth of 16bit per pixel
 #endif
 
-class DisplaySPFD5408
+class DisplayStm3210e_eval
 {
 public:
     /**
@@ -62,7 +53,7 @@ public:
      * Do not instantiate objects of this type directly from application code,
      * use Display::instance() instead.
      */
-    DisplaySPFD5408();
+    DisplayStm3210e_eval();
 
     /**
      * Write text to the display. If text is too long it will be truncated
@@ -240,7 +231,7 @@ public:
 
         unsigned int pixelLeft; ///< How many pixels are left to draw
 
-        friend class DisplaySPFD5408; //Needs access to ctor
+        friend class DisplayStm3210e_eval; //Needs access to ctor
     };
 
     /**
@@ -402,6 +393,76 @@ private:
         setCursor(p1);
         #endif
     }
+
+    /**
+     * Memory layout of the display.
+     * This backend is meant to connect an stm32f103re to an LCD display with
+     * an spfd5408 controller on the stm3210e_eval board.
+     */
+    struct DisplayMemLayout
+    {
+        volatile unsigned short IDX;//Index, select register to write
+        volatile unsigned short RAM;//Ram, read and write from registers and GRAM
+    };
+
+    /**
+     * Pointer to the memory mapped display.
+     */
+    static DisplayMemLayout *const DISPLAY;
+
+    /**
+     * Set the index register
+     * \param reg register to select
+     */
+    static void writeIdx(unsigned char reg)
+    {
+        DISPLAY->IDX=reg;
+    }
+
+    /**
+     * Write data to selected register
+     * \param data data to write
+     */
+    static void writeRam(unsigned short data)
+    {
+        DISPLAY->RAM=data;
+    }
+
+    /**
+     * Write data from selected register
+     * \return data read from register
+     */
+    static unsigned short readRam()
+    {
+        return DISPLAY->RAM;
+    }
+
+    /**
+     * Write data to a display register
+     * \param reg which register?
+     * \param data data to write
+     */
+    static void writeReg(unsigned char reg, unsigned short data)
+    {
+        DISPLAY->IDX=reg;
+        DISPLAY->RAM=data;
+    }
+
+    /**
+     * Read data from a display register
+     * \param reg which register?
+     * \return data read from register
+     */
+    static unsigned short readReg(unsigned char reg)
+    {
+        DISPLAY->IDX=reg;
+        return DISPLAY->RAM;
+    }
+
+    /**
+     * Initializes the hardware backend
+     */
+    void hardwareInit();
     
     DisplayType displayType;//Contains the display controller ID
 
@@ -414,6 +475,6 @@ private:
 
 } //namespace mxgui
 
-#endif //MXGUI_DISPLAY_TYPE_SPFD5408
+#endif //_BOARD_STM3210E_EVAL
 
-#endif //DISPLAY_SPFD5408_H
+#endif //DISPLAY_STM3210E_EVAL_H
