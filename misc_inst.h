@@ -33,13 +33,30 @@
 
 namespace mxgui {
 
+#ifdef MXGUI_FONT_MISCFIXED
 extern const Font miscFixed;
+#ifdef MXGUI_ENABLE_BOLD_FONTS
 extern const Font miscFixedBold;
-extern const Font tahoma;
+#endif //MXGUI_ENABLE_BOLD_FONTS
+#endif //MXGUI_FONT_MISCFIXED
+
+#ifdef MXGUI_FONT_DROID11
 extern const Font droid11;
+#ifdef MXGUI_ENABLE_BOLD_FONTS
 extern const Font droid11b;
+#endif //MXGUI_ENABLE_BOLD_FONTS
+#endif //MXGUI_FONT_MISCFIXED
+
+#ifdef MXGUI_FONT_DROID21
 extern const Font droid21;
+#ifdef MXGUI_ENABLE_BOLD_FONTS
 extern const Font droid21b;
+#endif //MXGUI_ENABLE_BOLD_FONTS
+#endif //MXGUI_FONT_DROID21
+
+#ifdef MXGUI_FONT_TAHOMA
+extern const Font tahoma;
+#endif //MXGUI_FONT_TAHOMA
 
 #ifndef MXGUI_COLOR_DEPTH_1_BIT
 extern const Color white;

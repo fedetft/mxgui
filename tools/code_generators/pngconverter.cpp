@@ -41,13 +41,12 @@ static string toUpper(const string& x)
 int main(int argc, char *argv[])
 {
     //Check args
-    options_description desc("PngConverter utility v1.2\n"
+    options_description desc("PngConverter utility v1.21\n"
         "Designed by TFT : Terraneo Federico Technologies\nOptions");
     desc.add_options()
         ("help", "Prints this.")
         ("in", value<string>(), "Input png file (required)")
         ("depth", value<int>(), "Color depth, 8,16,18 or 24 bits (required)")
-        ("up", value<int>(), "number of '../' needed to find mxgui/image.h")
         ("out", value<string>(), "Output png file for validation")
     ;
 
@@ -86,14 +85,6 @@ int main(int argc, char *argv[])
             break;
         default:
             throw(runtime_error("Unsupported pixel depth (not 8,16,18,24)"));
-    }
-
-    int directoryUp=0;
-    if(vm.count("up"))
-    {
-        directoryUp=vm["up"].as<int>();
-        if(directoryUp<0 || directoryUp>5)
-            throw(runtime_error("up parameter out of range (0 to 5)"));
     }
 
     /*
@@ -223,11 +214,7 @@ int main(int argc, char *argv[])
             "pngconverter utility"<<endl<<"//Please do not edit"<<endl
             <<"#ifndef "<<toUpper(filename)<<"_H"<<endl
             <<"#define "<<toUpper(filename)<<"_H"<<endl<<endl
-            <<"#include \"";
-    
-    for(int i=0;i<directoryUp;i++) file<<"../";
-    
-    file    <<"mxgui/image.h\""<<endl<<endl
+            <<"#include \"mxgui/image.h\""<<endl<<endl
             <<"extern const mxgui::Image "<<filename<<";"<<endl<<endl
             <<"#endif //"<<toUpper(filename)<<"_H"<<endl;
     file.close();

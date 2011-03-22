@@ -36,31 +36,42 @@
 
 namespace mxgui {
 
+#ifdef MXGUI_FONT_MISCFIXED
  const Font miscFixed(miscfixedStartChar,miscfixedEndChar,miscfixedHeight,
          miscfixedWidth,miscfixedDataSize,miscfixedIsAntialiased,miscfixedData);
- 
-// const Font miscFixedBold(miscfixedBoldStartChar,miscfixedBoldEndChar,
-//         miscfixedBoldHeight,miscfixedBoldWidth,miscfixedBoldDataSize,
-//         miscfixedBoldIsAntialiased,miscfixedBoldData);
-// 
- const Font tahoma(tahomaStartChar,tahomaEndChar,tahomaHeight,tahomaDataSize,
-         tahomaIsAntialiased,tahomaWidth,tahomaOffset,tahomaData);
+#ifdef MXGUI_ENABLE_BOLD_FONTS
+ const Font miscFixedBold(miscfixedBoldStartChar,miscfixedBoldEndChar,
+         miscfixedBoldHeight,miscfixedBoldWidth,miscfixedBoldDataSize,
+         miscfixedBoldIsAntialiased,miscfixedBoldData);
+#endif //MXGUI_ENABLE_BOLD_FONTS
+#endif //MXGUI_FONT_MISCFIXED
 
+#ifdef MXGUI_FONT_DROID11
 const Font droid11(droid11StartChar,droid11EndChar,droid11Height,
         droid11DataSize,droid11IsAntialiased,droid11Width,droid11Offset,
         droid11Data);
+#ifdef MXGUI_ENABLE_BOLD_FONTS
+ const Font droid11b(droid11bStartChar,droid11bEndChar,droid11bHeight,
+         droid11bDataSize,droid11bIsAntialiased,droid11bWidth,droid11bOffset,
+         droid11bData);
+#endif //MXGUI_ENABLE_BOLD_FONTS
+#endif //MXGUI_FONT_MISCFIXED
 
-// const Font droid11b(droid11bStartChar,droid11bEndChar,droid11bHeight,
-//         droid11bDataSize,droid11bIsAntialiased,droid11bWidth,droid11bOffset,
-//         droid11bData);
-
+#ifdef MXGUI_FONT_DROID21
 const Font droid21(droid21StartChar,droid21EndChar,droid21Height,
         droid21DataSize,droid21IsAntialiased,droid21Width,droid21Offset,
         droid21Data);
+#ifdef MXGUI_ENABLE_BOLD_FONTS
+ const Font droid21b(droid21bStartChar,droid21bEndChar,droid21bHeight,
+         droid21bDataSize,droid21bIsAntialiased,droid21bWidth,droid21bOffset,
+         droid21bData);
+#endif //MXGUI_ENABLE_BOLD_FONTS
+#endif //MXGUI_FONT_DROID21
 
-// const Font droid21b(droid21bStartChar,droid21bEndChar,droid21bHeight,
-//         droid21bDataSize,droid21bIsAntialiased,droid21bWidth,droid21bOffset,
-//         droid21bData);
+#ifdef MXGUI_FONT_TAHOMA
+const Font tahoma(tahomaStartChar,tahomaEndChar,tahomaHeight,tahomaDataSize,
+         tahomaIsAntialiased,tahomaWidth,tahomaOffset,tahomaData);
+#endif //MXGUI_FONT_TAHOMA
 
 #ifdef MXGUI_COLOR_DEPTH_1_BIT
 const Color white(true);

@@ -48,6 +48,15 @@ namespace mxgui {
 //#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
 //#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
 
+//
+// Select which fonts are required. Choose one or more
+//
+#define MXGUI_FONT_DROID11
+#define MXGUI_FONT_DROID21
+#define MXGUI_FONT_MISCFIXED
+#define MXGUI_FONT_TAHOMA
+//#define MXGUI_ENABLE_BOLD_FONTS
+
 #else //_MIOSIX
 
 //

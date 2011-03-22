@@ -215,6 +215,7 @@ void DisplayMP3V2::drawImage(Point p, Image img)
     for(int i=0;i<fastPixels;i++)
     {
         unsigned int twoPix;
+        //Pack two pixel + endianness swap
         twoPix=imgData[0]<<8 | imgData[1] | imgData[2]<<24 | imgData[3]<<16;
         imgData+=4;
         DISPLAY->TWOPIX_RAM=twoPix;

@@ -8,6 +8,14 @@ copy the content of this directory in the top-level directory:
  |
  +-- benchmark.h
  |
+ +-- checkpattern.cpp
+ |
+ +-- checkpattern.h
+ |
+ +-- micro_qr_code_from_wikipedia.cpp
+ |
+ +-- micro_qr_code_from_wikipedia.h
+ |
  +-- bm_main.cpp
  |
  +-- Makefile

@@ -1,6 +1,7 @@
 
 #include "benchmark.h"
 #include "mxgui/misc_inst.h"
+#include "checkpattern.h"
 #include "micro_qr_code_from_wikipedia.h"
 #include <cstdio>
 #include <cstring>
@@ -247,7 +248,7 @@ void Benchmark::clearScreenBenchmark()
 void Benchmark::imageBenchmark()
 {
     unsigned int totalTime=0;
-    for(int i=0;i<4;i++)
+    for(int i=0;i<2;i++)
     {
         timer.start();
         for(int j=0;j<240;j+=16)
@@ -257,7 +258,13 @@ void Benchmark::imageBenchmark()
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(250);
-        display.clear(black);
+        timer.start();
+        for(int j=0;j<240;j+=16)
+            for(int k=0;k<320;k+=16)
+                display.drawImage(Point(j,k),checkpattern);
+        timer.stop();
+        totalTime+=timer.interval()*1000000/TICK_FREQ;
+        timer.clear();
         delayMs(250);
     }
     totalTime/=4;
