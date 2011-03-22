@@ -81,6 +81,10 @@ void DisplayStm3210e_eval::clear(Point p1, Point p2, Color color)
     {
         writeRam(color.value());
     }
+}
+
+void DisplayStm3210e_eval::beginPixel()
+{
     textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
 }
 
@@ -120,6 +124,7 @@ void DisplayStm3210e_eval::line(Point a, Point b, Color color)
         return;
     }
     //General case, always works but it is a bit slower
+    beginPixel();
     const short int dx=b.x()-a.x();
     const short int dy=b.y()-a.y();
     if(dx==0 && dy==0)
@@ -162,7 +167,7 @@ void DisplayStm3210e_eval::drawImage(Point p, Image img)
     short int xEnd=p.x()+img.getWidth()-1;
     short int yEnd=p.y()+img.getHeight()-1;
 
-    if(xEnd > width || yEnd > height) return;
+    if(xEnd >= width || yEnd >= height) return;
     if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT) return;
 
     imageWindow(p,Point(xEnd,yEnd));

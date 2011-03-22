@@ -25,10 +25,9 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#ifndef _MIOSIX
+
 #include "display_qt.h"
-
-#ifdef MXGUI_DISPLAY_TYPE_QT
-
 #include "mxgui/misc_inst.h"
 #include "mxgui/tools/qtsimulator/window.h"
 #include <iostream>
@@ -41,17 +40,16 @@ namespace mxgui {
 // class DisplayQt
 //
 
-DisplayQt::DisplayQt(): textColor(), font(droid11), last(), iterating(false),
-        backend(QTBackend::instance())
+DisplayQt::DisplayQt(): textColor(), font(droid11), last(),
+        beginPixelCalled(false), backend(QTBackend::instance())
 {
     setTextColor(Color(0xffff),Color(0x0000));
 }
 
 void DisplayQt::write(Point p, const char *text)
-{
-    if(iterating) throw(logic_error("iterator left in invalid state"));
-    
+{ 
     font.draw(*this,textColor,p,text);
+    beginPixelCalled=false;
 }
 
 void DisplayQt::clear(Color color)
@@ -62,7 +60,6 @@ void DisplayQt::clear(Color color)
 void DisplayQt::clear(Point p1, Point p2, Color color)
 {
     //Qt backend is meant to catch errors, so be bastard
-    if(iterating) throw(logic_error("iterator left in invalid state"));
     if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0)
         throw(logic_error("DisplayQt::clear: negative value in point"));
     if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height)
@@ -72,16 +69,20 @@ void DisplayQt::clear(Point p1, Point p2, Color color)
     
     FrameBuffer& fb=backend.getFrameBuffer();
     for(int i=p1.x();i<=p2.x();i++)
-    {
-        for(int j=p1.y();j<=p2.y();j++)
-            fb.setPixel(i,j,color.value());
-    }
+        for(int j=p1.y();j<=p2.y();j++) fb.setPixel(i,j,color.value());
+    beginPixelCalled=false;
+}
+
+void DisplayQt::beginPixel()
+{
+    beginPixelCalled=true;
 }
 
 void DisplayQt::setPixel(Point p, Color color)
 {
     //Qt backend is meant to catch errors, so be bastard
-    if(iterating) throw(logic_error("iterator left in invalid state"));
+    if(beginPixelCalled==false)
+        throw(logic_error("DisplayQt::setPixel: beginPixel not called"));
     if(p.x()<0 || p.y()<0)
         throw(logic_error("DisplayQt::setPixel: negative value in point"));
     if(p.x()>=width || p.y()>=height)
@@ -93,12 +94,12 @@ void DisplayQt::setPixel(Point p, Color color)
 void DisplayQt::line(Point a, Point b, Color color)
 {
     //Qt backend is meant to catch errors, so be bastard
-    if(iterating) throw(logic_error("iterator left in invalid state"));
     if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0)
         throw(logic_error("DisplayQt::line: negative value in point"));
     if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height)
         throw(logic_error("DisplayQt::line: point outside display bounds"));
 
+    beginPixel();
     const short int dx=b.x()-a.x();
     const short int dy=b.y()-a.y();
     if(dx==0 && dy==0)
@@ -134,6 +135,7 @@ void DisplayQt::line(Point a, Point b, Color color)
             setPixel(a,color);
         }
     }
+    beginPixelCalled=false;
 }
 
 void DisplayQt::drawImage(Point p, Image img)
@@ -142,8 +144,7 @@ void DisplayQt::drawImage(Point p, Image img)
     short int yEnd=p.y()+img.getHeight()-1;
 
     //Qt backend is meant to catch errors, so be bastard
-    if(iterating) throw(logic_error("iterator left in invalid state"));
-    if(xEnd > width || yEnd > height)
+    if(xEnd >= width || yEnd >= height)
         throw(logic_error("Image out of bounds"));
     
     if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT) return;
@@ -200,16 +201,14 @@ void DisplayQt::setFont(const Font& font)
 }
 
 void DisplayQt::update()
-{
-    if(iterating) throw(logic_error("iterator left in invalid state"));
-    
+{  
     backend.getSender()->update();
+    beginPixelCalled=false;
 }
 
 DisplayQt::pixel_iterator DisplayQt::begin(Point p1, Point p2, IteratorDirection d)
 {
     //Qt backend is meant to catch errors, so be bastard
-    if(iterating) throw(logic_error("iterator left in invalid state"));
     if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0)
         throw(logic_error("DisplayQt::begin: negative value in point"));
     if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height)
@@ -221,10 +220,10 @@ DisplayQt::pixel_iterator DisplayQt::begin(Point p1, Point p2, IteratorDirection
     if(d==DR) this->last=pixel_iterator(Point(p2.x()+1,p1.y()),p2,d,this);
     else this->last=pixel_iterator(Point(p1.x(),p2.y()+1),p2,d,this);
 
-    iterating=true;
+    beginPixelCalled=false;
     return pixel_iterator(p1,p2,d,this);
 }
 
 } //namespace mxgui
 
-#endif //MXGUI_DISPLAY_TYPE_QT
+#endif //_MIOSIX

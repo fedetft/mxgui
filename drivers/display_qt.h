@@ -28,10 +28,9 @@
 #ifndef DISPLAY_QT_H
 #define	DISPLAY_QT_H
 
+#ifndef _MIOSIX
+
 #include "mxgui/mxgui_settings.h"
-
-#ifdef MXGUI_DISPLAY_TYPE_QT
-
 #include "mxgui/point.h"
 #include "mxgui/color.h"
 #include "mxgui/font.h"
@@ -72,7 +71,7 @@ public:
     void clear(Color color);
 
     /**
-     * Clera an area of the screen
+     * Clear an area of the screen
      * \param p1 upper left corner of area to clear
      * \param p2 lower right corner of area to clear
      * \param color fill color
@@ -80,7 +79,19 @@ public:
     void clear(Point p1, Point p2, Color color);
 
     /**
-     * Draw a pixel with desired color
+     * This member function is used on some target displays to reset the
+     * drawing window to its default value. You have to call beginPixel() once
+     * before calling setPixel(). Yo can then make any number of calls to
+     * setPixel() without calling beginPixel() again, as long as you don't
+     * call any other member function in this class. If you call another
+     * member function, for example line(), you have to call beginPixel() again
+     * before calling setPixel().
+     */
+    void beginPixel();
+
+    /**
+     * Draw a pixel with desired color. You have to call beginPixel() once
+     * before calling setPixel()
      * \param p point where to draw pixel
      * \param color pixel color
      */
@@ -191,19 +202,15 @@ public:
             if(disp==0)
                 throw(std::logic_error("default constructed pixel iterator"));
 
-            disp->backend.getFrameBuffer().
-                    setPixel(cur.x(),cur.y(),color.value());
+            disp->backend.getFrameBuffer().setPixel(cur.x(),cur.y(),
+                    color.value());
             if(direction==DR)
             {
                 if(cur.y()<end.y()) cur=Point(cur.x(),cur.y()+1);
                 else cur=Point(cur.x()+1,start.y());
-
-                if(cur.x()>end.x()) disp->iterating=false;
             } else {
                 if(cur.x()<end.x()) cur=Point(cur.x()+1,cur.y());
                 else cur=Point(start.x(),cur.y()+1);
-
-                if(cur.y()>end.y()) disp->iterating=false;
             }
             return *this;
         }
@@ -290,12 +297,12 @@ private:
     Color textColor[4];
     Font font; ///< Current font selected for writing text
     pixel_iterator last; ///< Last iterator for end of iteration check
-    bool iterating; ///< Used to test iterator correctness
     QTBackend& backend; ///< Backend which contains the framebuffer
+    bool beginPixelCalled; ///< Used to check for beginPixel calls
 };
 
 } //namespace mxgui
 
-#endif //MXGUI_DISPLAY_TYPE_QT
+#endif //_MIOSIX
 
 #endif //DISPLAY_QT_H

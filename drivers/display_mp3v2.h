@@ -69,7 +69,7 @@ public:
     void clear(Color color);
 
     /**
-     * Clera an area of the screen
+     * Clear an area of the screen
      * \param p1 upper left corner of area to clear
      * \param p2 lower right corner of area to clear
      * \param color fill color
@@ -77,7 +77,13 @@ public:
     void clear(Point p1, Point p2, Color color);
 
     /**
-     * Draw a pixel with desired color
+     * This backend does not require it, so it is a blank.
+     */
+    void beginPixel() {}
+
+    /**
+     * Draw a pixel with desired color. You have to call beginPixel() once
+     * before calling setPixel()
      * \param p point where to draw pixel
      * \param color pixel color
      */
@@ -182,10 +188,8 @@ public:
          */
         pixel_iterator& operator= (Color color)
         {
-            //if(pixelLeft==0) return *this;
             pixelLeft--;
             writeRam(color.value());
-            if(pixelLeft==0) imageWindow(Point(0,0),Point(width-1,height-1));
             return *this;
         }
 
@@ -371,7 +375,20 @@ private:
     {
         volatile unsigned short IDX;//Index, select register to write
         unsigned char padding[131070];
-        volatile unsigned short RAM;//Ram, read and write from registers and GRAM
+        union {
+            //Ram, read and write from registers and GRAM
+            volatile unsigned short RAM;
+            // This is an hack on databus aliasing to work around a bottleneck
+            // of the stm32's fsmc: writing an unsigned int is way faster than
+            // writing two unsigned short. Writing an unsigned int will result
+            // in two fast 16 bit writes to two consecutive addresses, but
+            // since the display's register select is wired to a16, these two
+            // adresses will be aliased to the same location on the display.
+            // In turn, this provides a fast way to write to the display that
+            // can be used any time it is possible to write pixels two at a
+            // time.
+            volatile unsigned int TWOPIX_RAM;
+        };
     };
 
     /**

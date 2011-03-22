@@ -110,16 +110,11 @@ void DisplayMP3V2::clear(Point p1, Point p2, Color color)
 {
     imageWindow(p1,p2);
     writeIdx(0x22);//Write to GRAM
-    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1)/2;
-    volatile unsigned int *dirtyTrick;
-    dirtyTrick=reinterpret_cast<volatile unsigned int*>(0x60020000);
+    unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1)/2;
     unsigned int twoPixColor=color.value() | color.value()<<16;
-    for(int i=0;i<numPixels;i++)
-    {
-        *dirtyTrick=twoPixColor;
-    }
+    for(int i=0;i<numPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
 //    No speed advantage
-//    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1)/8;
+//    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1)/4;
 //    asm volatile("           cmp %1, #0              \n"
 //                 "           beq __clear_2           \n"
 //                 "           mov r0, #0              \n"
@@ -127,12 +122,10 @@ void DisplayMP3V2::clear(Point p1, Point p2, Color color)
 //                 "__clear_1: stmia %2, {%0,r7}       \n"
 //                 "           add r0, r0, #1          \n"
 //                 "           cmp r0, %1              \n"
-//                 "           stmia %2, {%0,r7}       \n"
 //                 "           bne __clear_1           \n"
 //                 "__clear_2:                         \n"
-//                 ::"r"(twoPixColor),"r"(numPixels),"r"(dirtyTrick)
+//                 ::"r"(twoPixColor),"r"(numPixels),"r"(DISPLAY->TWOPIX_RAM)
 //                 :"r0","r7");
-    textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
 }
 
 void DisplayMP3V2::setPixel(Point p, Color color)
@@ -145,32 +138,29 @@ void DisplayMP3V2::setPixel(Point p, Color color)
 void DisplayMP3V2::line(Point a, Point b, Color color)
 {
     //Horizontal line speed optimization
-    //The height-8 and width-8 condition is because from the spfd5408 datasheet
-    //a window has minimum size constraints
-    if(a.y()==b.y() && a.y()<height-8 && min(a.x(),b.x())<width-8)
+    if(a.y()==b.y())
     {
-        imageWindow(Point(min(a.x(),b.x()),a.y()),Point(width-1,a.y()+8));
+        imageWindow(Point(min(a.x(),b.x()),a.y()),
+                    Point(max(a.x(),b.x()),a.y()));
         writeIdx(0x22);//Write to GRAM
-        int numPixels=abs(a.x()-b.x());
-        //Loop not unrolled because when running from flash is slower
-        for(int i=0;i<=numPixels;i++) writeRam(color.value());
-        textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
+        int numPixels=abs(a.x()-b.x())/2;
+        unsigned int twoPixColor=color.value() | color.value()<<16;
+        for(int i=0;i<=numPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
         return;
     }
     //Vertical line speed optimization
-    //The height-8 and width-8 condition is because from the spfd5408 datasheet
-    //a window has minimum size constraints
-    if(a.x()==b.x() && min(a.y(),b.y())<height-8 && a.x()<width-8)
+    if(a.x()==b.x())
     {
-        textWindow(Point(a.x(),min(a.y(),b.y())),Point(a.x()+8,height-1));
+        textWindow(Point(a.x(),min(a.y(),b.y())),
+                   Point(a.x(),max(a.y(),b.y())));
         writeIdx(0x22);//Write to GRAM
-        int numPixels=abs(a.y()-b.y());
-        //Loop not unrolled because when running from flash is slower
-        for(int i=0;i<=numPixels;i++) writeRam(color.value());
-        textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
+        int numPixels=abs(a.y()-b.y())/2;
+        unsigned int twoPixColor=color.value() | color.value()<<16;
+        for(int i=0;i<=numPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
         return;
     }
-    //General case, always works but it is a bit slower
+    //General case, always works but it is much slower
+    beginPixel();
     const short int dx=b.x()-a.x();
     const short int dy=b.y()-a.y();
     if(dx==0 && dy==0)
@@ -213,7 +203,7 @@ void DisplayMP3V2::drawImage(Point p, Image img)
     short int xEnd=p.x()+img.getWidth()-1;
     short int yEnd=p.y()+img.getHeight()-1;
 
-    if(xEnd > width || yEnd > height) return;
+    if(xEnd >= width || yEnd >= height) return;
     if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT) return;
 
     imageWindow(p,Point(xEnd,yEnd));
@@ -221,26 +211,16 @@ void DisplayMP3V2::drawImage(Point p, Image img)
     const unsigned char *imgData=img.getData();
 
     int numPixels=img.getHeight()*img.getWidth();
-    //Loop unrolled 8 times for speed
-    int remaining=numPixels % 8;
-    numPixels/=8;
-    for(int i=0;i<=remaining;i++)
+    int fastPixels=numPixels/2;
+    for(int i=0;i<fastPixels;i++)
     {
-        writeRam(((*imgData)<<8) | *(imgData+1));
-        imgData+=2;
+        unsigned int twoPix;
+        twoPix=imgData[0]<<8 | imgData[1] | imgData[2]<<24 | imgData[3]<<16;
+        imgData+=4;
+        DISPLAY->TWOPIX_RAM=twoPix;
     }
-    for(int i=0;i<=numPixels;i++)
-    {
-        writeRam(((*imgData)<<8) | *(imgData+1));
-        writeRam(((*(imgData+2))<<8) | *(imgData+3));
-        writeRam(((*(imgData+4))<<8) | *(imgData+5));
-        writeRam(((*(imgData+6))<<8) | *(imgData+7));
-        writeRam(((*(imgData+8))<<8) | *(imgData+9));
-        writeRam(((*(imgData+10))<<8) | *(imgData+11));
-        writeRam(((*(imgData+12))<<8) | *(imgData+13));
-        writeRam(((*(imgData+14))<<8) | *(imgData+15));
-        imgData+=16;
-    }
+
+    if(numPixels & 0x1) writeRam(imgData[0]<<8 | imgData[1]);
 }
 
 void DisplayMP3V2::drawRectangle(Point a, Point b, Color c)

@@ -75,7 +75,7 @@ public:
     }
 
     /**
-     * Clera an area of the screen
+     * Clear an area of the screen
      * \param p1 upper left corner of area to clear
      * \param p2 lower right corner of area to clear
      * \param color fill color
@@ -86,7 +86,22 @@ public:
     }
 
     /**
-     * Draw a pixel with desired color
+     * This member function is used on some target displays to reset the
+     * drawing window to its default value. You have to call beginPixel() once
+     * before calling setPixel(). Yo can then make any number of calls to
+     * setPixel() without calling beginPixel() again, as long as you don't
+     * call any other member function in this class. If you call another
+     * member function, for example line(), you have to call beginPixel() again
+     * before calling setPixel().
+     */
+    void beginPixel()
+    {
+        subclass.beginPixel();
+    }
+
+    /**
+     * Draw a pixel with desired color. You have to call beginPixel() once
+     * before calling setPixel()
      * \param p point where to draw pixel
      * \param color pixel color
      */
@@ -224,10 +239,6 @@ public:
     ///   begin() will invalidate any previous iterator (watch out for
     ///   multithreading use too). This because they are meant to be implemented
     ///   using hardware accelerated window drawing.
-    /// - Once you get an iterator, you HAVE TO iterate through it till it
-    ///   compares equal with end(). If you don't, it's undefined behaviour.
-    ///   This is because reaching the end can be used internally to release the
-    ///   hardware window.
     typedef typename T::pixel_iterator pixel_iterator;
 
     /**

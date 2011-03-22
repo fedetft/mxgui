@@ -69,7 +69,7 @@ public:
     void clear(Color color);
 
     /**
-     * Clera an area of the screen
+     * Clear an area of the screen
      * \param p1 upper left corner of area to clear
      * \param p2 lower right corner of area to clear
      * \param color fill color
@@ -77,7 +77,19 @@ public:
     void clear(Point p1, Point p2, Color color);
 
     /**
-     * Draw a pixel with desired color
+     * This member function is used on some target displays to reset the
+     * drawing window to its default value. You have to call beginPixel() once
+     * before calling setPixel(). Yo can then make any number of calls to
+     * setPixel() without calling beginPixel() again, as long as you don't
+     * call any other member function in this class. If you call another
+     * member function, for example line(), you have to call beginPixel() again
+     * before calling setPixel().
+     */
+    void beginPixel();
+
+    /**
+     * Draw a pixel with desired color. You have to call beginPixel() once
+     * before calling setPixel()
      * \param p point where to draw pixel
      * \param color pixel color
      */
@@ -182,10 +194,8 @@ public:
          */
         pixel_iterator& operator= (Color color)
         {
-            //if(pixelLeft==0) return *this;
             pixelLeft--;
             writeRam(color.value());
-            if(pixelLeft==0) imageWindow(Point(0,0),Point(width-1,height-1));
             return *this;
         }
 
