@@ -185,7 +185,7 @@ private:
      */
     template<typename T, typename U>
     void fixedWidthDrawingEngine(typename T::pixel_iterator first,
-            typename T::pixel_iterator last, Color fgcolor, Color bgcolor,
+            short x, short xEnd, Color fgcolor, Color bgcolor,
             const char *s) const;
 
     /**
@@ -197,7 +197,7 @@ private:
      */
     template<typename T, typename U>
     void variableWidthDrawingEngine(typename T::pixel_iterator first,
-            typename T::pixel_iterator last, Color fgcolor, Color bgcolor,
+            short x, short xEnd, Color fgcolor, Color bgcolor,
             const char *s) const;
 
     /**
@@ -209,7 +209,7 @@ private:
      */
     template<typename T, typename U>
     void variableWidthAADrawingEngine(typename T::pixel_iterator first,
-            typename T::pixel_iterator last, Color colors[4], const char *s) const;
+            short x, short xEnd, Color colors[4], const char *s) const;
 
     unsigned char startChar;
     unsigned char endChar;
@@ -228,9 +228,8 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
     //If no Y space to draw font, stop
     if(p.y()+height>surface.getHeight()) return;
     //If no X space to draw font, draw it until the screen margin reached
-    short int surfaceWidth=surface.getWidth();
-    short int last=std::min<short>(p.x()+calculateLength(s),surfaceWidth)-1;
-    typename T::pixel_iterator it=surface.begin(p,Point(last,p.y()+height-1),DR);
+    typename T::pixel_iterator it;
+    it=surface.begin(p,Point(surface.getWidth()-1,p.y()+height-1),DR);
     // For code size minimization not all the combinations of 8,16,32,64 bit
     // fixed, variable width and antialiased fonts are supported, but only these
     //  8 bit : none (too small for large displays)
@@ -243,35 +242,35 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
             if(isAntialiased()) return;
             if(isFixedWidth())
                 fixedWidthDrawingEngine<T,unsigned short>(it,
-                        surface.end(),colors[3],colors[0],s);
+                        p.x(),surface.getWidth(),colors[3],colors[0],s);
             else variableWidthDrawingEngine<T,unsigned short>(it,
-                        surface.end(),colors[3],colors[0],s);
+                        p.x(),surface.getWidth(),colors[3],colors[0],s);
             break;
         case 32:
             if(isAntialiased())
             {
                 if(isFixedWidth()) return;
                 variableWidthAADrawingEngine<T,unsigned int>(it,
-                            surface.end(),colors,s);
+                            p.x(),surface.getWidth(),colors,s);
             } else {
                 if(isFixedWidth())
                     fixedWidthDrawingEngine<T,unsigned int>(it,
-                            surface.end(),colors[3],colors[0],s);
+                            p.x(),surface.getWidth(),colors[3],colors[0],s);
                 else variableWidthDrawingEngine<T,unsigned int>(it,
-                            surface.end(),colors[3],colors[0],s);
+                            p.x(),surface.getWidth(),colors[3],colors[0],s);
             }
             break;
         case 64:
             if(isAntialiased()==false || isFixedWidth()) return;
             variableWidthAADrawingEngine<T,unsigned long long>(it,
-                            surface.end(),colors,s);
+                            p.x(),surface.getWidth(),colors,s);
             break;
     }
 }
 
 template<typename T, typename U>
 void Font::fixedWidthDrawingEngine(typename T::pixel_iterator first,
-            typename T::pixel_iterator last, Color fgcolor, Color bgcolor,
+            short x, short xEnd, Color fgcolor, Color bgcolor,
             const char *s) const
 {
     const U *fontData=reinterpret_cast<const U *>(getData());
@@ -283,7 +282,7 @@ void Font::fixedWidthDrawingEngine(typename T::pixel_iterator first,
         else c-=startChar;
         for(unsigned int i=0;i<width;i++)
         {
-            if(first==last) return;
+            if(x++==xEnd) return;
             U row=fontData[c*width+i];
             for(int j=0;j<height;j++)
             {
@@ -299,7 +298,7 @@ void Font::fixedWidthDrawingEngine(typename T::pixel_iterator first,
 
 template<typename T, typename U>
 void Font::variableWidthDrawingEngine(typename T::pixel_iterator first,
-            typename T::pixel_iterator last, Color fgcolor, Color bgcolor,
+            short x, short xEnd, Color fgcolor, Color bgcolor,
             const char *s) const
 {
     const U *fontData=reinterpret_cast<const U *>(getData());
@@ -311,7 +310,7 @@ void Font::variableWidthDrawingEngine(typename T::pixel_iterator first,
         else c-=startChar;
         for(unsigned int i=0;i<widths[c];i++)
         {
-            if(first==last) return;
+            if(x++==xEnd) return;
             U row=fontData[offset[c]+i];
             for(int j=0;j<height;j++)
             {
@@ -327,7 +326,7 @@ void Font::variableWidthDrawingEngine(typename T::pixel_iterator first,
 
 template<typename T, typename U>
 void Font::variableWidthAADrawingEngine(typename T::pixel_iterator first,
-            typename T::pixel_iterator last, Color colors[4], const char *s) const
+            short x, short xEnd, Color colors[4], const char *s) const
 {
     const U *fontData=reinterpret_cast<const U *>(getData());
     for(;;)
@@ -338,7 +337,7 @@ void Font::variableWidthAADrawingEngine(typename T::pixel_iterator first,
         else c-=startChar;
         for(unsigned int i=0;i<widths[c];i++)
         {
-            if(first==last) return;
+            if(x++==xEnd) return;
             U row=fontData[offset[c]+i];
             for(int j=0;j<height;j++)
             {

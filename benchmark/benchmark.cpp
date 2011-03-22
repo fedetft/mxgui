@@ -44,7 +44,7 @@ void BenchmarkResult::print(mxgui::Display& d, mxgui::Point p)
     sniprintf(line,63,"%d.%06d %d.%02d",time/1000000,time%1000000,a,b);
     d.write(Point(130,p.y()),line);
     iprintf("%s",name);
-    for(int i=0;i<24-strlen(name);i++) putchar(' ');
+    for(unsigned int i=0;i<24-strlen(name);i++) putchar(' ');
     iprintf("%s\n",line);
 }
 
