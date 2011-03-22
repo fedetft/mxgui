@@ -14,7 +14,8 @@ SUBDIRS := miosix mxgui
 ##
 SRC :=  \
 bm_main.cpp \
-benchmark.cpp
+benchmark.cpp \
+micro_qr_code_from_wikipedia.cpp
 
 ##
 ## List here additional static libraries with relative path

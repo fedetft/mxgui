@@ -1,6 +1,7 @@
 
 #include "benchmark.h"
 #include "mxgui/misc_inst.h"
+#include "micro_qr_code_from_wikipedia.h"
 #include <cstdio>
 #include <cstring>
 
@@ -71,7 +72,7 @@ void Benchmark::start()
     verticalLineBenchmark();
     obliqueLineBenchmark();
     clearScreenBenchmark();
-//    imageBenchmark();
+    imageBenchmark();
 
     //Last print results
     display.clear(black);
@@ -245,19 +246,21 @@ void Benchmark::clearScreenBenchmark()
 
 void Benchmark::imageBenchmark()
 {
-//    unsigned int totalTime=0;
-//    for(int i=0;i<4;i++)
-//    {
-//        timer.start();
-//        display.drawImage(Point(0,0),dispersion);
-//        timer.stop();
-//        totalTime+=timer.interval()*1000000/TICK_FREQ;
-//        timer.clear();
-//        delayMs(250);
-//		  display.clear(black);
-//		  delayMs(250);
-//    }
-//    totalTime/=4;
-//    results.push_back(BenchmarkResult("Draw image",totalTime,
-//            1.0/(static_cast<double>(totalTime)/1000000)));
+    unsigned int totalTime=0;
+    for(int i=0;i<4;i++)
+    {
+        timer.start();
+        for(int j=0;j<240;j+=16)
+            for(int k=0;k<320;k+=16)
+                display.drawImage(Point(j,k),micro_qr_code_from_wikipedia);
+        timer.stop();
+        totalTime+=timer.interval()*1000000/TICK_FREQ;
+        timer.clear();
+        delayMs(250);
+        display.clear(black);
+        delayMs(250);
+    }
+    totalTime/=4;
+    results.push_back(BenchmarkResult("Draw image",totalTime,
+            1.0/(static_cast<double>(totalTime)/1000000)));
 }

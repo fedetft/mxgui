@@ -20,6 +20,7 @@ int main()
 
     #ifdef _BOARD_MP3V2
     while(button1::value()) Thread::sleep(100);
+    display.turnOff();
     #else //_BOARD_MP3V2
     for(;;) Thread::sleep(100);
     #endif //_BOARD_MP3V2

@@ -81,7 +81,7 @@ private:
     void obliqueLineBenchmark();
 
     void clearScreenBenchmark();
-
+	
     void imageBenchmark();
 
     mxgui::Display& display;
