@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Terraneo Federico                               *
+ *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -110,7 +110,7 @@ void DisplayMP3V2::clear(Point p1, Point p2, Color color)
 {
     imageWindow(p1,p2);
     writeIdx(0x22);//Write to GRAM
-    unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1)/2;
+    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1)/2;
     unsigned int twoPixColor=color.value() | color.value()<<16;
     for(int i=0;i<numPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
 //    No speed advantage

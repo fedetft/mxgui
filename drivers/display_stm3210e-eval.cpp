@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Terraneo Federico                               *
+ *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -76,11 +76,7 @@ void DisplayStm3210e_eval::clear(Point p1, Point p2, Color color)
     imageWindow(p1,p2);
     writeIdx(0x22);//Write to GRAM
     int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
-    //Loop not unrolled because when running from flash is slower
-    for(int i=0;i<numPixels;i++)
-    {
-        writeRam(color.value());
-    }
+    for(int i=0;i<numPixels;i++) writeRam(color.value());
 }
 
 void DisplayStm3210e_eval::beginPixel()
@@ -105,9 +101,7 @@ void DisplayStm3210e_eval::line(Point a, Point b, Color color)
         imageWindow(Point(min(a.x(),b.x()),a.y()),Point(width-1,a.y()+8));
         writeIdx(0x22);//Write to GRAM
         int numPixels=abs(a.x()-b.x());
-        //Loop not unrolled because when running from flash is slower
         for(int i=0;i<=numPixels;i++) writeRam(color.value());
-        textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
         return;
     }
     //Vertical line speed optimization
@@ -120,7 +114,6 @@ void DisplayStm3210e_eval::line(Point a, Point b, Color color)
         int numPixels=abs(a.y()-b.y());
         //Loop not unrolled because when running from flash is slower
         for(int i=0;i<=numPixels;i++) writeRam(color.value());
-        textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
         return;
     }
     //General case, always works but it is a bit slower
