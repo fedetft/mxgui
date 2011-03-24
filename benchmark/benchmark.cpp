@@ -105,7 +105,7 @@ void Benchmark::start()
     display.clear(black);
     display.setFont(tahoma);
     display.setTextColor(white,black);
-    display.write(Point(0,0),"Benchamrk name                 Time         Fps");
+    display.write(Point(0,0),"Benchmark name                 Time         Fps");
     display.line(Point(0,12),Point(240,12),white);
     for(unsigned int i=0, j=13;i<results.size();i++,j+=12)
         results[i].print(display,Point(0,j));

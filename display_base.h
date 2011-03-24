@@ -270,7 +270,7 @@ protected:
      * Constructor
      */
     basic_display() {}
-
+    
 private:
     /**
      * Class cannot be copied
