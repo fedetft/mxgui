@@ -25,6 +25,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#include "mxgui_settings.h"
+
 #ifndef IMAGE_H
 #define	IMAGE_H
 
@@ -49,7 +51,8 @@ private:
  * This class contains an image. Images are immutable except they can be
  * assigned with operator=
  */
-class Image
+template<typename T>
+class basic_image
 {
 public:
     /**
@@ -61,7 +64,7 @@ public:
      * must be taken, otherwise the caller must free the memory when the Image
      * is no longer useful, to avoid a memory leak.
      */
-    Image(short int height, short int width, const unsigned char *data,
+    basic_image(short int height, short int width, const T *data,
             ImageDepth::ImageDepth_ depth):
             height(height), width(width), data(data), depth(depth) {}
 
@@ -78,7 +81,7 @@ public:
     /**
      * \return a const pointer to the image's data
      */
-    const unsigned char* getData() const { return data; }
+    const T* getData() const { return data; }
 
     /**
      * \return the number of bit per pixel
@@ -89,16 +92,25 @@ public:
      * Virtual because someday I might implement an Image class with reference
      * counting if the problem of freeing memory becomes relevant
      */
-    virtual ~Image() {}
+    virtual ~basic_image() {}
 
     //Uses default copy constructor and operator=. The pointer can be shared
     //without problems since there is no member function to modify the image
     //data nor to return a non-const pointer to it
 private:
     short int height, width;
-    const unsigned char *data;
+    const T *data;
     ImageDepth::ImageDepth_ depth;
 };
+
+///Define the Color class, depending on the COLOR_DEPTH constant
+#ifdef MXGUI_COLOR_DEPTH_1_BIT
+typedef basic_image<unsigned char> Image;
+#elif defined(MXGUI_COLOR_DEPTH_8_BIT)
+typedef basic_image<unsigned char> Image;
+#elif defined(MXGUI_COLOR_DEPTH_16_BIT)
+typedef basic_image<unsigned short> Image;
+#endif
 
 } // namespace mxgui
 

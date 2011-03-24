@@ -380,10 +380,13 @@ private:
             volatile unsigned short RAM;
             // This is an hack on databus aliasing to work around a bottleneck
             // of the stm32's fsmc: writing an unsigned int is way faster than
-            // writing two unsigned short. Writing an unsigned int will result
-            // in two fast 16 bit writes to two consecutive addresses, but
-            // since the display's register select is wired to a16, these two
-            // adresses will be aliased to the same location on the display.
+            // writing two unsigned short, because for some reason the fsmc
+            // seems to insert six cycles between two writes, but it does not
+            // add those cycles between the two halfword of an unsigned int.
+            // Writing an unsigned int will result  in two fast 16 bit writes
+            // to two consecutive addresses, but since the display's register
+            // select is wired to a16, these two adresses will be aliased to
+            // the same location on the display.
             // In turn, this provides a fast way to write to the display that
             // can be used any time it is possible to write pixels two at a
             // time.

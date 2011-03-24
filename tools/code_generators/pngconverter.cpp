@@ -79,9 +79,11 @@ int main(int argc, char *argv[])
             break;
         case 18:
             maxPixPerLine=6;
+            cerr<<"Warning: 18 bpp support might be inclomplete"<<endl;
             break;
         case 24:
             maxPixPerLine=6;
+            cerr<<"Warning: 24 bpp support might be inclomplete"<<endl;
             break;
         default:
             throw(runtime_error("Unsupported pixel depth (not 8,16,18,24)"));
@@ -130,7 +132,10 @@ int main(int argc, char *argv[])
             <<"static const short int width ="<<img.get_width()<<';'<<endl
             <<endl;
 
-    file<<"static const unsigned char pixelData[]={"<<endl<<' ';
+    //Optimization for 16 bit per pixel
+    if(pixDepth==16) 
+        file<<"static const unsigned short pixelData[]={"<<endl<<' ';
+    else file<<"static const unsigned char pixelData[]={"<<endl<<' ';
     int numPerLine=0;//Number of pixel per line. when reaches limit, wrap
     for(int y=0;y<img.get_height();y++)
     {
@@ -150,10 +155,11 @@ int main(int argc, char *argv[])
                     if(outRequested) outImage.set_pixel(x,y,rgb_pixel(r,g,b));
                     break;
                 case 16:
-                    r=pix.red & (31<<3);
-                    g=pix.green & (63<<2);
-                    b=pix.blue & (31<<3);
-                    file<<(r | (g>>5))<<','<<(((g<<3) & 0xff) | (b>>3));
+                    r=(pix.red & (31<<3))>>3;
+                    g=(pix.green & (63<<2))>>2;
+                    b=(pix.blue & (31<<3))>>3;
+                    //file<<(r | (g>>5))<<','<<(((g<<3) & 0xff) | (b>>3));
+                    file<<(r<<(5+6) | g<<5 | b);
                     if(outRequested) outImage.set_pixel(x,y,rgb_pixel(r,g,b));
                     break;
                 case 18:

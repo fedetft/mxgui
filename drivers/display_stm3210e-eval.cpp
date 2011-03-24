@@ -165,28 +165,14 @@ void DisplayStm3210e_eval::drawImage(Point p, Image img)
 
     imageWindow(p,Point(xEnd,yEnd));
     writeIdx(0x22);//Write to GRAM
-    const unsigned char *imgData=img.getData();
+    const unsigned short *imgData=img.getData();
 
     int numPixels=img.getHeight()*img.getWidth();
     //Loop unrolled 8 times for speed
-    int remaining=numPixels % 8;
-    numPixels/=8;
-    for(int i=0;i<=remaining;i++)
-    {
-        writeRam(((*imgData)<<8) | *(imgData+1));
-        imgData+=2;
-    }
     for(int i=0;i<=numPixels;i++)
     {
-        writeRam(((*imgData)<<8) | *(imgData+1));
-        writeRam(((*(imgData+2))<<8) | *(imgData+3));
-        writeRam(((*(imgData+4))<<8) | *(imgData+5));
-        writeRam(((*(imgData+6))<<8) | *(imgData+7));
-        writeRam(((*(imgData+8))<<8) | *(imgData+9));
-        writeRam(((*(imgData+10))<<8) | *(imgData+11));
-        writeRam(((*(imgData+12))<<8) | *(imgData+13));
-        writeRam(((*(imgData+14))<<8) | *(imgData+15));
-        imgData+=16;
+        writeRam(imgData[0]);
+        imgData++;
     }
 }
 

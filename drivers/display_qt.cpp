@@ -149,11 +149,11 @@ void DisplayQt::drawImage(Point p, Image img)
     
     if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT) return;
     pixel_iterator it=begin(p,Point(xEnd,yEnd),RD);
-    const unsigned char *imgData=img.getData();
+    const unsigned short *imgData=img.getData();
     int imgSize=img.getHeight()*img.getWidth();
     for(int i=0;i<imgSize;i++)
     {
-        *it=Color((imgData[i*2]<<8) | imgData[i*2+1]);
+        *it=Color(imgData[i]);
     }
 }
 

@@ -208,20 +208,18 @@ void DisplayMP3V2::drawImage(Point p, Image img)
 
     imageWindow(p,Point(xEnd,yEnd));
     writeIdx(0x22);//Write to GRAM
-    const unsigned char *imgData=img.getData();
+    const unsigned short *imgData=img.getData();
 
     int numPixels=img.getHeight()*img.getWidth();
     int fastPixels=numPixels/2;
     for(int i=0;i<fastPixels;i++)
     {
-        unsigned int twoPix;
-        //Pack two pixel + endianness swap
-        twoPix=imgData[0]<<8 | imgData[1] | imgData[2]<<24 | imgData[3]<<16;
-        imgData+=4;
+        unsigned int twoPix=imgData[0] | imgData[1]<<16; //Pack two pixel
         DISPLAY->TWOPIX_RAM=twoPix;
+        imgData+=2;
     }
 
-    if(numPixels & 0x1) writeRam(imgData[0]<<8 | imgData[1]);
+    if(numPixels & 0x1) writeRam(imgData[0]);
 }
 
 void DisplayMP3V2::drawRectangle(Point a, Point b, Color c)
