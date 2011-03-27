@@ -476,7 +476,8 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
             Color fgcolor, Color bgcolor, const char *s) const
 {
     const U *fontData=reinterpret_cast<const U *>(getData());
-    
+
+    //Walk the string till the first at least partially visible char
     int partial=0;
     short x=p.x();
     while(x<a.x())
@@ -498,6 +499,7 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
     const short ySkipped=a.y()-p.y();
     const short yHeight=b.y()-a.y()+1;
 
+    //Draw the first partially visible char, if it exists
     if(partial>0)
     {
         unsigned char c=*s;
@@ -518,7 +520,8 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
         }
         s++;
     }
-    
+
+    //Draw the rest of the string
     for(;;)
     {
         unsigned char c=*s;
@@ -548,6 +551,7 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
 {
     const U *fontData=reinterpret_cast<const U *>(getData());
 
+    //Walk the string till the first at least partially visible char
     int partial=0;
     short x=p.x();
     while(x<a.x())
@@ -572,6 +576,7 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
     const short ySkipped=a.y()-p.y();
     const short yHeight=b.y()-a.y()+1;
 
+    //Draw the first partially visible char, if it exists
     if(partial>0)
     {
         unsigned char c=*s;
@@ -593,6 +598,7 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
         s++;
     }
 
+    //Draw the rest of the string
     for(;;)
     {
         unsigned char c=*s;
@@ -622,6 +628,7 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
 {
     const U *fontData=reinterpret_cast<const U *>(getData());
 
+    //Walk the string till the first at least partially visible char
     int partial=0;
     short x=p.x();
     while(x<a.x())
@@ -646,6 +653,7 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
     const short ySkipped=(a.y()-p.y())*2;
     const short yHeight=b.y()-a.y()+1;
 
+    //Draw the first partially visible char, if it exists
     if(partial>0)
     {
         unsigned char c=*s;
@@ -666,6 +674,7 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
         s++;
     }
 
+    //Draw the rest of the string
     for(;;)
     {
         unsigned char c=*s;
