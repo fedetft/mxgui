@@ -29,6 +29,7 @@
 
 #include "display_stm3210e-eval.h"
 #include "mxgui/misc_inst.h"
+#include "mxgui/line.h"
 #include "miosix.h"
 #include <cstdio>
 #include <cstring>
@@ -64,6 +65,12 @@ DisplayStm3210e_eval::DisplayStm3210e_eval(): displayType(UNKNOWN), textColor(),
 void DisplayStm3210e_eval::write(Point p, const char *text)
 {
     font.draw(*this,textColor,p,text);
+}
+
+void DisplayStm3210e_eval::clippedWrite(Point p, Point a, Point b,
+        const char *text)
+{
+    font.clippedDraw(*this,textColor,p,a,b,text);
 }
 
 void DisplayStm3210e_eval::clear(Color color)
@@ -116,43 +123,17 @@ void DisplayStm3210e_eval::line(Point a, Point b, Color color)
         for(int i=0;i<=numPixels;i++) writeRam(color.value());
         return;
     }
-    //General case, always works but it is a bit slower
-    beginPixel();
-    const short int dx=b.x()-a.x();
-    const short int dy=b.y()-a.y();
-    if(dx==0 && dy==0)
-    {
-        setPixel(a,color);
-        return;
-    }
-    if(abs(dx)>=abs(dy))
-    {
-        int m=(dy*width)/dx;
-        short int x;
-        if(dx>0)
-        {
-            for(x=a.x();x<b.x();x++)
-                setPixel(Point(x,a.y()+((m*(x-a.x()))/width)),color.value());
-            setPixel(b,color.value());
-        } else {
-            for(x=b.x();x<a.x();x++)
-                setPixel(Point(x,b.y()+((m*(x-b.x()))/width)),color.value());
-            setPixel(a,color.value());
-        }
-    } else {
-        int m=(dx*height)/dy;
-        short int y;
-        if(dy>0)
-        {
-            for(y=a.y();y<b.y();y++)
-                setPixel(Point(a.x()+((m*(y-a.y()))/height),y),color.value());
-            setPixel(b,color.value());
-        } else {
-            for(y=b.y();y<a.y();y++)
-                setPixel(Point(b.x()+((m*(y-b.y()))/height),y),color.value());
-            setPixel(a,color.value());
-        }
-    }
+    //General case, always works but it is much slower due to the display
+    //not having fast random access to pixels
+    Line::draw(*this,a,b,color);
+}
+
+void DisplayStm3210e_eval::scanLine(Point a, Point b, const Color *colors)
+{
+    imageWindow(a,Point(width,a.y()));
+    writeIdx(0x22); //Write to GRAM
+    int numPixels=b.x()-a.x()+1;
+    for(int i=0;i<numPixels;i++) writeRam(colors[i].value());
 }
 
 void DisplayStm3210e_eval::drawImage(Point p, Image img)
@@ -168,12 +149,17 @@ void DisplayStm3210e_eval::drawImage(Point p, Image img)
     const unsigned short *imgData=img.getData();
 
     int numPixels=img.getHeight()*img.getWidth();
-    //Loop unrolled 8 times for speed
     for(int i=0;i<=numPixels;i++)
     {
         writeRam(imgData[0]);
         imgData++;
     }
+}
+
+void DisplayStm3210e_eval::clippedDrawImage(
+    Point p, Point a, Point b, Image img)
+{
+    img.clippedDraw(*this,p,a,b);
 }
 
 void DisplayStm3210e_eval::drawRectangle(Point a, Point b, Color c)
@@ -221,22 +207,7 @@ void DisplayStm3210e_eval::turnOff()
 
 void DisplayStm3210e_eval::setTextColor(Color fgcolor, Color bgcolor)
 {
-    unsigned short fgR=fgcolor.value(); //& 0xf800; Optimization, & not required
-    unsigned short bgR=bgcolor.value(); //& 0xf800; Optimization, & not required
-    unsigned short fgG=fgcolor.value() & 0x7e0;
-    unsigned short bgG=bgcolor.value() & 0x7e0;
-    unsigned short fgB=fgcolor.value() & 0x1f;
-    unsigned short bgB=bgcolor.value() & 0x1f;
-    unsigned short deltaR=((fgR-bgR)/3) & 0xf800;
-    unsigned short deltaG=((fgG-bgG)/3) & 0x7e0;
-    unsigned short deltaB=((fgB-bgB)/3) & 0x1f;
-    unsigned short delta=deltaR | deltaG | deltaB;
-    textColor[3]=fgcolor;
-    textColor[2]=Color(bgcolor.value()+2*delta);
-    textColor[1]=Color(bgcolor.value()+delta);
-    textColor[0]=bgcolor;
-    //cout<<hex<<"<"<<textColor[0].value()<<","<<textColor[1].value()<<","<<
-    //        textColor[2].value()<<","<<textColor[3].value()<<">"<<endl;
+    Font::generatePalette(textColor,fgcolor,bgcolor);
 }
 
 void DisplayStm3210e_eval::setFont(const Font& font)
@@ -244,8 +215,8 @@ void DisplayStm3210e_eval::setFont(const Font& font)
     this->font=font;
 }
 
-DisplayStm3210e_eval::pixel_iterator DisplayStm3210e_eval::begin(Point p1, Point p2,
-        IteratorDirection d)
+DisplayStm3210e_eval::pixel_iterator DisplayStm3210e_eval::begin(Point p1,
+        Point p2, IteratorDirection d)
 {
     if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return pixel_iterator();
     if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height)

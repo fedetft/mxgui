@@ -66,4 +66,24 @@ short int Font::calculateLength(const char *s) const
     }
 }
 
+void Font::generatePalette(Color out[4], Color fgcolor, Color bgcolor)
+{
+    unsigned short fgR=fgcolor.value(); //& 0xf800; Optimization, & not required
+    unsigned short bgR=bgcolor.value(); //& 0xf800; Optimization, & not required
+    unsigned short fgG=fgcolor.value() & 0x7e0;
+    unsigned short bgG=bgcolor.value() & 0x7e0;
+    unsigned short fgB=fgcolor.value() & 0x1f;
+    unsigned short bgB=bgcolor.value() & 0x1f;
+    unsigned short deltaR=((fgR-bgR)/3) & 0xf800;
+    unsigned short deltaG=((fgG-bgG)/3) & 0x7e0;
+    unsigned short deltaB=((fgB-bgB)/3) & 0x1f;
+    unsigned short delta=deltaR | deltaG | deltaB;
+    out[3]=fgcolor;
+    out[2]=Color(bgcolor.value()+2*delta);
+    out[1]=Color(bgcolor.value()+delta);
+    out[0]=bgcolor;
+    //cout<<hex<<"<"<<out[0].value()<<","<<out[1].value()<<","<<
+    //        out[2].value()<<","<<out[3].value()<<">"<<endl;
+}
+
 }  //namespace mxgui

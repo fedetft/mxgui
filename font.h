@@ -84,6 +84,20 @@ public:
     void draw(T& surface, Color colors[4], Point p, const char *s) const;
 
     /**
+     * Draw part of a string on a surface
+     * \param surface an object that provides pixel iterators.
+     * \param p point of the upper left corner where the string will be drawn.
+     * Negative coordinates are allowed, as long as the clipped view has
+     * positive or zero coordinates
+     * \param a Upper left corner of clipping rectangle
+     * \param b Lower right corner of clipping rectangle
+     * \param s string to draw
+     */
+    template<typename T>
+    void clippedDraw(T& surface, Color colors[4],
+        Point p, Point a, Point b, const char *s) const;
+
+    /**
      * Given a string, determine the length in pixels required to draw it.
      * If the string contains characters not between getStartChar and getEndChar
      * their width is supposed to be the length of the character returned by
@@ -154,6 +168,15 @@ public:
      */
     const void *getData() const { return data; }
 
+    /**
+     * Genearte a 4 grayscale levels from foreground and background colors
+     * for use with antialiased text drawing
+     * \param out 
+     * \param fgcolor
+     * \param bgcolor
+     */
+    static void generatePalette(Color out[4], Color fgcolor, Color bgcolor);
+
     //Uses default copy constructor and operator=. The pointers can be shared
     //without problems since there is no member function to modify them
     //nor to return a non-const pointer to them
@@ -164,21 +187,23 @@ private:
      * the elements in the font tables can either be 8, 16 or 32 bytes. This
      * however require 3 specialized algorithms for supporting them that only
      * differ in the cast from void* to unsigned char*, unsigned short* or
-     * unsigned int*.
-     * And that triplication has to be done for each of the three font drawing
-     * algorithms that deal with fixed width, variable width and antialiased
-     * fonts.
+     * unsigned int*. Putting switch in the inner loop would be out of question
+     * for speed reasons, and that triplication has to be done for each of the
+     * six font drawing algorithms that deal with fixed width, variable width
+     * and antialiased fonts, and their clipped versions.
      * Instead of writing each of these algorithms three times, it is written
      * only once using the U template parameter to specialize the code.
      * In the end, on code size it does nothing worse since the alternative
-     * would have been to write nine functions by hand, but on code compactness
-     * it allows to write only three functions and let template instantiation
+     * would have been to write 18 functions by hand, but on code compactness
+     * it allows to write only six functions and let template instantiation
      * do the boring job.
      */
 
     /**
      * Deal with fixed width (monospace) fonts.
-     * \param surface surface object providing pixel iterators.
+     * \param first piexl iterator to begin of drawing window
+     * \param x start x coord
+     * \param xEnd end x coord
      * \param fgcolor foreground color
      * \param bgcolor background color
      * \param s string to write
@@ -190,7 +215,9 @@ private:
 
     /**
      * Deal with variable width fonts.
-     * \param surface surface object providing pixel iterators.
+     * \param first piexl iterator to begin of drawing window
+     * \param x start x coord
+     * \param xEnd end x coord
      * \param fgcolor foreground color
      * \param bgcolor background color
      * \param s string to write
@@ -202,14 +229,56 @@ private:
 
     /**
      * Deal with variable antialiased width fonts.
-     * \param surface surface object providing pixel iterators.
-     * \param fgcolor foreground color
-     * \param bgcolor background color
+     * \param first piexl iterator to begin of drawing window
+     * \param x start x coord
+     * \param xEnd end x coord
+     * \param colors palette for antialiased drawing
      * \param s string to write
      */
     template<typename T, typename U>
     void variableWidthAADrawingEngine(typename T::pixel_iterator first,
             short x, short xEnd, Color colors[4], const char *s) const;
+
+    /**
+     * Deal with fixed width (monospace) fonts and clipped drawing.
+     * \param surface surface object providing pixel iterators.
+     * \param p point of the upper left corner where the string will be drawn
+     * \param a upper left corner of non empty intersection
+     * \param b lower right corner of non empty intersection
+     * \param fgcolor foreground color
+     * \param bgcolor background color
+     * \param s string to write
+     */
+    template<typename T, typename U>
+    void fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
+            Color fgcolor, Color bgcolor, const char *s) const;
+
+    /**
+     * Deal with variable width fonts and clipped drawing.
+     * \param surface surface object providing pixel iterators.
+     * \param p point of the upper left corner where the string will be drawn
+     * \param a upper left corner of non empty intersection
+     * \param b lower right corner of non empty intersection
+     * \param fgcolor foreground color
+     * \param bgcolor background color
+     * \param s string to write
+     */
+    template<typename T, typename U>
+    void variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
+            Point b, Color fgcolor, Color bgcolor, const char *s) const;
+
+    /**
+     * Deal with variable antialiased width fonts and clipped drawing.
+     * \param surface surface object providing pixel iterators.
+     * \param p point of the upper left corner where the string will be drawn
+     * \param a upper left corner of non empty intersection
+     * \param b lower right corner of non empty intersection
+     * \param colors palette for antialiased drawing
+     * \param s string to write
+     */
+    template<typename T, typename U>
+    void variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
+            Point b, Color colors[4], const char *s) const;
 
     unsigned char startChar;
     unsigned char endChar;
@@ -264,6 +333,58 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
             if(isAntialiased()==false || isFixedWidth()) return;
             variableWidthAADrawingEngine<T,unsigned long long>(it,
                             p.x(),surface.getWidth(),colors,s);
+            break;
+    }
+}
+
+template<typename T>
+void Font::clippedDraw(T& surface, Color colors[4],
+        Point p, Point a, Point b, const char *s) const
+{
+    using namespace std;
+    //Find rectangle wich is the non-empty intersection of the image rectangle
+    //with the clip rectangle
+    short ya=max(p.y(),a.y());
+    short yb=min<short>(p.y()+this->getHeight()-1,b.y());
+    if(ya>yb) return; //Empty intersection
+
+    if(p.x()>b.x()) return; //Empty intersection
+    short xa=max(p.x(),a.x());
+
+    // For code size minimization not all the combinations of 8,16,32,64 bit
+    // fixed, variable width and antialiased fonts are supported, but only these
+    //  8 bit : none (too small for large displays)
+    // 16 bit : fixedWidth, variableWidth
+    // 32 bit : fixedWidth, variableWidth, variableWidthAntialiased
+    // 64 bit : variableWidthAntialiased
+    switch(dataSize)
+    {
+        case 16:
+            if(isAntialiased()) return;
+            if(isFixedWidth())
+                fixedWidthClippedDrawingEngine<T,unsigned short>(surface,p,
+                        Point(xa,ya),Point(b.x(),yb),colors[3],colors[0],s);
+            else variableWidthClippedDrawingEngine<T,unsigned short>(surface,p,
+                        Point(xa,ya),Point(b.x(),yb),colors[3],colors[0],s);
+            break;
+        case 32:
+            if(isAntialiased())
+            {
+                if(isFixedWidth()) return;
+                variableWidthClippedAADrawingEngine<T,unsigned int>(surface,p,
+                        Point(xa,ya),Point(b.x(),yb),colors,s);
+            } else {
+                if(isFixedWidth())
+                    fixedWidthClippedDrawingEngine<T,unsigned int>(surface,p,
+                        Point(xa,ya),Point(b.x(),yb),colors[3],colors[0],s);
+                else variableWidthClippedDrawingEngine<T,unsigned int>(surface,
+                        p,Point(xa,ya),Point(b.x(),yb),colors[3],colors[0],s);
+            }
+            break;
+        case 64:
+            if(isAntialiased()==false || isFixedWidth()) return;
+            variableWidthClippedAADrawingEngine<T,unsigned long long>(surface,p,
+                        Point(xa,ya),Point(b.x(),yb),colors,s);
             break;
     }
 }
@@ -344,6 +465,223 @@ void Font::variableWidthAADrawingEngine(typename T::pixel_iterator first,
                 *first=colors[row & 0x3];
                 row>>=2;
                 first++;
+            }
+        }
+        s++;
+    }
+}
+
+template<typename T, typename U>
+void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
+            Color fgcolor, Color bgcolor, const char *s) const
+{
+    const U *fontData=reinterpret_cast<const U *>(getData());
+    
+    int partial=0;
+    short x=p.x();
+    while(x<a.x())
+    {
+        if(*s=='\0') return; //String ends before draw area begins
+        if(x+getWidth()>a.x())
+        {
+            //The current char is partially visible
+            partial=a.x()-x;
+            break; //Don't go past this char, since it has to be drawn
+        }
+        x+=getWidth();
+        s++;
+    }
+    x=a.x();
+    
+    typename T::pixel_iterator it=surface.begin(a,b,DR);
+
+    const short ySkipped=a.y()-p.y();
+    const short yHeight=b.y()-a.y()+1;
+
+    if(partial>0)
+    {
+        unsigned char c=*s;
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        for(unsigned int i=partial;i<width;i++)
+        {
+            if(x>b.x()) return;
+            x++;
+            U row=fontData[c*width+i];
+            row>>=ySkipped;
+            for(int j=0;j<yHeight;j++)
+            {
+                if(row & 0x1) *it=fgcolor;
+                else *it=bgcolor;
+                row>>=1;
+            }
+        }
+        s++;
+    }
+    
+    for(;;)
+    {
+        unsigned char c=*s;
+        if(*s=='\0') break;
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        for(unsigned int i=0;i<width;i++)
+        {
+            if(x>b.x()) return;
+            x++;
+            U row=fontData[c*width+i];
+            row>>=ySkipped;
+            for(int j=0;j<yHeight;j++)
+            {
+                if(row & 0x1) *it=fgcolor;
+                else *it=bgcolor;
+                row>>=1;
+            }
+        }
+        s++;
+    }
+}
+
+template<typename T, typename U>
+void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
+        Point b, Color fgcolor, Color bgcolor, const char *s) const
+{
+    const U *fontData=reinterpret_cast<const U *>(getData());
+
+    int partial=0;
+    short x=p.x();
+    while(x<a.x())
+    {
+        unsigned char c=*s;
+        if(c=='\0') return; //String ends before draw area begins
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        if(x+widths[c]>a.x())
+        {
+            //The current char is partially visible
+            partial=a.x()-x;
+            break; //Don't go past this char, since it has to be drawn
+        }
+        x+=widths[c];
+        s++;
+    }
+    x=a.x();
+
+    typename T::pixel_iterator it=surface.begin(a,b,DR);
+
+    const short ySkipped=a.y()-p.y();
+    const short yHeight=b.y()-a.y()+1;
+
+    if(partial>0)
+    {
+        unsigned char c=*s;
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        for(unsigned int i=partial;i<widths[c];i++)
+        {
+            if(x>b.x()) return;
+            x++;
+            U row=fontData[offset[c]+i];
+            row>>=ySkipped;
+            for(int j=0;j<yHeight;j++)
+            {
+                if(row & 0x1) *it=fgcolor;
+                else *it=bgcolor;
+                row>>=1;
+            }
+        }
+        s++;
+    }
+
+    for(;;)
+    {
+        unsigned char c=*s;
+        if(*s=='\0') break;
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        for(unsigned int i=0;i<widths[c];i++)
+        {
+            if(x>b.x()) return;
+            x++;
+            U row=fontData[offset[c]+i];
+            row>>=ySkipped;
+            for(int j=0;j<yHeight;j++)
+            {
+                if(row & 0x1) *it=fgcolor;
+                else *it=bgcolor;
+                row>>=1;
+            }
+        }
+        s++;
+    }
+}
+
+template<typename T, typename U>
+void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
+        Point b, Color colors[4], const char *s) const
+{
+    const U *fontData=reinterpret_cast<const U *>(getData());
+
+    int partial=0;
+    short x=p.x();
+    while(x<a.x())
+    {
+        unsigned char c=*s;
+        if(c=='\0') return; //String ends before draw area begins
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        if(x+widths[c]>a.x())
+        {
+            //The current char is partially visible
+            partial=a.x()-x;
+            break; //Don't go past this char, since it has to be drawn
+        }
+        x+=widths[c];
+        s++;
+    }
+    x=a.x();
+
+    typename T::pixel_iterator it=surface.begin(a,b,DR);
+
+    const short ySkipped=(a.y()-p.y())*2;
+    const short yHeight=b.y()-a.y()+1;
+
+    if(partial>0)
+    {
+        unsigned char c=*s;
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        for(unsigned int i=partial;i<widths[c];i++)
+        {
+            if(x>b.x()) return;
+            x++;
+            U row=fontData[offset[c]+i];
+            row>>=ySkipped;
+            for(int j=0;j<yHeight;j++)
+            {
+                *it=colors[row & 0x3];
+                row>>=2;
+            }
+        }
+        s++;
+    }
+
+    for(;;)
+    {
+        unsigned char c=*s;
+        if(*s=='\0') break;
+        if(c<startChar || c>endChar) c=0;
+        else c-=startChar;
+        for(unsigned int i=0;i<widths[c];i++)
+        {
+            if(x>b.x()) return;
+            x++;
+            U row=fontData[offset[c]+i];
+            row>>=ySkipped;
+            for(int j=0;j<yHeight;j++)
+            {
+                *it=colors[row & 0x3];
+                row>>=2;
             }
         }
         s++;

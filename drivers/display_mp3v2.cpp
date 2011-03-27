@@ -32,6 +32,7 @@
 
 #include "display_mp3v2.h"
 #include "mxgui/misc_inst.h"
+#include "mxgui/line.h"
 #include "miosix.h"
 #include <cstdio>
 #include <cstring>
@@ -101,6 +102,11 @@ void DisplayMP3V2::write(Point p, const char *text)
     font.draw(*this,textColor,p,text);
 }
 
+void DisplayMP3V2::clippedWrite(Point p, Point a, Point b, const char *text)
+{
+    font.clippedDraw(*this,textColor,p,a,b,text);
+}
+
 void DisplayMP3V2::clear(Color color)
 {
     clear(Point(0,0),Point(width-1,height-1),color);
@@ -110,9 +116,11 @@ void DisplayMP3V2::clear(Point p1, Point p2, Color color)
 {
     imageWindow(p1,p2);
     writeIdx(0x22);//Write to GRAM
-    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1)/2;
+    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
+    int fastPixels=numPixels/2;
     unsigned int twoPixColor=color.value() | color.value()<<16;
-    for(int i=0;i<numPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+    for(int i=0;i<fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+    if(numPixels & 0x1) writeRam(color.value());
 //    No speed advantage
 //    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1)/4;
 //    asm volatile("           cmp %1, #0              \n"
@@ -143,9 +151,11 @@ void DisplayMP3V2::line(Point a, Point b, Color color)
         imageWindow(Point(min(a.x(),b.x()),a.y()),
                     Point(max(a.x(),b.x()),a.y()));
         writeIdx(0x22);//Write to GRAM
-        int numPixels=abs(a.x()-b.x())/2;
+        int numPixels=abs(a.x()-b.x());
+        int fastPixels=numPixels/2;
         unsigned int twoPixColor=color.value() | color.value()<<16;
-        for(int i=0;i<=numPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+        for(int i=0;i<=fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+        if(numPixels & 0x1) writeRam(color.value());
         return;
     }
     //Vertical line speed optimization
@@ -154,48 +164,31 @@ void DisplayMP3V2::line(Point a, Point b, Color color)
         textWindow(Point(a.x(),min(a.y(),b.y())),
                    Point(a.x(),max(a.y(),b.y())));
         writeIdx(0x22);//Write to GRAM
-        int numPixels=abs(a.y()-b.y())/2;
+        int numPixels=abs(a.y()-b.y());
+        int fastPixels=numPixels/2;
         unsigned int twoPixColor=color.value() | color.value()<<16;
-        for(int i=0;i<=numPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+        for(int i=0;i<=fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+        if(numPixels & 0x1) writeRam(color.value());
         return;
     }
-    //General case, always works but it is much slower
-    beginPixel();
-    const short int dx=b.x()-a.x();
-    const short int dy=b.y()-a.y();
-    if(dx==0 && dy==0)
+    //General case, always works but it is much slower due to the display
+    //not having fast random access to pixels
+    Line::draw(*this,a,b,color);
+}
+
+void DisplayMP3V2::scanLine(Point a, Point b, const Color *colors)
+{
+    imageWindow(a,b);
+    writeIdx(0x22); //Write to GRAM
+    int numPixels=b.x()-a.x()+1;
+    int fastPixels=numPixels/2;
+    for(int i=0;i<fastPixels;i++)
     {
-        setPixel(a,color);
-        return;
+        unsigned int twoPix=colors[0].value() | colors[1].value()<<16;
+        DISPLAY->TWOPIX_RAM=twoPix;
+        colors+=2;
     }
-    if(abs(dx)>=abs(dy))
-    {
-        int m=(dy*width)/dx;
-        short int x;
-        if(dx>0)
-        {
-            for(x=a.x();x<b.x();x++)
-                setPixel(Point(x,a.y()+((m*(x-a.x()))/width)),color.value());
-            setPixel(b,color.value());
-        } else {
-            for(x=b.x();x<a.x();x++)
-                setPixel(Point(x,b.y()+((m*(x-b.x()))/width)),color.value());
-            setPixel(a,color.value());
-        }
-    } else {
-        int m=(dx*height)/dy;
-        short int y;
-        if(dy>0)
-        {
-            for(y=a.y();y<b.y();y++)
-                setPixel(Point(a.x()+((m*(y-a.y()))/height),y),color.value());
-            setPixel(b,color.value());
-        } else {
-            for(y=b.y();y<a.y();y++)
-                setPixel(Point(b.x()+((m*(y-b.y()))/height),y),color.value());
-            setPixel(a,color.value());
-        }
-    }
+    if(numPixels & 0x1) writeRam(colors[0].value());
 }
 
 void DisplayMP3V2::drawImage(Point p, Image img)
@@ -220,6 +213,55 @@ void DisplayMP3V2::drawImage(Point p, Image img)
     }
 
     if(numPixels & 0x1) writeRam(imgData[0]);
+}
+
+void DisplayMP3V2::clippedDrawImage(Point p, Point a, Point b, Image img)
+{
+//    img.clippedDraw(*this,p,a,b);
+    //Find rectangle wich is the non-empty intersection of the image rectangle
+    //with the clip rectangle
+    short xa=max(p.x(),a.x());
+    short xb=min<short>(p.x()+img.getWidth()-1,b.x());
+    if(xa>xb) return; //Empty intersection
+
+    short ya=max(p.y(),a.y());
+    short yb=min<short>(p.y()+img.getHeight()-1,b.y());
+    if(ya>yb) return; //Empty intersection
+
+    //Draw image
+    imageWindow(Point(xa,ya),Point(xb,yb));
+    writeIdx(0x22);//Write to GRAM
+    short nx=xb-xa+1;
+    short ny=yb-ya+1;
+    int skipStart=(ya-p.y())*img.getWidth()+(xa-p.x());
+    const unsigned short *pix=img.getData()+skipStart;
+    int toSkip=(xa-p.x())+((p.x()+img.getWidth()-1)-xb);
+    short fastNx=nx/2;
+    if((nx & 0x1)==0) //Scanline has odd number of pixels
+    {
+        for(short i=0;i<ny;i++)
+        {
+            for(short j=0;j<fastNx;j++)
+            {
+                unsigned int twoPix=pix[0] | pix[1]<<16; //Pack two pixel
+                DISPLAY->TWOPIX_RAM=twoPix;
+                pix+=2;
+            }
+            pix+=toSkip;
+        }
+    } else {
+        for(short i=0;i<ny;i++)
+        {
+            for(short j=0;j<fastNx;j++)
+            {
+                unsigned int twoPix=pix[0] | pix[1]<<16; //Pack two pixel
+                DISPLAY->TWOPIX_RAM=twoPix;
+                pix+=2;
+            }
+            writeRam(pix[0]);
+            pix+=toSkip+1;
+        }
+    }
 }
 
 void DisplayMP3V2::drawRectangle(Point a, Point b, Color c)
@@ -251,22 +293,7 @@ void DisplayMP3V2::turnOff()
 
 void DisplayMP3V2::setTextColor(Color fgcolor, Color bgcolor)
 {
-    unsigned short fgR=fgcolor.value(); //& 0xf800; Optimization, & not required
-    unsigned short bgR=bgcolor.value(); //& 0xf800; Optimization, & not required
-    unsigned short fgG=fgcolor.value() & 0x7e0;
-    unsigned short bgG=bgcolor.value() & 0x7e0;
-    unsigned short fgB=fgcolor.value() & 0x1f;
-    unsigned short bgB=bgcolor.value() & 0x1f;
-    unsigned short deltaR=((fgR-bgR)/3) & 0xf800;
-    unsigned short deltaG=((fgG-bgG)/3) & 0x7e0;
-    unsigned short deltaB=((fgB-bgB)/3) & 0x1f;
-    unsigned short delta=deltaR | deltaG | deltaB;
-    textColor[3]=fgcolor;
-    textColor[2]=Color(bgcolor.value()+2*delta);
-    textColor[1]=Color(bgcolor.value()+delta);
-    textColor[0]=bgcolor;
-    //cout<<hex<<"<"<<textColor[0].value()<<","<<textColor[1].value()<<","<<
-    //        textColor[2].value()<<","<<textColor[3].value()<<">"<<endl;
+    Font::generatePalette(textColor,fgcolor,bgcolor);
 }
 
 void DisplayMP3V2::setFont(const Font& font)

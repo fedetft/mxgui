@@ -66,6 +66,20 @@ public:
     }
 
     /**
+     *  Write part of text to the display
+     * \param p point of the upper left corner where the text will be drawn.
+     * Negative coordinates are allowed, as long as the clipped view has
+     * positive or zero coordinates
+     * \param a Upper left corner of clipping rectangle
+     * \param b Lower right corner of clipping rectangle
+     * \param text text to write
+     */
+    void clippedWrite(Point p, Point a, Point b, const char *text)
+    {
+        subclass.clippedWrite(p,a,b,text);
+    }
+
+    /**
      * Clear the Display. The screen will be filled with the desired color
      * \param color fill color
      */
@@ -122,13 +136,43 @@ public:
     }
 
     /**
+     * Draw an horizontal line on screen.
+     * Instead of line(), this member function takes an array of colors to be
+     * able to individually set pixel colors of a line.
+     * Note that the two points must satisfy the following constraints:
+     * a.y() == b.y() (horizontal line)
+     * a.x() <= b.x() (a must be to the left of b))
+     * \param a first point
+     * \param b second point
+     * \param colors an array of pixel colors whoase size must be b.x()-a.x()+1
+     */
+    void scanLine(Point a, Point b, const Color *colors)
+    {
+        subclass.scanLine(a,b,colors);
+    }
+
+    /**
      * Draw an image on the screen
      * \param p point of the upper left corner where the image will be drawn
      * \param i image to draw
      */
-    void drawImage(Point p, Image i)
+    void drawImage(Point p, Image img)
     {
-        subclass.drawImage(p,i);
+        subclass.drawImage(p,img);
+    }
+    
+    /**
+     * Draw part of an image on the screen
+     * \param p point of the upper left corner where the image will be drawn.
+     * Negative coordinates are allowed, as long as the clipped view has
+     * positive or zero coordinates
+     * \param a Upper left corner of clipping rectangle
+     * \param b Lower right corner of clipping rectangle
+     * \param i Image to draw
+     */
+    void clippedDrawImage(Point p, Point a, Point b, Image img)
+    {
+        subclass.clippedDrawImage(p,a,b,img);
     }
 
     /**

@@ -26,6 +26,10 @@
  ***************************************************************************/
 
 #include "mxgui_settings.h"
+#include "point.h"
+#include "color.h"
+#include "iterator_direction.h"
+#include <algorithm>
 
 #ifndef IMAGE_H
 #define	IMAGE_H
@@ -89,6 +93,26 @@ public:
     ImageDepth::ImageDepth_ imageDepth() const { return depth; }
 
     /**
+     * Draw an image on a surface
+     * \param surface an object that provides pixel iterators.
+     * \param p point of the upper left corner where the image will be drawn
+     */
+    template<typename U>
+    void draw(U& surface, Point p) const;
+
+    /**
+     * Draw part of an image on a surface
+     * \param surface an object that provides pixel iterators.
+     * \param p point of the upper left corner where the image will be drawn.
+     * Negative coordinates are allowed, as long as the clipped view has
+     * positive or zero coordinates
+     * \param a Upper left corner of clipping rectangle
+     * \param b Lower right corner of clipping rectangle
+     */
+    template<typename U>
+    void clippedDraw(U& surface, Point p, Point a, Point b) const;
+
+    /**
      * Virtual because someday I might implement an Image class with reference
      * counting if the problem of freeing memory becomes relevant
      */
@@ -102,6 +126,45 @@ private:
     const T *data;
     ImageDepth::ImageDepth_ depth;
 };
+
+template<typename T> template<typename U>
+void basic_image<T>::draw(U& surface, Point p) const
+{
+    short int xEnd=p.x()+this->getWidth()-1;
+    short int yEnd=p.y()+this->getHeight()-1;
+    typename U::pixel_iterator it=surface.begin(p,Point(xEnd,yEnd),RD);
+    const T *imgData=this->getData();
+    int imgSize=this->getHeight()*this->getWidth();
+    for(int i=0;i<imgSize;i++) *it=Color(imgData[i]);
+}
+
+template<typename T> template<typename U>
+void basic_image<T>::clippedDraw(U& surface, Point p, Point a, Point b) const
+{
+    using namespace std;
+    //Find rectangle wich is the non-empty intersection of the image rectangle
+    //with the clip rectangle
+    short xa=max(p.x(),a.x());
+    short xb=min<short>(p.x()+this->getWidth()-1,b.x());
+    if(xa>xb) return; //Empty intersection
+
+    short ya=max(p.y(),a.y());
+    short yb=min<short>(p.y()+this->getHeight()-1,b.y());
+    if(ya>yb) return; //Empty intersection
+
+    //Draw image
+    typename U::pixel_iterator it=surface.begin(Point(xa,ya),Point(xb,yb),RD);
+    short nx=xb-xa+1;
+    short ny=yb-ya+1;
+    int skipStart=(ya-p.y())*this->getWidth()+(xa-p.x());
+    const T *pix=this->getData()+skipStart;
+    int toSkip=(xa-p.x())+((p.x()+this->getWidth()-1)-xb);
+    for(short i=0;i<ny;i++)
+    {
+        for(short j=0;j<nx;j++) *it=Color(*pix++);
+        pix+=toSkip;
+    }
+}
 
 ///Define the Color class, depending on the COLOR_DEPTH constant
 #ifdef MXGUI_COLOR_DEPTH_1_BIT

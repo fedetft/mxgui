@@ -30,6 +30,7 @@
 #include "display_qt.h"
 #include "mxgui/misc_inst.h"
 #include "mxgui/tools/qtsimulator/window.h"
+#include "mxgui/line.h"
 #include <iostream>
 
 using namespace std;
@@ -47,8 +48,30 @@ DisplayQt::DisplayQt(): textColor(), font(droid11), last(),
 }
 
 void DisplayQt::write(Point p, const char *text)
-{ 
+{
+    //Qt backend is meant to catch errors, so be bastard
+    if(p.x()<0 || p.y()<0)
+        throw(logic_error("DisplayQt::write: negative value in point"));
+    if(p.x()>=width || p.y()>=height)
+        throw(logic_error("DisplayQt::write: point outside display bounds"));
+
     font.draw(*this,textColor,p,text);
+    beginPixelCalled=false;
+}
+
+void DisplayQt::clippedWrite(Point p, Point a, Point b, const char *text)
+{
+    //Qt backend is meant to catch errors, so be bastard
+    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0)
+        throw(logic_error("DisplayQt::clippedWrite:"
+                " negative value in point"));
+    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height)
+        throw(logic_error("DisplayQt::clippedWrite:"
+                " point outside display bounds"));
+    if(a.x()>b.x() || a.y()>b.y())
+        throw(logic_error("DisplayQt::clippedWrite: reversed points"));
+
+    font.clippedDraw(*this,textColor,p,a,b,text);
     beginPixelCalled=false;
 }
 
@@ -98,43 +121,25 @@ void DisplayQt::line(Point a, Point b, Color color)
         throw(logic_error("DisplayQt::line: negative value in point"));
     if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height)
         throw(logic_error("DisplayQt::line: point outside display bounds"));
+    
+    Line::draw(*this,a,b,color);
+    beginPixelCalled=false;
+}
 
-    beginPixel();
-    const short int dx=b.x()-a.x();
-    const short int dy=b.y()-a.y();
-    if(dx==0 && dy==0)
-    {
-        setPixel(a,color);
-        return;
-    }
-    if(abs(dx)>=abs(dy))
-    {
-        int m=(dy*width)/dx;
-        short int x;
-        if(dx>0)
-        {
-            for(x=a.x();x<b.x();x++)
-                setPixel(Point(x,a.y()+((m*(x-a.x()))/width)),color);
-            setPixel(b,color);
-        } else {
-            for(x=b.x();x<a.x();x++)
-                setPixel(Point(x,b.y()+((m*(x-b.x()))/width)),color);
-            setPixel(a,color);
-        }
-    } else {
-        int m=(dx*height)/dy;
-        short int y;
-        if(dy>0)
-        {
-            for(y=a.y();y<b.y();y++)
-                setPixel(Point(a.x()+((m*(y-a.y()))/height),y),color);
-            setPixel(b,color);
-        } else {
-            for(y=b.y();y<a.y();y++)
-                setPixel(Point(b.x()+((m*(y-b.y()))/height),y),color);
-            setPixel(a,color);
-        }
-    }
+void DisplayQt::scanLine(Point a, Point b, const Color *colors)
+{
+    //Qt backend is meant to catch errors, so be bastard
+    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0)
+        throw(logic_error("DisplayQt::scanLine: negative value in point"));
+    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height)
+        throw(logic_error("DisplayQt::scanLine: point outside display bounds"));
+    if(a.y()!=b.y())
+        throw(logic_error("DisplayQt::scanLine: line is not horizontal"));
+    if(a.x()>b.x())
+        throw(logic_error("DisplayQt::scanLine: reversed points"));
+    pixel_iterator it=begin(a,b,RD);
+    int numPixels=b.x()-a.x();
+    for(int i=0;i<=numPixels;i++) *it=colors[i];
     beginPixelCalled=false;
 }
 
@@ -146,15 +151,29 @@ void DisplayQt::drawImage(Point p, Image img)
     //Qt backend is meant to catch errors, so be bastard
     if(xEnd >= width || yEnd >= height)
         throw(logic_error("Image out of bounds"));
-    
-    if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT) return;
-    pixel_iterator it=begin(p,Point(xEnd,yEnd),RD);
-    const unsigned short *imgData=img.getData();
-    int imgSize=img.getHeight()*img.getWidth();
-    for(int i=0;i<imgSize;i++)
-    {
-        *it=Color(imgData[i]);
-    }
+    if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT)
+        throw(logic_error("Image needs to be 16bpp"));
+
+    img.draw(*this,p);
+    beginPixelCalled=false;
+}
+
+void DisplayQt::clippedDrawImage(Point p, Point a, Point b, Image img)
+{
+    //Qt backend is meant to catch errors, so be bastard
+    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0)
+        throw(logic_error("DisplayQt::clippedDrawImage:"
+                " negative value in point"));
+    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height)
+        throw(logic_error("DisplayQt::clippedDrawImage:"
+                " point outside display bounds"));
+    if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT)
+        throw(logic_error("Image needs to be 16bpp"));
+    if(a.x()>b.x() || a.y()>b.y())
+        throw(logic_error("DisplayQt::clippedDrawImage: reversed points"));
+
+    img.clippedDraw(*this,p,a,b);
+    beginPixelCalled=false;
 }
 
 void DisplayQt::drawRectangle(Point a, Point b, Color c)
@@ -177,22 +196,7 @@ void DisplayQt::turnOff()
 
 void DisplayQt::setTextColor(Color fgcolor, Color bgcolor)
 {
-    unsigned short fgR=fgcolor.value(); //& 0xf800; Optimization, & not required
-    unsigned short bgR=bgcolor.value(); //& 0xf800; Optimization, & not required
-    unsigned short fgG=fgcolor.value() & 0x7e0;
-    unsigned short bgG=bgcolor.value() & 0x7e0;
-    unsigned short fgB=fgcolor.value() & 0x1f;
-    unsigned short bgB=bgcolor.value() & 0x1f;
-    unsigned short deltaR=((fgR-bgR)/3) & 0xf800;
-    unsigned short deltaG=((fgG-bgG)/3) & 0x7e0;
-    unsigned short deltaB=((fgB-bgB)/3) & 0x1f;
-    unsigned short delta=deltaR | deltaG | deltaB;
-    textColor[3]=fgcolor;
-    textColor[2]=Color(bgcolor.value()+2*delta);
-    textColor[1]=Color(bgcolor.value()+delta);
-    textColor[0]=bgcolor;
-    //cout<<hex<<"<"<<textColor[0].value()<<","<<textColor[1].value()<<","<<
-    //        textColor[2].value()<<","<<textColor[3].value()<<">"<<endl;
+    Font::generatePalette(textColor,fgcolor,bgcolor);
 }
 
 void DisplayQt::setFont(const Font& font)
