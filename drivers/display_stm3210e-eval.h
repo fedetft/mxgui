@@ -118,14 +118,12 @@ public:
      * Draw an horizontal line on screen.
      * Instead of line(), this member function takes an array of colors to be
      * able to individually set pixel colors of a line.
-     * Note that the two points must satisfy the following constraints:
-     * a.y() == b.y() (horizontal line)
-     * a.x() <= b.x() (a must be to the left of b))
-     * \param a first point
-     * \param b second point
+     * \param p starting point of the line
      * \param colors an array of pixel colors whoase size must be b.x()-a.x()+1
+     * \param length length of colors array.
+     * p.x()+length must be <= display.width()
      */
-    void scanLine(Point a, Point b, const Color *colors);
+    void scanLine(Point p, const Color *colors, unsigned short length);
 
     /**
      * Draw an image on the screen

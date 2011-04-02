@@ -341,7 +341,7 @@ void Benchmark::scanLineBenchmark()
     {
         timer.start();
         for(int k=0;k<320;k++)
-            display.scanLine(Point(0,k),Point(239,k),rainbow);
+            display.scanLine(Point(0,k),rainbow,240);
         timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();

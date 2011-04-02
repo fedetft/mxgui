@@ -126,20 +126,17 @@ void DisplayQt::line(Point a, Point b, Color color)
     beginPixelCalled=false;
 }
 
-void DisplayQt::scanLine(Point a, Point b, const Color *colors)
+void DisplayQt::scanLine(Point p, const Color *colors, unsigned short length)
 {
     //Qt backend is meant to catch errors, so be bastard
-    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0)
+    if(p.x()<0 || p.y()<0)
         throw(logic_error("DisplayQt::scanLine: negative value in point"));
-    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height)
+    if(p.x()>=width || p.y()>=height)
         throw(logic_error("DisplayQt::scanLine: point outside display bounds"));
-    if(a.y()!=b.y())
-        throw(logic_error("DisplayQt::scanLine: line is not horizontal"));
-    if(a.x()>b.x())
-        throw(logic_error("DisplayQt::scanLine: reversed points"));
-    pixel_iterator it=begin(a,b,RD);
-    int numPixels=b.x()-a.x();
-    for(int i=0;i<=numPixels;i++) *it=colors[i];
+    if(p.x()+length>width)
+        throw(logic_error("DisplayQt::scanLine: line too long"));
+    pixel_iterator it=begin(p,Point(p.x()+length-1,p.y()),RD);
+    for(int i=0;i<length;i++) *it=colors[i];
     beginPixelCalled=false;
 }
 

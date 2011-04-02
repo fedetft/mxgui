@@ -176,19 +176,18 @@ void DisplayMP3V2::line(Point a, Point b, Color color)
     Line::draw(*this,a,b,color);
 }
 
-void DisplayMP3V2::scanLine(Point a, Point b, const Color *colors)
+void DisplayMP3V2::scanLine(Point p, const Color *colors, unsigned short length)
 {
-    imageWindow(a,b);
+    imageWindow(p,Point(width-1,p.y()));
     writeIdx(0x22); //Write to GRAM
-    int numPixels=b.x()-a.x()+1;
-    int fastPixels=numPixels/2;
+    int fastPixels=length/2;
     for(int i=0;i<fastPixels;i++)
     {
         unsigned int twoPix=colors[0].value() | colors[1].value()<<16;
         DISPLAY->TWOPIX_RAM=twoPix;
         colors+=2;
     }
-    if(numPixels & 0x1) writeRam(colors[0].value());
+    if(length & 0x1) writeRam(colors[0].value());
 }
 
 void DisplayMP3V2::drawImage(Point p, Image img)

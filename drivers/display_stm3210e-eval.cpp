@@ -128,12 +128,12 @@ void DisplayStm3210e_eval::line(Point a, Point b, Color color)
     Line::draw(*this,a,b,color);
 }
 
-void DisplayStm3210e_eval::scanLine(Point a, Point b, const Color *colors)
+void DisplayStm3210e_eval::scanLine(Point p, const Color *colors,
+        unsigned short length)
 {
-    imageWindow(a,Point(width,a.y()));
+    imageWindow(p,Point(width-1,p.y()));
     writeIdx(0x22); //Write to GRAM
-    int numPixels=b.x()-a.x()+1;
-    for(int i=0;i<numPixels;i++) writeRam(colors[i].value());
+    for(int i=0;i<length;i++) writeRam(colors[i].value());
 }
 
 void DisplayStm3210e_eval::drawImage(Point p, Image img)
