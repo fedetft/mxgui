@@ -140,7 +140,7 @@ void DisplayQt::scanLine(Point p, const Color *colors, unsigned short length)
     beginPixelCalled=false;
 }
 
-void DisplayQt::drawImage(Point p, Image img)
+void DisplayQt::drawImage(Point p, const ImageBase& img)
 {
     short int xEnd=p.x()+img.getWidth()-1;
     short int yEnd=p.y()+img.getHeight()-1;
@@ -148,14 +148,13 @@ void DisplayQt::drawImage(Point p, Image img)
     //Qt backend is meant to catch errors, so be bastard
     if(xEnd >= width || yEnd >= height)
         throw(logic_error("Image out of bounds"));
-    if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT)
-        throw(logic_error("Image needs to be 16bpp"));
 
     img.draw(*this,p);
     beginPixelCalled=false;
 }
 
-void DisplayQt::clippedDrawImage(Point p, Point a, Point b, Image img)
+void DisplayQt::clippedDrawImage(Point p, Point a, Point b,
+        const ImageBase& img)
 {
     //Qt backend is meant to catch errors, so be bastard
     if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0)
@@ -164,8 +163,6 @@ void DisplayQt::clippedDrawImage(Point p, Point a, Point b, Image img)
     if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height)
         throw(logic_error("DisplayQt::clippedDrawImage:"
                 " point outside display bounds"));
-    if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT)
-        throw(logic_error("Image needs to be 16bpp"));
     if(a.x()>b.x() || a.y()>b.y())
         throw(logic_error("DisplayQt::clippedDrawImage: reversed points"));
 

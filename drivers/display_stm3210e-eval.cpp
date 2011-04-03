@@ -136,28 +136,29 @@ void DisplayStm3210e_eval::scanLine(Point p, const Color *colors,
     for(int i=0;i<length;i++) writeRam(colors[i].value());
 }
 
-void DisplayStm3210e_eval::drawImage(Point p, Image img)
+void DisplayStm3210e_eval::drawImage(Point p, const ImageBase& img)
 {
     short int xEnd=p.x()+img.getWidth()-1;
     short int yEnd=p.y()+img.getHeight()-1;
-
     if(xEnd >= width || yEnd >= height) return;
-    if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT) return;
 
-    imageWindow(p,Point(xEnd,yEnd));
-    writeIdx(0x22);//Write to GRAM
     const unsigned short *imgData=img.getData();
-
-    int numPixels=img.getHeight()*img.getWidth();
-    for(int i=0;i<=numPixels;i++)
+    if(imgData!=0)
     {
-        writeRam(imgData[0]);
-        imgData++;
-    }
+        //Optimized version for memory-loaded images
+        imageWindow(p,Point(xEnd,yEnd));
+        writeIdx(0x22);//Write to GRAM
+        int numPixels=img.getHeight()*img.getWidth();
+        for(int i=0;i<=numPixels;i++)
+        {
+            writeRam(imgData[0]);
+            imgData++;
+        }
+    } else img.draw(*this,p);
 }
 
 void DisplayStm3210e_eval::clippedDrawImage(
-    Point p, Point a, Point b, Image img)
+    Point p, Point a, Point b, const ImageBase& img)
 {
     img.clippedDraw(*this,p,a,b);
 }

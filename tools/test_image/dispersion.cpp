@@ -9611,4 +9611,4 @@ static const unsigned short pixelData[]={
  0,0,0,0,0,0,0,0
 };
 
-const Image dispersion(height,width,pixelData,ImageDepth::DEPTH_16_BIT);
+const Image dispersion(height,width,pixelData);

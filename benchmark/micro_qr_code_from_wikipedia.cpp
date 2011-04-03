@@ -43,4 +43,4 @@ static const unsigned short pixelData[]={
  65535,65535,65535,65535,65535,65535,65535,65535
 };
 
-const Image micro_qr_code_from_wikipedia(height,width,pixelData,ImageDepth::DEPTH_16_BIT);
+const Image micro_qr_code_from_wikipedia(height,width,pixelData);

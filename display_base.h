@@ -154,7 +154,7 @@ public:
      * \param p point of the upper left corner where the image will be drawn
      * \param i image to draw
      */
-    void drawImage(Point p, Image img)
+    void drawImage(Point p, const ImageBase& img)
     {
         subclass.drawImage(p,img);
     }
@@ -168,7 +168,7 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param i Image to draw
      */
-    void clippedDrawImage(Point p, Point a, Point b, Image img)
+    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
     {
         subclass.clippedDrawImage(p,a,b,img);
     }

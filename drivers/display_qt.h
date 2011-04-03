@@ -132,7 +132,7 @@ public:
      * \param p point of the upper left corner where the image will be drawn
      * \param i image to draw
      */
-    void drawImage(Point p, Image img);
+    void drawImage(Point p, const ImageBase& img);
 
     /**
      * Draw part of an image on the screen
@@ -143,7 +143,7 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param i Image to draw
      */
-    void clippedDrawImage(Point p, Point a, Point b, Image img);
+    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img);
 
     /**
      * Draw a rectangle (not filled) with the desired color

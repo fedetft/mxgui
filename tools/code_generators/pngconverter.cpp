@@ -190,23 +190,7 @@ int main(int argc, char *argv[])
         }
     }
     file<<endl<<"};"<<endl<<endl<<"const Image "<<filename<<
-            "(height,width,pixelData,";
-    switch(pixDepth)
-    {
-        case 8:
-            file<<"ImageDepth::DEPTH_8_BIT";
-            break;
-        case 16:
-            file<<"ImageDepth::DEPTH_16_BIT";
-            break;
-        case 18:
-            file<<"ImageDepth::DEPTH_18_BIT";
-            break;
-        case 24:
-            file<<"ImageDepth::DEPTH_24_BIT";
-            break;
-    }
-    file<<");"<<endl;
+            "(height,width,pixelData);";
     file.close();
 
     if(outRequested) outImage.write(vm["out"].as<string>());

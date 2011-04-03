@@ -190,33 +190,40 @@ void DisplayMP3V2::scanLine(Point p, const Color *colors, unsigned short length)
     if(length & 0x1) writeRam(colors[0].value());
 }
 
-void DisplayMP3V2::drawImage(Point p, Image img)
+void DisplayMP3V2::drawImage(Point p, const ImageBase& img)
 {
     short int xEnd=p.x()+img.getWidth()-1;
     short int yEnd=p.y()+img.getHeight()-1;
-
     if(xEnd >= width || yEnd >= height) return;
-    if(img.imageDepth()!=ImageDepth::DEPTH_16_BIT) return;
 
-    imageWindow(p,Point(xEnd,yEnd));
-    writeIdx(0x22);//Write to GRAM
     const unsigned short *imgData=img.getData();
-
-    int numPixels=img.getHeight()*img.getWidth();
-    int fastPixels=numPixels/2;
-    for(int i=0;i<fastPixels;i++)
+    if(imgData!=0)
     {
-        unsigned int twoPix=imgData[0] | imgData[1]<<16; //Pack two pixel
-        DISPLAY->TWOPIX_RAM=twoPix;
-        imgData+=2;
-    }
-
-    if(numPixels & 0x1) writeRam(imgData[0]);
+        //Optimized version for memory-loaded images
+        imageWindow(p,Point(xEnd,yEnd));
+        writeIdx(0x22);//Write to GRAM
+        int numPixels=img.getHeight()*img.getWidth();
+        int fastPixels=numPixels/2;
+        for(int i=0;i<fastPixels;i++)
+        {
+            unsigned int twoPix=imgData[0] | imgData[1]<<16; //Pack two pixel
+            DISPLAY->TWOPIX_RAM=twoPix;
+            imgData+=2;
+        }
+        if(numPixels & 0x1) writeRam(imgData[0]);
+        
+    } else img.draw(*this,p);
 }
 
-void DisplayMP3V2::clippedDrawImage(Point p, Point a, Point b, Image img)
+void DisplayMP3V2::clippedDrawImage(Point p, Point a, Point b,
+        const ImageBase& img)
 {
-//    img.clippedDraw(*this,p,a,b);
+    if(img.getData()==0)
+    {
+        img.clippedDraw(*this,p,a,b);
+        return;
+    } //else optimized version for memory-loaded images
+
     //Find rectangle wich is the non-empty intersection of the image rectangle
     //with the clip rectangle
     short xa=max(p.x(),a.x());
