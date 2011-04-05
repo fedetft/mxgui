@@ -27,6 +27,7 @@
 
 #include "input.h"
 #include "mxgui/drivers/event_qt.h"
+#include "mxgui/drivers/event_mp3v2.h"
 
 #ifdef _MIOSIX
 #include "miosix.h"
@@ -38,6 +39,45 @@ namespace mxgui {
 
 #ifdef _MIOSIX
 
+miosix::Queue<Event,10> eventQueue;
+
+void pushEvent(Event e)
+{
+    miosix::InterruptDisableLock dLock;
+    eventQueue.IRQput(e);
+}
+
+//
+// class InputHandler
+//
+
+static InputHandler *theInstance=0;
+
+InputHandler& InputHandler::instance()
+{
+    if(theInstance==0) theInstance=new InputHandler; //FIXME: thread unsafe
+    return *theInstance;
+}
+
+Event InputHandler::getEvent()
+{
+    Event result;
+    eventQueue.get(result);
+    return result;
+}
+
+Event InputHandler::popEvent()
+{
+    miosix::InterruptDisableLock dLock;
+    Event result;
+    if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
+    return result;
+}
+
+InputHandler::InputHandler()
+{
+    initEventSystem(pushEvent);
+}
 
 #else //_MIOSIX
 

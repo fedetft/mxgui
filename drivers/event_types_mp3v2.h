@@ -25,24 +25,27 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "event_qt.h"
+#ifndef EVENT_TYPES_MP3V2_H
+#define	EVENT_TYPES_MP3V2_H
 
-#ifndef _MIOSIX
+#ifdef _BOARD_MP3V2
 
-namespace mxgui {
-
-static EventCallback callback;
-
-void initEventSystem(EventCallback cb)
+class EventType
 {
-    callback=cb;
-}
+public:
+    enum E
+    {
+        Default=0, //This is a must on all backends
+        TouchDown=1,
+        TouchUp=2,
+        TouchMove=3,
+        ButtonA=4,
+        ButtonB=5
+    };
+private:
+    EventType();
+};
 
-EventCallback getCallback()
-{
-    return callback;
-}
+#endif //_BOARD_MP3V2
 
-} //namespace mxgui
-
-#endif //_MIOSIX
+#endif //EVENT_TYPES_MP3V2_H

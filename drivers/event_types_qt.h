@@ -38,8 +38,9 @@ public:
         Default=0, //This is a must on all backends
         TouchDown=1,
         TouchUp=2,
-        ButtonA=3,
-        ButtonB=4
+        TouchMove=3,
+        ButtonA=4,
+        ButtonB=5
     };
 private:
     EventType();

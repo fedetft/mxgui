@@ -26,6 +26,8 @@
  ***************************************************************************/
 
 #include "mxgui/drivers/event_types_qt.h"
+#include "mxgui/drivers/event_types_mp3v2.h"
+#include "mxgui/point.h"
 
 #ifndef INPUT_H
 #define	INPUT_H
@@ -41,31 +43,40 @@ public:
     /**
      * Default constructor
      */
-    Event(): e(EventType::Default), x(-1), y(-1) {}
+    Event(): e(EventType::Default), p(-1,-1) {}
 
     /**
-     * Constructor for button events
-     * \param buttonId which button generated the event
+     * Constructor for events without a position information
+     * \param e event type
      */
-    explicit Event(EventType::E e): e(e), x(-1), y(-1) {}
+    explicit Event(EventType::E e): e(e), p(-1,-1) {}
+
 
     /**
-     * Constructor for touchscreen events
-     * \param x
-     * \param y
+     * Constructor for events that also carry a position information
+     * \param e event type
+     * \param p point
      */
-    Event(int x, int y): e(EventType::Default), x(x), y(y) {}
+    Event(EventType::E e, Point p): e(e), p(p) {}
 
     /**
-     * Constructor for mouse touch down and touch up events that also carry
-     * a position information
+     * \return the event information
      */
-    Event(EventType::E e, int x, int y): e(e), x(x), y(y) {}
+    EventType::E getEvent() const { return e; }
 
+    /**
+     * \return true if the event has a valid point associated with it
+     */
+    bool hasValidPoint() const { return p.x()>=0; }
 
-//private: TODO: accessors
-    short x,y; //Used for touchscreen event
+    /**
+     * \return the point information
+     */
+    Point getPoint() const { return p; }
+
+private:
     EventType::E e;
+    Point p;
 };
 
 /**

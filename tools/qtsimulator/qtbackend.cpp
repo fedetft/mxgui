@@ -31,7 +31,7 @@ using namespace boost;
  * when compiling for the Qt simulator.
  * an #ifdef is suggested.
  */
-extern void entryPoint();
+extern int entryPoint();
 
 //
 // class QTBackend

@@ -25,24 +25,28 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "event_qt.h"
+#include "mxgui/input/input.h"
 
-#ifndef _MIOSIX
+#ifndef EVENT_MP3V2_H
+#define	EVENT_MP3V2_H
+
+#ifdef _BOARD_MP3V2
 
 namespace mxgui {
 
-static EventCallback callback;
+typedef void (*EventCallback)(Event e);
 
-void initEventSystem(EventCallback cb)
-{
-    callback=cb;
-}
-
-EventCallback getCallback()
-{
-    return callback;
-}
+/**
+ * This function is called once to initialize the backend event system.
+ * \param cb a callbaxk called by the event backend when an event is
+ * received.
+ * The expected implementation is to spawn a background thread that checks
+ * for events.
+ */
+void initEventSystem(EventCallback cb);
 
 } //namespace mxgui
 
-#endif //_MIOSIX
+#endif //_BOARD_MP3V2
+
+#endif //EVENT_MP3V2_H

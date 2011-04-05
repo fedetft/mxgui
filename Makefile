@@ -10,8 +10,10 @@ include ../miosix/config/Makefile.inc
 SRC :=                              \
 font.cpp                            \
 misc_inst.cpp                       \
+input/input.cpp                     \
 drivers/display_stm3210e-eval.cpp   \
-drivers/display_mp3v2.cpp
+drivers/display_mp3v2.cpp           \
+drivers/event_mp3v2.cpp
 
 ## Replaces both "foo.cpp"-->"foo.o" and "foo.c"-->"foo.o"
 OBJ := $(addsuffix .o, $(basename $(SRC)))
