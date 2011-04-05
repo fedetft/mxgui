@@ -154,12 +154,12 @@ void eventThread(void *)
         //Check buttons
         if(button1::value()==0)
         {
-            if(aPrev==false) callback(Event(EventType::ButtonA));
+            if(aPrev==false) callback(Event(EventType::ButtonB));
             aPrev=true;
         } else aPrev=false;
         if(button2::value()==0)
         {
-            if(bPrev==false) callback(Event(EventType::ButtonB));
+            if(bPrev==false) callback(Event(EventType::ButtonA));
             bPrev=true;
         } else bPrev=false;
         //Check touchscreen
