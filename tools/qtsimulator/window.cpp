@@ -17,6 +17,7 @@
 
 #include "window.h"
 #include "qtbackend.h"
+#include "mxgui/drivers/event_qt.h"
 #include <cstring>
 #include <QPainter>
 
@@ -65,12 +66,14 @@ void Window::updateFrameBuffer()
 
 void Window::aClicked()
 {
-    QTBackend::instance().addEvent(Event(buttonAId));
+    using namespace mxgui;
+    getCallback()(Event(EventType::ButtonA));
 }
 
 void Window::bClicked()
 {
-    QTBackend::instance().addEvent(Event(buttonBId));
+    using namespace mxgui;
+    mxgui::getCallback()(Event(EventType::ButtonB));
 }
 
 void Window::paintEvent(QPaintEvent *event)
@@ -81,24 +84,27 @@ void Window::paintEvent(QPaintEvent *event)
 
 void Window::mouseMoveEvent(QMouseEvent *event)
 {
+    using namespace mxgui;
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
-    QTBackend::instance().addEvent(Event(event->x(),event->y()));
+    mxgui::getCallback()(Event(event->x(),event->y()));
 }
 
 void Window::mousePressEvent(QMouseEvent *event)
 {
+    using namespace mxgui;
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
-    QTBackend::instance().addEvent(Event(touchDownId,event->x(),event->y()));
+    mxgui::getCallback()(Event(EventType::TouchDown,event->x(),event->y()));
     
 }
 
 void Window::mouseReleaseEvent(QMouseEvent *event)
 {
+    using namespace mxgui;
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
-    QTBackend::instance().addEvent(Event(touchUpId,event->x(),event->y()));
+    mxgui::getCallback()(Event(EventType::TouchUp,event->x(),event->y()));
 }
 
 void Window::mouseDoubleClickEvent(QMouseEvent *event)

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2011 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,67 +25,66 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef MXGUI_SETTINGS_H
-#define	MXGUI_SETTINGS_H
+#include "input.h"
+#include "mxgui/drivers/event_qt.h"
+
+#ifdef _MIOSIX
+#include "miosix.h"
+#else //_MIOSIX
+#include <boost/thread.hpp>
+#endif //_MIOSIX
 
 namespace mxgui {
 
 #ifdef _MIOSIX
 
-//
-// Choose color depth.
-//
-//#define MXGUI_COLOR_DEPTH_1_BIT //Untested
-//#define MXGUI_COLOR_DEPTH_8_BIT //Untested
-#define MXGUI_COLOR_DEPTH_16_BIT
-
-//
-// Display orientation settings, choose ONE of these. Their meaninig depends
-// on the chosen display type
-//
-#define MXGUI_ORIENTATION_VERTICAL
-//#define MXGUI_ORIENTATION_HORIZONTAL
-//#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
-//#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
-
-//
-// Select which fonts are required. Choose one or more
-//
-#define MXGUI_FONT_DROID11
-#define MXGUI_FONT_DROID21
-//#define MXGUI_FONT_MISCFIXED
-//#define MXGUI_FONT_TAHOMA
-//#define MXGUI_ENABLE_BOLD_FONTS
 
 #else //_MIOSIX
 
-//
-// Choose color depth.
-//
-//#define MXGUI_COLOR_DEPTH_1_BIT //Untested
-//#define MXGUI_COLOR_DEPTH_8_BIT //Untested
-#define MXGUI_COLOR_DEPTH_16_BIT
+boost::mutex eqMutex; ///< Mutex to guard the event queue
+boost::condition_variable eqCond; ///< Condvar for blocking getEvent
+std::list<Event> eventQueue; ///< Queue of events from the GUI
+
+void pushEvent(Event e)
+{
+    boost::unique_lock<boost::mutex> l(eqMutex);
+    if(eventQueue.size()<100) eventQueue.push_back(e); //Drop if queue too long
+    eqCond.notify_one();
+}
 
 //
-// Display orientation settings, choose ONE of these. Their meaninig depends
-// on the chosen display type
+// class InputHandler
 //
-#define MXGUI_ORIENTATION_VERTICAL
-//#define MXGUI_ORIENTATION_HORIZONTAL
-//#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
-//#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
 
-//
-// Select which fonts are required. Choose one or more
-//
-#define MXGUI_FONT_DROID11
-#define MXGUI_FONT_DROID21
-#define MXGUI_FONT_MISCFIXED
-#define MXGUI_FONT_TAHOMA
-#define MXGUI_ENABLE_BOLD_FONTS
+InputHandler& InputHandler::instance()
+{
+    static InputHandler result;
+    return result;
+}
+
+Event InputHandler::getEvent()
+{
+    boost::unique_lock<boost::mutex> l(eqMutex);
+    while(eventQueue.empty()) eqCond.wait(l);
+    Event result=eventQueue.front();
+    eventQueue.pop_front();
+    return result;
+}
+
+Event InputHandler::popEvent()
+{
+    boost::unique_lock<boost::mutex> l(eqMutex);
+    if(eventQueue.empty()) return Event(); //Default constructed event
+    Event result=eventQueue.front();
+    eventQueue.pop_front();
+    return result;
+}
+
+InputHandler::InputHandler()
+{
+    initEventSystem(pushEvent);
+}
 
 #endif //_MIOSIX
 
 } //namespace mxgui
-
-#endif //MXGUI_SETTINGS_H

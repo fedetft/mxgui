@@ -172,9 +172,7 @@ void basic_image_base<T>::draw(U& surface, Point p) const
     } else {
         short length=this->width;
         AutoArray<Color> line(new Color[length]);
-        //Note: the loop is reversed because it avoids a lot of useless fseek
-        //in TgaImage where image data is stored with a flipped y axis
-        for(short i=this->height-1;i>=0;i--)
+        for(short i=0;i<this->height;i++)
         {
             if(this->getScanLine(Point(0,i),line.get(),length)==false) return;
             surface.scanLine(Point(p.x(),p.y()+i),line.get(),length);
@@ -215,7 +213,7 @@ void basic_image_base<T>::clippedDraw(U& surface,
         }
     } else {
         AutoArray<Color> line(new Color[nx]);
-        for(short i=ny-1;i>=0;i--)
+        for(short i=0;i<ny;i++)
         {
             if(this->getScanLine(Point(xa-p.x(),ya-p.y()+i),line.get(),nx)
                     ==false) return;

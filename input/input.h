@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2011 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,67 +25,75 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef MXGUI_SETTINGS_H
-#define	MXGUI_SETTINGS_H
+#include "mxgui/drivers/event_types_qt.h"
+
+#ifndef INPUT_H
+#define	INPUT_H
 
 namespace mxgui {
 
-#ifdef _MIOSIX
+/**
+ * Generic event class
+ */
+class Event
+{
+public:
+    /**
+     * Default constructor
+     */
+    Event(): e(EventType::Default), x(-1), y(-1) {}
 
-//
-// Choose color depth.
-//
-//#define MXGUI_COLOR_DEPTH_1_BIT //Untested
-//#define MXGUI_COLOR_DEPTH_8_BIT //Untested
-#define MXGUI_COLOR_DEPTH_16_BIT
+    /**
+     * Constructor for button events
+     * \param buttonId which button generated the event
+     */
+    explicit Event(EventType::E e): e(e), x(-1), y(-1) {}
 
-//
-// Display orientation settings, choose ONE of these. Their meaninig depends
-// on the chosen display type
-//
-#define MXGUI_ORIENTATION_VERTICAL
-//#define MXGUI_ORIENTATION_HORIZONTAL
-//#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
-//#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
+    /**
+     * Constructor for touchscreen events
+     * \param x
+     * \param y
+     */
+    Event(int x, int y): e(EventType::Default), x(x), y(y) {}
 
-//
-// Select which fonts are required. Choose one or more
-//
-#define MXGUI_FONT_DROID11
-#define MXGUI_FONT_DROID21
-//#define MXGUI_FONT_MISCFIXED
-//#define MXGUI_FONT_TAHOMA
-//#define MXGUI_ENABLE_BOLD_FONTS
+    /**
+     * Constructor for mouse touch down and touch up events that also carry
+     * a position information
+     */
+    Event(EventType::E e, int x, int y): e(e), x(x), y(y) {}
 
-#else //_MIOSIX
 
-//
-// Choose color depth.
-//
-//#define MXGUI_COLOR_DEPTH_1_BIT //Untested
-//#define MXGUI_COLOR_DEPTH_8_BIT //Untested
-#define MXGUI_COLOR_DEPTH_16_BIT
+//private: TODO: accessors
+    short x,y; //Used for touchscreen event
+    EventType::E e;
+};
 
-//
-// Display orientation settings, choose ONE of these. Their meaninig depends
-// on the chosen display type
-//
-#define MXGUI_ORIENTATION_VERTICAL
-//#define MXGUI_ORIENTATION_HORIZONTAL
-//#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
-//#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
+/**
+ * Class to handle events
+ */
+class InputHandler
+{
+public:
+    /**
+     * \return an instance of this class (singleton)
+     */
+    static InputHandler& instance();
 
-//
-// Select which fonts are required. Choose one or more
-//
-#define MXGUI_FONT_DROID11
-#define MXGUI_FONT_DROID21
-#define MXGUI_FONT_MISCFIXED
-#define MXGUI_FONT_TAHOMA
-#define MXGUI_ENABLE_BOLD_FONTS
+    /**
+     * \return A valid event. Blocking.
+     */
+    Event getEvent();
 
-#endif //_MIOSIX
+    /**
+     * \return A valid event or a default-constructed event if no events
+     * available. Nonblocking.
+     */
+    Event popEvent();
+
+private:
+    InputHandler();
+};
 
 } //namespace mxgui
 
-#endif //MXGUI_SETTINGS_H
+#endif //INPUT_H

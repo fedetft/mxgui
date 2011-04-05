@@ -82,47 +82,6 @@ private:
 ///Framebuffer instantiation
 typedef basic_framebuffer<240,320> FrameBuffer;
 
-///Possible button events
-enum ButtonEvents
-{
-    noButton=-1,
-    buttonAId=0,
-    buttonBId=1,
-    touchDownId=2,
-    touchUpId=3
-};
-
-/**
- * An event sent from the GUI
- */
-class Event
-{
-public:
-    /**
-     * Constructor for button events
-     * \param buttonId which button generated the event
-     */
-    explicit Event(ButtonEvents buttonId): buttonId(buttonId), x(-1), y(-1) {}
-
-    /**
-     * Constructor for touchscreen events (simulated using the mouse)
-     * \param x
-     * \param y
-     */
-    Event(int x, int y): buttonId(noButton), x(x), y(y) {}
-
-    /**
-     * Constructor for mouse touch down and touch up events that also carry
-     * a position information
-     */
-    Event(ButtonEvents buttonId, int x, int y):
-            buttonId(buttonId), x(x), y(y) {}
-
-    const ButtonEvents buttonId;//< Button id or none for touchscreen events
-    const int x;
-    const int y;
-};
-
 /**
  * Class that interfaces QT GUI (running from main thread) and mxgui (running
  * in a background thread)
@@ -142,18 +101,6 @@ public:
      * \param sender the object to call to update the screen
      */
     void start(boost::shared_ptr<UpdateSignalSender> sender);
-
-    /**
-     * Add an event to the event queue.
-     * \param e event to add
-     */
-    void addEvent(Event e);
-
-    /**
-     * Blocking call to get an event from event queue
-     * \return the oldes event from the queue
-     */
-    Event getEvent();
 
     /**
      * Allows access to the framebuffer object
@@ -177,11 +124,7 @@ private:
     QTBackend() {}
 
     FrameBuffer fb; ///< Framebuffer object
-
-    boost::mutex eqMutex; ///< Mutex to guard the event queue
-    boost::condition_variable eqCond; ///< Condvar for blocking getEvent
-    std::list<Event> eventQueue; ///< Queue of events from the GUI
-
+    
     boost::shared_ptr<UpdateSignalSender> sender; ///< Object to update GUI
 
     friend class FrameBufferLock; //Needs access to fb and fbMutex

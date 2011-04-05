@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2011 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,67 +25,34 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef MXGUI_SETTINGS_H
-#define	MXGUI_SETTINGS_H
+#include "mxgui/input/input.h"
+
+#ifndef EVENT_QT_H
+#define	EVENT_QT_H
+
+#ifndef _MIOSIX
 
 namespace mxgui {
 
-#ifdef _MIOSIX
+typedef void (*EventCallback)(Event e);
 
-//
-// Choose color depth.
-//
-//#define MXGUI_COLOR_DEPTH_1_BIT //Untested
-//#define MXGUI_COLOR_DEPTH_8_BIT //Untested
-#define MXGUI_COLOR_DEPTH_16_BIT
+/**
+ * This function is called once to initialize the backend event system.
+ * \param cb a callbaxk called by the event backend when an event is
+ * received.
+ * The expected implementation is to spawn a background thread that checks
+ * for events.
+ */
+void initEventSystem(EventCallback cb);
 
-//
-// Display orientation settings, choose ONE of these. Their meaninig depends
-// on the chosen display type
-//
-#define MXGUI_ORIENTATION_VERTICAL
-//#define MXGUI_ORIENTATION_HORIZONTAL
-//#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
-//#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
-
-//
-// Select which fonts are required. Choose one or more
-//
-#define MXGUI_FONT_DROID11
-#define MXGUI_FONT_DROID21
-//#define MXGUI_FONT_MISCFIXED
-//#define MXGUI_FONT_TAHOMA
-//#define MXGUI_ENABLE_BOLD_FONTS
-
-#else //_MIOSIX
-
-//
-// Choose color depth.
-//
-//#define MXGUI_COLOR_DEPTH_1_BIT //Untested
-//#define MXGUI_COLOR_DEPTH_8_BIT //Untested
-#define MXGUI_COLOR_DEPTH_16_BIT
-
-//
-// Display orientation settings, choose ONE of these. Their meaninig depends
-// on the chosen display type
-//
-#define MXGUI_ORIENTATION_VERTICAL
-//#define MXGUI_ORIENTATION_HORIZONTAL
-//#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
-//#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
-
-//
-// Select which fonts are required. Choose one or more
-//
-#define MXGUI_FONT_DROID11
-#define MXGUI_FONT_DROID21
-#define MXGUI_FONT_MISCFIXED
-#define MXGUI_FONT_TAHOMA
-#define MXGUI_ENABLE_BOLD_FONTS
-
-#endif //_MIOSIX
+/**
+ * This function is only available in this backend because the Qt GUI app
+ * requires to get the callback to call it.
+ */
+EventCallback getCallback();
 
 } //namespace mxgui
 
-#endif //MXGUI_SETTINGS_H
+#endif //_MIOSIX
+
+#endif //EVENT_QT_H

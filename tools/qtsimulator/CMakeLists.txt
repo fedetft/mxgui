@@ -5,7 +5,8 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_BUILD_TYPE release)
 
 set(FOO_SRCS ../../font.cpp ../../misc_inst.cpp ../../drivers/display_qt.cpp
-    qtbackend.cpp window.cpp qtsimulator.cpp ../../../main.cpp ../test_image/dispersion.cpp)
+    ../../input/input.cpp ../../drivers/event_qt.cpp qtbackend.cpp window.cpp
+    qtsimulator.cpp ../../../main.cpp ../test_image/dispersion.cpp)
 set(FOO_HEADERS window.h)
 
 # ../../.. is the main project directory
