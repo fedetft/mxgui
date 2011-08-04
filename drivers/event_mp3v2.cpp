@@ -100,7 +100,10 @@ Point getTouchData()
         disp::ym::high(); //Raising ym instead of yp because y is flipped
         disp::xp::mode(Mode::INPUT_ANALOG);
         disp::xm::mode(Mode::INPUT_ANALOG);
-        delayUs(1);
+        {
+            InterruptEnableLock eLock(dLock);
+            Thread::sleep(1);
+        }
         y=(adcRead(13)+adcRead(14)+adcRead(13)+adcRead(14))/4;
 
         disp::xp::mode(Mode::OUTPUT);
@@ -109,7 +112,10 @@ Point getTouchData()
         disp::xm::low();
         disp::yp::mode(Mode::INPUT_ANALOG);
         disp::ym::mode(Mode::INPUT_ANALOG);
-        delayUs(1);
+        {
+            InterruptEnableLock eLock(dLock);
+            Thread::sleep(1);
+        }
         x=(adcRead(8)+adcRead(9)+adcRead(8)+adcRead(9))/4;
         //Leave the GPIOs in their default state for next time
         disp::yp::mode(Mode::OUTPUT);
@@ -163,21 +169,27 @@ void eventThread(void *)
             bPrev=true;
         } else bPrev=false;
         //Check touchscreen
-        if(disp::xp::value()==0)
+        if(disp::xp::value()==0) //Is someone touching the screen?
         {
+            //Ok, someone is touching the screen
             Point p=getTouchData();
-            //Check also after to avoid race condition
-            if(disp::xp::value()==0)
+            if(disp::xp::value()==0) //Is someone still touching the screen?
             {
-                if(tPrev==false) callback(Event(EventType::TouchDown,p));
-                else callback(Event(EventType::TouchMove,p));
-                pOld=p;
+                //Yes, did the touch point differ that much from the previous?
+                if(abs(pOld.x()-p.x())>3 || abs(pOld.y()-p.y())>3 || !tPrev)
+                {
+                    pOld=p;
+                    if(tPrev==false) callback(Event(EventType::TouchDown,pOld));
+                    else callback(Event(EventType::TouchMove,pOld));
+                }
                 tPrev=true;
             } else {
+                //No, the user just raised its finger form the screen
                 if(tPrev==true) callback(Event(EventType::TouchUp,pOld));
                 tPrev=false;
             }
         } else {
+            //No, no one is touching the screen
             if(tPrev==true) callback(Event(EventType::TouchUp,pOld));
             tPrev=false;
         }

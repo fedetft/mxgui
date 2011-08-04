@@ -326,10 +326,8 @@ private:
 template<typename T>
 basic_display<T>& basic_display<T>::instance()
 {
-    //FIXME: thread unsafe...
-    static basic_display<T> *result=0;
-    if(result==0) result=new basic_display<T>;
-    return *result;
+    static basic_display<T> theInstance;;
+    return theInstance;
 }
 
 } //namespace mxgui

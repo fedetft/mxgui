@@ -51,12 +51,12 @@ void pushEvent(Event e)
 // class InputHandler
 //
 
-static InputHandler *theInstance=0;
+
 
 InputHandler& InputHandler::instance()
 {
-    if(theInstance==0) theInstance=new InputHandler; //FIXME: thread unsafe
-    return *theInstance;
+    static InputHandler theInstance;
+    return theInstance;
 }
 
 Event InputHandler::getEvent()

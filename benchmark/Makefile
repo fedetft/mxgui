@@ -26,7 +26,7 @@ LIBS := mxgui/libmxgui.a
 ##
 ## List here additional include directories (in the form -Iinclude_dir)
 ##
-INCLUDE_DIRS := 
+INCLUDE_DIRS :=
 
 ##############################################################################
 ## You should not need to modify anything below                             ##
@@ -43,7 +43,7 @@ CFLAGS    := $(CFLAGS_BASE)   -I. -I./miosix -I./miosix/$(ARCH_INC) \
 AFLAGS    := $(AFLAGS_BASE)
 LFLAGS    := $(LFLAGS_BASE)
 
-LINK_LIBS := $(LIBS) -L./miosix -lmiosix -Wl,--start-group -lstdc++ -lc -lm \
+LINK_LIBS := $(LIBS) -Wl,--start-group -L./miosix -lmiosix -lstdc++ -lc -lm \
     -lg -lgcc -Wl,--end-group
 
 all: all-recursive main
