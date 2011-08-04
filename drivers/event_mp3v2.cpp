@@ -27,9 +27,6 @@
 
 #ifdef _BOARD_MP3V2
 
-//This includes the definitions of button1, button2, yp, ym, xp, xm GPIOs
-#include "hwmapping.h"
-
 #include "event_mp3v2.h"
 #include "miosix.h"
 #include <algorithm>

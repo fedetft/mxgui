@@ -31,10 +31,6 @@
 #include "benchmark.h"
 #include "mxgui/display.h"
 
-#ifdef _BOARD_MP3V2
-#include "hwmapping.h"
-#endif //_BOARD_MP3V2
-
 using namespace miosix;
 using namespace mxgui;
 

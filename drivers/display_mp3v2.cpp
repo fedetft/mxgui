@@ -27,9 +27,6 @@
 
 #ifdef _BOARD_MP3V2
 
-//This includes the definitions of the disp::reset and disp::npcEn GPIOs
-#include "hwmapping.h"
-
 #include "display_mp3v2.h"
 #include "mxgui/misc_inst.h"
 #include "mxgui/line.h"
