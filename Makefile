@@ -8,6 +8,7 @@ include ../miosix/config/Makefile.inc
 ## List of all mxgui source files (both .c and .cpp)
 ## These files will end up in libmxgui.a
 SRC :=                              \
+display.cpp                         \
 font.cpp                            \
 misc_inst.cpp                       \
 input.cpp                           \

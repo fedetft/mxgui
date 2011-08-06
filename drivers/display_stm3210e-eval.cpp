@@ -51,7 +51,7 @@ namespace mxgui {
 // Class DisplayStm32e_eval
 //
 
-DisplayStm3210e_eval::DisplayStm3210e_eval(): displayType(UNKNOWN), textColor(),
+DisplayImpl::DisplayImpl(): displayType(UNKNOWN), textColor(),
         font(droid11)
 {
     hardwareInit();
@@ -62,23 +62,23 @@ DisplayStm3210e_eval::DisplayStm3210e_eval(): displayType(UNKNOWN), textColor(),
     clear(black);
 }
 
-void DisplayStm3210e_eval::write(Point p, const char *text)
+void DisplayImpl::write(Point p, const char *text)
 {
     font.draw(*this,textColor,p,text);
 }
 
-void DisplayStm3210e_eval::clippedWrite(Point p, Point a, Point b,
+void DisplayImpl::clippedWrite(Point p, Point a, Point b,
         const char *text)
 {
     font.clippedDraw(*this,textColor,p,a,b,text);
 }
 
-void DisplayStm3210e_eval::clear(Color color)
+void DisplayImpl::clear(Color color)
 {
     clear(Point(0,0),Point(width-1,height-1),color);
 }
 
-void DisplayStm3210e_eval::clear(Point p1, Point p2, Color color)
+void DisplayImpl::clear(Point p1, Point p2, Color color)
 {
     imageWindow(p1,p2);
     writeIdx(0x22);//Write to GRAM
@@ -86,19 +86,19 @@ void DisplayStm3210e_eval::clear(Point p1, Point p2, Color color)
     for(int i=0;i<numPixels;i++) writeRam(color.value());
 }
 
-void DisplayStm3210e_eval::beginPixel()
+void DisplayImpl::beginPixel()
 {
     textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
 }
 
-void DisplayStm3210e_eval::setPixel(Point p, Color color)
+void DisplayImpl::setPixel(Point p, Color color)
 {
     setCursor(p);
     writeIdx(0x22);//Write to GRAM
     writeRam(color.value());
 }
 
-void DisplayStm3210e_eval::line(Point a, Point b, Color color)
+void DisplayImpl::line(Point a, Point b, Color color)
 {
     //Horizontal line speed optimization
     //The height-8 and width-8 condition is because from the spfd5408 datasheet
@@ -128,7 +128,7 @@ void DisplayStm3210e_eval::line(Point a, Point b, Color color)
     Line::draw(*this,a,b,color);
 }
 
-void DisplayStm3210e_eval::scanLine(Point p, const Color *colors,
+void DisplayImpl::scanLine(Point p, const Color *colors,
         unsigned short length)
 {
     imageWindow(p,Point(width-1,p.y()));
@@ -136,7 +136,7 @@ void DisplayStm3210e_eval::scanLine(Point p, const Color *colors,
     for(int i=0;i<length;i++) writeRam(colors[i].value());
 }
 
-void DisplayStm3210e_eval::drawImage(Point p, const ImageBase& img)
+void DisplayImpl::drawImage(Point p, const ImageBase& img)
 {
     short int xEnd=p.x()+img.getWidth()-1;
     short int yEnd=p.y()+img.getHeight()-1;
@@ -157,13 +157,13 @@ void DisplayStm3210e_eval::drawImage(Point p, const ImageBase& img)
     } else img.draw(*this,p);
 }
 
-void DisplayStm3210e_eval::clippedDrawImage(
+void DisplayImpl::clippedDrawImage(
     Point p, Point a, Point b, const ImageBase& img)
 {
     img.clippedDraw(*this,p,a,b);
 }
 
-void DisplayStm3210e_eval::drawRectangle(Point a, Point b, Color c)
+void DisplayImpl::drawRectangle(Point a, Point b, Color c)
 {
     line(a,Point(b.x(),a.y()),c);
     line(Point(b.x(),a.y()),b,c);
@@ -171,7 +171,7 @@ void DisplayStm3210e_eval::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplayStm3210e_eval::turnOn()
+void DisplayImpl::turnOn()
 {
     switch(displayType)
     {
@@ -187,7 +187,7 @@ void DisplayStm3210e_eval::turnOn()
     }//TODO: test me
 }
 
-void DisplayStm3210e_eval::turnOff()
+void DisplayImpl::turnOff()
 {
     switch(displayType)
     {
@@ -206,17 +206,17 @@ void DisplayStm3210e_eval::turnOff()
     }//TODO: test me
 }
 
-void DisplayStm3210e_eval::setTextColor(Color fgcolor, Color bgcolor)
+void DisplayImpl::setTextColor(Color fgcolor, Color bgcolor)
 {
     Font::generatePalette(textColor,fgcolor,bgcolor);
 }
 
-void DisplayStm3210e_eval::setFont(const Font& font)
+void DisplayImpl::setFont(const Font& font)
 {
     this->font=font;
 }
 
-DisplayStm3210e_eval::pixel_iterator DisplayStm3210e_eval::begin(Point p1,
+DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
         Point p2, IteratorDirection d)
 {
     if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return pixel_iterator();
@@ -232,7 +232,7 @@ DisplayStm3210e_eval::pixel_iterator DisplayStm3210e_eval::begin(Point p1,
     return pixel_iterator(numPixels);
 }
 
-void DisplayStm3210e_eval::displayDetectAndInit()
+void DisplayImpl::displayDetectAndInit()
 {
     delayMs(10);
     unsigned short id=readReg(0);
@@ -256,7 +256,7 @@ void DisplayStm3210e_eval::displayDetectAndInit()
     }
 }
 
-void DisplayStm3210e_eval::initSPFD5408()
+void DisplayImpl::initSPFD5408()
 {
     //Start Initial Sequence
     writeReg(1, 0x0100);  //Set SS bit
@@ -332,7 +332,7 @@ void DisplayStm3210e_eval::initSPFD5408()
     writeReg(7, 0x0112); //262K color and display ON
 }
 
-void DisplayStm3210e_eval::initILI9320()
+void DisplayImpl::initILI9320()
 {
     //Start Initial Sequence
     writeReg(229,0x8000); //Set the internal vcore voltage
@@ -403,7 +403,7 @@ void DisplayStm3210e_eval::initILI9320()
     writeReg(7, 0x0173); //262K color and display ON
 }
 
-void DisplayStm3210e_eval::hardwareInit()
+void DisplayImpl::hardwareInit()
 {
     //FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
     //NWE are correctly initialized
@@ -432,8 +432,8 @@ void DisplayStm3210e_eval::hardwareInit()
            FSMC_BTR4_ADDSET_2 | FSMC_BTR4_ADDSET_0;
 }
 
-DisplayStm3210e_eval::DisplayMemLayout *const DisplayStm3210e_eval::DISPLAY=
-        reinterpret_cast<DisplayStm3210e_eval::DisplayMemLayout*>(0x6c000000);
+DisplayImpl::DisplayMemLayout *const DisplayImpl::DISPLAY=
+        reinterpret_cast<DisplayImpl::DisplayMemLayout*>(0x6c000000);
 
 } //namespace mxgui
 

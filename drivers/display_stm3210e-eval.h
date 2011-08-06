@@ -45,7 +45,7 @@ namespace mxgui {
 #error The SPFD5408 driver requires a color depth of 16bit per pixel
 #endif
 
-class DisplayStm3210e_eval
+class DisplayImpl
 {
 public:
     /**
@@ -53,7 +53,7 @@ public:
      * Do not instantiate objects of this type directly from application code,
      * use Display::instance() instead.
      */
-    DisplayStm3210e_eval();
+    DisplayImpl();
 
     /**
      * Write text to the display. If text is too long it will be truncated
@@ -274,7 +274,7 @@ public:
 
         unsigned int pixelLeft; ///< How many pixels are left to draw
 
-        friend class DisplayStm3210e_eval; //Needs access to ctor
+        friend class DisplayImpl; //Needs access to ctor
     };
 
     /**

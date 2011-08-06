@@ -39,13 +39,13 @@
 
 namespace mxgui {
 
-//This display is 16 bit per pixel, chech that the color depth is properly
+//This display is 16 bit per pixel, check that the color depth is properly
 //configured
 #ifndef MXGUI_COLOR_DEPTH_16_BIT
 #error The S6E63D6 driver requires a color depth of 16bit per pixel
 #endif
 
-class DisplayMP3V2
+class DisplayImpl
 {
 public:
     /**
@@ -53,7 +53,7 @@ public:
      * Do not instantiate objects of this type directly from application code,
      * use Display::instance() instead.
      */
-    DisplayMP3V2();
+    DisplayImpl();
 
     /**
      * Write text to the display. If text is too long it will be truncated
@@ -268,7 +268,7 @@ public:
 
         unsigned int pixelLeft; ///< How many pixels are left to draw
 
-        friend class DisplayMP3V2; //Needs access to ctor
+        friend class DisplayImpl; //Needs access to ctor
     };
 
     /**

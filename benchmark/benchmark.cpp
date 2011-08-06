@@ -29,6 +29,7 @@
 #include "mxgui/misc_inst.h"
 #include "checkpattern.h"
 #include "micro_qr_code_from_wikipedia.h"
+#include "mxgui/benchmark/benchmark.h"
 #include <cstdio>
 #include <cstring>
 
@@ -78,6 +79,7 @@ void Benchmark::start()
     display.clear(black);
 
     //Then, do benchmarks
+    results.reserve(11); //There are 11 benchmarks
     fixedWidthTextBenchmark();
     variableWidthTextBenchmark();
     antialiasingBenchmark();

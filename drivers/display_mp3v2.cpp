@@ -48,10 +48,10 @@ namespace mxgui {
 #define DBG (void)
 
 //
-// Class DisplayMP3V2
+// Class DisplayImpl
 //
 
-DisplayMP3V2::DisplayMP3V2(): textColor(), font(droid11)
+DisplayImpl::DisplayImpl(): textColor(), font(droid11)
 {
     hardwareInit();
     //
@@ -94,22 +94,22 @@ DisplayMP3V2::DisplayMP3V2(): textColor(), font(droid11)
     clear(black);
 }
 
-void DisplayMP3V2::write(Point p, const char *text)
+void DisplayImpl::write(Point p, const char *text)
 {
     font.draw(*this,textColor,p,text);
 }
 
-void DisplayMP3V2::clippedWrite(Point p, Point a, Point b, const char *text)
+void DisplayImpl::clippedWrite(Point p, Point a, Point b, const char *text)
 {
     font.clippedDraw(*this,textColor,p,a,b,text);
 }
 
-void DisplayMP3V2::clear(Color color)
+void DisplayImpl::clear(Color color)
 {
     clear(Point(0,0),Point(width-1,height-1),color);
 }
 
-void DisplayMP3V2::clear(Point p1, Point p2, Color color)
+void DisplayImpl::clear(Point p1, Point p2, Color color)
 {
     imageWindow(p1,p2);
     writeIdx(0x22);//Write to GRAM
@@ -133,14 +133,14 @@ void DisplayMP3V2::clear(Point p1, Point p2, Color color)
 //                 :"r0","r7");
 }
 
-void DisplayMP3V2::setPixel(Point p, Color color)
+void DisplayImpl::setPixel(Point p, Color color)
 {
     setCursor(p);
     writeIdx(0x22);//Write to GRAM
     writeRam(color.value());
 }
 
-void DisplayMP3V2::line(Point a, Point b, Color color)
+void DisplayImpl::line(Point a, Point b, Color color)
 {
     //Horizontal line speed optimization
     if(a.y()==b.y())
@@ -173,7 +173,7 @@ void DisplayMP3V2::line(Point a, Point b, Color color)
     Line::draw(*this,a,b,color);
 }
 
-void DisplayMP3V2::scanLine(Point p, const Color *colors, unsigned short length)
+void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
 {
     imageWindow(p,Point(width-1,p.y()));
     writeIdx(0x22); //Write to GRAM
@@ -187,7 +187,7 @@ void DisplayMP3V2::scanLine(Point p, const Color *colors, unsigned short length)
     if(length & 0x1) writeRam(colors[0].value());
 }
 
-void DisplayMP3V2::drawImage(Point p, const ImageBase& img)
+void DisplayImpl::drawImage(Point p, const ImageBase& img)
 {
     short int xEnd=p.x()+img.getWidth()-1;
     short int yEnd=p.y()+img.getHeight()-1;
@@ -212,7 +212,7 @@ void DisplayMP3V2::drawImage(Point p, const ImageBase& img)
     } else img.draw(*this,p);
 }
 
-void DisplayMP3V2::clippedDrawImage(Point p, Point a, Point b,
+void DisplayImpl::clippedDrawImage(Point p, Point a, Point b,
         const ImageBase& img)
 {
     if(img.getData()==0)
@@ -267,7 +267,7 @@ void DisplayMP3V2::clippedDrawImage(Point p, Point a, Point b,
     }
 }
 
-void DisplayMP3V2::drawRectangle(Point a, Point b, Color c)
+void DisplayImpl::drawRectangle(Point a, Point b, Color c)
 {
     line(a,Point(b.x(),a.y()),c);
     line(Point(b.x(),a.y()),b,c);
@@ -275,7 +275,7 @@ void DisplayMP3V2::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplayMP3V2::turnOn()
+void DisplayImpl::turnOn()
 {
     writeReg(0x10,0x0000);//STB = 0 (out of standby)
     delayMs(100);//Let internal voltages stabilize
@@ -284,7 +284,7 @@ void DisplayMP3V2::turnOn()
     writeReg(0x05,0x0001);//DISP_ON = 1 (display active)
 }
 
-void DisplayMP3V2::turnOff()
+void DisplayImpl::turnOff()
 {
     writeReg(0x05,0x0000);//DISP_ON = 0 (display blank)
     delayMs(32);
@@ -294,17 +294,17 @@ void DisplayMP3V2::turnOff()
     delayMs(500);
 }
 
-void DisplayMP3V2::setTextColor(Color fgcolor, Color bgcolor)
+void DisplayImpl::setTextColor(Color fgcolor, Color bgcolor)
 {
     Font::generatePalette(textColor,fgcolor,bgcolor);
 }
 
-void DisplayMP3V2::setFont(const Font& font)
+void DisplayImpl::setFont(const Font& font)
 {
     this->font=font;
 }
 
-DisplayMP3V2::pixel_iterator DisplayMP3V2::begin(Point p1, Point p2,
+DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2,
         IteratorDirection d)
 {
     if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return pixel_iterator();
@@ -320,7 +320,7 @@ DisplayMP3V2::pixel_iterator DisplayMP3V2::begin(Point p1, Point p2,
     return pixel_iterator(numPixels);
 }
 
-void DisplayMP3V2::hardwareInit()
+void DisplayImpl::hardwareInit()
 {
      //FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
     //NWE are correctly initialized
@@ -364,8 +364,8 @@ void DisplayMP3V2::hardwareInit()
            FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_0;
 }
 
-DisplayMP3V2::DisplayMemLayout *const DisplayMP3V2::DISPLAY=
-        reinterpret_cast<DisplayMP3V2::DisplayMemLayout*>(0x60000000);
+DisplayImpl::DisplayMemLayout *const DisplayImpl::DISPLAY=
+        reinterpret_cast<DisplayImpl::DisplayMemLayout*>(0x60000000);
 
 } //namespace mxgui
 

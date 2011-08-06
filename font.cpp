@@ -82,8 +82,6 @@ void Font::generatePalette(Color out[4], Color fgcolor, Color bgcolor)
     out[2]=Color(bgcolor.value()+2*delta);
     out[1]=Color(bgcolor.value()+delta);
     out[0]=bgcolor;
-    //cout<<hex<<"<"<<out[0].value()<<","<<out[1].value()<<","<<
-    //        out[2].value()<<","<<out[3].value()<<">"<<endl;
 }
 
 }  //namespace mxgui

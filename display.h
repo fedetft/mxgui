@@ -29,27 +29,199 @@
 #define	DISPLAY_H
 
 #include "mxgui_settings.h"
-#include "display_base.h"
-#include "misc_inst.h"
-#include "drivers/display_stm3210e-eval.h"
-#include "drivers/display_mp3v2.h"
-#include "drivers/display_qt.h"
+#include "point.h"
+#include "color.h"
+#include "font.h"
+#include "image.h"
 
 namespace mxgui {
 
-//
-// Select display type based on board name. The _BOARD macros are defined
-// in Miosix's Makefile.inc depending on board selected.
-// If no board selected, we assume we are building for the Qt simulator to test
-// the GUI on a PC.
-//
-#if defined(_BOARD_STM3210E_EVAL)
-typedef basic_display<DisplayStm3210e_eval> Display;
-#elif defined(_BOARD_MP3V2)
-typedef basic_display<DisplayMP3V2> Display;
-#else
-typedef basic_display<DisplayQt> Display;
-#endif
+class DisplayImpl; //Forward declaration
+
+/**
+ * Display class. This is an "interface" that all display drivers must implement
+ * It represents the first usable abstraction over a display, with member
+ * functions to draw lines, text, images...
+ */
+class Display
+{
+public:
+    /**
+     * \param id a string to identify the display in case the device has
+     * multiple displays. The empty string identifies the default display.
+     * \return a reference to the instance of the Display. Multiple calls with
+     * the same id return the same display instance (singleton)
+     */
+    static Display& instance(const char *id="");
+
+    /**
+     * Write text to the display. If text is too long it will be truncated
+     * \param p point where the upper left corner of the text will be printed
+     * \param text, text to print.
+     */
+    void write(Point p, const char *text);
+
+    /**
+     *  Write part of text to the display
+     * \param p point of the upper left corner where the text will be drawn.
+     * Negative coordinates are allowed, as long as the clipped view has
+     * positive or zero coordinates
+     * \param a Upper left corner of clipping rectangle
+     * \param b Lower right corner of clipping rectangle
+     * \param text text to write
+     */
+    void clippedWrite(Point p, Point a, Point b, const char *text);
+
+    /**
+     * Clear the Display. The screen will be filled with the desired color
+     * \param color fill color
+     */
+    void clear(Color color);
+
+    /**
+     * Clear an area of the screen
+     * \param p1 upper left corner of area to clear
+     * \param p2 lower right corner of area to clear
+     * \param color fill color
+     */
+    void clear(Point p1, Point p2, Color color);
+
+    /**
+     * This member function is used on some target displays to reset the
+     * drawing window to its default value. You have to call beginPixel() once
+     * before calling setPixel(). You can then make any number of calls to
+     * setPixel() without calling beginPixel() again, as long as you don't
+     * call any other member function in this class. If you call another
+     * member function, for example line(), you have to call beginPixel() again
+     * before calling setPixel().
+     */
+    void beginPixel();
+
+    /**
+     * Draw a pixel with desired color. You have to call beginPixel() once
+     * before calling setPixel()
+     * \param p point where to draw pixel
+     * \param color pixel color
+     */
+    void setPixel(Point p, Color color);
+
+    /**
+     * Draw a line between point a and point b, with color c
+     * \param a first point
+     * \param b second point
+     * \param c line color
+     */
+    void line(Point a, Point b, Color color);
+
+    /**
+     * Draw an horizontal line on screen.
+     * Instead of line(), this member function takes an array of colors to be
+     * able to individually set pixel colors of a line.
+     * \param p starting point of the line
+     * \param colors an array of pixel colors whoase size must be b.x()-a.x()+1
+     * \param length length of colors array.
+     * p.x()+length must be <= display.width()
+     */
+    void scanLine(Point p, const Color *colors, unsigned short length);
+
+    /**
+     * Draw an image on the screen
+     * \param p point of the upper left corner where the image will be drawn
+     * \param i image to draw
+     */
+    void drawImage(Point p, const ImageBase& img);
+
+    /**
+     * Draw part of an image on the screen
+     * \param p point of the upper left corner where the image will be drawn.
+     * Negative coordinates are allowed, as long as the clipped view has
+     * positive or zero coordinates
+     * \param a Upper left corner of clipping rectangle
+     * \param b Lower right corner of clipping rectangle
+     * \param i Image to draw
+     */
+    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img);
+
+    /**
+     * Draw a rectangle (not filled) with the desired color
+     * \param a upper left corner of the rectangle
+     * \param b lower right corner of the rectangle
+     * \param c color of the line
+     */
+    void drawRectangle(Point a, Point b, Color c);
+
+    /**
+     * \return the display's height
+     */
+    short int getHeight() const;
+
+    /**
+     * \return the display's width
+     */
+    short int getWidth() const;
+
+    /**
+     * Turn the display On after it has been turned Off.
+     * Display initial state is On.
+     */
+    void turnOn();
+
+    /**
+     * Turn the display Off. It can be later turned back On.
+     */
+    void turnOff();
+
+    /**
+     * Set colors used for writing text
+     * \param fgcolor text color
+     * \param bgcolor background color
+     */
+    void setTextColor(Color fgcolor, Color bgcolor);
+
+    /**
+     * \return the current foreground color.
+     * The foreground color is used to draw text on screen
+     */
+    Color getForeground() const;
+
+    /**
+     * \return the current background color.
+     * The foreground color is used to draw text on screen
+     */
+    Color getBackground() const;
+
+    /**
+     * Set the font used for writing text
+     * \param font new font
+     */
+    void setFont(const Font& font);
+
+    /**
+     * \return the current font used to draw text
+     */
+    Font getFont() const;
+
+    /**
+     * Make all changes done to the display since the last call to update()
+     * visible. Not all backends require it, so on some backend what you do
+     * will be immediately visible, while on others a call to update() is needed
+     */
+    void update();
+
+private:
+    /**
+     * Constructor
+     */
+    Display(DisplayImpl *impl);
+
+    /**
+     * Class cannot be copied
+     */
+    Display(const Display&);
+    Display& operator=(const Display&);
+
+    DisplayImpl *pImpl; //Implementation detal
+};
 
 } //namespace mxgui
 

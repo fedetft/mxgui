@@ -47,7 +47,7 @@
 
 namespace mxgui {
 
-class DisplayQt
+class DisplayImpl
 {
 public:
     /**
@@ -55,7 +55,7 @@ public:
      * Do not instantiate objects of this type directly from application code,
      * use Display::instance() instead.
      */
-    DisplayQt();
+    DisplayImpl();
     
     /**
      * Write text to the display. If text is too long it will be truncated
@@ -290,16 +290,16 @@ public:
          * \param disp Display we're associated
          */
         pixel_iterator(Point start, Point end, IteratorDirection direction,
-                DisplayQt *disp): start(start), cur(start), end(end),
+                DisplayImpl *disp): start(start), cur(start), end(end),
                 direction(direction), disp(disp) {}
 
         Point start; ///< Upper left corner of window
         Point cur; ///< Current pixel we're pointing at
         Point end; ///< Lower right corner of window
         IteratorDirection direction; ///< Iterator direction
-        DisplayQt *disp; ///< Display we're associated
+        DisplayImpl *disp; ///< Display we're associated
 
-        friend class DisplayQt; //Needs access to ctor
+        friend class DisplayImpl; //Needs access to ctor
     };
 
     /**

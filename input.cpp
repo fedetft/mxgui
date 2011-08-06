@@ -51,8 +51,6 @@ void pushEvent(Event e)
 // class InputHandler
 //
 
-
-
 InputHandler& InputHandler::instance()
 {
     static InputHandler theInstance;
