@@ -40,33 +40,19 @@ using namespace miosix;
 // Class BenchmarkResult
 //
 
-BenchmarkResult::BenchmarkResult(const char name[25], unsigned int time,
-        double fps): time(time), fps(fps)
+BenchmarkResult::BenchmarkResult(const char name[20], unsigned int time)
+        : time(time)
 {
-    strcpy(this->name,name);
-}
-
-const char *BenchmarkResult::getName() const
-{
-    return name;
-}
-
-unsigned int BenchmarkResult::getTime() const
-{
-    return time;
-}
-
-unsigned int BenchmarkResult::getFps() const
-{
-    return fps;
+    strncpy(this->name,name,20);
+    this->name[19]='\0';
 }
 
 void BenchmarkResult::print(mxgui::Display& d, mxgui::Point p)
 {
     d.write(p,name);
     char line[64];
-    int a=fps;
-    int b=static_cast<int>(fps*100.0f)%100;
+    int a=getFps()/100;
+    int b=getFps()%100;
     sniprintf(line,63,"%d.%06d %d.%02d",time/1000000,time%1000000,a,b);
     d.write(Point(130,p.y()),line);
     iprintf("%s",name);
@@ -121,19 +107,16 @@ void Benchmark::fixedWidthTextBenchmark()
     display.setFont(miscFixed);
     for(int i=0;i<4;i++)
     {
-        if(i%2==0) display.setTextColor(red,black);
-        else display.setTextColor(green,black);
+        display.setTextColor(i%2==0 ? red : green,black);
         timer.start();
-        for(int j=0;j<320;j+=16)
-            display.write(Point(0,j),text);
+        for(int j=0;j<320;j+=16) display.write(Point(0,j),text);
         timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Monospace text",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("Monospace text",totalTime));
 }
 
 void Benchmark::variableWidthTextBenchmark()
@@ -143,15 +126,9 @@ void Benchmark::variableWidthTextBenchmark()
     unsigned int totalTime=0;
     //This line with tahoma font is exactly 240 pixel wide
     const char text[]="abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/";
-    if(tahoma.calculateLength(text)!=240)
-    {
-        iprintf("Warning: line length is not 240, it is %d\n",
-                tahoma.calculateLength(text));
-    }
     for(int i=0;i<4;i++)
     {
-        if(i%2==0) display.setTextColor(red,black);
-        else display.setTextColor(green,black);
+        display.setTextColor(i%2==0 ? red : green,black);
         timer.start();
         for(int j=0;j<320;j+=12) display.write(Point(0,j),text);
         timer.stop();
@@ -160,8 +137,7 @@ void Benchmark::variableWidthTextBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Variable width text",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("Variable width text",totalTime));
 }
 
 void Benchmark::antialiasingBenchmark()
@@ -172,8 +148,7 @@ void Benchmark::antialiasingBenchmark()
     const char text[]="abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/";
     for(int i=0;i<4;i++)
     {
-        if(i%2==0) display.setTextColor(red,black);
-        else display.setTextColor(green,black);
+        display.setTextColor(i%2==0 ? red : green,black);
         timer.start();
         for(int j=0;j<320;j+=12) display.write(Point(0,j),text);
         timer.stop();
@@ -182,8 +157,7 @@ void Benchmark::antialiasingBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Antialiased text",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("Antialiased text",totalTime));
 }
 
 void Benchmark::horizontalLineBenchmark()
@@ -200,8 +174,7 @@ void Benchmark::horizontalLineBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Horizontal lines",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("Horizontal lines",totalTime));
 }
 
 void Benchmark::verticalLineBenchmark()
@@ -218,8 +191,7 @@ void Benchmark::verticalLineBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Vertical lines",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("Vertical lines",totalTime));
 }
 
 void Benchmark::obliqueLineBenchmark()
@@ -252,8 +224,7 @@ void Benchmark::obliqueLineBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Oblique lines",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("Oblique lines",totalTime));
 }
 
 void Benchmark::clearScreenBenchmark()
@@ -270,8 +241,7 @@ void Benchmark::clearScreenBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Screen clear",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("Screen clear",totalTime));
 }
 
 void Benchmark::imageBenchmark()
@@ -297,8 +267,7 @@ void Benchmark::imageBenchmark()
         delayMs(250);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Draw image",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("Draw image",totalTime));
 }
 
 static const Color rainbow[]={
@@ -351,8 +320,7 @@ void Benchmark::scanLineBenchmark()
         delayMs(250);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("ScanLine",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("ScanLine",totalTime));
 }
 
 void Benchmark::clippedDrawBenchmark()
@@ -388,8 +356,7 @@ void Benchmark::clippedDrawBenchmark()
         delayMs(250);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("ClippedDraw",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("ClippedDraw",totalTime));
 }
 
 void Benchmark::clippedWriteBenchmark()
@@ -416,6 +383,5 @@ void Benchmark::clippedWriteBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Clipped text",totalTime,
-            1.0/(static_cast<double>(totalTime)/1000000)));
+    results.push_back(BenchmarkResult("Clipped text",totalTime));
 }

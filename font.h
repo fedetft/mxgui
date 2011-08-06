@@ -342,7 +342,7 @@ void Font::clippedDraw(T& surface, Color colors[4],
         Point p, Point a, Point b, const char *s) const
 {
     using namespace std;
-    //Find rectangle wich is the non-empty intersection of the image rectangle
+    //Find rectangle which is the non-empty intersection of the image rectangle
     //with the clip rectangle
     short ya=max(p.y(),a.y());
     short yb=min<short>(p.y()+this->getHeight()-1,b.y());

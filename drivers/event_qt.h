@@ -25,7 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "mxgui/input/input.h"
+#include "mxgui/input.h"
 
 #ifndef EVENT_QT_H
 #define	EVENT_QT_H

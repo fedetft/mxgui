@@ -44,24 +44,24 @@ public:
     /**
      * \param name name of benchmark
      * \param time time (in microseconds) taken to do the benchmark
-     * \param fps number of fps resulting
      */
-    BenchmarkResult(const char str[25], unsigned int time, double fps);
+    BenchmarkResult(const char str[20], unsigned int time);
 
     /**
      * \return the benchmark name
      */
-    const char *getName() const;
+    const char *getName() const { return name; }
 
     /**
      * \return the benchmark time, in microseconds
      */
-    unsigned int getTime() const;
+    unsigned int getTime() const { return time; }
 
     /**
-     * \return the benchmark resulting fps
+     * \return number of fps(multiplied by 100, so that the last
+     * two digits are fractional fps values).
      */
-    unsigned int getFps() const;
+    unsigned int getFps() const { return (1000000*100)/time; }
 
     /**
      * Print the result on the display d, at point p
@@ -69,9 +69,8 @@ public:
     void print(mxgui::Display& d, mxgui::Point p);
 
 private:
-    char name[25];
+    char name[20];
     unsigned int time;
-    double fps;
 };
 
 /**

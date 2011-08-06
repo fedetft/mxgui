@@ -28,7 +28,7 @@
 #include "mxgui/display.h"
 #include "mxgui/misc_inst.h"
 #include "mxgui/tga_image.h"
-#include "mxgui/input/input.h"
+#include "mxgui/input.h"
 #include <cstdio>
 #include <cstring>
 #include <unistd.h>
