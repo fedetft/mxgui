@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Terraneo Federico                               *
+ *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,14 +18,12 @@
 #ifndef QTBACKEND_H
 #define QTBACKEND_H
 
-#include <list>
 #include <cstring>
-#include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
+#include "mxgui/mxgui_settings.h"
 
 //Forward decl
 class UpdateSignalSender;
-class FrameBufferLock;
 
 /**
  * A framebuffer object
@@ -80,7 +78,8 @@ private:
 };
 
 ///Framebuffer instantiation
-typedef basic_framebuffer<240,320> FrameBuffer;
+typedef basic_framebuffer<
+    mxgui::SIMULATOR_DISP_WIDTH,mxgui::SIMULATOR_DISP_HEIGHT> FrameBuffer;
 
 /**
  * Class that interfaces QT GUI (running from main thread) and mxgui (running
@@ -112,7 +111,7 @@ public:
      * \return the sender object with an update() member function to refresh
      * the GUI
      */
-    boost::shared_ptr<UpdateSignalSender> getSender() const;
+    boost::shared_ptr<UpdateSignalSender> getSender() const { return sender; }
 
 private:
     QTBackend(const QTBackend& );
@@ -121,13 +120,11 @@ private:
     /**
      * Constructor
      */
-    QTBackend() {}
+    QTBackend(): started(false) {}
 
     FrameBuffer fb; ///< Framebuffer object
-    
+    bool started; ///< True if the background thread has already been started
     boost::shared_ptr<UpdateSignalSender> sender; ///< Object to update GUI
-
-    friend class FrameBufferLock; //Needs access to fb and fbMutex
 };
 
 #endif //QTBACKEND_H

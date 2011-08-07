@@ -25,6 +25,11 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
+
 #ifndef DISPLAY_MP3V2_H
 #define	DISPLAY_MP3V2_H
 
@@ -36,6 +41,11 @@
 #include "mxgui/font.h"
 #include "mxgui/image.h"
 #include "mxgui/iterator_direction.h"
+#include "mxgui/misc_inst.h"
+#include "mxgui/line.h"
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
 
 namespace mxgui {
 
@@ -60,7 +70,10 @@ public:
      * \param p point where the upper left corner of the text will be printed
      * \param text, text to print.
      */
-    void write(Point p, const char *text);
+    void write(Point p, const char *text)
+    {
+        font.draw(*this,textColor,p,text);
+    }
 
     /**
      *  Write part of text to the display
@@ -71,13 +84,19 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param text text to write
      */
-    void clippedWrite(Point p, Point a, Point b, const char *text);
+    void clippedWrite(Point p, Point a, Point b, const char *text)
+    {
+        font.clippedDraw(*this,textColor,p,a,b,text);
+    }
 
     /**
      * Clear the Display. The screen will be filled with the desired color
      * \param color fill color
      */
-    void clear(Color color);
+    void clear(Color color)
+    {
+        clear(Point(0,0),Point(width-1,height-1),color);
+    }
 
     /**
      * Clear an area of the screen
@@ -98,7 +117,12 @@ public:
      * \param p point where to draw pixel
      * \param color pixel color
      */
-    void setPixel(Point p, Color color);
+    void setPixel(Point p, Color color)
+    {
+        setCursor(p);
+        writeIdx(0x22);//Write to GRAM
+        writeRam(color.value());
+    }
 
     /**
      * Draw a line between point a and point b, with color c
@@ -106,7 +130,39 @@ public:
      * \param b second point
      * \param c line color
      */
-    void line(Point a, Point b, Color color);
+    void line(Point a, Point b, Color color)
+    {
+        using namespace std;
+        //Horizontal line speed optimization
+        if(a.y()==b.y())
+        {
+            imageWindow(Point(min(a.x(),b.x()),a.y()),
+                        Point(max(a.x(),b.x()),a.y()));
+            writeIdx(0x22);//Write to GRAM
+            int numPixels=abs(a.x()-b.x());
+            int fastPixels=numPixels/2;
+            unsigned int twoPixColor=color.value() | color.value()<<16;
+            for(int i=0;i<=fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+            if(numPixels & 0x1) writeRam(color.value());
+            return;
+        }
+        //Vertical line speed optimization
+        if(a.x()==b.x())
+        {
+            textWindow(Point(a.x(),min(a.y(),b.y())),
+                       Point(a.x(),max(a.y(),b.y())));
+            writeIdx(0x22);//Write to GRAM
+            int numPixels=abs(a.y()-b.y());
+            int fastPixels=numPixels/2;
+            unsigned int twoPixColor=color.value() | color.value()<<16;
+            for(int i=0;i<=fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+            if(numPixels & 0x1) writeRam(color.value());
+            return;
+        }
+        //General case, always works but it is much slower due to the display
+        //not having fast random access to pixels
+        Line::draw(*this,a,b,color);
+    }
 
     /**
      * Draw an horizontal line on screen.
@@ -117,14 +173,49 @@ public:
      * \param length length of colors array.
      * p.x()+length must be <= display.width()
      */
-    void scanLine(Point p, const Color *colors, unsigned short length);
+    void scanLine(Point p, const Color *colors, unsigned short length)
+    {
+        imageWindow(p,Point(width-1,p.y()));
+        writeIdx(0x22); //Write to GRAM
+        int fastPixels=length/2;
+        for(int i=0;i<fastPixels;i++)
+        {
+            unsigned int twoPix=colors[0].value() | colors[1].value()<<16;
+            DISPLAY->TWOPIX_RAM=twoPix;
+            colors+=2;
+        }
+        if(length & 0x1) writeRam(colors[0].value());
+    }
 
     /**
      * Draw an image on the screen
      * \param p point of the upper left corner where the image will be drawn
      * \param i image to draw
      */
-    void drawImage(Point p, const ImageBase& img);
+    void drawImage(Point p, const ImageBase& img)
+    {
+        short int xEnd=p.x()+img.getWidth()-1;
+        short int yEnd=p.y()+img.getHeight()-1;
+        if(xEnd >= width || yEnd >= height) return;
+
+        const unsigned short *imgData=img.getData();
+        if(imgData!=0)
+        {
+            //Optimized version for memory-loaded images
+            imageWindow(p,Point(xEnd,yEnd));
+            writeIdx(0x22);//Write to GRAM
+            int numPixels=img.getHeight()*img.getWidth();
+            int fastPixels=numPixels/2;
+            for(int i=0;i<fastPixels;i++)
+            {
+                unsigned int twoPix=imgData[0] | imgData[1]<<16; //Pack two pixel
+                DISPLAY->TWOPIX_RAM=twoPix;
+                imgData+=2;
+            }
+            if(numPixels & 0x1) writeRam(imgData[0]);
+
+        } else img.draw(*this,p);
+    }
 
     /**
      * Draw part of an image on the screen
@@ -135,7 +226,60 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param i Image to draw
      */
-    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img);
+    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
+    {
+        using namespace std;
+        if(img.getData()==0)
+        {
+            img.clippedDraw(*this,p,a,b);
+            return;
+        } //else optimized version for memory-loaded images
+
+        //Find rectangle wich is the non-empty intersection of the image rectangle
+        //with the clip rectangle
+        short xa=max(p.x(),a.x());
+        short xb=min<short>(p.x()+img.getWidth()-1,b.x());
+        if(xa>xb) return; //Empty intersection
+
+        short ya=max(p.y(),a.y());
+        short yb=min<short>(p.y()+img.getHeight()-1,b.y());
+        if(ya>yb) return; //Empty intersection
+
+        //Draw image
+        imageWindow(Point(xa,ya),Point(xb,yb));
+        writeIdx(0x22);//Write to GRAM
+        short nx=xb-xa+1;
+        short ny=yb-ya+1;
+        int skipStart=(ya-p.y())*img.getWidth()+(xa-p.x());
+        const unsigned short *pix=img.getData()+skipStart;
+        int toSkip=(xa-p.x())+((p.x()+img.getWidth()-1)-xb);
+        short fastNx=nx/2;
+        if((nx & 0x1)==0) //Scanline has odd number of pixels
+        {
+            for(short i=0;i<ny;i++)
+            {
+                for(short j=0;j<fastNx;j++)
+                {
+                    unsigned int twoPix=pix[0] | pix[1]<<16; //Pack two pixel
+                    DISPLAY->TWOPIX_RAM=twoPix;
+                    pix+=2;
+                }
+                pix+=toSkip;
+            }
+        } else {
+            for(short i=0;i<ny;i++)
+            {
+                for(short j=0;j<fastNx;j++)
+                {
+                    unsigned int twoPix=pix[0] | pix[1]<<16; //Pack two pixel
+                    DISPLAY->TWOPIX_RAM=twoPix;
+                    pix+=2;
+                }
+                writeRam(pix[0]);
+                pix+=toSkip+1;
+            }
+        }
+    }
 
     /**
      * Draw a rectangle (not filled) with the desired color
@@ -171,7 +315,10 @@ public:
      * \param fgcolor text color
      * \param bgcolor background color
      */
-    void setTextColor(Color fgcolor, Color bgcolor);
+    void setTextColor(Color fgcolor, Color bgcolor)
+    {
+        Font::generatePalette(textColor,fgcolor,bgcolor);
+    }
 
     /**
      * \return the current foreground color.
@@ -189,7 +336,7 @@ public:
      * Set the font used for writing text
      * \param font new font
      */
-    void setFont(const Font& font);
+    void setFont(const Font& font) { this->font=font; }
 
     /**
      * \return the current font used to draw text
@@ -480,11 +627,6 @@ private:
         DISPLAY->IDX=reg;
         return DISPLAY->RAM;
     }
-
-    /**
-     * Initializes the hardware backend
-     */
-    void hardwareInit();
     
     /// textColors[0] is the background color, textColor[3] the foreground
     /// while the other two are the intermediate colors for drawing antialiased

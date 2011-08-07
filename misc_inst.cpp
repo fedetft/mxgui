@@ -74,8 +74,8 @@ const Font tahoma(tahomaStartChar,tahomaEndChar,tahomaHeight,tahomaDataSize,
 #endif //MXGUI_FONT_TAHOMA
 
 #ifdef MXGUI_COLOR_DEPTH_1_BIT
-const Color white(true);
-const Color black(false);
+const Color white(1);
+const Color black(0);
 #elif defined(MXGUI_COLOR_DEPTH_8_BIT)
 const Color white(0xff);
 const Color black(0x00);

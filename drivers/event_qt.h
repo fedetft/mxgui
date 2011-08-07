@@ -34,11 +34,15 @@
 
 namespace mxgui {
 
+/**
+ * This type is a pointer to function. This function is called to send an
+ * event.
+ */
 typedef void (*EventCallback)(Event e);
 
 /**
  * This function is called once to initialize the backend event system.
- * \param cb a callbaxk called by the event backend when an event is
+ * \param cb a callback called by the event backend when an event is
  * received.
  * The expected implementation is to spawn a background thread that checks
  * for events.

@@ -62,7 +62,7 @@ private:
 
 ///Define the Color class, depending on the COLOR_DEPTH constant
 #ifdef MXGUI_COLOR_DEPTH_1_BIT
-typedef basic_color<bool> Color;//Mainly for consistency
+typedef basic_color<unsigned char> Color; //Only 0 and 1 allowed
 #elif defined(MXGUI_COLOR_DEPTH_8_BIT)
 typedef basic_color<unsigned char> Color;
 #elif defined(MXGUI_COLOR_DEPTH_16_BIT)

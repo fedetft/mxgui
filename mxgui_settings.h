@@ -66,6 +66,9 @@ namespace mxgui {
 //#define MXGUI_COLOR_DEPTH_8_BIT //Untested
 #define MXGUI_COLOR_DEPTH_16_BIT
 
+static const unsigned int SIMULATOR_DISP_HEIGHT=320;
+static const unsigned int SIMULATOR_DISP_WIDTH=240;
+
 //
 // Display orientation settings, choose ONE of these. Their meaninig depends
 // on the chosen display type

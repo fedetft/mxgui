@@ -25,6 +25,11 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
+
 #ifndef DISPLAY_STM3210E_EVAL_H
 #define	DISPLAY_STM3210E_EVAL_H
 
@@ -36,6 +41,9 @@
 #include "mxgui/font.h"
 #include "mxgui/image.h"
 #include "mxgui/iterator_direction.h"
+#include "mxgui/misc_inst.h"
+#include "mxgui/line.h"
+#include <algorithm>
 
 namespace mxgui {
 
@@ -60,7 +68,10 @@ public:
      * \param p point where the upper left corner of the text will be printed
      * \param text, text to print.
      */
-    void write(Point p, const char *text);
+    void write(Point p, const char *text)
+    {
+        font.draw(*this,textColor,p,text);
+    }
 
     /**
      *  Write part of text to the display
@@ -71,13 +82,19 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param text text to write
      */
-    void clippedWrite(Point p, Point a, Point b, const char *text);
+    void clippedWrite(Point p, Point a, Point b, const char *text)
+    {
+        font.clippedDraw(*this,textColor,p,a,b,text);
+    }
 
     /**
      * Clear the Display. The screen will be filled with the desired color
      * \param color fill color
      */
-    void clear(Color color);
+    void clear(Color color)
+    {
+        clear(Point(0,0),Point(width-1,height-1),color);
+    }
 
     /**
      * Clear an area of the screen
@@ -96,7 +113,10 @@ public:
      * member function, for example line(), you have to call beginPixel() again
      * before calling setPixel().
      */
-    void beginPixel();
+    void beginPixel()
+    {
+        textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
+    }
 
     /**
      * Draw a pixel with desired color. You have to call beginPixel() once
@@ -104,7 +124,12 @@ public:
      * \param p point where to draw pixel
      * \param color pixel color
      */
-    void setPixel(Point p, Color color);
+    void setPixel(Point p, Color color)
+    {
+        setCursor(p);
+        writeIdx(0x22);//Write to GRAM
+        writeRam(color.value());
+    }
 
     /**
      * Draw a line between point a and point b, with color c
@@ -112,7 +137,36 @@ public:
      * \param b second point
      * \param c line color
      */
-    void line(Point a, Point b, Color color);
+    void line(Point a, Point b, Color color)
+    {
+        using namespace std;
+        //Horizontal line speed optimization
+        //The height-8 and width-8 condition is because from the spfd5408 datasheet
+        //a window has minimum size constraints
+        if(a.y()==b.y() && a.y()<height-8 && min(a.x(),b.x())<width-8)
+        {
+            imageWindow(Point(min(a.x(),b.x()),a.y()),Point(width-1,a.y()+8));
+            writeIdx(0x22);//Write to GRAM
+            int numPixels=abs(a.x()-b.x());
+            for(int i=0;i<=numPixels;i++) writeRam(color.value());
+            return;
+        }
+        //Vertical line speed optimization
+        //The height-8 and width-8 condition is because from the spfd5408 datasheet
+        //a window has minimum size constraints
+        if(a.x()==b.x() && min(a.y(),b.y())<height-8 && a.x()<width-8)
+        {
+            textWindow(Point(a.x(),min(a.y(),b.y())),Point(a.x()+8,height-1));
+            writeIdx(0x22);//Write to GRAM
+            int numPixels=abs(a.y()-b.y());
+            //Loop not unrolled because when running from flash is slower
+            for(int i=0;i<=numPixels;i++) writeRam(color.value());
+            return;
+        }
+        //General case, always works but it is much slower due to the display
+        //not having fast random access to pixels
+        Line::draw(*this,a,b,color);
+    }
 
     /**
      * Draw an horizontal line on screen.
@@ -123,14 +177,38 @@ public:
      * \param length length of colors array.
      * p.x()+length must be <= display.width()
      */
-    void scanLine(Point p, const Color *colors, unsigned short length);
+    void scanLine(Point p, const Color *colors, unsigned short length)
+    {
+        imageWindow(p,Point(width-1,p.y()));
+        writeIdx(0x22); //Write to GRAM
+        for(int i=0;i<length;i++) writeRam(colors[i].value());
+    }
 
     /**
      * Draw an image on the screen
      * \param p point of the upper left corner where the image will be drawn
      * \param i image to draw
      */
-    void drawImage(Point p, const ImageBase& img);
+    void drawImage(Point p, const ImageBase& img)
+    {
+        short int xEnd=p.x()+img.getWidth()-1;
+        short int yEnd=p.y()+img.getHeight()-1;
+        if(xEnd >= width || yEnd >= height) return;
+
+        const unsigned short *imgData=img.getData();
+        if(imgData!=0)
+        {
+            //Optimized version for memory-loaded images
+            imageWindow(p,Point(xEnd,yEnd));
+            writeIdx(0x22);//Write to GRAM
+            int numPixels=img.getHeight()*img.getWidth();
+            for(int i=0;i<=numPixels;i++)
+            {
+                writeRam(imgData[0]);
+                imgData++;
+            }
+        } else img.draw(*this,p);
+    }
 
     /**
      * Draw part of an image on the screen
@@ -141,7 +219,10 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param i Image to draw
      */
-    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img);
+    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
+    {
+        img.clippedDraw(*this,p,a,b);
+    }
 
     /**
      * Draw a rectangle (not filled) with the desired color
@@ -177,7 +258,10 @@ public:
      * \param fgcolor text color
      * \param bgcolor background color
      */
-    void setTextColor(Color fgcolor, Color bgcolor);
+    void setTextColor(Color fgcolor, Color bgcolor)
+    {
+        Font::generatePalette(textColor,fgcolor,bgcolor);
+    }
 
     /**
      * \return the current foreground color.
@@ -195,7 +279,7 @@ public:
      * Set the font used for writing text
      * \param font new font
      */
-    void setFont(const Font& font);
+    void setFont(const Font& font) { this->font=font; }
 
     /**
      * \return the current font used to draw text

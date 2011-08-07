@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Terraneo Federico                               *
+ *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -16,12 +16,7 @@
  ***************************************************************************/
 
 #include "qtbackend.h"
-//#include "application.h"
-#include "window.h"
-#include <iostream>
-
-using namespace std;
-using namespace boost;
+#include <boost/thread.hpp>
 
 /**
  * The mxgui application is started here.
@@ -43,14 +38,11 @@ QTBackend& QTBackend::instance()
     return result;
 }
 
-void QTBackend::start(shared_ptr<UpdateSignalSender> sender)
+void QTBackend::start(boost::shared_ptr<UpdateSignalSender> sender)
 {
+    if(started==true) return;
+    started=true;
     this->sender=sender;
-    thread t(entryPoint);
+    boost::thread t(entryPoint);
     t.detach();
-}
-
-boost::shared_ptr<UpdateSignalSender> QTBackend::getSender() const
-{
-    return sender;
 }

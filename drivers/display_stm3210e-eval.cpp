@@ -28,14 +28,9 @@
 #ifdef _BOARD_STM3210E_EVAL
 
 #include "display_stm3210e-eval.h"
-#include "mxgui/misc_inst.h"
-#include "mxgui/line.h"
 #include "miosix.h"
 #include <cstdio>
-#include <cstring>
-#include <algorithm>
 
-using namespace std;
 using namespace miosix;
 
 namespace mxgui {
@@ -54,28 +49,56 @@ namespace mxgui {
 DisplayImpl::DisplayImpl(): displayType(UNKNOWN), textColor(),
         font(droid11)
 {
-    hardwareInit();
+    //FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
+    //NWE are correctly initialized
+
+    //Set portG12 (Display CS) as alternate function push pull 50MHz
+    Gpio<GPIOG_BASE,12>::mode(Mode::ALTERNATE);
+
+    //The way BCR and BTR are specified in stm32f10x.h sucks, trying to work
+    //around it...
+    volatile uint32_t& BCR4=FSMC_Bank1->BTCR[6];
+    volatile uint32_t& BTR4=FSMC_Bank1->BTCR[7];
+    volatile uint32_t& BWTR4=FSMC_Bank1E->BWTR[6];
+
+    //Timings for spfd5408 and ili9320
+
+    //Write burst disabled, Extended mode enabled, Wait signal disabled
+    //Write enabled, Wait signal active before wait state, Wrap disabled
+    //Burst disabled, Data width 16bit, Memory type SRAM, Data mux disabled
+    BCR4 = FSMC_BCR4_WREN | FSMC_BCR4_MWID_0 | FSMC_BCR4_MBKEN | FSMC_BCR4_EXTMOD;
+    // Write timings
+    //Address setup=0, Data setup=4, Access mode=A
+    BWTR4 = FSMC_BTR4_DATAST_2;
+    // Read timings
+    //Address setup=13, Data setup=10, Access mode=A
+    BTR4 = FSMC_BTR4_DATAST_3 | FSMC_BTR4_DATAST_1 | FSMC_BTR4_ADDSET_3 |
+           FSMC_BTR4_ADDSET_2 | FSMC_BTR4_ADDSET_0;
+    
     //Detect what kind of display controller we are interfacing with and init it
-    displayDetectAndInit();
+    delayMs(10);
+    unsigned short id=readReg(0);
+    DBG("Display ID is 0x%x: ",id);
+    switch(id)
+    {
+        case 0x5408:
+            DBG("SPFD5408\n");
+            initSPFD5408();
+            displayType=SPFD5408;
+            break;
+        case 0x9320:
+            DBG("ILI9320 (untested, use at your own risk)\n");
+            initILI9320();
+            displayType=ILI9320;
+            break;
+        default:
+            DBG("uh oh, unknown device\n");
+            displayType=UNKNOWN;
+            break;
+    }
 
     setTextColor(Color(0xffff),Color(0x0000));
     clear(black);
-}
-
-void DisplayImpl::write(Point p, const char *text)
-{
-    font.draw(*this,textColor,p,text);
-}
-
-void DisplayImpl::clippedWrite(Point p, Point a, Point b,
-        const char *text)
-{
-    font.clippedDraw(*this,textColor,p,a,b,text);
-}
-
-void DisplayImpl::clear(Color color)
-{
-    clear(Point(0,0),Point(width-1,height-1),color);
 }
 
 void DisplayImpl::clear(Point p1, Point p2, Color color)
@@ -84,83 +107,6 @@ void DisplayImpl::clear(Point p1, Point p2, Color color)
     writeIdx(0x22);//Write to GRAM
     int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
     for(int i=0;i<numPixels;i++) writeRam(color.value());
-}
-
-void DisplayImpl::beginPixel()
-{
-    textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
-}
-
-void DisplayImpl::setPixel(Point p, Color color)
-{
-    setCursor(p);
-    writeIdx(0x22);//Write to GRAM
-    writeRam(color.value());
-}
-
-void DisplayImpl::line(Point a, Point b, Color color)
-{
-    //Horizontal line speed optimization
-    //The height-8 and width-8 condition is because from the spfd5408 datasheet
-    //a window has minimum size constraints
-    if(a.y()==b.y() && a.y()<height-8 && min(a.x(),b.x())<width-8)
-    {
-        imageWindow(Point(min(a.x(),b.x()),a.y()),Point(width-1,a.y()+8));
-        writeIdx(0x22);//Write to GRAM
-        int numPixels=abs(a.x()-b.x());
-        for(int i=0;i<=numPixels;i++) writeRam(color.value());
-        return;
-    }
-    //Vertical line speed optimization
-    //The height-8 and width-8 condition is because from the spfd5408 datasheet
-    //a window has minimum size constraints
-    if(a.x()==b.x() && min(a.y(),b.y())<height-8 && a.x()<width-8)
-    {
-        textWindow(Point(a.x(),min(a.y(),b.y())),Point(a.x()+8,height-1));
-        writeIdx(0x22);//Write to GRAM
-        int numPixels=abs(a.y()-b.y());
-        //Loop not unrolled because when running from flash is slower
-        for(int i=0;i<=numPixels;i++) writeRam(color.value());
-        return;
-    }
-    //General case, always works but it is much slower due to the display
-    //not having fast random access to pixels
-    Line::draw(*this,a,b,color);
-}
-
-void DisplayImpl::scanLine(Point p, const Color *colors,
-        unsigned short length)
-{
-    imageWindow(p,Point(width-1,p.y()));
-    writeIdx(0x22); //Write to GRAM
-    for(int i=0;i<length;i++) writeRam(colors[i].value());
-}
-
-void DisplayImpl::drawImage(Point p, const ImageBase& img)
-{
-    short int xEnd=p.x()+img.getWidth()-1;
-    short int yEnd=p.y()+img.getHeight()-1;
-    if(xEnd >= width || yEnd >= height) return;
-
-    const unsigned short *imgData=img.getData();
-    if(imgData!=0)
-    {
-        //Optimized version for memory-loaded images
-        imageWindow(p,Point(xEnd,yEnd));
-        writeIdx(0x22);//Write to GRAM
-        int numPixels=img.getHeight()*img.getWidth();
-        for(int i=0;i<=numPixels;i++)
-        {
-            writeRam(imgData[0]);
-            imgData++;
-        }
-    } else img.draw(*this,p);
-}
-
-void DisplayImpl::clippedDrawImage(
-    Point p, Point a, Point b, const ImageBase& img)
-{
-    img.clippedDraw(*this,p,a,b);
 }
 
 void DisplayImpl::drawRectangle(Point a, Point b, Color c)
@@ -184,7 +130,7 @@ void DisplayImpl::turnOn()
             break;
         default:
             break;
-    }//TODO: test me
+    }
 }
 
 void DisplayImpl::turnOff()
@@ -203,17 +149,7 @@ void DisplayImpl::turnOff()
             break;
         default:
             break;
-    }//TODO: test me
-}
-
-void DisplayImpl::setTextColor(Color fgcolor, Color bgcolor)
-{
-    Font::generatePalette(textColor,fgcolor,bgcolor);
-}
-
-void DisplayImpl::setFont(const Font& font)
-{
-    this->font=font;
+    }
 }
 
 DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
@@ -230,30 +166,6 @@ DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
 
     unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
     return pixel_iterator(numPixels);
-}
-
-void DisplayImpl::displayDetectAndInit()
-{
-    delayMs(10);
-    unsigned short id=readReg(0);
-    DBG("Display ID is 0x%x: ",id);
-    switch(id)
-    {
-        case 0x5408:
-            DBG("SPFD5408\n");
-            initSPFD5408();
-            displayType=SPFD5408;
-            break;
-        case 0x9320:
-            DBG("ILI9320 (untested, use at your own risk)\n");
-            initILI9320();
-            displayType=ILI9320;
-            break;
-        default:
-            DBG("uh oh, unknown device\n");
-            displayType=UNKNOWN;
-            break;
-    }
 }
 
 void DisplayImpl::initSPFD5408()
@@ -401,35 +313,6 @@ void DisplayImpl::initILI9320()
     //AM=1 (address is updated in vertical writing direction)
     writeReg(3, 0x1018);
     writeReg(7, 0x0173); //262K color and display ON
-}
-
-void DisplayImpl::hardwareInit()
-{
-    //FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
-    //NWE are correctly initialized
-
-    //Set portG12 (Display CS) as alternate function push pull 50MHz
-    Gpio<GPIOG_BASE,12>::mode(Mode::ALTERNATE);
-
-    //The way BCR and BTR are specified in stm32f10x.h sucks, trying to work
-    //around it...
-    volatile uint32_t& BCR4=FSMC_Bank1->BTCR[6];
-    volatile uint32_t& BTR4=FSMC_Bank1->BTCR[7];
-    volatile uint32_t& BWTR4=FSMC_Bank1E->BWTR[6];
-
-    //Timings for spfd5408 and ili9320
-
-    //Write burst disabled, Extended mode enabled, Wait signal disabled
-    //Write enabled, Wait signal active before wait state, Wrap disabled
-    //Burst disabled, Data width 16bit, Memory type SRAM, Data mux disabled
-    BCR4 = FSMC_BCR4_WREN | FSMC_BCR4_MWID_0 | FSMC_BCR4_MBKEN | FSMC_BCR4_EXTMOD;
-    // Write timings
-    //Address setup=0, Data setup=4, Access mode=A
-    BWTR4 = FSMC_BTR4_DATAST_2;
-    // Read timings
-    //Address setup=13, Data setup=10, Access mode=A
-    BTR4 = FSMC_BTR4_DATAST_3 | FSMC_BTR4_DATAST_1 | FSMC_BTR4_ADDSET_3 |
-           FSMC_BTR4_ADDSET_2 | FSMC_BTR4_ADDSET_0;
 }
 
 DisplayImpl::DisplayMemLayout *const DisplayImpl::DISPLAY=
