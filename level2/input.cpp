@@ -26,103 +26,37 @@
  ***************************************************************************/
 
 #include "input.h"
+
+#ifdef MXGUI_LEVEL_2
+
 #include "mxgui/drivers/event_qt.h"
 #include "mxgui/drivers/event_mp3v2.h"
 
-#ifdef _MIOSIX
-#include "miosix.h"
-#else //_MIOSIX
-#include <boost/thread.hpp>
-#endif //_MIOSIX
-
 namespace mxgui {
 
-#ifdef _MIOSIX
-
-miosix::Queue<Event,10> eventQueue;
-
-void pushEvent(Event e)
-{
-    miosix::InterruptDisableLock dLock;
-    eventQueue.IRQput(e);
-}
-
 //
 // class InputHandler
 //
 
 InputHandler& InputHandler::instance()
 {
-    static InputHandler theInstance;
-    return theInstance;
+    static InputHandlerImpl implementation;
+    static InputHandler singleton(&implementation);
+    return singleton;
 }
 
 Event InputHandler::getEvent()
 {
-    Event result;
-    eventQueue.get(result);
-    return result;
+    return pImpl->getEvent();
 }
 
 Event InputHandler::popEvent()
 {
-    miosix::InterruptDisableLock dLock;
-    Event result;
-    if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
-    return result;
+    return pImpl->popEvent();
 }
 
-InputHandler::InputHandler()
-{
-    initEventSystem(pushEvent);
-}
-
-#else //_MIOSIX
-
-boost::mutex eqMutex; ///< Mutex to guard the event queue
-boost::condition_variable eqCond; ///< Condvar for blocking getEvent
-std::list<Event> eventQueue; ///< Queue of events from the GUI
-
-void pushEvent(Event e)
-{
-    boost::unique_lock<boost::mutex> l(eqMutex);
-    if(eventQueue.size()<100) eventQueue.push_back(e); //Drop if queue too long
-    eqCond.notify_one();
-}
-
-//
-// class InputHandler
-//
-
-InputHandler& InputHandler::instance()
-{
-    static InputHandler result;
-    return result;
-}
-
-Event InputHandler::getEvent()
-{
-    boost::unique_lock<boost::mutex> l(eqMutex);
-    while(eventQueue.empty()) eqCond.wait(l);
-    Event result=eventQueue.front();
-    eventQueue.pop_front();
-    return result;
-}
-
-Event InputHandler::popEvent()
-{
-    boost::unique_lock<boost::mutex> l(eqMutex);
-    if(eventQueue.empty()) return Event(); //Default constructed event
-    Event result=eventQueue.front();
-    eventQueue.pop_front();
-    return result;
-}
-
-InputHandler::InputHandler()
-{
-    initEventSystem(pushEvent);
-}
-
-#endif //_MIOSIX
+InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
 
 } //namespace mxgui
+
+#endif //MXGUI_LEVEL_2

@@ -25,22 +25,45 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "event_qt.h"
-
 #ifndef _MIOSIX
+
+#include "event_qt.h"
+#include <list>
+#include <boost/thread.hpp>
 
 namespace mxgui {
 
-static EventCallback callback;
+static boost::mutex eqMutex; ///< Mutex to guard the event queue
+static boost::condition_variable eqCond; ///< Condvar for blocking getEvent
+static std::list<Event> eventQueue; ///< Queue of events from the GUI
 
-void initEventSystem(EventCallback cb)
+void addEvent(Event e)
 {
-    callback=cb;
+    boost::unique_lock<boost::mutex> l(eqMutex);
+    if(eventQueue.size()<100) eventQueue.push_back(e); //Drop if queue too long
+    eqCond.notify_one();
 }
 
-EventCallback getCallback()
+//
+// class InputHandlerImpl
+//
+
+Event InputHandlerImpl::getEvent()
 {
-    return callback;
+    boost::unique_lock<boost::mutex> l(eqMutex);
+    while(eventQueue.empty()) eqCond.wait(l);
+    Event result=eventQueue.front();
+    eventQueue.pop_front();
+    return result;
+}
+
+Event InputHandlerImpl::popEvent()
+{
+    boost::unique_lock<boost::mutex> l(eqMutex);
+    if(eventQueue.empty()) return Event(); //Default constructed event
+    Event result=eventQueue.front();
+    eventQueue.pop_front();
+    return result;
 }
 
 } //namespace mxgui

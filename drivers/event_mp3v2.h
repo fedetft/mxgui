@@ -25,7 +25,12 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "mxgui/input.h"
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
+
+#include "mxgui/level2/input.h"
 
 #ifndef EVENT_MP3V2_H
 #define	EVENT_MP3V2_H
@@ -34,16 +39,25 @@
 
 namespace mxgui {
 
-typedef void (*EventCallback)(Event e);
-
 /**
- * This function is called once to initialize the backend event system.
- * \param cb a callbaxk called by the event backend when an event is
- * received.
- * The expected implementation is to spawn a background thread that checks
- * for events.
+ * Implementation class to handle events in the Mp3v2 backend
  */
-void initEventSystem(EventCallback cb);
+class InputHandlerImpl
+{
+public:
+    InputHandlerImpl();
+
+    /**
+     * \return an event, blocking
+     */
+    Event getEvent();
+
+    /**
+     * \return an event, nonblocking. A default constructed event is returned
+     * if there are no events.
+     */
+    Event popEvent();
+};
 
 } //namespace mxgui
 

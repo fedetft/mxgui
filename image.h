@@ -36,11 +36,11 @@
 
 namespace mxgui {
 
-namespace {
+namespace impl {
 /**
  * \internal
  * Quick 'n dirty auto_ptr like class for arrays. Not complete by any means,
- * but meant to be used internally only. That's why the anonymous namespace
+ * but meant to be used internally only. That's why the impl namespace
  */
 template<typename T>
 class AutoArray
@@ -53,7 +53,7 @@ private:
     T *ptr;
 };
 
-} //end anonymous namespace
+} //namespace impl
 
 /**
  * Base class from which image classes derive
@@ -85,7 +85,7 @@ public:
     short int getWidth() const { return width; }
 
     /**
-     * Concrete image classes that derive form this class can be divided in two
+     * Image classes that derive form this class can be divided in two
      * kinds: those that make the whole image available as const T* pointer,
      * and those that load only a small portion of the image at a time in
      * order to minimize RAM usage. This member function can be used to
@@ -171,7 +171,7 @@ void basic_image_base<T>::draw(U& surface, Point p) const
         for(int i=0;i<imgSize;i++) *it=Color(imgData[i]);
     } else {
         short length=this->width;
-        AutoArray<Color> line(new Color[length]);
+        impl::AutoArray<Color> line(new Color[length]);
         for(short i=0;i<this->height;i++)
         {
             if(this->getScanLine(Point(0,i),line.get(),length)==false) return;
@@ -212,7 +212,7 @@ void basic_image_base<T>::clippedDraw(U& surface,
             imgData+=toSkip;
         }
     } else {
-        AutoArray<Color> line(new Color[nx]);
+        impl::AutoArray<Color> line(new Color[nx]);
         for(short i=0;i<ny;i++)
         {
             if(this->getScanLine(Point(xa-p.x(),ya-p.y()+i),line.get(),nx)

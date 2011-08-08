@@ -67,13 +67,13 @@ void Window::updateFrameBuffer()
 void Window::aClicked()
 {
     using namespace mxgui;
-    getCallback()(Event(EventType::ButtonA));
+    addEvent(Event(EventType::ButtonA));
 }
 
 void Window::bClicked()
 {
     using namespace mxgui;
-    getCallback()(Event(EventType::ButtonB));
+    addEvent(Event(EventType::ButtonB));
 }
 
 void Window::paintEvent(QPaintEvent *event)
@@ -87,7 +87,7 @@ void Window::mouseMoveEvent(QMouseEvent *event)
     using namespace mxgui;
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
-    getCallback()(Event(EventType::TouchMove,Point(event->x(),event->y())));
+    addEvent(Event(EventType::TouchMove,Point(event->x(),event->y())));
 }
 
 void Window::mousePressEvent(QMouseEvent *event)
@@ -95,7 +95,7 @@ void Window::mousePressEvent(QMouseEvent *event)
     using namespace mxgui;
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
-    getCallback()(Event(EventType::TouchDown,Point(event->x(),event->y())));
+    addEvent(Event(EventType::TouchDown,Point(event->x(),event->y())));
 }
 
 void Window::mouseReleaseEvent(QMouseEvent *event)
@@ -103,7 +103,7 @@ void Window::mouseReleaseEvent(QMouseEvent *event)
     using namespace mxgui;
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
-    getCallback()(Event(EventType::TouchUp,Point(event->x(),event->y())));
+    addEvent(Event(EventType::TouchUp,Point(event->x(),event->y())));
 }
 
 void Window::mouseDoubleClickEvent(QMouseEvent *event)

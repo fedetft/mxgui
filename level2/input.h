@@ -25,9 +25,12 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#include "mxgui/mxgui_settings.h"
+#include "mxgui/point.h"
 #include "mxgui/drivers/event_types_qt.h"
 #include "mxgui/drivers/event_types_mp3v2.h"
-#include "mxgui/point.h"
+
+#ifdef MXGUI_LEVEL_2
 
 #ifndef INPUT_H
 #define	INPUT_H
@@ -79,6 +82,8 @@ private:
     Point p;
 };
 
+class InputHandlerImpl; //Forward declaration
+
 /**
  * Class to handle events
  */
@@ -102,9 +107,19 @@ public:
     Event popEvent();
 
 private:
-    InputHandler();
+    /**
+     * Class cannot be copied
+     */
+    InputHandler(const InputHandler&);
+    InputHandler& operator= (const InputHandler&);
+
+    InputHandler(InputHandlerImpl *impl);
+    
+    InputHandlerImpl *pImpl; //Implementation detal
 };
 
 } //namespace mxgui
+
+#endif //MXGUI_LEVEL_2
 
 #endif //INPUT_H

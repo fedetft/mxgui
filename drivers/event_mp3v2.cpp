@@ -25,7 +25,9 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifdef _BOARD_MP3V2
+#include "mxgui/mxgui_settings.h"
+
+#if defined(_BOARD_MP3V2) && defined(MXGUI_LEVEL_2)
 
 #include "event_mp3v2.h"
 #include "miosix.h"
@@ -36,15 +38,12 @@ using namespace std;
 
 namespace mxgui {
 
-///The callback to call when an event is received
-static EventCallback callback;
-
 /**
  * Initialize ADC2.
  */
 static void adcInit()
 {
-    InterruptDisableLock dLock;
+    FastInterruptDisableLock dLock;
 	//Gpio to adc mapping. Note: using adc2 to read all pins to save power
 	//pwrmgmt::vbat c5 adc12_in15
 	//disp::yp      b0 adc12_in8
@@ -89,7 +88,7 @@ static unsigned short adcRead(unsigned char input)
  * the returned point.
  * \return point of touch
  */
-Point getTouchData()
+static Point getTouchData()
 {
     int x,y;
     {
@@ -137,9 +136,14 @@ Point getTouchData()
     return Point(x,y);
 }
 
-/**
- * Thread to check for events
- */
+Queue<Event,10> eventQueue;
+
+void callback(Event e)
+{
+    FastInterruptDisableLock dLock;
+    eventQueue.IRQput(e);
+}
+
 void eventThread(void *)
 {
     disp::xp::mode(Mode::INPUT_PULL_UP_DOWN);
@@ -193,13 +197,31 @@ void eventThread(void *)
     }
 }
 
-void initEventSystem(EventCallback cb)
+//
+// class InputHandlerImpl
+//
+
+InputHandlerImpl::InputHandlerImpl()
 {
     adcInit();
-    callback=cb;
-    //Note that this function is called only once. Otherwise
+    //Note that this class is instantiated only once. Otherwise
     //we'd have to think a way to avoid creating multiple threads
     Thread::create(eventThread,STACK_MIN);
+}
+
+Event InputHandlerImpl::getEvent()
+{
+    Event result;
+    eventQueue.get(result);
+    return result;
+}
+
+Event InputHandlerImpl::popEvent()
+{
+    FastInterruptDisableLock dLock;
+    Event result;
+    if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
+    return result;
 }
 
 } //namespace mxgui

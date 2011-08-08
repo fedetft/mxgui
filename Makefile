@@ -11,7 +11,7 @@ SRC :=                              \
 display.cpp                         \
 font.cpp                            \
 misc_inst.cpp                       \
-input.cpp                           \
+level2/input.cpp                    \
 drivers/display_stm3210e-eval.cpp   \
 drivers/display_mp3v2.cpp           \
 drivers/event_mp3v2.cpp

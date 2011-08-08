@@ -33,6 +33,15 @@ namespace mxgui {
 #ifdef _MIOSIX
 
 //
+// Enable or disable level 2.
+// The mxgui library is divided in two levels:
+// - level 1: Basic display abstraction layer (Display class)
+// - level 2: Touchscreen support, display arbitration (multiple applications
+//   contending one display), higher level widgets
+//
+#define MXGUI_LEVEL_2
+
+//
 // Choose color depth.
 //
 //#define MXGUI_COLOR_DEPTH_1_BIT //Untested
@@ -58,6 +67,15 @@ namespace mxgui {
 //#define MXGUI_ENABLE_BOLD_FONTS
 
 #else //_MIOSIX
+
+/
+// Enable or disable level 2.
+// The mxgui library is divided in two levels:
+// - level 1: Basic display abstraction layer (Display class)
+// - level 2: Touchscreen support, display arbitration (multiple applications
+//   contending one display), higher level widgets
+//
+#define MXGUI_LEVEL_2
 
 //
 // Choose color depth.

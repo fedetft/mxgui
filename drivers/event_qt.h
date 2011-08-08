@@ -25,35 +25,43 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "mxgui/input.h"
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
 
 #ifndef EVENT_QT_H
 #define	EVENT_QT_H
 
 #ifndef _MIOSIX
 
+#include "mxgui/level2/input.h"
+
 namespace mxgui {
 
 /**
- * This type is a pointer to function. This function is called to send an
- * event.
- */
-typedef void (*EventCallback)(Event e);
-
-/**
- * This function is called once to initialize the backend event system.
- * \param cb a callback called by the event backend when an event is
- * received.
- * The expected implementation is to spawn a background thread that checks
- * for events.
- */
-void initEventSystem(EventCallback cb);
-
-/**
  * This function is only available in this backend because the Qt GUI app
- * requires to get the callback to call it.
+ * requires a function to add event to the queue.
  */
-EventCallback getCallback();
+void addEvent(Event e);
+
+/**
+ * Implementation class to handle events in the Qt backend
+ */
+class InputHandlerImpl
+{
+public:
+    /**
+     * \return an event, blocking
+     */
+    Event getEvent();
+
+    /**
+     * \return an event, nonblocking. A default constructed event is returned
+     * if there are no events.
+     */
+    Event popEvent();
+};
 
 } //namespace mxgui
 
