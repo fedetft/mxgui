@@ -18,16 +18,20 @@ add_executable(fontrendering ${FONTRENDERING_SRCS})
 set(PNGCONV_SRCS pngconverter.cpp)
 add_executable(pngconverter ${PNGCONV_SRCS})
 
+set(RESFS_SRCS resourcefs.cpp)
+add_executable(resourcefs ${RESFS_SRCS})
+
 ## Link libraries
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
 target_link_libraries(fontrendering fontcore ${PNG_LIBRARY})
 target_link_libraries(pngconverter ${PNG_LIBRARY})
 
-set(BOOST_LIBS program_options system)
+set(BOOST_LIBS program_options filesystem system)
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 target_link_libraries(fontrendering ${Boost_LIBRARIES})
 target_link_libraries(pngconverter ${Boost_LIBRARIES})
+target_link_libraries(resourcefs ${Boost_LIBRARIES})
 
 find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIR})
