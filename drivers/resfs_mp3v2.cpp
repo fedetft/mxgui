@@ -28,14 +28,36 @@
 #include "resfs_mp3v2.h"
 #include "miosix.h"
 #include <cstdlib>
+#include <algorithm>
+
+using namespace std;
 
 #ifdef _BOARD_MP3V2
 
 namespace resfs {
 
 /**
+ * Used to swap bytes of an unsigned short, since for no apparent reason the
+ * SPI peripheral when operated in 16 bit mode returns an unsigned short with
+ * its bytes swapped.
+ * \param x data to swap
+ * \return data swapped
+ */
+static inline unsigned short swapBytes(unsigned short x)
+{
+    union {
+        unsigned short a;
+        unsigned char b[2];
+    } result;
+    result.a=x;
+    swap(result.b[0],result.b[1]);
+    return result.a;
+}
+
+/**
  * \param data byte to send
  * \return byte received
+ * Note: the spi device must be in 8 bit mode
  */
 static inline unsigned char spi2sendByte(unsigned char data=0)
 {
@@ -45,23 +67,47 @@ static inline unsigned char spi2sendByte(unsigned char data=0)
 }
 
 /**
+ * \param data halfword to send
+ * \return halfword received
+ * Note: the spi device must be in 16 bit mode
+ */
+static inline unsigned short spi2sendHalfword(unsigned short data=0)
+{
+    SPI2->DR=data;
+    while((SPI2->SR & SPI_SR_RXNE)==0) ;
+    return swapBytes(SPI2->DR);
+}
+
+/**
  * \param data word to send
  * \return word received
+ * Note: the spi device must be in 16 bit mode
  */
 static inline unsigned int spi2sendWord(unsigned int data=0)
 {
-    SPI2->DR=data>>24;
+    SPI2->DR=data>>16;
     while((SPI2->SR & SPI_SR_RXNE)==0) ;
-    unsigned int result=SPI2->DR<<24;
-    SPI2->DR=(data>>16) & 0xff;
+    unsigned int result=swapBytes(SPI2->DR)<<16;
+    SPI2->DR=data & 0xffff;
     while((SPI2->SR & SPI_SR_RXNE)==0) ;
-    result |= SPI2->DR<<16;
-    SPI2->DR=(data>>8) & 0xff;
-    while((SPI2->SR & SPI_SR_RXNE)==0) ;
-    result |= SPI2->DR<<8;
-    SPI2->DR=data & 0xff;
-    while((SPI2->SR & SPI_SR_RXNE)==0) ;
-    return result | SPI2->DR;
+    return result | swapBytes(SPI2->DR);
+}
+
+/**
+ * Set the spi device to 8 bit mode
+ */
+static inline void mode8bit()
+{
+    SPI2->CR1=SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR | SPI_CR1_SPE;
+}
+
+/**
+ * Set the spi device to 16 bit mode
+ */
+static inline void mode16bit()
+{
+    SPI2->CR1=SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR | SPI_CR1_DFF |
+            SPI_CR1_SPE;
 }
 
 /**
@@ -74,7 +120,7 @@ static inline void spi2init()
     //Note: SPI2 is attached on the 36MHz APB2 bus, so the clock is set
     //to APB2/2=18MHz. This is the maximum achievable.
     SPI2->CR2=0;
-    SPI2->CR1=SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR | SPI_CR1_SPE;
+    mode16bit();
 }
 
 void backendInit()
@@ -89,7 +135,29 @@ void backendRead(char *buf, int addr, int len)
     xflash::cs::low();
     spi2sendWord(0xe8000000 | sector.quot<<9 | sector.rem);
     spi2sendWord();
-    while(len-->0) *buf++=spi2sendByte();
+    //Beware, optimized code
+    if((reinterpret_cast<int>(buf) & 1)==0)
+    {
+        short *aligned=reinterpret_cast<short*>(buf);
+        int count=len/4;
+        while(count-->0)
+        {
+            *aligned++=spi2sendHalfword();
+            *aligned++=spi2sendHalfword();
+        }
+        int remaining=len & 3;
+        if(remaining)
+        {
+            buf=reinterpret_cast<char*>(aligned);
+            mode8bit();
+            while(remaining-->0) *buf++=spi2sendByte();
+            mode16bit();
+        }
+    } else {
+        mode8bit();
+        while(len-->0) *buf++=spi2sendByte();
+        mode16bit();
+    }
     xflash::cs::high();
 }
 
