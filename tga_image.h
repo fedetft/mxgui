@@ -27,7 +27,6 @@
 
 #include "image.h"
 #include <cstdio>
-#include <cstring>
 
 #ifndef TGA_IMAGE_H
 #define	TGA_IMAGE_H
@@ -42,33 +41,36 @@ namespace mxgui {
  * on disk bandwidth, but there's no other way to do that when you don't have
  * enough RAM
  */
-template<typename T>
-class basic_tga_image : public basic_image_base<T>
+class TgaImage : public ImageBase
 {
 public:
     /**
      * Default constructor
      */
-    basic_tga_image() : basic_tga_image(), name(0), f(0), offset(0) {}
+    TgaImage() : ImageBase(), name(0), f(0), offset(0) {}
 
     /**
      * Construct from a filename
      * \param filename file name of tga image
      */
-    explicit basic_tga_image(const char *filename);
+    explicit TgaImage(const char *filename): name(0) { this->open(filename); }
 
     /**
      * Copy constructor
      * \param rhs instance to copy from
      */
-    basic_tga_image(const basic_tga_image& rhs);
+    TgaImage(const TgaImage& rhs): name(0) { this->open(rhs.name); }
 
     /**
      * Operator =
      * \param rhs instance to copy from
      * \return reference to *this
      */
-    const basic_tga_image& operator= (const basic_tga_image& rhs);
+    const TgaImage& operator= (const TgaImage& rhs)
+    {
+        if(this!=&rhs) this->open(rhs.name);
+        return *this;
+    }
 
     /**
      * Open a tga file
@@ -101,6 +103,11 @@ public:
     virtual bool getScanLine(mxgui::Point p, mxgui::Color colors[],
             unsigned short length) const;
 
+    /**
+     * Destructor
+     */
+    virtual ~TgaImage() { close(); }
+
 private:
 
     /**
@@ -128,106 +135,6 @@ private:
     FILE *f; ///< Tga image file
     short offset; ///< Offset from start of file where image data starts
 };
-
-template<typename T>
-basic_tga_image<T>::basic_tga_image(const char *filename)
-        : basic_image_base<T>(), name(0), f(0), offset(0)
-{
-    this->open(filename);
-}
-
-template<typename T>
-basic_tga_image<T>::basic_tga_image(const basic_tga_image<T>& rhs)
-        : basic_image_base<T>(), name(0), f(0), offset(0)
-{
-    this->open(rhs.name);
-}
-
-template<typename T>
-const basic_tga_image<T>& basic_tga_image<T>::operator=(
-        const basic_tga_image<T>& rhs)
-{
-    this->open(rhs.name);
-    return *this;
-}
-
-template<typename T>
-void basic_tga_image<T>::open(const char *filename)
-{
-    if(filename==0) return;
-    this->close();
-
-    //Try to open file
-    this->f=fopen(filename,"r");
-    if(this->f==NULL) return;
-    //setbuf(this->f,0); //Too slow if unbuffered
-
-    //Try to parse header
-    bool fail=false;
-    TgaHeader header;
-    if(fread(&header,1,sizeof(TgaHeader),this->f)!=sizeof(TgaHeader)) fail=true;
-    //TODO: more support for options
-    if(header.colorMapType!=0) fail=true; //Color maps unsupported
-    if(header.imgType!=2) fail=true;      //Only uncompressed truecolor image
-    if(header.pixDepth!=24) fail=true;    //Only 24bit images supported
-    if(fail)
-    {
-        fclose(this->f);
-        return;
-    }
-
-    //Fill image data
-    this->height=header.height;
-    this->width=header.width;
-    //Image is stored with reversed y axis, so store the end of the image as
-    //offset and then use subraction to get current line
-    this->offset=sizeof(TgaHeader)+header.idLength;
-
-    //Last, copy file name to local variable
-    int length=strlen(filename)+1;
-    this->name=new char[length];
-    strcpy(this->name,filename);
-}
-
-template<typename T>
-void basic_tga_image<T>::close()
-{
-    if(this->name==0) return;
-    delete[] this->name;
-    this->name=0;
-    fclose(this->f);
-    this->width=0;
-    this->height=0;
-    this->offset=0;
-}
-
-template<typename T>
-bool basic_tga_image<T>::getScanLine(mxgui::Point p, mxgui::Color colors[],
-            unsigned short length) const
-{
-    if(this->isOpen()==false) return false;
-    if(p.x()<0 || p.x()<0) return false;
-    if(p.x()>=this->getWidth() || p.y()>=this->getHeight()) return false;
-    int o=p.x()+this->getWidth()*p.y();
-    fseek(f,this->offset+3*o,SEEK_SET);
-    //TODO: specialize: this only works if MXGUI_COLOR_DEPTH_16_BIT
-    for(int i=0;i<length;i++)
-    {
-        unsigned char pix[3];
-        if(fread(pix,1,3,f)!=3) return false;
-        colors[i]=(pix[2] & 0xf8)<<8 | (pix[1] & 0xfc)<<3 | pix[0]>>3;
-    }
-    return true;
-}
-
-///Define the TgaImage class, depending on the COLOR_DEPTH constant
-#ifdef MXGUI_COLOR_DEPTH_1_BIT
-//When 1bit per pixel mode TgaImage is not available
-#elif defined(MXGUI_COLOR_DEPTH_8_BIT)
-typedef basic_tga_image<unsigned char> TgaImage;
-#elif defined(MXGUI_COLOR_DEPTH_16_BIT)
-typedef basic_tga_image<unsigned short> TgaImage;
-#endif
 
 } //namespace mmxgui
 

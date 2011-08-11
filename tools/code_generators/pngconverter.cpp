@@ -31,6 +31,29 @@ using namespace std;
 using namespace png;
 using namespace boost::program_options;
 
+/**
+ * \param an unsigned short
+ * \return the same short forced into little endian representation
+ */
+unsigned short toLittleEndian(unsigned short x)
+{
+	static bool first=true, little;
+	union {
+		unsigned short a;
+		unsigned char b[2];
+	} endian;
+	if(first)
+	{
+		endian.a=0x12;
+		little=endian.b[0]==0x12;
+		first=false;
+	}
+	if(little) return x;
+	endian.a=x;
+	swap(endian.b[0],endian.b[1]);
+	return endian.a;
+}
+
 static string toUpper(const string& x)
 {
     string result(x);
@@ -46,7 +69,7 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("help", "Prints this.")
         ("in", value<string>(), "Input png file (required)")
-        ("depth", value<int>(), "Color depth, 8,16,18 or 24 bits (required)")
+        ("depth", value<int>(), "Color depth, 1,8,16,18 or 24 bits (required)")
         ("out", value<string>(), "Output png file for validation")
         ("binary", "Generate a binary file instead of a .cpp/.h file")
     ;
@@ -71,6 +94,9 @@ int main(int argc, char *argv[])
     int maxPixPerLine;//Used to print a limited number of pixel per line
     switch(pixDepth)
     {
+        case 1:
+            maxPixPerLine=16;
+            break;
         case 8:
             maxPixPerLine=16;
             break;
@@ -79,14 +105,12 @@ int main(int argc, char *argv[])
             break;
         case 18:
             maxPixPerLine=6;
-            cerr<<"Warning: 18 bpp support might be inclomplete"<<endl;
             break;
         case 24:
             maxPixPerLine=6;
-            cerr<<"Warning: 24 bpp support might be inclomplete"<<endl;
             break;
         default:
-            throw(runtime_error("Unsupported pixel depth (not 8,16,18,24)"));
+            throw(runtime_error("Unsupported pixel depth (not 1,8,16,18,24)"));
     }
 
     /*
@@ -138,6 +162,12 @@ int main(int argc, char *argv[])
         if(pixDepth==16) 
             file<<"static const unsigned short pixelData[]={"<<endl<<' ';
         else file<<"static const unsigned char pixelData[]={"<<endl<<' ';
+    } else {
+        unsigned short header[3];
+        header[0]=toLittleEndian((unsigned short)img.get_height());
+        header[1]=toLittleEndian((unsigned short)img.get_width());
+        header[2]=toLittleEndian((unsigned short)pixDepth);
+        file.write(reinterpret_cast<char*>(&header),sizeof(header));
     }
 
     int numPerLine=0;//Number of pixel per line. when reaches limit, wrap
@@ -152,6 +182,9 @@ int main(int argc, char *argv[])
             unsigned int r,g,b;
             switch(pixDepth)
             {
+                case 1:
+                    throw(runtime_error("Implement me"));
+                    break;
                 case 8:
                     r=pix.red & (7<<5);
                     g=pix.green & (7<<5);
@@ -159,7 +192,7 @@ int main(int argc, char *argv[])
                     i=r | g>>3 | b>>6;
                     if(binary)
                     {
-                        c=i;
+                        c=(unsigned char)i;
                         file.write(reinterpret_cast<char*>(&c),1);
                     } else file<<i;
                     if(outRequested) outImage.set_pixel(x,y,rgb_pixel(r,g,b));
@@ -171,7 +204,7 @@ int main(int argc, char *argv[])
                     i=(r<<(5+6) | g<<5 | b);
                     if(binary)
                     {
-                        s=i;
+                        s=toLittleEndian((unsigned short)i);
                         file.write(reinterpret_cast<char*>(&s),2);
                     } else file<<i;
                     if(outRequested) outImage.set_pixel(x,y,rgb_pixel(r,g,b));

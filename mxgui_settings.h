@@ -42,6 +42,11 @@ namespace mxgui {
 #define MXGUI_LEVEL_2
 
 //
+// Enable or disable ResourceFs, only some targets support it
+//
+#define MXGUI_ENABLE_RESOURCEFS
+
+//
 // Choose color depth.
 //
 //#define MXGUI_COLOR_DEPTH_1_BIT //Untested
@@ -76,6 +81,11 @@ namespace mxgui {
 //   contending one display), higher level widgets
 //
 #define MXGUI_LEVEL_2
+
+//
+// Enable or disable ResourceFs, only some targets support it
+//
+#define MXGUI_ENABLE_RESOURCEFS
 
 //
 // Choose color depth.

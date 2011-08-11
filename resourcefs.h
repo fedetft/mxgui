@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2011 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,104 +25,88 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef BENCHMARK_H
-#define	BENCHMARK_H
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
 
-#ifdef _MIOSIX
+#include "mxgui_settings.h"
+#include <unistd.h>
 
-#include "mxgui/display.h"
-#include "miosix.h"
+#ifndef RESOURCEFS_H
+#define	RESOURCEFS_H
 
+#ifdef MXGUI_ENABLE_RESOURCEFS
 
-/**
- * The result of a benchmark
- */
-class BenchmarkResult
-{
-public:
-
-    BenchmarkResult(): time(0) { name[0]='\0'; }
-
-    /**
-     * \param name name of benchmark
-     * \param time time (in microseconds) taken to do the benchmark
-     */
-    BenchmarkResult(const char str[20], unsigned int time);
-
-    /**
-     * \return the benchmark name
-     */
-    const char *getName() const { return name; }
-
-    /**
-     * \return the benchmark time, in microseconds
-     */
-    unsigned int getTime() const { return time; }
-
-    /**
-     * \return number of fps(multiplied by 100, so that the last
-     * two digits are fractional fps values).
-     */
-    unsigned int getFps() const { return time==0 ? 99999 : (1000000*100)/time; }
-
-    /**
-     * Print the result on the display d, at point p
-     */
-    void print(mxgui::Display& d, mxgui::Point p);
-
-private:
-    char name[20];
-    unsigned int time;
-};
+namespace resfs {
 
 /**
- * Benchmark code is here. Benchmark is designed for a 240x320 screen,
- * orientation vertical
+ * This class allows to access files in the resourceFs filesystem,
+ * available on some targets as a way to offload image storage on an external
+ * flash memory, and retrieve them by name.
  */
-class Benchmark
+class ResourceFile
 {
 public:
     /**
-     * \param display the display that will be benchmarked
+     * Default constructor, yields a closed file
      */
-    Benchmark(mxgui::Display& display);
+    ResourceFile(): siz(-1) {}
 
     /**
-     * Starts the benchmark.
-     * At the end result are directly printed on screen, but it is possible
-     * to get them with getResults()
+     * Constructor
+     * \param name file name
      */
-    void start();
+    explicit ResourceFile(const char *name) { this->open(name); }
+
+    /**
+     * Open a file in the ResourceFs filesystem
+     * \param name file name
+     */
+    void open(const char *name);
+
+    /**
+     * \return true if the file was opened successfully
+     */
+    bool isOpen() const { return siz>=0; }
+
+    /**
+     * Close the file
+     */
+    void close() { siz=-1; }
+
+    /**
+     * \return file size if file was opened successfully, or -1
+     */
+    int size() const { return siz; }
+
+    /**
+     * Read data from the file
+     * \param buffer data will be stored here
+     * \param len number of bytes to read
+     * \return number of bytes read, can be less than len if eof
+     */
+    int read(char *buffer, int len);
+
+    /**
+     * Move the file read pointer
+     * \param pos offset
+     * \param whence SEEK_SET, SEEK_CUR or SEEK_END
+     * \return new value for the file read pointer
+     */
+    int lseek(int pos, int whence);
+
+    //Uses default copy constructor, operator=
 
 private:
-    void fixedWidthTextBenchmark();
 
-    void variableWidthTextBenchmark();
-
-    void antialiasingBenchmark();
-
-    void horizontalLineBenchmark();
-
-    void verticalLineBenchmark();
-
-    void obliqueLineBenchmark();
-
-    void clearScreenBenchmark();
-	
-    void imageBenchmark();
-
-    void scanLineBenchmark();
-
-    void clippedDrawBenchmark();
-
-    void clippedWriteBenchmark();
-
-    static const unsigned int numBenchmarks=11;
-    mxgui::Display& display;
-    BenchmarkResult results[numBenchmarks];
-    miosix::Timer timer;
+    int startOffset; ///< Physical address on flash where the file starts
+    int siz;         ///< File size
+    int ptr;         ///< Read pointer, 0<=readPtr<=size
 };
 
-#endif //_MIOSIX
+} // namespace resfs
 
-#endif	/* BENCHMARK_H */
+#endif //MXGUI_ENABLE_RESOURCEFS
+
+#endif //RESOURCEFS_H

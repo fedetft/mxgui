@@ -50,6 +50,8 @@ public:
     ~AutoArray() { delete[] ptr; }
     T *get() { return ptr; }
 private:
+    AutoArray(const AutoArray&);
+    AutoArray& operator=(const AutoArray&);
     T *ptr;
 };
 

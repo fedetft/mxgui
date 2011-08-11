@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2011 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,104 +25,90 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef BENCHMARK_H
-#define	BENCHMARK_H
+#include "image.h"
+#include "mxgui_settings.h"
 
-#ifdef _MIOSIX
+#ifndef RESOURCE_IMAGE_H
+#define	RESOURCE_IMAGE_H
 
-#include "mxgui/display.h"
-#include "miosix.h"
+#ifdef MXGUI_ENABLE_RESOURCEFS
 
+namespace mxgui {
 
-/**
- * The result of a benchmark
- */
-class BenchmarkResult
-{
-public:
-
-    BenchmarkResult(): time(0) { name[0]='\0'; }
-
-    /**
-     * \param name name of benchmark
-     * \param time time (in microseconds) taken to do the benchmark
-     */
-    BenchmarkResult(const char str[20], unsigned int time);
-
-    /**
-     * \return the benchmark name
-     */
-    const char *getName() const { return name; }
-
-    /**
-     * \return the benchmark time, in microseconds
-     */
-    unsigned int getTime() const { return time; }
-
-    /**
-     * \return number of fps(multiplied by 100, so that the last
-     * two digits are fractional fps values).
-     */
-    unsigned int getFps() const { return time==0 ? 99999 : (1000000*100)/time; }
-
-    /**
-     * Print the result on the display d, at point p
-     */
-    void print(mxgui::Display& d, mxgui::Point p);
-
-private:
-    char name[20];
-    unsigned int time;
-};
+class ResourceImageImpl; //Forward declaration
 
 /**
- * Benchmark code is here. Benchmark is designed for a 240x320 screen,
- * orientation vertical
+ * Image stored in the ResourceFs filesystem
  */
-class Benchmark
+class ResourceImage : public ImageBase
 {
 public:
     /**
-     * \param display the display that will be benchmarked
+     * Default constructor
      */
-    Benchmark(mxgui::Display& display);
+    ResourceImage(): pImpl(0) {}
 
     /**
-     * Starts the benchmark.
-     * At the end result are directly printed on screen, but it is possible
-     * to get them with getResults()
+     * Constructor.
+     * \param name name of image file inside the resource filesystem
      */
-    void start();
+    explicit ResourceImage(const char *name): pImpl(0) { this->open(name); }
+
+    /**
+     * Copy constructor
+     * \param rhs instance to copy from
+     */
+    ResourceImage(const ResourceImage& rhs);
+
+    /**
+     * Operator =
+     * \param rhs instance to copy from
+     * \return reference to *this
+     */
+    ResourceImage& operator=(const ResourceImage&);
+
+    /**
+     * Open a file
+     * \param name name of image file inside the resource filesystem
+     */
+    void open(const char *name);
+
+    /**
+     * Clode tga file
+     */
+    void close();
+
+    /**
+     * \return true if image is open
+     */
+    bool isOpen() const { return pImpl!=0; }
+
+    /**
+     * Get pixels from tha image. This member function can be used to get
+     * up to a full horizontal line of pixels from an image.
+     * \param p Start point, within <0,0> and <getWidth()-1,getHeight()-1>
+     * \param colors pixel data is returned here. Array size must be equal to
+     * the length parameter
+     * \param length number of pixel to retrieve from the starting point.
+     * start.x()+length must be less or equal to getWidth()
+     * \return true if success. If false then it means the class does not
+     * represent a valid image, or a disk error occurred in case the image
+     * is stored on disk.
+     */
+    virtual bool getScanLine(mxgui::Point p, mxgui::Color colors[],
+            unsigned short length) const;
+
+    /**
+     * Desctructor
+     */
+    virtual ~ResourceImage() { close(); }
 
 private:
-    void fixedWidthTextBenchmark();
-
-    void variableWidthTextBenchmark();
-
-    void antialiasingBenchmark();
-
-    void horizontalLineBenchmark();
-
-    void verticalLineBenchmark();
-
-    void obliqueLineBenchmark();
-
-    void clearScreenBenchmark();
-	
-    void imageBenchmark();
-
-    void scanLineBenchmark();
-
-    void clippedDrawBenchmark();
-
-    void clippedWriteBenchmark();
-
-    static const unsigned int numBenchmarks=11;
-    mxgui::Display& display;
-    BenchmarkResult results[numBenchmarks];
-    miosix::Timer timer;
+    ResourceImageImpl *pImpl;
 };
 
-#endif //_MIOSIX
+} // namespace mxgui
 
-#endif	/* BENCHMARK_H */
+#endif //MXGUI_ENABLE_RESOURCEFS
+
+#endif //RESOURCE_IMAGE_H
