@@ -135,27 +135,28 @@ void backendRead(char *buf, int addr, int len)
     xflash::cs::low();
     spi2sendWord(0xe8000000 | sector.quot<<9 | sector.rem);
     spi2sendWord();
-    //Beware, optimized code
-    if((reinterpret_cast<int>(buf) & 1)==0)
+    if(len<=0) return;
+    if(reinterpret_cast<int>(buf) & 1)
     {
-        short *aligned=reinterpret_cast<short*>(buf);
-        int count=len/4;
-        while(count-->0)
-        {
-            *aligned++=spi2sendHalfword();
-            *aligned++=spi2sendHalfword();
-        }
-        int remaining=len & 3;
-        if(remaining)
-        {
-            buf=reinterpret_cast<char*>(aligned);
-            mode8bit();
-            while(remaining-->0) *buf++=spi2sendByte();
-            mode16bit();
-        }
-    } else {
         mode8bit();
-        while(len-->0) *buf++=spi2sendByte();
+        len--;
+        *buf++=spi2sendByte();
+        mode16bit();
+    }
+    //Now buf is surely halfword aligned
+    short *aligned=reinterpret_cast<short*>(buf);
+    int count=len/4;
+    while(count-->0)
+    {
+        *aligned++=spi2sendHalfword();
+        *aligned++=spi2sendHalfword();
+    }
+    int remaining=len & 3;
+    if(remaining)
+    {
+        buf=reinterpret_cast<char*>(aligned);
+        mode8bit();
+        while(remaining-->0) *buf++=spi2sendByte();
         mode16bit();
     }
     xflash::cs::high();

@@ -33,7 +33,6 @@
 #include "mxgui/display.h"
 #include "miosix.h"
 
-
 /**
  * The result of a benchmark
  */
@@ -117,7 +116,9 @@ private:
 
     void clippedWriteBenchmark();
 
-    static const unsigned int numBenchmarks=11;
+    void resourceImageBenchmark();
+
+    static const unsigned int numBenchmarks=12;
     mxgui::Display& display;
     BenchmarkResult results[numBenchmarks];
     miosix::Timer timer;

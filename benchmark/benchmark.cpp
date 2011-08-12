@@ -28,8 +28,9 @@
 #include "benchmark.h"
 #include "mxgui/misc_inst.h"
 #include "checkpattern.h"
+#include "mxgui/resource_image.h"
 #include "micro_qr_code_from_wikipedia.h"
-#include "mxgui/benchmark/benchmark.h"
+#include "benchmark.h"
 #include <cstdio>
 #include <cstring>
 
@@ -79,7 +80,6 @@ void Benchmark::start()
     display.clear(black);
 
     //Then, do benchmarks
-    results.reserve(11); //There are 11 benchmarks
     fixedWidthTextBenchmark();
     variableWidthTextBenchmark();
     antialiasingBenchmark();
@@ -91,6 +91,7 @@ void Benchmark::start()
     scanLineBenchmark();
     clippedDrawBenchmark();
     clippedWriteBenchmark();
+    resourceImageBenchmark();
 
     //Last print results
     display.clear(black);
@@ -98,7 +99,7 @@ void Benchmark::start()
     display.setTextColor(white,black);
     display.write(Point(0,0),"Benchmark name                 Time         Fps");
     display.line(Point(0,12),Point(240,12),white);
-    for(unsigned int i=0, j=13;i<results.size();i++,j+=12)
+    for(unsigned int i=0, j=13;i<numBenchmarks;i++,j+=12)
         results[i].print(display,Point(0,j));
 }
 
@@ -118,7 +119,7 @@ void Benchmark::fixedWidthTextBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Monospace text",totalTime));
+    results[0]=BenchmarkResult("Monospace text",totalTime);
 }
 
 void Benchmark::variableWidthTextBenchmark()
@@ -139,7 +140,7 @@ void Benchmark::variableWidthTextBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Variable width text",totalTime));
+    results[1]=BenchmarkResult("Variable width text",totalTime);
 }
 
 void Benchmark::antialiasingBenchmark()
@@ -159,7 +160,7 @@ void Benchmark::antialiasingBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Antialiased text",totalTime));
+    results[2]=BenchmarkResult("Antialiased text",totalTime);
 }
 
 void Benchmark::horizontalLineBenchmark()
@@ -176,7 +177,7 @@ void Benchmark::horizontalLineBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Horizontal lines",totalTime));
+    results[3]=BenchmarkResult("Horizontal lines",totalTime);
 }
 
 void Benchmark::verticalLineBenchmark()
@@ -193,7 +194,7 @@ void Benchmark::verticalLineBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Vertical lines",totalTime));
+    results[4]=BenchmarkResult("Vertical lines",totalTime);
 }
 
 void Benchmark::obliqueLineBenchmark()
@@ -226,7 +227,7 @@ void Benchmark::obliqueLineBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Oblique lines",totalTime));
+    results[5]=BenchmarkResult("Oblique lines",totalTime);
 }
 
 void Benchmark::clearScreenBenchmark()
@@ -243,7 +244,7 @@ void Benchmark::clearScreenBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Screen clear",totalTime));
+    results[6]=BenchmarkResult("Screen clear",totalTime);
 }
 
 void Benchmark::imageBenchmark()
@@ -269,7 +270,7 @@ void Benchmark::imageBenchmark()
         delayMs(250);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Draw image",totalTime));
+    results[7]=BenchmarkResult("Draw image",totalTime);
 }
 
 static const Color rainbow[]={
@@ -322,7 +323,7 @@ void Benchmark::scanLineBenchmark()
         delayMs(250);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("ScanLine",totalTime));
+    results[8]=BenchmarkResult("ScanLine",totalTime);
 }
 
 void Benchmark::clippedDrawBenchmark()
@@ -358,7 +359,7 @@ void Benchmark::clippedDrawBenchmark()
         delayMs(250);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("ClippedDraw",totalTime));
+    results[9]=BenchmarkResult("ClippedDraw",totalTime);
 }
 
 void Benchmark::clippedWriteBenchmark()
@@ -385,5 +386,27 @@ void Benchmark::clippedWriteBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results.push_back(BenchmarkResult("Clipped text",totalTime));
+    results[10]=BenchmarkResult("Clipped text",totalTime);
+}
+
+void Benchmark::resourceImageBenchmark()
+{
+    #ifdef MXGUI_ENABLE_RESOURCEFS
+    unsigned int totalTime=0;
+    ResourceImage img("background");
+    for(int i=0;i<4;i++)
+    {
+        timer.start();
+        display.drawImage(Point(0,0),img);
+        timer.stop();
+        totalTime+=timer.interval()*1000000/TICK_FREQ;
+        timer.clear();
+        display.clear(black);
+        delayMs(500);
+    }
+    totalTime/=4;
+    results[11]=BenchmarkResult("ResourceImage",totalTime);
+    #else //MXGUI_ENABLE_RESOURCEFS
+    results[11]=BenchmarkResult("ResourceImage",0); //Benchmark not done
+    #endif //MXGUI_ENABLE_RESOURCEFS
 }
