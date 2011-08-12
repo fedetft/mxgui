@@ -32,6 +32,9 @@
 
 #include "mxgui_settings.h"
 #include <unistd.h>
+#ifndef _MIOSIX
+#include <fstream>
+#endif //_MIOSIX
 
 #ifndef RESOURCEFS_H
 #define	RESOURCEFS_H
@@ -96,13 +99,22 @@ public:
      */
     int lseek(int pos, int whence);
 
+    #ifdef _MIOSIX
     //Uses default copy constructor, operator=
+    #else //_MIOSIX
+    ResourceFile(const ResourceFile& rhs);
+    ResourceFile& operator=(const ResourceFile& rhs);
+    #endif //_MIOSIX
 
 private:
 
-    int startOffset; ///< Physical address on flash where the file starts
-    int siz;         ///< File size
-    int ptr;         ///< Read pointer, 0<=readPtr<=size
+    int startOffset;      ///< Physical address on flash where the file starts
+    int siz;              ///< File size
+    int ptr;              ///< Read pointer, 0<=readPtr<=size
+    #ifndef _MIOSIX
+    std::string filename; ///< Used in the simulator
+    std::ifstream file;   ///< Used in the simulator
+    #endif //_MIOSIX
 };
 
 } // namespace resfs

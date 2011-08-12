@@ -8,14 +8,16 @@ set(FOO_SRCS
     ../../font.cpp
     ../../misc_inst.cpp
     ../../display.cpp
-    ../../input.cpp
+    ../../resourcefs.cpp
+    ../../resource_image.cpp
+    ../../tga_image.cpp
     ../../drivers/display_qt.cpp
     ../../drivers/event_qt.cpp
+    ../../level2/input.cpp
     qtbackend.cpp
     window.cpp
     qtsimulator.cpp
-    ../../../main.cpp
-    ../test_image/dispersion.cpp)
+    ../../../main.cpp)
 set(FOO_HEADERS window.h)
 
 # ../../.. is the main project directory

@@ -28,16 +28,19 @@
 #include "resourcefs.h"
 #include "resourcefs_types.h"
 #include "drivers/resfs_mp3v2.h"
+#ifdef _MIOSIX
 #include "miosix.h"
+#endif _MIOSIX
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
 
 using namespace std;
 
-#ifdef MXGUI_ENABLE_RESOURCEFS
-
 namespace resfs {
+
+#ifdef MXGUI_ENABLE_RESOURCEFS
+#ifdef _MIOSIX
 
 //
 // class ResourceFs
@@ -143,6 +146,81 @@ int ResourceFile::lseek(int pos, int whence)
     return temp;
 }
 
-} // namespace resfs
+#else //_MIOSIX
+// _MIOSIX is not defined, we're in the simulator. Here a ResourceFile is
+// just a file with "resource/" padded to its name
 
+void ResourceFile::open(const char *name)
+{
+    siz=-1;
+    if(strlen(name)==0) return;
+    filename=string("resource/")+name;
+    file.open(filename.c_str(),ios::binary);
+    if(!file.good()) return;
+    file.seekg(0,ios::end);
+    siz=file.tellg();
+    file.seekg(0,ios::beg);
+    ptr=0;
+}
+
+int ResourceFile::read(char *buffer, int len)
+{
+    if(this->siz<0) return -1;
+    file.read(buffer,len);
+    int result=file.gcount();
+    ptr+=result;
+    return result;
+}
+
+int ResourceFile::lseek(int pos, int whence)
+{
+    if(this->siz<0) return -1;
+    switch(whence)
+    {
+        case SEEK_CUR:
+            file.seekg(pos,ios::cur);
+
+            break;
+        case SEEK_SET:
+            file.seekg(pos,ios::beg);
+            break;
+        case SEEK_END:
+            file.seekg(pos,ios::end);
+            break;
+        default:
+            return -1;
+    }
+    if(file.fail())
+    {
+        file.clear();
+        return -1;
+    }
+    ptr=file.tellg();
+    return ptr;
+}
+
+ResourceFile::ResourceFile(const ResourceFile& rhs)
+{
+    this->siz=rhs.siz;
+    if(this->siz==-1) return;
+    this->filename=rhs.filename;
+    this->file.open(rhs.filename.c_str());
+    this->ptr=rhs.ptr;
+    this->file.seekg(rhs.ptr);
+}
+
+ResourceFile& ResourceFile::operator=(const ResourceFile& rhs)
+{
+    this->siz=rhs.siz;
+    if(this->siz==-1) return *this;
+    this->filename=rhs.filename;
+    this->file.open(rhs.filename.c_str());
+    this->ptr=rhs.ptr;
+    this->file.seekg(rhs.ptr);
+    return *this;
+}
+
+#endif //_MIOSIX
 #endif //MXGUI_ENABLE_RESOURCEFS
+
+} // namespace resfs

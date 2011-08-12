@@ -39,7 +39,7 @@ namespace mxgui {
 // - level 2: Touchscreen support, display arbitration (multiple applications
 //   contending one display), higher level widgets
 //
-//#define MXGUI_LEVEL_2
+#define MXGUI_LEVEL_2
 
 //
 // Enable or disable ResourceFs, only some targets support it
@@ -73,7 +73,6 @@ namespace mxgui {
 
 #else //_MIOSIX
 
-/
 // Enable or disable level 2.
 // The mxgui library is divided in two levels:
 // - level 1: Basic display abstraction layer (Display class)
