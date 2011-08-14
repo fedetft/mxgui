@@ -240,8 +240,7 @@ public:
             if(disp==0)
                 throw(std::logic_error("default constructed pixel iterator"));
 
-            disp->backend.getFrameBuffer().setPixel(cur.x(),cur.y(),
-                    color.value());
+            disp->backend.getFrameBuffer().setPixel(cur.x(),cur.y(),color);
             if(direction==DR)
             {
                 if(cur.y()<end.y()) cur=Point(cur.x(),cur.y()+1);

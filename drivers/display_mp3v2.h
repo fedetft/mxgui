@@ -121,7 +121,7 @@ public:
     {
         setCursor(p);
         writeIdx(0x22);//Write to GRAM
-        writeRam(color.value());
+        writeRam(color);
     }
 
     /**
@@ -141,9 +141,9 @@ public:
             writeIdx(0x22);//Write to GRAM
             int numPixels=abs(a.x()-b.x());
             int fastPixels=numPixels/2;
-            unsigned int twoPixColor=color.value() | color.value()<<16;
+            unsigned int twoPixColor=color | color<<16;
             for(int i=0;i<=fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
-            if(numPixels & 0x1) writeRam(color.value());
+            if(numPixels & 0x1) writeRam(color);
             return;
         }
         //Vertical line speed optimization
@@ -154,9 +154,9 @@ public:
             writeIdx(0x22);//Write to GRAM
             int numPixels=abs(a.y()-b.y());
             int fastPixels=numPixels/2;
-            unsigned int twoPixColor=color.value() | color.value()<<16;
+            unsigned int twoPixColor=color | color<<16;
             for(int i=0;i<=fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
-            if(numPixels & 0x1) writeRam(color.value());
+            if(numPixels & 0x1) writeRam(color);
             return;
         }
         //General case, always works but it is much slower due to the display
@@ -180,11 +180,11 @@ public:
         int fastPixels=length/2;
         for(int i=0;i<fastPixels;i++)
         {
-            unsigned int twoPix=colors[0].value() | colors[1].value()<<16;
+            unsigned int twoPix=colors[0] | colors[1]<<16;
             DISPLAY->TWOPIX_RAM=twoPix;
             colors+=2;
         }
-        if(length & 0x1) writeRam(colors[0].value());
+        if(length & 0x1) writeRam(colors[0]);
     }
 
     /**
@@ -369,7 +369,7 @@ public:
         pixel_iterator& operator= (Color color)
         {
             pixelLeft--;
-            writeRam(color.value());
+            writeRam(color);
             return *this;
         }
 

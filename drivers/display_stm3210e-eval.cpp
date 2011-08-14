@@ -106,7 +106,7 @@ void DisplayImpl::clear(Point p1, Point p2, Color color)
     imageWindow(p1,p2);
     writeIdx(0x22);//Write to GRAM
     int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
-    for(int i=0;i<numPixels;i++) writeRam(color.value());
+    for(int i=0;i<numPixels;i++) writeRam(color);
 }
 
 void DisplayImpl::drawRectangle(Point a, Point b, Color c)

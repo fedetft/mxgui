@@ -92,7 +92,7 @@ void DisplayImpl::clear(Point p1, Point p2, Color color)
     
     FrameBuffer& fb=backend.getFrameBuffer();
     for(int i=p1.x();i<=p2.x();i++)
-        for(int j=p1.y();j<=p2.y();j++) fb.setPixel(i,j,color.value());
+        for(int j=p1.y();j<=p2.y();j++) fb.setPixel(i,j,color);
     beginPixelCalled=false;
 }
 
@@ -111,7 +111,7 @@ void DisplayImpl::setPixel(Point p, Color color)
     if(p.x()>=width || p.y()>=height)
         throw(logic_error("DisplayImpl::setPixel: point outside display bounds"));
 
-    backend.getFrameBuffer().setPixel(p.x(),p.y(),color.value());
+    backend.getFrameBuffer().setPixel(p.x(),p.y(),color);
 }
 
 void DisplayImpl::line(Point a, Point b, Color color)

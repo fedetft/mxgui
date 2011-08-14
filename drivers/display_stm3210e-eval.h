@@ -128,7 +128,7 @@ public:
     {
         setCursor(p);
         writeIdx(0x22);//Write to GRAM
-        writeRam(color.value());
+        writeRam(color);
     }
 
     /**
@@ -148,7 +148,7 @@ public:
             imageWindow(Point(min(a.x(),b.x()),a.y()),Point(width-1,a.y()+8));
             writeIdx(0x22);//Write to GRAM
             int numPixels=abs(a.x()-b.x());
-            for(int i=0;i<=numPixels;i++) writeRam(color.value());
+            for(int i=0;i<=numPixels;i++) writeRam(color);
             return;
         }
         //Vertical line speed optimization
@@ -160,7 +160,7 @@ public:
             writeIdx(0x22);//Write to GRAM
             int numPixels=abs(a.y()-b.y());
             //Loop not unrolled because when running from flash is slower
-            for(int i=0;i<=numPixels;i++) writeRam(color.value());
+            for(int i=0;i<=numPixels;i++) writeRam(color);
             return;
         }
         //General case, always works but it is much slower due to the display
@@ -181,7 +181,7 @@ public:
     {
         imageWindow(p,Point(width-1,p.y()));
         writeIdx(0x22); //Write to GRAM
-        for(int i=0;i<length;i++) writeRam(colors[i].value());
+        for(int i=0;i<length;i++) writeRam(colors[i]);
     }
 
     /**
@@ -312,7 +312,7 @@ public:
         pixel_iterator& operator= (Color color)
         {
             pixelLeft--;
-            writeRam(color.value());
+            writeRam(color);
             return *this;
         }
 

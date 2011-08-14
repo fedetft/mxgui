@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Terraneo Federico                               *
+ *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -32,41 +32,13 @@
 
 namespace mxgui {
 
-/**
- * Color class. Colors are immutable except they can be assigned with operator=
- */
-template<typename T>
-class basic_color
-{
-public:
-    /**
-     * Constructor, create an instance of the Color class given its value
-     */
-    basic_color(T value): colorValue(value) {}
-
-    /**
-     * Default constructor. Resulting color is black.
-     */
-    basic_color(): colorValue(0) {}
-
-    /**
-     * \return the color value
-     */
-    const T value() const { return colorValue; }
-
-    //Uses default copy constructor and operator=
-
-private:
-    T colorValue;
-};
-
-///Define the Color class, depending on the COLOR_DEPTH constant
+///Define the Color type, depending on the COLOR_DEPTH constant
 #ifdef MXGUI_COLOR_DEPTH_1_BIT
-typedef basic_color<unsigned char> Color; //Only 0 and 1 allowed
+typedef unsigned char Color; //Only 0 and 1 allowed
 #elif defined(MXGUI_COLOR_DEPTH_8_BIT)
-typedef basic_color<unsigned char> Color;
+typedef unsigned char Color;
 #elif defined(MXGUI_COLOR_DEPTH_16_BIT)
-typedef basic_color<unsigned short> Color;
+typedef unsigned short Color;
 #endif
 
 } // namespace mxgui

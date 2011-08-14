@@ -127,9 +127,9 @@ void DisplayImpl::clear(Point p1, Point p2, Color color)
     writeIdx(0x22);//Write to GRAM
     int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
     int fastPixels=numPixels/2;
-    unsigned int twoPixColor=color.value() | color.value()<<16;
+    unsigned int twoPixColor=color | color<<16;
     for(int i=0;i<fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
-    if(numPixels & 0x1) writeRam(color.value());
+    if(numPixels & 0x1) writeRam(color);
 }
 
 void DisplayImpl::drawRectangle(Point a, Point b, Color c)
