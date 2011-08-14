@@ -25,6 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#include "mxgui/entry.h"
 #include "mxgui/display.h"
 #include "mxgui/misc_inst.h"
 #include "mxgui/tga_image.h"
@@ -42,10 +43,12 @@ static void drawSlowly(Display& display, Point p, const char *line)
 	char cur[2]={0};
 	while(*line!='\0')
 	{
-		*cur=*line++;
-		display.write(p,cur);
-		display.update();
-		p=Point(p.x()+display.getFont().calculateLength(cur),p.y());
+        *cur=*line++;
+        {
+            DrawingContext dc(display);
+            dc.write(p,cur);
+            p=Point(p.x()+dc.getFont().calculateLength(cur),p.y());
+        }
 		usleep(30000);
 	}
 }
@@ -54,8 +57,10 @@ static void blinkingDot(Display& display, Point p)
 {
 	for(int i=0;i<12;i++)
 	{
-		display.write(p,i & 1 ? " " : ".");
-		display.update();
+        {
+            DrawingContext dc(display);
+            dc.write(p,i & 1 ? " " : ".");
+        }
 		usleep(200000);
 	}
 }
@@ -68,34 +73,29 @@ void bootMessage(Display& display)
     const int s0pix=droid21.calculateLength(s0);
     const int s1pix=droid11.calculateLength(s1);
     const int s2pix=droid11.calculateLength(s2);
-    display.setFont(droid21);
-
     int y=10;
-    int width=display.getWidth();
-    display.write(Point((width-s0pix)/2,y),s0);
-    y+=display.getFont().getHeight();
-    display.line(Point((width-s1pix)/2,y),Point((width-s1pix)/2+s1pix,y),white);
-    y+=4;
-    display.setFont(droid11);
+    int width;
+    {
+        DrawingContext dc(display);
+        dc.setFont(droid21);
+        width=dc.getWidth();
+        dc.write(Point((width-s0pix)/2,y),s0);
+        y+=dc.getFont().getHeight();
+        dc.line(Point((width-s1pix)/2,y),Point((width-s1pix)/2+s1pix,y),white);
+        y+=4;
+        dc.setFont(droid11);
+    }
+
     drawSlowly(display,Point((width-s1pix)/2,y),s1);
-    y+=display.getFont().getHeight();
+    y+=droid11.getHeight();
     drawSlowly(display,Point((width-s2pix)/2,y),s2);
     blinkingDot(display,Point((width-s2pix)/2+s2pix,y));
-
-    display.clear(black);
-    display.update();
 }
 
-#ifdef _MIOSIX
-int main() //With Miosix, this is the main()
-#else
-int entryPoint() //With qtsimulator, the simulator calls entryPoint()
-#endif
+ENTRY()
 {
     Display& display=Display::instance();
     bootMessage(display);
-    display.write(Point(10,10),"Touch me!");
-    display.update();
 
     TgaImage img("dis.tga");
     InputHandler& backend=InputHandler::instance();
@@ -107,10 +107,13 @@ int entryPoint() //With qtsimulator, the simulator calls entryPoint()
         switch(e.getEvent())
         {
             case EventType::ButtonA:
-                display.drawImage(Point(0,0),img);
-                display.update();
+            {
+                DrawingContext dc(display);
+                dc.drawImage(Point(0,0),img);
                 needClear=true;
                 break;
+            }
+                
             case EventType::ButtonB:
                 display.turnOff();
                 return 0;
@@ -118,11 +121,12 @@ int entryPoint() //With qtsimulator, the simulator calls entryPoint()
             case EventType::TouchUp:
             case EventType::TouchMove:
             {
+                DrawingContext dc(display);
                 if(e.hasValidPoint()==false) break;
                 if(needClear)
                 {
                     needClear=false;
-                    display.clear(black);
+                    dc.clear(black);
                     break;
                 }
                 const int k=80;
@@ -136,36 +140,33 @@ int entryPoint() //With qtsimulator, the simulator calls entryPoint()
                     short yMin=min(a.y(),oldY);
                     short yMax=max(a.y(),oldY)+k;
                     if(a.x()<oldX)
-                     display.clear(Point(a.x()+k,yMin),Point(oldX+k,yMax),
-                             black);
+                        dc.clear(Point(a.x()+k,yMin),Point(oldX+k,yMax),black);
                     else
-                     display.clear(Point(oldX,yMin),Point(a.x(),yMax),black);
+                        dc.clear(Point(oldX,yMin),Point(a.x(),yMax),black);
                 }
                 if(a.y()!=oldY)
                 {
                     short xMin=min(a.x(),oldX);
                     short xMax=max(a.x(),oldX)+k;
                     if(a.y()<oldY)
-                     display.clear(Point(xMin,a.y()+k),Point(xMax,oldY+k),
-                             black);
+                        dc.clear(Point(xMin,a.y()+k),Point(xMax,oldY+k),black);
                     else
-                     display.clear(Point(xMin,oldY),Point(xMax,a.y()),black);
+                        dc.clear(Point(xMin,oldY),Point(xMax,a.y()),black);
                 }
-                display.clippedDrawImage(Point(0,0),a,b,img);
+                dc.clippedDrawImage(Point(0,0),a,b,img);
                 oldX=a.x();
                 oldY=a.y();
 
-//                display.line(Point(0,oldY),Point(239,oldY),black);
-//                display.line(Point(oldX,0),Point(oldX,319),black);
+//                dc.line(Point(0,oldY),Point(239,oldY),black);
+//                dc.line(Point(oldX,0),Point(oldX,319),black);
 //                oldX=e.getPoint().x();
 //                oldY=e.getPoint().y();
-//                display.line(Point(0,oldY),Point(239,oldY),white);
-//                display.line(Point(oldX,0),Point(oldX,319),white);
+//                dc.line(Point(0,oldY),Point(239,oldY),white);
+//                dc.line(Point(oldX,0),Point(oldX,319),white);
                 break;
             }
             default:
                 break;
         }
-        display.update();
     }
 }

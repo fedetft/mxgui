@@ -67,7 +67,7 @@ public:
     /**
      * Print the result on the display d, at point p
      */
-    void print(mxgui::Display& d, mxgui::Point p);
+    void print(mxgui::DrawingContext& dc, mxgui::Point p);
 
 private:
     char name[20];

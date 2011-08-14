@@ -6,6 +6,24 @@
 
 namespace mxgui {
 
+//
+// class PthreadLock
+//
+namespace {
+class PthreadLock
+{
+public:
+    PthreadLock(pthread_mutex_t& m) : mutex(m) { pthread_mutex_lock(&mutex); }
+    ~PthreadLock() { pthread_mutex_unlock(&mutex); }
+private:
+    pthread_mutex_t& mutex;
+};
+} //anon namespace
+
+//
+// class Display
+//
+
 Display& Display::instance(const char *id)
 {
     static DisplayImpl implementation;
@@ -13,59 +31,16 @@ Display& Display::instance(const char *id)
     return singleton;
 }
 
-void Display::write(Point p, const char* text)
+void Display::turnOn()
 {
-    pImpl->write(p,text);
+    PthreadLock lock(dispMutex);
+    pImpl->turnOn();
 }
 
-void Display::clippedWrite(Point p, Point a, Point b, const char* text)
+void Display::turnOff()
 {
-    pImpl->clippedWrite(p,a,b,text);
-}
-
-void Display::clear(Color color)
-{
-    pImpl->clear(color);
-}
-
-void Display::clear(Point p1, Point p2, Color color)
-{
-    pImpl->clear(p1,p2,color);
-}
-
-void Display::beginPixel()
-{
-    pImpl->beginPixel();
-}
-
-void Display::setPixel(Point p, Color color)
-{
-    pImpl->setPixel(p,color);
-}
-
-void Display::line(Point a, Point b, Color color)
-{
-    pImpl->line(a,b,color);
-}
-
-void Display::scanLine(Point p, const Color* colors, unsigned short length)
-{
-    pImpl->scanLine(p,colors,length);
-}
-
-void Display::drawImage(Point p, const ImageBase& img)
-{
-    pImpl->drawImage(p,img);
-}
-
-void Display::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
-{
-    pImpl->clippedDrawImage(p,a,b,img);
-}
-
-void Display::drawRectangle(Point a, Point b, Color c)
-{
-    pImpl->drawRectangle(a,b,c);
+    PthreadLock lock(dispMutex);
+    pImpl->turnOff();
 }
 
 short int Display::getHeight() const
@@ -78,46 +53,114 @@ short int Display::getWidth() const
     return pImpl->getWidth();
 }
 
-void Display::turnOn()
+Display::Display(DisplayImpl *impl) : pImpl(impl)
 {
-    pImpl->turnOn();
+    pthread_mutex_init(&dispMutex,NULL);
 }
 
-void Display::turnOff()
+//
+// class DrawingContext
+//
+
+DrawingContext::DrawingContext(Display& display) : display(display)
 {
-    pImpl->turnOff();
+    pthread_mutex_lock(&display.dispMutex);
 }
 
-void Display::setTextColor(Color fgcolor, Color bgcolor)
+void DrawingContext::write(Point p, const char* text)
 {
-    pImpl->setTextColor(fgcolor,bgcolor);
+    display.pImpl->write(p,text);
 }
 
-Color Display::getForeground() const
+void DrawingContext::clippedWrite(Point p, Point a, Point b, const char* text)
 {
-    return pImpl->getForeground();
+    display.pImpl->clippedWrite(p,a,b,text);
 }
 
-Color Display::getBackground() const
+void DrawingContext::clear(Color color)
 {
-    return pImpl->getBackground();
+    display.pImpl->clear(color);
 }
 
-void Display::setFont(const Font& font)
+void DrawingContext::clear(Point p1, Point p2, Color color)
 {
-    pImpl->setFont(font);
+    display.pImpl->clear(p1,p2,color);
 }
 
-Font Display::getFont() const
+void DrawingContext::beginPixel()
 {
-    return pImpl->getFont();
+    display.pImpl->beginPixel();
 }
 
-void Display::update()
+void DrawingContext::setPixel(Point p, Color color)
 {
-    pImpl->update();
+    display.pImpl->setPixel(p,color);
 }
 
-Display::Display(DisplayImpl *impl) : pImpl(impl) {}
+void DrawingContext::line(Point a, Point b, Color color)
+{
+    display.pImpl->line(a,b,color);
+}
+
+void DrawingContext::scanLine(Point p, const Color* colors, unsigned short length)
+{
+    display.pImpl->scanLine(p,colors,length);
+}
+
+void DrawingContext::drawImage(Point p, const ImageBase& img)
+{
+    display.pImpl->drawImage(p,img);
+}
+
+void DrawingContext::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
+{
+    display.pImpl->clippedDrawImage(p,a,b,img);
+}
+
+void DrawingContext::drawRectangle(Point a, Point b, Color c)
+{
+    display.pImpl->drawRectangle(a,b,c);
+}
+
+short int DrawingContext::getHeight() const
+{
+    return display.pImpl->getHeight();
+}
+
+short int DrawingContext::getWidth() const
+{
+    return display.pImpl->getWidth();
+}
+
+void DrawingContext::setTextColor(Color fgcolor, Color bgcolor)
+{
+    display.pImpl->setTextColor(fgcolor,bgcolor);
+}
+
+Color DrawingContext::getForeground() const
+{
+    return display.pImpl->getForeground();
+}
+
+Color DrawingContext::getBackground() const
+{
+    return display.pImpl->getBackground();
+}
+
+void DrawingContext::setFont(const Font& font)
+{
+    display.pImpl->setFont(font);
+}
+
+Font DrawingContext::getFont() const
+{
+    return display.pImpl->getFont();
+}
+
+DrawingContext::~DrawingContext()
+{
+    display.pImpl->update();
+    pthread_mutex_unlock(&display.dispMutex);
+}
 
 } //namespace mxgui

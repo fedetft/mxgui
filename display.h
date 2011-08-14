@@ -28,6 +28,7 @@
 #ifndef DISPLAY_H
 #define	DISPLAY_H
 
+#include <pthread.h>
 #include "mxgui_settings.h"
 #include "point.h"
 #include "color.h"
@@ -36,12 +37,14 @@
 
 namespace mxgui {
 
-class DisplayImpl; //Forward declaration
+class DisplayImpl;    //Forward declaration
+class DrawingContext;
 
 /**
- * Display class. This is an "interface" that all display drivers must implement
- * It represents the first usable abstraction over a display, with member
- * functions to draw lines, text, images...
+ * Display class.
+ * Contains member functions to retrieve a display instance, and to turn it on
+ * or off. For drawing onto the display, you need to instantiate a
+ * DrawingContext.
  */
 class Display
 {
@@ -53,6 +56,61 @@ public:
      * the same id return the same display instance (singleton)
      */
     static Display& instance(const char *id="");
+
+    /**
+     * Turn the display On after it has been turned Off.
+     * Display initial state is On.
+     */
+    void turnOn();
+
+    /**
+     * Turn the display Off. It can be later turned back On.
+     */
+    void turnOff();
+
+    /**
+     * \return the display's height
+     */
+    short int getHeight() const;
+
+    /**
+     * \return the display's width
+     */
+    short int getWidth() const;
+
+private:
+    /**
+     * Constructor
+     */
+    Display(DisplayImpl *impl);
+
+    /*
+     * Class cannot be copied
+     */
+    Display(const Display&);
+    Display& operator=(const Display&);
+
+    DisplayImpl *pImpl; //Implementation detal
+    pthread_mutex_t dispMutex; //To lock concurrent access to the display
+
+    friend class DrawingContext;
+};
+
+/**
+ * A drawing context is a class that is instantiated whenever there is the
+ * need to draw something on a display. Its primary purpose is to lock a mutex
+ * allowing safe concurrent access to a display from multiple threads, but
+ * avoiding the overhead of locking a mutex for each single graphic primitive
+ * call.
+ */
+class DrawingContext
+{
+public:
+    /**
+     * Constructor
+     * \param display the display on which you want to draw
+     */
+    DrawingContext(Display& display);
 
     /**
      * Write text to the display. If text is too long it will be truncated
@@ -161,17 +219,6 @@ public:
     short int getWidth() const;
 
     /**
-     * Turn the display On after it has been turned Off.
-     * Display initial state is On.
-     */
-    void turnOn();
-
-    /**
-     * Turn the display Off. It can be later turned back On.
-     */
-    void turnOff();
-
-    /**
      * Set colors used for writing text
      * \param fgcolor text color
      * \param bgcolor background color
@@ -200,27 +247,20 @@ public:
      * \return the current font used to draw text
      */
     Font getFont() const;
-
+    
     /**
-     * Make all changes done to the display since the last call to update()
-     * visible. Not all backends require it, so on some backend what you do
-     * will be immediately visible, while on others a call to update() is needed
+     * Destructor
      */
-    void update();
+    ~DrawingContext();
 
 private:
-    /**
-     * Constructor
-     */
-    Display(DisplayImpl *impl);
-
-    /**
+    /*
      * Class cannot be copied
      */
-    Display(const Display&);
-    Display& operator=(const Display&);
+    DrawingContext(const DrawingContext&);
+    DrawingContext& operator=(DrawingContext&);
 
-    DisplayImpl *pImpl; //Implementation detal
+    Display& display; //Underlying display object
 };
 
 } //namespace mxgui

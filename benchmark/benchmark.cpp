@@ -49,14 +49,14 @@ BenchmarkResult::BenchmarkResult(const char name[20], unsigned int time)
     this->name[19]='\0';
 }
 
-void BenchmarkResult::print(mxgui::Display& d, mxgui::Point p)
+void BenchmarkResult::print(DrawingContext& dc, Point p)
 {
-    d.write(p,name);
+    dc.write(p,name);
     char line[64];
     int a=getFps()/100;
     int b=getFps()%100;
     sniprintf(line,63,"%d.%06d %d.%02d",time/1000000,time%1000000,a,b);
-    d.write(Point(130,p.y()),line);
+    dc.write(Point(130,p.y()),line);
     iprintf("%s",name);
     for(unsigned int i=0;i<24-strlen(name);i++) putchar(' ');
     iprintf("%s\n",line);
@@ -71,13 +71,16 @@ Benchmark::Benchmark(mxgui::Display& display): display(display) {}
 void Benchmark::start()
 {
     //First, setup
-    if(display.getWidth()!=240 || display.getHeight()!=320)
     {
-        iprintf("Error: benchmark is designed for a display with a width\n"
-                "of 240 pixels and a height of 320 pixels\n");
-        return;
+        DrawingContext dc(display);
+        if(dc.getWidth()!=240 || dc.getHeight()!=320)
+        {
+            iprintf("Error: benchmark is designed for a display with a width\n"
+                    "of 240 pixels and a height of 320 pixels\n");
+            return;
+        }
+        dc.clear(black);
     }
-    display.clear(black);
 
     //Then, do benchmarks
     fixedWidthTextBenchmark();
@@ -94,26 +97,32 @@ void Benchmark::start()
     resourceImageBenchmark();
 
     //Last print results
-    display.clear(black);
-    display.setFont(droid11);
-    display.setTextColor(white,black);
-    display.write(Point(0,0),"Benchmark name                 Time         Fps");
-    display.line(Point(0,12),Point(240,12),white);
-    for(unsigned int i=0, j=13;i<numBenchmarks;i++,j+=12)
-        results[i].print(display,Point(0,j));
+    {
+        DrawingContext dc(display);
+        dc.clear(black);
+        dc.setFont(droid11);
+        dc.setTextColor(white,black);
+        dc.write(Point(0,0),"Benchmark name                 Time         Fps");
+        dc.line(Point(0,12),Point(240,12),white);
+        for(unsigned int i=0, j=13;i<numBenchmarks;i++,j+=12)
+            results[i].print(dc,Point(0,j));
+    }
 }
 
 void Benchmark::fixedWidthTextBenchmark()
 {
     unsigned int totalTime=0;
     const char text[]="012345678901234567890123456789";
-    display.setFont(miscFixed);
     for(int i=0;i<4;i++)
     {
-        display.setTextColor(i%2==0 ? red : green,black);
-        timer.start();
-        for(int j=0;j<320;j+=16) display.write(Point(0,j),text);
-        timer.stop();
+        {
+            DrawingContext dc(display);
+            dc.setFont(miscFixed);
+            dc.setTextColor(i%2==0 ? red : green,black);
+            timer.start();
+            for(int j=0;j<320;j+=16) dc.write(Point(0,j),text);
+            timer.stop();
+        }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -123,18 +132,20 @@ void Benchmark::fixedWidthTextBenchmark()
 }
 
 void Benchmark::variableWidthTextBenchmark()
-{
-    display.clear(black);
-    display.setFont(tahoma);
+{ 
     unsigned int totalTime=0;
     //This line with tahoma font is exactly 240 pixel wide
     const char text[]="abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/";
     for(int i=0;i<4;i++)
     {
-        display.setTextColor(i%2==0 ? red : green,black);
-        timer.start();
-        for(int j=0;j<320;j+=12) display.write(Point(0,j),text);
-        timer.stop();
+        {
+            DrawingContext dc(display);
+            dc.setFont(tahoma);
+            dc.setTextColor(i%2==0 ? red : green,black);
+            timer.start();
+            for(int j=0;j<320;j+=12) dc.write(Point(0,j),text);
+            timer.stop();
+        }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -145,16 +156,18 @@ void Benchmark::variableWidthTextBenchmark()
 
 void Benchmark::antialiasingBenchmark()
 {
-    display.clear(black);
-    display.setFont(droid11);
     unsigned int totalTime=0;
     const char text[]="abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/";
     for(int i=0;i<4;i++)
     {
-        display.setTextColor(i%2==0 ? red : green,black);
-        timer.start();
-        for(int j=0;j<320;j+=12) display.write(Point(0,j),text);
-        timer.stop();
+        {
+            DrawingContext dc(display);
+            dc.setFont(droid11);
+            dc.setTextColor(i%2==0 ? red : green,black);
+            timer.start();
+            for(int j=0;j<320;j+=12) dc.write(Point(0,j),text);
+            timer.stop();
+        }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -169,9 +182,12 @@ void Benchmark::horizontalLineBenchmark()
     for(int i=0;i<4;i++)
     {
         Color color=i%2==0?red:green;
-        timer.start();
-        for(int j=0;j<320;j++) display.line(Point(0,j),Point(239,j),color);
-        timer.stop();
+        {
+            DrawingContext dc(display);
+            timer.start();
+            for(int j=0;j<320;j++) dc.line(Point(0,j),Point(239,j),color);
+            timer.stop();
+        }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -186,9 +202,12 @@ void Benchmark::verticalLineBenchmark()
     for(int i=0;i<4;i++)
     {
         Color color=i%2==0?red:green;
-        timer.start();
-        for(int j=0;j<240;j++) display.line(Point(j,0),Point(j,319),color);
-        timer.stop();
+        {
+            DrawingContext dc(display);
+            timer.start();
+            for(int j=0;j<240;j++) dc.line(Point(j,0),Point(j,319),color);
+            timer.stop();
+        }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -208,20 +227,23 @@ void Benchmark::obliqueLineBenchmark()
         Color colorA=i%2==0?darkRed:darkGreen;
         Color colorB=i%2==0?darkGreen:darkBlue;
         Color colorC=i%2==0?darkBlue:darkRed;
-        timer.start();
-        for(int j=0;j<240;j++)
         {
-            display.line(Point(j,0),Point(239,239-j),colorA);
+            DrawingContext dc(display);
+            timer.start();
+            for(int j=0;j<240;j++)
+            {
+                dc.line(Point(j,0),Point(239,239-j),colorA);
+            }
+            for(int j=0;j<240;j++)
+            {
+                dc.line(Point(0,320-240+j),Point(239-j,319),colorB);
+            }
+            for(int j=0;j<320-240;j++)
+            {
+                dc.line(Point(0,1+j),Point(239,240+j),colorC);
+            }
+            timer.stop();
         }
-        for(int j=0;j<240;j++)
-        {
-            display.line(Point(0,320-240+j),Point(239-j,319),colorB);
-        }
-        for(int j=0;j<320-240;j++)
-        {
-            display.line(Point(0,1+j),Point(239,240+j),colorC);
-        }
-        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -236,9 +258,12 @@ void Benchmark::clearScreenBenchmark()
     for(int i=0;i<4;i++)
     {
         Color color=i%2==0?red:green;
-        timer.start();
-        display.clear(color);
-        timer.stop();
+        {
+            DrawingContext dc(display);
+            timer.start();
+            dc.clear(color);
+            timer.stop();
+        }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -252,19 +277,22 @@ void Benchmark::imageBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<2;i++)
     {
-        timer.start();
-        for(int j=0;j<240;j+=16)
-            for(int k=0;k<320;k+=16)
-                display.drawImage(Point(j,k),micro_qr_code_from_wikipedia);
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
-        delayMs(250);
-        timer.start();
-        for(int j=0;j<240;j+=16)
-            for(int k=0;k<320;k+=16)
-                display.drawImage(Point(j,k),checkpattern);
-        timer.stop();
+        {
+            DrawingContext dc(display);
+            timer.start();
+            for(int j=0;j<240;j+=16)
+                for(int k=0;k<320;k+=16)
+                    dc.drawImage(Point(j,k),micro_qr_code_from_wikipedia);
+            timer.stop();
+            totalTime+=timer.interval()*1000000/TICK_FREQ;
+            timer.clear();
+            delayMs(250);
+            timer.start();
+            for(int j=0;j<240;j+=16)
+                for(int k=0;k<320;k+=16)
+                    dc.drawImage(Point(j,k),checkpattern);
+            timer.stop();
+        }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(250);
@@ -311,15 +339,18 @@ void Benchmark::scanLineBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
-        timer.start();
-        for(int k=0;k<320;k++)
-            display.scanLine(Point(0,k),rainbow,240);
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
-        delayMs(250);
-        display.clear(black);
-        timer.clear();
+        {
+            DrawingContext dc(display);
+            timer.start();
+            for(int k=0;k<320;k++)
+                dc.scanLine(Point(0,k),rainbow,240);
+            timer.stop();
+            totalTime+=timer.interval()*1000000/TICK_FREQ;
+            timer.clear();
+            delayMs(250);
+            dc.clear(black);
+            timer.clear();
+        }
         delayMs(250);
     }
     totalTime/=4;
@@ -331,29 +362,32 @@ void Benchmark::clippedDrawBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<2;i++)
     {
-        timer.start();
-        for(int j=0;j<240;j+=8)
-            for(int k=0;k<320;k+=8)
-            {
-                Point p(j-8,k-8);
-                Point a(j,k);
-                Point b(j+8,k+8);
-                display.clippedDrawImage(p,a,b,micro_qr_code_from_wikipedia);
-            }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
-        delayMs(250);
-        timer.start();
-        for(int j=0;j<240;j+=8)
-            for(int k=0;k<320;k+=8)
-            {
-                Point p(j-8,k-8);
-                Point a(j,k);
-                Point b(j+8,k+8);
-                display.clippedDrawImage(p,a,b,checkpattern);
-            }
-        timer.stop();
+        {
+            DrawingContext dc(display);
+            timer.start();
+            for(int j=0;j<240;j+=8)
+                for(int k=0;k<320;k+=8)
+                {
+                    Point p(j-8,k-8);
+                    Point a(j,k);
+                    Point b(j+8,k+8);
+                    dc.clippedDrawImage(p,a,b,micro_qr_code_from_wikipedia);
+                }
+            timer.stop();
+            totalTime+=timer.interval()*1000000/TICK_FREQ;
+            timer.clear();
+            delayMs(250);
+            timer.start();
+            for(int j=0;j<240;j+=8)
+                for(int k=0;k<320;k+=8)
+                {
+                    Point p(j-8,k-8);
+                    Point a(j,k);
+                    Point b(j+8,k+8);
+                    dc.clippedDrawImage(p,a,b,checkpattern);
+                }
+            timer.stop();
+        }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(250);
@@ -364,23 +398,25 @@ void Benchmark::clippedDrawBenchmark()
 
 void Benchmark::clippedWriteBenchmark()
 {
-    display.clear(black);
-    display.setFont(droid11);
     unsigned int totalTime=0;
     const char text[]="abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/";
     for(int i=0;i<4;i++)
     {
-        if(i%2==0) display.setTextColor(red,black);
-        else display.setTextColor(green,black);
-        timer.start();
-        for(int j=0;j<320;j+=6)
         {
-            Point p(0,j-3);
-            Point a(0,j);
-            Point b(239,j+5);
-            display.clippedWrite(p,a,b,text);
+            DrawingContext dc(display);
+            dc.setFont(droid11);
+            if(i%2==0) dc.setTextColor(red,black);
+            else dc.setTextColor(green,black);
+            timer.start();
+            for(int j=0;j<320;j+=6)
+            {
+                Point p(0,j-3);
+                Point a(0,j);
+                Point b(239,j+5);
+                dc.clippedWrite(p,a,b,text);
+            }
+            timer.stop();
         }
-        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -396,12 +432,15 @@ void Benchmark::resourceImageBenchmark()
     ResourceImage img("background");
     for(int i=0;i<4;i++)
     {
-        timer.start();
-        display.drawImage(Point(0,0),img);
-        timer.stop();
+        {
+            DrawingContext dc(display);
+            dc.clear(black);
+            timer.start();
+            dc.drawImage(Point(0,0),img);
+            timer.stop();
+        }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
-        display.clear(black);
         delayMs(500);
     }
     totalTime/=4;
