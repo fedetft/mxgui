@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Terraneo Federico                               *
+ *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,6 +20,8 @@
 #include "mxgui/drivers/event_qt.h"
 #include <cstring>
 #include <QPainter>
+
+using namespace mxgui;
 
 //
 // class UpdateSignalSender
@@ -66,13 +68,11 @@ void Window::updateFrameBuffer()
 
 void Window::aClicked()
 {
-    using namespace mxgui;
     addEvent(Event(EventType::ButtonA));
 }
 
 void Window::bClicked()
 {
-    using namespace mxgui;
     addEvent(Event(EventType::ButtonB));
 }
 
@@ -84,7 +84,6 @@ void Window::paintEvent(QPaintEvent *event)
 
 void Window::mouseMoveEvent(QMouseEvent *event)
 {
-    using namespace mxgui;
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
     addEvent(Event(EventType::TouchMove,Point(event->x(),event->y())));
@@ -92,7 +91,6 @@ void Window::mouseMoveEvent(QMouseEvent *event)
 
 void Window::mousePressEvent(QMouseEvent *event)
 {
-    using namespace mxgui;
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
     addEvent(Event(EventType::TouchDown,Point(event->x(),event->y())));
@@ -100,7 +98,6 @@ void Window::mousePressEvent(QMouseEvent *event)
 
 void Window::mouseReleaseEvent(QMouseEvent *event)
 {
-    using namespace mxgui;
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
     addEvent(Event(EventType::TouchUp,Point(event->x(),event->y())));

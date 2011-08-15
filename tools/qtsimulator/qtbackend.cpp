@@ -28,6 +28,12 @@
  */
 extern int entryPoint();
 
+void appThread()
+{
+    entryPoint();
+    exit(0);
+}
+
 //
 // class QTBackend
 //
@@ -43,6 +49,6 @@ void QTBackend::start(boost::shared_ptr<UpdateSignalSender> sender)
     if(started==true) return;
     started=true;
     this->sender=sender;
-    boost::thread t(entryPoint);
+    boost::thread t(appThread);
     t.detach();
 }

@@ -40,29 +40,29 @@ using namespace mxgui;
 
 static void drawSlowly(Display& display, Point p, const char *line)
 {
-	char cur[2]={0};
-	while(*line!='\0')
-	{
+    char cur[2]={0};
+    while(*line!='\0')
+    {
         *cur=*line++;
         {
             DrawingContext dc(display);
             dc.write(p,cur);
             p=Point(p.x()+dc.getFont().calculateLength(cur),p.y());
         }
-		usleep(30000);
-	}
+        usleep(30000);
+    }
 }
 
 static void blinkingDot(Display& display, Point p)
 {
-	for(int i=0;i<12;i++)
-	{
+    for(int i=0;i<12;i++)
+    {
         {
             DrawingContext dc(display);
             dc.write(p,i & 1 ? " " : ".");
         }
-		usleep(200000);
-	}
+        usleep(200000);
+    }
 }
 
 void bootMessage(Display& display)
