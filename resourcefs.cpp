@@ -179,7 +179,6 @@ int ResourceFile::lseek(int pos, int whence)
     {
         case SEEK_CUR:
             file.seekg(pos,ios::cur);
-
             break;
         case SEEK_SET:
             file.seekg(pos,ios::beg);
