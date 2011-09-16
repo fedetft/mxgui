@@ -25,6 +25,11 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+/**
+ * \file mxgui_settings.h
+ * This file contains configuration parameters for the mxusb library.
+ */
+
 #ifndef MXGUI_SETTINGS_H
 #define	MXGUI_SETTINGS_H
 
@@ -32,39 +37,46 @@ namespace mxgui {
 
 #ifdef _MIOSIX
 
-//
-// Enable or disable level 2.
-// The mxgui library is divided in two levels:
-// - level 1: Basic display abstraction layer (Display class)
-// - level 2: Touchscreen support, display arbitration (multiple applications
-//   contending one display), higher level widgets
-//
+///
+/// Enable or disable level 2.
+/// The mxgui library is divided in two levels:
+/// - level 1: Basic display abstraction layer (Display class)
+/// - level 2: Touchscreen support, display arbitration (multiple applications
+///   contending one display), higher level widgets
+///
 #define MXGUI_LEVEL_2
 
-//
-// Enable or disable ResourceFs, only some targets support it
-//
+///
+/// Maximum number of appications that can run simultaneously
+/// (valid only if MXGUI_LEVEL_2 is defined)
+///
+static const int level2MaxNumApps=4;
+
+///
+/// Enable or disable ResourceFs, only some targets support it
+///
 #define MXGUI_ENABLE_RESOURCEFS
 
-//
-// Choose color depth.
-//
+///
+/// Choose color depth. Three options are provided for 1, 8 or 16 bit per pixel
+///
 //#define MXGUI_COLOR_DEPTH_1_BIT //Untested
 //#define MXGUI_COLOR_DEPTH_8_BIT //Untested
 #define MXGUI_COLOR_DEPTH_16_BIT
 
-//
-// Display orientation settings, choose ONE of these. Their meaninig depends
-// on the chosen display type
-//
+///
+/// Display orientation settings. Four options are provided for HORIZONTAL or
+/// VERTICAL display orientation, and a mirrored options for both.
+/// Their meaninig depends on how the display backend is implemented.
+///
 #define MXGUI_ORIENTATION_VERTICAL
 //#define MXGUI_ORIENTATION_HORIZONTAL
 //#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
 //#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
 
-//
-// Select which fonts are required. Choose one or more
-//
+///
+/// Select which fonts are required. Choose one or more
+///
 #define MXGUI_FONT_DROID11
 //#define MXGUI_FONT_DROID21
 #define MXGUI_FONT_MISCFIXED

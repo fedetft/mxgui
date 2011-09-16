@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2011 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,23 +25,30 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef COLOR_H
-#define	COLOR_H
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
 
-#include "mxgui_settings.h"
+#include <pthread.h>
+
+#ifndef PTHREAD_LOCK_H
+#define	PTHREAD_LOCK_H
 
 namespace mxgui {
 
-///\ingroup pub_iface
-///Define the Color type, depending on the COLOR_DEPTH constant
-#ifdef MXGUI_COLOR_DEPTH_1_BIT
-typedef unsigned char Color; //Only 0 and 1 allowed
-#elif defined(MXGUI_COLOR_DEPTH_8_BIT)
-typedef unsigned char Color;
-#elif defined(MXGUI_COLOR_DEPTH_16_BIT)
-typedef unsigned short Color;
-#endif
+/**
+ * \internal RAII class to lock a pthread_mutex_t
+ */
+class PthreadLock
+{
+public:
+    PthreadLock(pthread_mutex_t& m) : mutex(m) { pthread_mutex_lock(&mutex); }
+    ~PthreadLock() { pthread_mutex_unlock(&mutex); }
+private:
+    pthread_mutex_t& mutex;
+};
 
-} // namespace mxgui
+} //namespace mxgui
 
-#endif //COLOR_H
+#endif //PTHREAD_LOCK_H

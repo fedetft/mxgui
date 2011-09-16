@@ -29,28 +29,15 @@
 #include "drivers/display_stm3210e-eval.h"
 #include "drivers/display_mp3v2.h"
 #include "drivers/display_qt.h"
+#include "pthread_lock.h"
 
 namespace mxgui {
-
-//
-// class PthreadLock
-//
-namespace {
-class PthreadLock
-{
-public:
-    PthreadLock(pthread_mutex_t& m) : mutex(m) { pthread_mutex_lock(&mutex); }
-    ~PthreadLock() { pthread_mutex_unlock(&mutex); }
-private:
-    pthread_mutex_t& mutex;
-};
-} //anon namespace
 
 //
 // class Display
 //
 
-Display& Display::instance(const char *id)
+Display& Display::instance()
 {
     static DisplayImpl implementation;
     static Display singleton(&implementation);

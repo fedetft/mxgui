@@ -1,0 +1,90 @@
+
+/**
+\mainpage Miosix GUI library
+\section introduction Introduction
+Mxgui is a lightweight and configurable GUI library for 32bit microcontrollers.
+It can drive monochrome and color displays using microcontrollers with limited
+amounts of RAM memory and that cannot in general perform double buffering
+because of that. Its target are microcontroller down to 32KB of FLASH and 8KB
+of RAM memory.
+
+It is designed to work together with the Miosix kernel, which provide a
+threadsafe C and C++ standard library as well as posix threads.
+
+\section design Library design
+The library is divided in two "levels", named Mxgui level 1 and Mxgui level 2,
+to address embedded systems with different level of complexity.
+- \ref pub_iface is an abstraction of a generic display device,
+  providing methods to write text with different fonts, even variable width and
+  antialiased ones, drawing images, providing clipping facilities and simple
+  graphic primitives, such as line drawing.
+  It also provides basic support for concurrent access to the same display
+  by multiple threads.
+- \ref pub_iface_2 which is currently in very early stage of
+  development, is designed to handle multiplexing of a number of different
+  applications on a single display device, providing input event dispatching
+  from devices such as touchscreens, and also featuring a basic set of display
+  widgets such as buttons, etc.
+
+\section tools Tools
+The library comprehends a set of tools designed to run on a Linux host PC
+to aid in the design of graphical user interfaces for embedded systems, namely
+- pngconverter, a tool to convert images in .png format into a set of .cpp and
+  .h files to be able to embed images into an embedded firmware
+- fontrendering, a tool to generate font lookup tables from standard .ttf and
+  .bdf file format. These lookup tables are again designed to be embedded into
+  a firmware
+- resourcefs a tool to generate a filesystem image specifically designed to
+  store large amounts of images on an external flash memory to design rich
+  user interfaces even on microcontroller with little FLASH memory
+- qtsimpulator a pixel-perfect simulator of the mxgui library making possible
+  to debug the visual aspect of an user interface on an host PC instead of
+  directly on the embedded device
+
+\section example Example
+
+The mxgui library is written in C++, a simple hello world looks like this:
+\code
+#include "mxgui/entry.h"
+#include "mxgui/display.h"
+
+using namespace mxgui;
+
+ENTRY()
+{
+    Display& display=Display::instance();
+    {
+        DrawingContext dc(display);
+        dc.write(Point(0,0),"Hello world!");
+    }
+    for(;;) ; //To prevent application shutdown
+}
+\endcode
+
+\author Terraneo Federico
+*/
+
+#if 0
+/**
+\page tools Mxgui tools
+say that boost, qt, cmake etc. required
+*/
+
+/**
+\page resourcefs ResourceFs
+
+*/
+
+/**
+\page backend Writing a backend for other display types
+
+*/
+#endif
+
+/**
+\defgroup pub_iface Mxgui level 1
+*/
+
+/**
+\defgroup pub_iface_2 Mxgui level 2
+*/

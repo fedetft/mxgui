@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2011 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,23 +25,49 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef COLOR_H
-#define	COLOR_H
+#include "application.h"
+#include "mxgui/pthread_lock.h"
 
-#include "mxgui_settings.h"
+#ifdef MXGUI_LEVEL_2
 
 namespace mxgui {
 
-///\ingroup pub_iface
-///Define the Color type, depending on the COLOR_DEPTH constant
-#ifdef MXGUI_COLOR_DEPTH_1_BIT
-typedef unsigned char Color; //Only 0 and 1 allowed
-#elif defined(MXGUI_COLOR_DEPTH_8_BIT)
-typedef unsigned char Color;
-#elif defined(MXGUI_COLOR_DEPTH_16_BIT)
-typedef unsigned short Color;
-#endif
+//
+// class ApplicationImpl
+//
 
-} // namespace mxgui
 
-#endif //COLOR_H
+//
+// class Application
+//
+
+
+//
+// class ApplicationManager
+//
+
+static pthread_mutex_t appManagerMutex=PTHREAD_MUTEX_INITIALIZER;
+static ApplicationImpl impls;
+static Application *apps;
+static bool first=true;
+
+void *applicationEntryPoint()
+{
+
+}
+
+bool ApplicationManager::start(Application* app, bool modal)
+{
+    if(app==0) return false;
+    PthreadLock lock(appManagerMutex);
+    if(first)
+    {
+        first=false;
+        //TODO: fill impls with valid renderer instances and the like
+    }
+    //TODO: everything else
+}
+
+} //namespace mxgui
+
+#endif //MXGUI_LEVEL_2

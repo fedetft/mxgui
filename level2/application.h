@@ -26,107 +26,88 @@
  ***************************************************************************/
 
 #include "mxgui/mxgui_settings.h"
-#include "mxgui/point.h"
-#include "mxgui/drivers/event_types_qt.h"
-#include "mxgui/drivers/event_types_mp3v2.h"
+#include "mxgui/display.h"
 
 #ifdef MXGUI_LEVEL_2
 
-#ifndef INPUT_H
-#define	INPUT_H
+#ifndef APPLICATION_H
+#define	APPLICATION_H
 
 namespace mxgui {
 
-/**
- * \ingroup pub_iface_2
- * Generic event class. Events are the object type used to dispatch events
- * such as button presses or touchscreen taping to applications.
- * An Event has an associated type, which is implementation-defined depending
- * on the board on which mxgui is ported (different boards have different
- * number of buttons), and a point used to represent touchscreen point of touch
- * for boards that have a touchscreen.
- */
-class Event
-{
-public:
-    /**
-     * Default constructor
-     */
-    Event(): e(EventType::Default), p(-1,-1) {}
-
-    /**
-     * Constructor for events without a position information
-     * \param e event type
-     */
-    explicit Event(EventType::E e): e(e), p(-1,-1) {}
-
-
-    /**
-     * Constructor for events that also carry a position information
-     * \param e event type
-     * \param p point
-     */
-    Event(EventType::E e, Point p): e(e), p(p) {}
-
-    /**
-     * \return the event information
-     */
-    EventType::E getEvent() const { return e; }
-
-    /**
-     * \return true if the event has a valid point associated with it
-     */
-    bool hasValidPoint() const { return p.x()>=0; }
-
-    /**
-     * \return the point information
-     */
-    Point getPoint() const { return p; }
-
-private:
-    EventType::E e;
-    Point p;
-};
-
-class InputHandlerImpl; //Forward declaration
+class ApplicationImpl; //Forward declarartion
 
 /**
  * \ingroup pub_iface_2
- * This class contains member function to retrieve events from the system.
+ * Applications are the central point of mxgui level 2, this part of the library
+ * allows multiple applications to run concurrently and share the same display.
+ * Applications are classes that derive from Application and override the
+ * run() member function.
  */
-class InputHandler
+class Application
 {
 public:
     /**
-     * \return an instance of this class (singleton)
+     * Constructor
      */
-    static InputHandler& instance();
+    Application();
+
+    virtual ~Application();
+
+protected:
 
     /**
-     * \return A valid event. Blocking.
+     * Applications that do not override this member function will get the
+     * default event loop that will call the callbacks registered during the
+     * Application's constructor.
+     * Appications that override this member function should implement a message
+     * loop themselves. Also, within tht message loop unused events should be
+     * passed to dispatchEvent(), or event callbacks won't be fired.
      */
+    virtual void run();
+
+    Display& getDisplay();
+
     Event getEvent();
 
-    /**
-     * \return A valid event or a default-constructed event if no events
-     * available. Nonblocking.
-     */
     Event popEvent();
 
-private:
-    /**
-     * Class cannot be copied
-     */
-    InputHandler(const InputHandler&);
-    InputHandler& operator= (const InputHandler&);
-
-    InputHandler(InputHandlerImpl *impl);
+    void dispatchEvent(Event e);
     
-    InputHandlerImpl *pImpl; //Implementation detal
+private:
+    ApplicationImpl *pImpl;
+};
+
+/**
+ * \ingroup pub_iface_2
+ * The application manager is a class used mainly to start applications
+ */
+class ApplicationManager
+{
+public:
+
+    /**
+     * \param app Application to start. The pointer must point to an heap
+     * allocated instance of an application class. The pointer is deleted
+     * internally by the ApplicationManager when the application terminates.
+     * Since the pointer passed to start() can be deleted at any time, it is
+     * undefined behaviour to dereference it after the call to start().
+     * The suggested way to call this member function is
+     * \code
+     * class MyApp : public application
+     * [...]
+     * ApplicationManager::start(new MyApp);
+     * \endcode
+     * \param modal if true the application will be started in the thread that
+     * calls start, and therefore the call to start won't return till the
+     * application will terminate.
+     * \return true if success, false on failure
+     */
+    static bool start(Application *app, bool modal=false);
 };
 
 } //namespace mxgui
 
-#endif //INPUT_H
+#endif //APPLICATION_H
 
 #endif //MXGUI_LEVEL_2

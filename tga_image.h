@@ -34,6 +34,7 @@
 namespace mxgui {
 
 /**
+ * \ingroup pub_iface
  * This is a class for handling .tga images stored on disk.
  * It is optimized for memory usage, so that it can used on arbitrary sized
  * images on microcontrollers. To do this it does not load the image on disk
@@ -74,12 +75,12 @@ public:
 
     /**
      * Open a tga file
-     * \param filename
+     * \param filename file name of tga image
      */
     void open(const char *filename);
 
     /**
-     * Clode tga file
+     * Close tga file
      */
     void close();
 

@@ -30,7 +30,7 @@
 #include "drivers/resfs_mp3v2.h"
 #ifdef _MIOSIX
 #include "miosix.h"
-#endif _MIOSIX
+#endif //_MIOSIX
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
@@ -47,8 +47,9 @@ namespace resfs {
 //
 
 /**
- * Simple singleton class to take advantage of threadsafe static constructor
- * calls under Miosix to make sure the function backendInit() is called once
+ * \internal Simple singleton class to take advantage of threadsafe static
+ * constructor calls under Miosix to make sure the function backendInit()
+ * is called once
  */
 class ResourceFs
 {

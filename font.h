@@ -36,8 +36,11 @@
 namespace mxgui {
 
 /**
+ * \ingroup pub_iface
  * A Font that can be used to draw text. Fonts are immutable except they can be
- * assigned with operator=
+ * assigned with operator=. Users are not expected to create instances of the Font
+ * class directly. Rather, the default use case is to use the pre-instantiated
+ * fonts in misc_inst.h, like droid11()
  */
 class Font
 {
@@ -78,6 +81,8 @@ public:
     /**
      * Draw a string on a surface.
      * \param surface an object that provides pixel iterators.
+     * \param colors colors for drawing antialiased text
+     * \param p point of the upper left corner where the string will be drawn.
      * \param s string to write
      */
     template<typename T>
@@ -86,6 +91,7 @@ public:
     /**
      * Draw part of a string on a surface
      * \param surface an object that provides pixel iterators.
+     * \param colors colors for drawing antialiased text
      * \param p point of the upper left corner where the string will be drawn.
      * Negative coordinates are allowed, as long as the clipped view has
      * positive or zero coordinates

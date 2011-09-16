@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Terraneo Federico                               *
+ *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -31,36 +31,36 @@
 namespace mxgui {
 
 /**
+ * \ingroup pub_iface
  * Point class. Points are immutable except they can be assigned with operator=
  */
-template<typename T>
-class basic_point
+class Point
 {
 public:
     /**
      * Constructor, create an instance of the Point class given x and y
      */
-    basic_point(T x, T y): x_(x), y_(y) {}
+    Point(short int x, short int y): x_(x), y_(y) {}
 
     /**
      * Default constructor, yields a point to (0,0)
      */
-    basic_point(): x_(0), y_(0) {}
+    Point(): x_(0), y_(0) {}
 
     /**
      * \return x coordinate
      */
-    T x() const { return x_; }
+    short int x() const { return x_; }
 
     /**
      * \return the y coordinate
      */
-    T y() const { return y_; }
+    short int y() const { return y_; }
 
     /**
      * Compare two points for equality
      */
-    bool operator== (basic_point p)
+    bool operator== (Point p)
     {
         return (this->x_ == p.x_) && (this->y_ == p.y_);
     }
@@ -68,21 +68,15 @@ public:
     /**
      * Compare two points for inequality
      */
-    bool operator!= (basic_point p)
+    bool operator!= (Point p)
     {
         return (this->x_ != p.x_) || (this->y_ != p.y_);
     }
 
     //Uses default copy constructor and operator=
 private:
-    T x_,y_;
+    short int x_,y_;
 };
-
-///Point of short int. No configuration option here since 16 bits is acceptable
-///for any display type. Note that the data type is signed. This is intentional
-///because algorithms like the one to draw a line calculate the difference
-///between point coordinates, and the result can be negative
-typedef basic_point<short int> Point;
 
 } // namespace mxgui
 

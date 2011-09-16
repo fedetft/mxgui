@@ -41,6 +41,7 @@ class DisplayImpl;    //Forward declaration
 class DrawingContext;
 
 /**
+ * \ingroup pub_iface
  * Display class.
  * Contains member functions to retrieve a display instance, and to turn it on
  * or off. For drawing onto the display, you need to instantiate a
@@ -50,12 +51,10 @@ class Display
 {
 public:
     /**
-     * \param id a string to identify the display in case the device has
-     * multiple displays. The empty string identifies the default display.
-     * \return a reference to the instance of the Display. Multiple calls with
-     * the same id return the same display instance (singleton)
+     * \return a reference to the instance of the Display.
+     * Multiple calls return the same display instance (singleton)
      */
-    static Display& instance(const char *id="");
+    static Display& instance();
 
     /**
      * Turn the display On after it has been turned Off.
@@ -97,6 +96,7 @@ private:
 };
 
 /**
+ * \ingroup pub_iface
  * A drawing context is a class that is instantiated whenever there is the
  * need to draw something on a display. Its primary purpose is to lock a mutex
  * allowing safe concurrent access to a display from multiple threads, but
@@ -167,7 +167,7 @@ public:
      * Draw a line between point a and point b, with color c
      * \param a first point
      * \param b second point
-     * \param c line color
+     * \param color line color
      */
     void line(Point a, Point b, Color color);
 
@@ -185,7 +185,7 @@ public:
     /**
      * Draw an image on the screen
      * \param p point of the upper left corner where the image will be drawn
-     * \param i image to draw
+     * \param img image to draw
      */
     void drawImage(Point p, const ImageBase& img);
 
@@ -196,7 +196,7 @@ public:
      * positive or zero coordinates
      * \param a Upper left corner of clipping rectangle
      * \param b Lower right corner of clipping rectangle
-     * \param i Image to draw
+     * \param img Image to draw
      */
     void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img);
 

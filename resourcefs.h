@@ -44,7 +44,7 @@
 namespace resfs {
 
 /**
- * This class allows to access files in the resourceFs filesystem,
+ * \internal This class allows to access files in the ResourceFs filesystem,
  * available on some targets as a way to offload image storage on an external
  * flash memory, and retrieve them by name.
  */
@@ -107,7 +107,6 @@ public:
     #endif //_MIOSIX
 
 private:
-
     int startOffset;      ///< Physical address on flash where the file starts
     int siz;              ///< File size
     int ptr;              ///< Read pointer, 0<=readPtr<=size

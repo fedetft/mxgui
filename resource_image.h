@@ -38,7 +38,9 @@ namespace mxgui {
 class ResourceImageImpl; //Forward declaration
 
 /**
- * Image stored in the ResourceFs filesystem
+ * \ingroup pub_iface
+ * This is a class for handling images stored in the ResourceFs filesystem,
+ * and is the primary reason why ResourceFs was designed.
  */
 class ResourceImage : public ImageBase
 {
@@ -74,7 +76,7 @@ public:
     void open(const char *name);
 
     /**
-     * Clode tga file
+     * Close image file
      */
     void close();
 

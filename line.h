@@ -25,6 +25,11 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
+
 #include "point.h"
 #include "color.h"
 
@@ -34,7 +39,7 @@
 namespace mxgui {
 
 /**
- * Class containing code to draw a line
+ * \internal Class containing code to draw a line
  */
 class Line
 {
@@ -54,33 +59,69 @@ public:
 template<typename T>
 void Line::draw(T& surface, Point a, Point b, Color c)
 {
+    //Bresenham's algorithm
     surface.beginPixel();
-    const short int dx=b.x()-a.x();
-    const short int dy=b.y()-a.y();
-    if(dx==0 && dy==0)
+    const short dx=b.x()-a.x();
+    const short dy=b.y()-a.y();
+    const short adx=abs(dx);
+    const short ady=abs(dy);
+    if(adx>ady)
     {
-        surface.setPixel(a,c);
-        return;
-    }
-    if(abs(dx)>=abs(dy))
-    {
-        short w=surface.getWidth();
-        int m=(dy*w)/dx;
+        short yincr= dy>=0 ? 1 : -1;
+        short d=2*ady-adx;
+        short v=2*(ady-adx);
+        short w=2*ady;
+        short y=a.y();
         if(dx>0)
-            for(short int x=a.x();x<=b.x();x++)
-                surface.setPixel(Point(x,a.y()+((m*(x-a.x()))/w)),c);
-        else
-            for(short int x=b.x();x<=a.x();x++)
-                surface.setPixel(Point(x,b.y()+((m*(x-b.x()))/w)),c);
+        {
+            for(short x=a.x();x<=b.x();x++)
+            {
+                surface.setPixel(Point(x,y),c);
+                if(d>0)
+                {
+                    y+=yincr;
+                    d+=v;
+                } else d+=w;
+            }
+        } else {
+            for(short x=a.x();x>=b.x();x--)
+            {
+                surface.setPixel(Point(x,y),c);
+                if(d>0)
+                {
+                    y+=yincr;
+                    d+=v;
+                } else d+=w;
+            }
+        }
     } else {
-        short h=surface.getHeight();
-        int m=(dx*h)/dy;
+        short xincr= dx>=0 ? 1 : -1;
+        short d=2*adx-ady;
+        short v=2*(adx-ady);
+        short w=2*adx;
+        short x=a.x();
         if(dy>0)
-            for(short int y=a.y();y<=b.y();y++)
-                surface.setPixel(Point(a.x()+((m*(y-a.y()))/h),y),c);
-        else
-            for(short int y=b.y();y<=a.y();y++)
-                surface.setPixel(Point(b.x()+((m*(y-b.y()))/h),y),c);
+        {
+            for(short y=a.y();y<=b.y();y++)
+            {
+                surface.setPixel(Point(x,y),c);
+                if(d>0)
+                {
+                    x+=xincr;
+                    d+=v;
+                } else d+=w;
+            }
+        } else {
+            for(short y=a.y();y>=b.y();y--)
+            {
+                surface.setPixel(Point(x,y),c);
+                if(d>0)
+                {
+                    x+=xincr;
+                    d+=v;
+                } else d+=w;
+            }
+        }
     }
 }
 

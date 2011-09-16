@@ -36,7 +36,7 @@
 #define RESOURCEFS_TYPES_H
 
 /**
- * Filesystem header, stored @ address 0
+ * \internal Header for the ResourceFs filesystem, stored @ address 0
  */
 struct Header
 {
@@ -44,13 +44,15 @@ struct Header
 	char fsName[16];        ///< "ResourceFs 1.0", null terminated
 	char osName[8];         ///< "Miosix", null terminated
 	unsigned int fileCount; ///< # of files in the filesystem, little endian
-	unsigned int unused;    ///< Unused.
+	unsigned int unused;    ///< Unused, just rounds up the Header to 64 bytes
 };
 
-static const unsigned int resourceFsFileMax=23; ///< Max len of FileInfo.name
+/// \internal Maximum length of a file name in the ResourceFs filesystem.
+const unsigned int resourceFsFileMax=23;
 
 /**
- * One instance of this struct per file, stored after the header
+ * \internal Inode for ResourceFs filesystem, there is one instance of this
+ * struct for each file, stored after the header
  */
 struct FileInfo
 {

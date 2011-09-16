@@ -17,7 +17,11 @@ set(FOO_SRCS
     qtbackend.cpp
     window.cpp
     qtsimulator.cpp
-    ../../../main.cpp)
+    ../../../fps_counter.cpp
+    ../../../bresenham_fsm.cpp
+    ../../../triangle_fsm.cpp
+    ../../../rendering_engine.cpp
+    ../../../teapot.cpp)
 set(FOO_HEADERS window.h)
 
 # ../../.. is the main project directory

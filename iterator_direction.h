@@ -29,12 +29,12 @@
 #define	ITERATOR_DIRECTION_H
 
 /**
- * Possible direction of auto increment for pixel iterators
+ * \internal Possible direction of auto increment for pixel iterators
  */
 enum IteratorDirection
 {
-    DR, //First down, then right. Used for font drawing
-    RD  //First right, then down. Used for image drawing
+    DR, ///< First down, then right. Used for font drawing
+    RD  ///< First right, then down. Used for image drawing
 };
 
 #endif //ITERATOR_DIRECTION_H

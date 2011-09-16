@@ -58,7 +58,9 @@ private:
 } //namespace impl
 
 /**
- * Base class from which image classes derive
+ * \ingroup pub_iface
+ * Base class from which image classes derive. This class is pure virtual and
+ * as such it is not meant to be directly instantiated.
  */
 template<typename T>
 class basic_image_base
@@ -227,7 +229,8 @@ void basic_image_base<T>::clippedDraw(U& surface,
 template<typename T>
 basic_image_base<T>::~basic_image_base() {}
 
-///Define the ImageBase class, depending on the COLOR_DEPTH constant
+/// \ingroup pub_iface
+/// Define the ImageBase class, depending on the COLOR_DEPTH constant
 #ifdef MXGUI_COLOR_DEPTH_1_BIT
 typedef basic_image_base<unsigned char> ImageBase;
 #elif defined(MXGUI_COLOR_DEPTH_8_BIT)
@@ -237,7 +240,16 @@ typedef basic_image_base<unsigned short> ImageBase;
 #endif
 
 /**
+ * \ingroup pub_iface
  * This class is an image compiled statically with the code.
+ * 
+ * The expected use of this class is like this:
+ * - user has an image in .png format that he/she wants to embed into the
+ *   firmware
+ * - user uses the pngconverter tool to convert the image into a .cpp and  a .h
+ *   file with a static instance of this class, named after the png file name
+ * - user can then draw the image onscreen
+ * 
  * Images are immutable except they can be assigned with operator=
  */
 template<typename T>
@@ -275,7 +287,8 @@ private:
     const T *data;
 };
 
-///Define the Image class, depending on the COLOR_DEPTH constant
+/// \ingroup pub_iface
+/// Define the Image class, depending on the COLOR_DEPTH constant
 #ifdef MXGUI_COLOR_DEPTH_1_BIT
 typedef basic_image<unsigned char> Image;
 #elif defined(MXGUI_COLOR_DEPTH_8_BIT)
