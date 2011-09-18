@@ -78,8 +78,8 @@ static const int level2MaxNumApps=4;
 /// Select which fonts are required. Choose one or more
 ///
 #define MXGUI_FONT_DROID11
-//#define MXGUI_FONT_DROID21
-#define MXGUI_FONT_MISCFIXED
+#define MXGUI_FONT_DROID21
+//#define MXGUI_FONT_MISCFIXED
 #define MXGUI_FONT_TAHOMA
 //#define MXGUI_ENABLE_BOLD_FONTS
 

@@ -78,6 +78,17 @@ private:
     short int x_,y_;
 };
 
+/**
+ * \param a point to test
+ * \param b upper left corner of test area
+ * \param c lower right corner of test ares
+ * \return true if the point a is within the area identified by b and c
+ */
+inline bool within(Point a, Point b, Point c)
+{
+    return a.x()>=b.x() && a.y()>=b.y() && a.x()<c.x() && a.y()<c.y();
+}
+
 } // namespace mxgui
 
 #endif //POINT_H

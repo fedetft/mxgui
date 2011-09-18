@@ -73,23 +73,4 @@ const Font tahoma(tahomaStartChar,tahomaEndChar,tahomaHeight,tahomaDataSize,
          tahomaIsAntialiased,tahomaWidth,tahomaOffset,tahomaData);
 #endif //MXGUI_FONT_TAHOMA
 
-#ifdef MXGUI_COLOR_DEPTH_1_BIT
-const Color white(1);
-const Color black(0);
-#elif defined(MXGUI_COLOR_DEPTH_8_BIT)
-const Color white(0xff);
-const Color black(0x00);
-const Color grey(0x92);
-const Color red(0xe0);
-const Color green(0x1c);
-const Color blue(0x03);
-#elif defined(MXGUI_COLOR_DEPTH_16_BIT)
-const Color white(0xffff);
-const Color black(0x0000);
-const Color grey(0xf7de);
-const Color red(0xf800);
-const Color green(0x07e0);
-const Color blue(0x001f);
-#endif
-
 } // namespace mxgui

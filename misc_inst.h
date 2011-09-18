@@ -83,17 +83,26 @@ extern const Font droid21b;
 extern const Font tahoma;
 #endif //MXGUI_FONT_TAHOMA
 
-#ifndef MXGUI_COLOR_DEPTH_1_BIT
-extern const Color white; ///< White color constant
-extern const Color black; ///< Black color constant
-extern const Color grey;  ///< Grey color constant
-extern const Color red;   ///< Red color constant
-extern const Color green; ///< Green color constant
-extern const Color blue;  ///< Blue color constant
-#else //MXGUI_COLOR_DEPTH_1_BIT
-extern const Color white; ///< White color constant
-extern const Color black; ///< Black color constant
-#endif //MXGUI_COLOR_DEPTH_1_BIT
+#ifdef MXGUI_COLOR_DEPTH_1_BIT
+const Color white(1);         ///< White color constant
+const Color black(0);         ///< Black color constant
+#elif defined(MXGUI_COLOR_DEPTH_8_BIT)
+const Color white(0xff);      ///< White color constant
+const Color black(0x00);      ///< Black color constant
+const Color grey(0x92);       ///< Grey color constant
+const Color red(0xe0);        ///< Red color constant
+const Color green(0x1c);      ///< Green color constant
+const Color blue(0x03);       ///< Blue color constant
+#elif defined(MXGUI_COLOR_DEPTH_16_BIT)
+const Color white(0xffff);    ///< White color constant
+const Color black(0x0000);    ///< Black color constant
+const Color darkGrey(0x4208); ///< Dark grey color constant
+const Color grey(0x8410);     ///< Grey color constant
+const Color lightGrey(0xc618);///< Light grey color constant
+const Color red(0xf800);      ///< Red color constant
+const Color green(0x07e0);    ///< Green color constant
+const Color blue(0x001f);     ///< Blue color constant
+#endif
 
 /**
  * \}
