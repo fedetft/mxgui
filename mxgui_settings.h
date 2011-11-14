@@ -44,7 +44,7 @@ namespace mxgui {
 /// - level 2: Touchscreen support, display arbitration (multiple applications
 ///   contending one display), higher level widgets
 ///
-#define MXGUI_LEVEL_2
+//#define MXGUI_LEVEL_2
 
 ///
 /// Maximum number of appications that can run simultaneously
@@ -55,7 +55,7 @@ static const int level2MaxNumApps=4;
 ///
 /// Enable or disable ResourceFs, only some targets support it
 ///
-#define MXGUI_ENABLE_RESOURCEFS
+//#define MXGUI_ENABLE_RESOURCEFS
 
 ///
 /// Choose color depth. Three options are provided for 1, 8 or 16 bit per pixel
@@ -69,8 +69,8 @@ static const int level2MaxNumApps=4;
 /// VERTICAL display orientation, and a mirrored options for both.
 /// Their meaninig depends on how the display backend is implemented.
 ///
-#define MXGUI_ORIENTATION_VERTICAL
-//#define MXGUI_ORIENTATION_HORIZONTAL
+//#define MXGUI_ORIENTATION_VERTICAL
+#define MXGUI_ORIENTATION_HORIZONTAL
 //#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
 //#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
 
@@ -96,7 +96,7 @@ static const int level2MaxNumApps=4;
 //
 // Enable or disable ResourceFs, only some targets support it
 //
-#define MXGUI_ENABLE_RESOURCEFS
+//#define MXGUI_ENABLE_RESOURCEFS
 
 //
 // Choose color depth.
