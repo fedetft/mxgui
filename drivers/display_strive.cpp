@@ -40,34 +40,6 @@ namespace mxgui {
 
 DisplayImpl::DisplayImpl(): textColor(), font(droid11)
 {
-	//Enable clocks to all ports
-	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN |
-					RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN |
-					RCC_APB2ENR_IOPEEN;
-	disp::reset::mode(Mode::OUTPUT);
-	disp::ncpEn::mode(Mode::OUTPUT);
-
-	disp::d0::mode(Mode::ALTERNATE);
-	disp::d1::mode(Mode::ALTERNATE);
-	disp::d2::mode(Mode::ALTERNATE);
-	disp::d3::mode(Mode::ALTERNATE);
-	disp::d4::mode(Mode::ALTERNATE);
-	disp::d5::mode(Mode::ALTERNATE);
-	disp::d6::mode(Mode::ALTERNATE);
-	disp::d7::mode(Mode::ALTERNATE);
-	disp::d8::mode(Mode::ALTERNATE);
-	disp::d9::mode(Mode::ALTERNATE);
-	disp::d10::mode(Mode::ALTERNATE);
-	disp::d11::mode(Mode::ALTERNATE);
-	disp::d12::mode(Mode::ALTERNATE);
-	disp::d13::mode(Mode::ALTERNATE);
-	disp::d14::mode(Mode::ALTERNATE);
-	disp::d15::mode(Mode::ALTERNATE);
-	disp::rd::mode(Mode::ALTERNATE);
-	disp::wr::mode(Mode::ALTERNATE);
-	disp::cs::mode(Mode::ALTERNATE);
-	disp::rs::mode(Mode::ALTERNATE);
-
 	//FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
     //NWE are correctly initialized
     RCC->AHBENR |= RCC_AHBENR_FSMCEN;
