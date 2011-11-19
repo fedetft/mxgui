@@ -44,7 +44,7 @@ namespace mxgui {
 /// - level 2: Touchscreen support, display arbitration (multiple applications
 ///   contending one display), higher level widgets
 ///
-//#define MXGUI_LEVEL_2
+#define MXGUI_LEVEL_2
 
 ///
 /// Maximum number of appications that can run simultaneously
@@ -79,9 +79,9 @@ static const int level2MaxNumApps=4;
 ///
 #define MXGUI_FONT_DROID11
 #define MXGUI_FONT_DROID21
-//#define MXGUI_FONT_MISCFIXED
+#define MXGUI_FONT_MISCFIXED
 #define MXGUI_FONT_TAHOMA
-//#define MXGUI_ENABLE_BOLD_FONTS
+#define MXGUI_ENABLE_BOLD_FONTS
 
 #else //_MIOSIX
 
