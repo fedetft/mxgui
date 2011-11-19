@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2011 by Yury Kuchura                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -31,171 +31,230 @@
 
 #include "event_strive.h"
 #include "miosix.h"
-#include <algorithm>
 
 using namespace miosix;
 using namespace std;
 
 namespace mxgui {
 
-/**
- * Initialize ADC2.
- */
-static void adcInit()
-{
-    FastInterruptDisableLock dLock;
-	//Gpio to adc mapping. Note: using adc2 to read all pins to save power
-	//pwrmgmt::vbat c5 adc12_in15
-	//disp::yp      b0 adc12_in8
-	//disp::ym      b1 adc12_in9
-	//disp::xp      c3 adc123_in13
-	//disp::xm      c4 adc12_in14
-	//accel::x      c0 adc123_in10
-	//accel::y      c1 adc123_in11
-	//accel::z      c2 adc123_in12
-	RCC->CFGR |= RCC_CFGR_ADCPRE_1; //ADC prescaler 72MHz/6=12MHz
-	RCC->APB2ENR |= RCC_APB2ENR_ADC2EN;
-	ADC2->CR1=0;
-	ADC2->CR2=ADC_CR2_ADON; //The first assignment sets the bit
-	//Calibrate ADC once at powerup
-	ADC2->CR2=ADC_CR2_ADON | ADC_CR2_CAL;
-	while(ADC2->CR2 & ADC_CR2_CAL) ;
-	ADC2->SQR1=0; //Do only one conversion
-	ADC2->SQR2=0;
-	ADC2->SQR3=0;
-	ADC2->SMPR1=1<<15; //7.5 cycles of sample period
-}
+//Calibration values for raw TSC2046 data. May be specific for particular display.
+static const uint32_t XMAX = 3800;
+static const uint32_t XMIN = 400;
+static const uint32_t XBW = XMAX - XMIN; //x bandwidth = 0...3400
+static const uint32_t YMAX = 3750;
+static const uint32_t YMIN = 255;
+static const uint32_t YBW = YMAX - YMIN; //y bandwidth = 0...3495
 
 /**
- * Read an ADC channel
- * \param input input channel, 0 to 15
- * \return ADC result
- */
-static unsigned short adcRead(unsigned char input)
+ Exchange byte over SPI interface.
+ @note SPI is implemented by bitbanging because with APB1 clock of 72 MHz
+ it is impossible to use hardware SPI1 on speeds below 285 kb/s. TSC2046
+ requires speed of 125 kb/s or less.
+ @param [in] byteTx Byte to transmit
+ @return received byte
+*/
+static uint8_t SpiExchangeByte(uint8_t byteTx)
 {
-    ADC2->SQR3=input;
-	ADC2->CR2=ADC_CR2_ADON;//Setting the bit while already @ 1 starts conversion
-	while((ADC2->SR & ADC_SR_EOC)==0) ;
-	return ADC2->DR;
-}
-
-/**
- * Called when someone is touching the screen, it returns the point of touch.
- * It is unspecified what it returns when no one is touching the screen.
- * Also, to avoid the race condition of calling this function just before
- * the finger is raised from the screen, you should check that someone is still
- * touching the screen after having called the function, and if not, discard
- * the returned point.
- * \return point of touch
- */
-static Point getTouchData()
-{
-    int x,y;
+    uint8_t mask = 0x80;
+    uint8_t rxByte = 0;
+    while (mask)
     {
-        InterruptDisableLock dLock;
-        disp::ym::high(); //Raising ym instead of yp because y is flipped
-        disp::xp::mode(Mode::INPUT_ANALOG);
-        disp::xm::mode(Mode::INPUT_ANALOG);
-        {
-            InterruptEnableLock eLock(dLock);
-            Thread::sleep(1);
-        }
-        y=(adcRead(13)+adcRead(14)+adcRead(13)+adcRead(14))/4;
-
-        disp::xp::mode(Mode::OUTPUT);
-        disp::xm::mode(Mode::OUTPUT);
-        disp::xp::high();
-        disp::xm::low();
-        disp::yp::mode(Mode::INPUT_ANALOG);
-        disp::ym::mode(Mode::INPUT_ANALOG);
-        {
-            InterruptEnableLock eLock(dLock);
-            Thread::sleep(1);
-        }
-        x=(adcRead(8)+adcRead(9)+adcRead(8)+adcRead(9))/4;
-        //Leave the GPIOs in their default state for next time
-        disp::yp::mode(Mode::OUTPUT);
-        disp::ym::mode(Mode::OUTPUT);
-        disp::yp::low();
-        disp::ym::low();
-        disp::xp::mode(Mode::INPUT_PULL_UP_DOWN);
-        disp::xm::mode(Mode::INPUT_PULL_UP_DOWN);
-        disp::xp::pullup();
-        disp::xm::pullup();
+        (byteTx & mask) ? spi1::mosi::high() : spi1::mosi::low();
+        miosix::delayUs(5);
+        if (spi1::miso::value())
+            rxByte |= mask;
+        spi1::sck::high();
+        miosix::delayUs(5);
+        spi1::sck::low();
+        mask >>= 1;
     }
-    //Calibration values. May vary from unit to unit
-    const int xMin=230;
-    const int xMax=1950;
-    const int yMin=370;
-    const int yMax=3780;
-    
-    x=((x-xMin)*240)/(xMax-xMin);
-    y=((y-yMin)*320)/(yMax-yMin);
-    x=min(239,max(0,x));
-    y=min(319,max(0,y));
-    return Point(x,y);
+    spi1::mosi::low();
+    return rxByte;
 }
 
-Queue<Event,10> eventQueue;
+/** Poll touchscreen controller once. \n
+    @note This function returns raw data measured by ADC. It is an overhead
+    to convert it to coordinates here. It's better to do this after filtering
+    several measurements.
+    @param [in] coord the structure that will be filled with raw ADC data
+    @return true if successful, false if touch is released.
+*/
+static bool Poll2046Once(Point& coord)
+{
+    if (spi1::touchint::value())
+        return false;
 
-void callback(Event e)
+    //Disable context switching. It is enough.
+    PauseKernelLock kLock;
+
+    //Chip select
+    spi1::ntouchss::low();
+    delayUs(5);
+
+    //16-bits, DFR mode, measure Y, X.
+    static const uint8_t txBytes[9] = {0x90, 0x00, 0xD0, 0x00, 0x00};
+    uint8_t rxBytes[9];
+    uint32_t i;
+
+    //Exchange bytes
+    for (i = 0; i < 5; ++i)
+    {
+        rxBytes[i] = SpiExchangeByte(txBytes[i]);
+    }
+    
+    //Deselect
+    spi1::ntouchss::high();
+    delayUs(2);
+
+    //Touch has been released before ADC conversion is finished:
+    //the result can be invalid.
+    if (spi1::touchint::value())
+        return false;
+
+    //Now extract raw ADC values
+    uint16_t rawY =  (uint16_t(rxBytes[1]) << 5) | (uint16_t(rxBytes[2]) >> 3);
+    uint16_t rawX =  (uint16_t(rxBytes[3]) << 5) | (uint16_t(rxBytes[4]) >> 3);
+    coord = Point(rawX, rawY);
+    return true;
+}
+
+/** Poll touchscreen controller, filter data and calculate real coordinates.
+    @param [in] coord the structure that will be filled with raw ADC data
+    @return true if successful, false if touch is released.
+*/
+static bool Poll2046(Point& coord)
+{
+    Point polls[5];
+
+    //Configure SPI pins for bitbanging
+    spi1::sck::low();
+    spi1::sck::mode(Mode::OUTPUT);
+    spi1::miso::pullup();
+    spi1::miso::mode(Mode::INPUT_PULL_UP_DOWN);
+    spi1::mosi::mode(Mode::OUTPUT);
+    spi1::ntouchss::high();
+    spi1::ntouchss::mode(Mode::OUTPUT);
+    spi1::touchint::pullup();
+    spi1::touchint::mode(Mode::INPUT_PULL_UP_DOWN);
+    delayUs(5);
+
+    //Poll controller 5 times
+    int i;
+    for (i = 0; i < 5; ++i)
+    {
+        if (false == Poll2046Once(polls[i]))
+            return false; //touch has been released
+    }
+
+    uint16_t max = 0;
+    uint16_t min = 4096;
+    int imin=0, imax=0;
+    uint16_t x, y;
+
+    //Now find max and min x to exclude
+    for (i = 0; i < 5; ++i)
+    {
+        if (polls[i].x() < min) { min = polls[i].x(); imin = i; }
+        if (polls[i].x() > max) { max = polls[i].x(); imax = i; }
+    }
+    if (imin == imax)
+    {//no need to calculate median
+        x = polls[imin].x();
+    }
+    else
+    {
+        x = 0;
+        for (i = 0; i < 5; ++i)
+        {
+            if (i == imin || i == imax) continue; //Skip
+            x += polls[i].x();
+        }
+        x /= 3; //Median value of x
+    }
+
+    //Repeat the same for y
+    max = 0;
+    min = 4096;
+    for (i = 0; i < 5; ++i)
+    {
+        if (polls[i].y() < min) { min = polls[i].y(); imin = i; }
+        if (polls[i].y() > max) { max = polls[i].y(); imax = i; }
+    }
+
+    if (imin == imax)
+    {//no need to calculate median
+        y = polls[imin].y();
+    }
+    else
+    {
+        y = 0;
+        for (i = 0; i < 5; ++i)
+        {
+            if (i == imin || i == imax) continue;
+            y += polls[i].y();
+        }
+        y /= 3; //Median value of y
+    }
+
+    if (x > XMAX) x = XMAX;
+    else if (x < XMIN) x = XMIN;
+    x -= XMIN;
+    if (y > YMAX) y = YMAX;
+    else if (y < YMIN) y = YMIN;
+    y -= YMIN;
+
+    //Now convert to real coordinates on screen
+#if defined(MXGUI_ORIENTATION_VERTICAL)
+    uint16_t resX = 240 - (uint32_t(y) * 240) / YBW;
+    uint16_t resY = 320 - (uint32_t(x) * 320) / XBW;
+#elif defined(MXGUI_ORIENTATION_HORIZONTAL)
+    uint16_t resX = (uint32_t(x) * 320) / XBW;
+    uint16_t resY = 240 - (uint32_t(y) * 240) / YBW;
+#else
+    #error Not implemented
+#endif
+    coord = Point(resX, resY);
+    return true;
+}
+
+static Queue<Event,50> eventQueue;
+
+static void callback(Event e)
 {
     FastInterruptDisableLock dLock;
     eventQueue.IRQput(e);
 }
 
-void eventThread(void *)
+static void eventThread(void*)
 {
-    disp::xp::mode(Mode::INPUT_PULL_UP_DOWN);
-    disp::xp::pullup();
-    disp::xm::mode(Mode::INPUT_PULL_UP_DOWN);
-    disp::xm::pullup();
-
-    bool aPrev=false;
-    bool bPrev=false;
     bool tPrev=false;
     Point pOld;
+    Point p;
+
     for(;;)
     {
-        Thread::sleep(50); //Check for events 20 times a second
-        //Check buttons
-        if(button1::value()==0)
-        {
-            if(aPrev==false) callback(Event(EventType::ButtonB));
-            aPrev=true;
-        } else aPrev=false;
-        if(button2::value()==0)
-        {
-            if(bPrev==false) callback(Event(EventType::ButtonA));
-            bPrev=true;
-        } else bPrev=false;
+        Thread::sleep(20); //Check for events 50 times a second
         //Check touchscreen
-        if(disp::xp::value()==0) //Is someone touching the screen?
-        {
-            //Ok, someone is touching the screen
-            Point p=getTouchData();
-            if(disp::xp::value()==0) //Is someone still touching the screen?
+        if( Poll2046(p) )
+        {//Someone is touching the screen
+            //Did the touch point differ that much from the previous?
+            //if(abs(pOld.x()-p.x()) > 3 || abs(pOld.y()-p.y()) > 3 || !tPrev)
+            if( !tPrev || pOld != p)
             {
-                //Yes, did the touch point differ that much from the previous?
-                if(abs(pOld.x()-p.x())>3 || abs(pOld.y()-p.y())>3 || !tPrev)
-                {
-                    pOld=p;
-                    if(tPrev==false) callback(Event(EventType::TouchDown,pOld));
-                    else callback(Event(EventType::TouchMove,pOld));
-                }
-                tPrev=true;
-            } else {
-                //No, the user just raised its finger form the screen
-                if(tPrev==true) callback(Event(EventType::TouchUp,pOld));
-                tPrev=false;
+                pOld = p;
+                if(tPrev == false) callback(Event(EventType::TouchDown, pOld));
+                else callback(Event(EventType::TouchMove, pOld));
             }
-        } else {
+            tPrev=true;
+        }
+        else
+        {
             //No, no one is touching the screen
-            if(tPrev==true) callback(Event(EventType::TouchUp,pOld));
+            if(tPrev==true) callback(Event(EventType::TouchUp, pOld));
             tPrev=false;
         }
-    }
-}
+    }// for(;;)
+}//static void eventThread(void*)
 
 //
 // class InputHandlerImpl
@@ -203,10 +262,9 @@ void eventThread(void *)
 
 InputHandlerImpl::InputHandlerImpl()
 {
-    adcInit();
     //Note that this class is instantiated only once. Otherwise
     //we'd have to think a way to avoid creating multiple threads
-    Thread::create(eventThread,STACK_MIN);
+    Thread::create(eventThread, STACK_MIN);
 }
 
 Event InputHandlerImpl::getEvent()

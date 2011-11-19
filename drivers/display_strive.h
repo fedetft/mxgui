@@ -31,7 +31,7 @@
 #endif //MXGUI_LIBRARY
 
 #ifndef DISPLAY_STRIVE_H
-#define	DISPLAY_STRIVE_H
+#define    DISPLAY_STRIVE_H
 
 #ifdef _BOARD_STRIVE_MINI
 
@@ -498,9 +498,9 @@ private:
         writeReg(0x53, 319-p1.x());
         setCursor(p1);
         #elif defined MXGUI_ORIENTATION_VERTICAL_MIRRORED
-			#error Not implemented
+            #error Not implemented
         #else //MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
-			#error Not implemented
+            #error Not implemented
         #endif
     }
 
@@ -528,9 +528,9 @@ private:
         writeReg(0x53, 319-p1.x());
         setCursor(p1);
         #elif defined MXGUI_ORIENTATION_VERTICAL_MIRRORED
-			#error Not implemented
+            #error Not implemented
         #else //MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
-			#error Not implemented
+            #error Not implemented
         #endif
     }
 

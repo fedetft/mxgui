@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2011 by Yury Kuchura
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -32,7 +32,104 @@ using namespace miosix;
 
 #ifdef _BOARD_STRIVE_MINI
 
+//Helper to set gamma register values
+#define GREGVAL(byte1, byte2) (uint16_t)(((byte1) << 8) | ((byte2) & 0xFF))
+//Helper for bit mask
+#define b(n) (1<<(n))
+
 namespace mxgui {
+
+//IL9325 bits
+enum
+{
+    //Reg 01h Driver Output control
+    SS=b(8), SM=b(10),
+    //Reg 02h LCD Driving control
+    EOR=b(8), BC0=b(9),
+    //Reg 03h Entry mode
+    AM=b(3), ID0=b(4), ID1=b(5), ORG=b(7), HWM=b(9), BGR=b(12),
+    DFM=b(14), TRI=b(15),
+    //Reg 04h Resize control
+    RSZ0=b(0), RSZ1=b(1), RCH0=b(4), RCH1=b(5), RCV0=b(8), RCV1=b(9),
+    //Reg 07h Display control 1
+    D0=b(0), D1=b(1), CL=b(3), DTE=b(4), GON=b(5), BASEE=b(8),
+    PTDE0=b(12), PTDE1=b(13),
+    //Reg 08h Display Control 2
+    BP0=b(0), BP1=b(1), BP2=b(2), BP3=b(3),
+    FP0=b(8), FP1=b(9), FP2=b(10), FP3=b(11),
+    //Reg 09h Display Control 3
+    ISC0=b(0), ISC1=b(1), ISC2=b(2), ISC3=b(3),
+    PTG0=b(4), PTG1=b(5),
+    PTS0=b(8), PTS1=b(9), PTS2=b(10),
+    //Reg 0Ah Display Control 4
+    FMI0=b(0), FMI1=b(1), FMI2=b(3), FMARKOE=b(3),
+    //Reg 0Ch RGB Display Interface Control 1
+    ENC2=b(14), ENC1=b(13), ENC0=b(12), RM=b(8), DM1=b(5), DM0=b(4),
+    RIM1=b(1), RIM0=b(0),
+    //Reg 0Dh Frame Maker Position
+    FMP8=b(8), FMP7=b(7), FMP6=b(6), FMP5=b(5), FMP4=b(4), FMP3=b(3),
+    FMP2=b(2), FMP1=b(1), FMP0=b(0),
+    //Reg 0Fh RGB Display Interface Control 2
+    EPL=b(0), DPL=b(1), HSPL=b(3), VSPL=b(4),
+    //Reg 10h Power Control 1
+    SAP=b(12), BT2=b(10), BT1=b(9), BT0=b(8), APE=b(7),
+    AP2=b(6), AP1=b(5), AP0=b(4), DSTB=b(2), SLP=b(1), STB=b(0),
+    //Reg 11h Power Control 2
+    DC12=b(10), DC11=b(9), DC10=b(8), DC02=b(6), DC01=b(5), DC00=b(4),
+    VC2=b(2), VC1=b(1), VC0=b(0),
+    //Reg 12h Power Control 3
+    VCIRE=b(7), PON=b(4), VRH3=b(3), VRH2=b(2), VRH1=b(1), VRH0=b(0),
+    //Reg 13h Power Control 4
+    VDV4=b(12), VDV3=b(11), VDV2=b(10), VDV1=b(9), VDV0=b(8),
+    //Reg 20h Horizontal GRAM Address Set (0..239)
+    //Reg 21h Vertical GRAM Address Set (0...319)
+    //Reg 22h Write Data to GRAM
+    //Reg 29h Power Control 7
+    VCM5=b(5), VCM4=b(4), VCM3=b(3), VCM2=b(2), VCM1=b(1), VCM0=b(0),
+    //Reg 2Bh Frame Rate and Color Control
+    FRS3=b(3), FRS2=b(2), FRS1=b(1), FRS0=b(0),
+    //Reg 30h Gamma Control 1:  GREGVAL(KP1, KP0)
+    //Reg 31h Gamma Control 2:  GREGVAL(KP3, KP2)
+    //Reg 32h Gamma Control 3:  GREGVAL(KP5, KP4)
+    //Reg 35h Gamma Control 4:  GREGVAL(RP1, RP0)
+    //Reg 36h Gamma Control 5:  GREGVAL(VRP1, VRP0)
+    //Reg 37h Gamma Control 6:  GREGVAL(KN1, KN0)
+    //Reg 38h Gamma Control 7:  GREGVAL(KN3, KN2)
+    //Reg 39h Gamma Control 8:  GREGVAL(KN5, KN4)
+    //Reg 3Ch Gamma Control 9:  GREGVAL(RN1, RN0)
+    //Reg 3Dh Gamma Control 10: GREGVAL(VRN1, VRN0)
+    //Reg 50h Horizontal Address Start Position (0...239)
+    //Reg 51h Horizontal Address End Position (0...239)
+    //Reg 52h Vertical Address Start Position (0...319)
+    //Reg 53h Vertical Address End Position (0...319)
+    //Reg 60h Driver Output Control 2
+    GS=b(15), NL5=b(13), NL4=b(12), NL3=b(11), NL2=b(10), NL1=b(9), NL0=b(8),
+    SCN5=b(5), SCN4=b(4), SCN3=b(3), SCN2=b(2), SCN1=b(1), SCN0=b(0),
+    //Reg 61h Base Image Display Control
+    NDL=b(2), VLE=b(1), REV=b(0),
+    //Reg 6Ah Vertical Scroll Control (0...319)
+    //Reg 80h Partial Image 1 Display Position  (9 bits) PTDP00..08
+    //Reg 81h Partial Image 1 Area (Start Line) (9 bits) PTSA00..08
+    //Reg 82h Partial Image 1 Area (End Line) (9 bits) PTEA00..08
+    //Reg 83h Partial Image 2 Display Position (9 bits) PTDP10..18
+    //Reg 84h Partial Image 2 Area (Start Line) (9 bits) PTSA10..18
+    //Reg 85h Partial Image 2 Area (End Line) (9 bits) PTEA10..18
+    //Reg 90h Panel Interface Control 1
+    DIVI1=b(9), DIVI00=b(8), RTNI3=b(3), RTNI2=b(2), RTNI1=b(1), RTNI0=b(0),
+    //Reg 92h Panel Interface Control 2
+    NOWI2=b(10), NOWI1=b(9), NOWI0=b(8),
+    //Reg 95h Panel Interface Control 4
+    DIVE1=b(9), DIVE0=b(8),
+    RTNE5=b(5), RTNE4=b(4), RTNE3=b(3), RTNE2=b(2), RTNE1=b(1), RTNE0=b(0),
+    //Reg A1h OTP VCM Programming Control OTP_PGM_EN + 6 bits (VCM_OTP0..5)
+    OTP_PGM_EN=b(11),
+    //Reg A2h OTP VCM Status and Enable
+    PGM_CNT1=b(15), PGM_CNT0=b(14),
+    VCM_D5=b(13), VCM_D4=b(12), VCM_D3=b(11), VCM_D2=b(10),
+    VCM_D1=b(9), VCM_D0=b(8),
+    VCM_EN=b(0),
+    //Reg A5h OTP Programming ID Key (16 bits)
+}; //enum
 
 //
 // Class DisplayImpl
@@ -40,20 +137,17 @@ namespace mxgui {
 
 DisplayImpl::DisplayImpl(): textColor(), font(droid11)
 {
-	//FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
-    //NWE are correctly initialized
+    
+    //LCD connection GPIO should have been initialized at
+    //this point. bsp.cpp is responsible for this.
     RCC->AHBENR |= RCC_AHBENR_FSMCEN;
 
     volatile uint32_t& BCR1=FSMC_Bank1->BTCR[0];
     BCR1 = FSMC_BCR1_MBKEN  | //memory bank enable
            FSMC_BCR1_MTYP_1 | //memory type: NOR
            FSMC_BCR1_MWID_0 | //memory data width: 16
-           FSMC_BCR1_WREN |   //Write Operation Enable
-           FSMC_BCR1_FACCEN;// | //Flash access enable
-           //FSMC_BCR1_EXTMOD;
-
-    //volatile uint32_t& BWTR1=FSMC_Bank1E->BWTR[0];
-    //BWTR1 = FSMC_BWTR1_DATAST_1 | FSMC_BWTR1_DATAST_0;
+           FSMC_BCR1_WREN   | //Write Operation Enable
+           FSMC_BCR1_FACCEN;  //Flash access enable
 
     volatile uint32_t& BTR1=FSMC_Bank1->BTCR[1];
     BTR1 = 2 << 0 |  // Address setup phase duration
@@ -64,87 +158,93 @@ DisplayImpl::DisplayImpl(): textColor(), font(droid11)
            0 << 24 | // Data latency
            1 << 28;  // Access mode
     
-    //
-    //Power up sequence -- begin
-    //
-    delayMs(500);//Wait at least 500ms from +3.3 stabilized
+    //Power up
+    delayMs(100);
     disp::reset::low();
     delayMs(1);
     disp::reset::high();
-    delayMs(10);//Wait 10ms before waking up the display
+    delayMs(10);
 
     //Turn on backlight
     disp::ncpEn::high();
 
-    writeReg(0x00E3, 0x3008); // Set internal timing
-    writeReg(0x00E7, 0x0012); // Set internal timing
-    writeReg(0x00EF, 0x1231); // Set internal timing
-    writeReg(0x0000, 0x0001); // Start Oscillation
-    writeReg(0x0001, 0x0100); // set SS and SM bit
-    writeReg(0x0002, 0x0700); // set 1 line inversion
+    //=======================================================================
+    // The voodoo begins here. Don't touch the code unless you fully realize
+    // what you are doing: the display may be seriously damaged.
+    //=======================================================================
+    writeReg(0x00, 0x0001); // Start Oscillation
+    writeReg(0x01, SS); // SS=1, SM=0
+    writeReg(0x02, BC0 | EOR); // BC0=1 EOR=1
 
-    writeReg(0x0003, 0x1038); // set GRAM write direction and BGR=0,262K colors,1 transfers/pixel.
-    writeReg(0x0004, 0x0000); // Resize register
-    writeReg(0x0008, 0x0202); // set the back porch and front porch
-    writeReg(0x0009, 0x0000); // set non-display area refresh cycle ISC[3:0]
-    writeReg(0x000A, 0x0000); // FMARK function
-    writeReg(0x000C, 0x0000); // RGB interface setting
-    writeReg(0x000D, 0x0000); // Frame marker Position
-    writeReg(0x000F, 0x0000); // RGB interface polarity
-        //Power On sequence
-    writeReg(0x0010, 0x0000); // SAP, BT[3:0], AP, DSTB, SLP, STB
-    writeReg(0x0011, 0x0007); // DC1[2:0], DC0[2:0], VC[2:0]
-    writeReg(0x0012, 0x0000); // VREG1OUT voltage
-    writeReg(0x0013, 0x0000); // VDV[4:0] for VCOM amplitude
-    delayMs(200); // Dis-charge capacitor power voltage
-	writeReg(0x0010, 0x1690); // SAP, BT[3:0], AP, DSTB, SLP, STB
-	writeReg(0x0011, 0x0227); // R11h=0x0221 at VCI=3.3V, DC1[2:0], DC0[2:0], VC[2:0]
-	delayMs(50); // Delay 50ms
-	writeReg(0x0012, 0x001C); // External reference voltage= Vci;
-	delayMs(50); // Delay 50ms
-	writeReg(0x0013, 0x1800); // R13=1200 when R12=009D;VDV[4:0] for VCOM amplitude
-	writeReg(0x0029, 0x001C); // R29=000C when R12=009D;VCM[5:0] for VCOMH
-	writeReg(0x002B, 0x000D); // Frame Rate = 91Hz
-	delayMs(50); // Delay 50ms
-	writeReg(0x0020, 0x0000); // GRAM horizontal Address
-	writeReg(0x0021, 0x0000); // GRAM Vertical Address
-// ----------- Adjust the Gamma Curve ----------//
-	writeReg(0x0030, 0x0007);
-	writeReg(0x0031, 0x0707);
-	writeReg(0x0032, 0x0006);
-	writeReg(0x0035, 0x0704);
-	writeReg(0x0036, 0x1F04);
-	writeReg(0x0037, 0x0004);
-	writeReg(0x0038, 0x0000);
-	writeReg(0x0039, 0x0706);
-	writeReg(0x003C, 0x0701);
-	writeReg(0x003D, 0x000F);
-//------------------ Set GRAM area ---------------//
-	writeReg(0x0050, 0x0000); // Horizontal GRAM Start Address
-	writeReg(0x0051, 0x00EF); // Horizontal GRAM End Address
-	writeReg(0x0052, 0x0000); // Vertical GRAM Start Address
-	writeReg(0x0053, 0x013F); // Vertical GRAM Start Address
-	writeReg(0x0060, 0xA700); // Gate Scan Line
-	writeReg(0x0061, 0x0001); // NDL,VLE, REV
-	writeReg(0x006A, 0x0000); // set scrolling line
-//-------------- Partial Display Control ---------//
-	writeReg(0x0080, 0x0000);
-	writeReg(0x0081, 0x0000);
-	writeReg(0x0082, 0x0000);
-	writeReg(0x0083, 0x0000);
-	writeReg(0x0084, 0x0000);
-	writeReg(0x0085, 0x0000);
-//-------------- Panel Control -------------------//
-	writeReg(0x0090, 0x0010);
-	writeReg(0x0092, 0x0000);
-	writeReg(0x0093, 0x0003);
-	writeReg(0x0095, 0x0110);
-	writeReg(0x0097, 0x0000);
-	writeReg(0x0098, 0x0000);
-	writeReg(0x0007, 0x0133); // 262K color and display ON
+    writeReg(0x03, BGR | ID1 | ID0 | AM); //Entry mode
+    writeReg(0x04, 0x0000); // Resize register
+    writeReg(0x08, 0x0202); // Front and Back Porch (must be >= 2 lines)
+    writeReg(0x09, 0x0000); // Normal scan, Scan cycle=0
+    writeReg(0x0A, 0x0000); // Output of FMARK signal is disabled
+    writeReg(0x0C, RIM0); // System interface, 16 bits, internal clock
+    writeReg(0x0D, 0x0000); // Frame marker Position
+    writeReg(0x0F, 0x0000); // System interface polarity (CLK, EN)
 
-    setTextColor(black, white);
-    clear(white);
+    //Power-up sequence
+    writeReg(0x10, 0x0000);
+    writeReg(0x11, VC0|VC1|VC2); //Vci1 = 1.0 * Vci
+    writeReg(0x12, 0x0000);      //External reference
+    writeReg(0x13, 0x0000);      //VCOM = 0.70 * VREG1OUT
+    delayMs(200);                  //Let the voltage stabilize
+    writeReg(0x10, SAP | BT2 | BT1 | APE | AP0); //Enable power supply circuits
+    writeReg(0x11, VC0 | DC01 | DC11); //Step-up circuits parameters
+    delayMs(50);                   // Let it stabilize
+    writeReg(0x12, PON | VRH3 | VRH2); //Set grayscale level
+    delayMs(50);                   // Let it stabilize
+    writeReg(0x13, VDV4 | VDV1 | VDV0); //Set Vcom voltage
+    writeReg(0x29, VCM4 | VCM3 | VCM2); // Set VcomH voltage
+    writeReg(0x2B, 0x000D); //Set frame rate 93Hz
+
+    //Gamma
+    //Setting all values for the linear curve, except RN1 (to increase contrast
+    //in the darkest area)
+    writeReg(0x30, GREGVAL(3,  3));  //KP1[3] KP0[3]   Fine adjustment positive: grayscale 8, grayscale 1
+    writeReg(0x31, GREGVAL(3,  3));  //KP3[3] KP2[3]   Fine adjustment positive: grayscale 43, grayscale 20
+    writeReg(0x32, GREGVAL(3,  3));  //KP5[3] KP4[3]   Fine adjustment positive: grayscale 62, grayscale 55
+    writeReg(0x35, GREGVAL(1,  1));  //RP1[3] RP0[3]   Gradient adjustment variable resistors, positive
+    writeReg(0x36, GREGVAL(15, 15)); //VRP1[5] VRP0[5] Amplitude adjustment variable resistors, positive
+    writeReg(0x37, GREGVAL(3,  3));  //KN1[3] KN0[3]   Fine adjustment negative: grayscale 8, grayscale 1
+    writeReg(0x38, GREGVAL(3,  3));  //KN3[3] KN2[3]   Fine adjustment negative: grayscale 43, grayscale 20
+    writeReg(0x39, GREGVAL(3,  3));  //KN5[3] KN4[3]   Fine adjustment negative: grayscale 62, grayscale 55
+    writeReg(0x3C, GREGVAL(7,  1));  //RN1[3] RN0[3]   Gradient adjustment variable resistors, negative
+    writeReg(0x3D, GREGVAL(15, 15)); //VRN1[5] VRN0[5] Amplitude adjustment variable resistors, negative
+
+    //GRAM
+    writeReg(0x50, 0x0000); // Horizontal GRAM Start Address
+    writeReg(0x51, 0x00EF); // Horizontal GRAM End Address
+    writeReg(0x52, 0x0000); // Vertical GRAM Start Address
+    writeReg(0x53, 0x013F); // Vertical GRAM Start Address
+    writeReg(0x60, 0xA700); // Gate Scan Line
+    writeReg(0x61, 0x0001); // NDL,VLE, REV
+    writeReg(0x6A, 0x0000); // Scrolling line
+
+    //Partial Display
+    writeReg(0x80, 0x0000);
+    writeReg(0x81, 0x0000);
+    writeReg(0x82, 0x0000);
+    writeReg(0x83, 0x0000);
+    writeReg(0x84, 0x0000);
+    writeReg(0x85, 0x0000);
+
+    //Panel Control
+    writeReg(0x90, 0x0010);
+    writeReg(0x92, 0x0000);
+    writeReg(0x93, 0x0003);
+    writeReg(0x95, 0x0110);
+    writeReg(0x97, 0x0000);
+    writeReg(0x98, 0x0000);
+
+    // Display ON
+    writeReg(0x07, D0 | D1 |DTE | GON | BASEE);
+
+    //Fill display
+    setTextColor(white, black);
+    clear(black);
 }
 
 void DisplayImpl::clear(Point p1, Point p2, Color color)
@@ -168,21 +268,15 @@ void DisplayImpl::drawRectangle(Point a, Point b, Color c)
 
 void DisplayImpl::turnOn()
 {
-    writeReg(0x10,0x0000);//STB = 0 (out of standby)
-    delayMs(100);//Let internal voltages stabilize
-    disp::ncpEn::high();
-    delayMs(32);//Let AR_VDD and AR_VSS stabilize
-    //writeReg(0x05,0x0001);//DISP_ON = 1 (display active)
+    writeReg(0x10, 0); //Exit standby mode
+    writeReg(0x10, SAP | BT2 | BT1 | APE | AP0); //Enable power supply circuits
+    disp::ncpEn::high(); //Backlight on
 }
 
 void DisplayImpl::turnOff()
 {
-    //writeReg(0x05,0x0000);//DISP_ON = 0 (display blank)
-    delayMs(32);
-    disp::ncpEn::low();
-    delayMs(32);
-    writeReg(0x10,0x0001);//STB = 1 (standby mode)
-    delayMs(500);
+    disp::ncpEn::low(); //Backlight off
+    writeReg(0x10, STB);//Standby (Only GRAM continues operation).
 }
 
 DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2,

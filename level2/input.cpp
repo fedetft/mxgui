@@ -31,6 +31,7 @@
 
 #include "mxgui/drivers/event_qt.h"
 #include "mxgui/drivers/event_mp3v2.h"
+#include "mxgui/drivers/event_strive.h"
 
 namespace mxgui {
 

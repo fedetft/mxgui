@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2011 by Yury Kuchura                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,10 +25,10 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_MP3V2_H
-#define	EVENT_TYPES_MP3V2_H
+#ifndef EVENT_TYPES_STRIVE_H
+#define	EVENT_TYPES_STRIVE_H
 
-#ifdef _BOARD_MP3V2
+#ifdef _BOARD_STRIVE_MINI
 
 class EventType
 {
@@ -39,13 +39,11 @@ public:
         TouchDown=1,
         TouchUp=2,
         TouchMove=3,
-        ButtonA=4,
-        ButtonB=5
     };
 private:
     EventType();
 };
 
-#endif //_BOARD_MP3V2
+#endif //_BOARD_STRIVE_MINI
 
-#endif //EVENT_TYPES_MP3V2_H
+#endif //EVENT_TYPES_STRIVE_H
