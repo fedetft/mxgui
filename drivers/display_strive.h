@@ -31,7 +31,7 @@
 #endif //MXGUI_LIBRARY
 
 #ifndef DISPLAY_STRIVE_H
-#define    DISPLAY_STRIVE_H
+#define DISPLAY_STRIVE_H
 
 #ifdef _BOARD_STRIVE_MINI
 

@@ -25,40 +25,87 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "input.h"
+#include "mxgui/mxgui_settings.h"
+#include "interfaces-impl/gpio_impl.h"
 
-#ifdef MXGUI_LEVEL_2
+#if defined(_BOARD_STM3210E_EVAL) && defined(MXGUI_LEVEL_2)
 
-#include "mxgui/drivers/event_qt.h"
-#include "mxgui/drivers/event_mp3v2.h"
-#include "mxgui/drivers/event_strive.h"
-#include "mxgui/drivers/event_stm3210e-eval.h"
+#include "event_stm3210e-eval.h"
+#include "miosix.h"
+
+using namespace miosix;
 
 namespace mxgui {
 
+typedef Gpio<GPIOA_BASE,0>  button1;
+typedef Gpio<GPIOC_BASE,13> button2;
+typedef Gpio<GPIOG_BASE,8>  button3;
+
+Queue<Event,10> eventQueue;
+
+void callback(Event e)
+{
+    FastInterruptDisableLock dLock;
+    eventQueue.IRQput(e);
+}
+
+void eventThread(void *)
+{
+    button1::mode(Mode::INPUT);
+    button2::mode(Mode::INPUT);
+    button3::mode(Mode::INPUT);
+
+    bool aPrev=false;
+    bool bPrev=false;
+    bool cPrev=false;
+    for(;;)
+    {
+        Thread::sleep(50); //Check for events 20 times a second
+        //Check buttons
+        if(button1::value()==0)
+        {
+            if(aPrev==false) callback(Event(EventType::ButtonA));
+            aPrev=true;
+        } else aPrev=false;
+        if(button2::value()==0)
+        {
+            if(bPrev==false) callback(Event(EventType::ButtonB));
+            bPrev=true;
+        } else bPrev=false;
+        if(button3::value()==0)
+        {
+            if(cPrev==false) callback(Event(EventType::ButtonC));
+            cPrev=true;
+        } else cPrev=false;
+    }
+}
+
 //
-// class InputHandler
+// class InputHandlerImpl
 //
 
-InputHandler& InputHandler::instance()
+InputHandlerImpl::InputHandlerImpl()
 {
-    static InputHandlerImpl implementation;
-    static InputHandler singleton(&implementation);
-    return singleton;
+    //Note that this class is instantiated only once. Otherwise
+    //we'd have to think a way to avoid creating multiple threads
+    Thread::create(eventThread,STACK_MIN);
 }
 
-Event InputHandler::getEvent()
+Event InputHandlerImpl::getEvent()
 {
-    return pImpl->getEvent();
+    Event result;
+    eventQueue.get(result);
+    return result;
 }
 
-Event InputHandler::popEvent()
+Event InputHandlerImpl::popEvent()
 {
-    return pImpl->popEvent();
+    FastInterruptDisableLock dLock;
+    Event result;
+    if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
+    return result;
 }
-
-InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
 
 } //namespace mxgui
 
-#endif //MXGUI_LEVEL_2
+#endif //_BOARD_STM3210E_EVAL

@@ -25,40 +25,25 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "input.h"
+#ifndef EVENT_TYPES_STM3210E_EVAL_H
+#define	EVENT_TYPES_STM3210E_EVAL_H
 
-#ifdef MXGUI_LEVEL_2
+#ifdef _BOARD_STM3210E_EVAL
 
-#include "mxgui/drivers/event_qt.h"
-#include "mxgui/drivers/event_mp3v2.h"
-#include "mxgui/drivers/event_strive.h"
-#include "mxgui/drivers/event_stm3210e-eval.h"
-
-namespace mxgui {
-
-//
-// class InputHandler
-//
-
-InputHandler& InputHandler::instance()
+class EventType
 {
-    static InputHandlerImpl implementation;
-    static InputHandler singleton(&implementation);
-    return singleton;
-}
+public:
+    enum E
+    {
+        Default=0, //This is a must on all backends
+        ButtonA=4, //"Wakeup" button (PA0)
+        ButtonB=5, //"Tamper" button (PC13)
+        ButtonC=6  //"Key"    button (PG8)
+    };
+private:
+    EventType();
+};
 
-Event InputHandler::getEvent()
-{
-    return pImpl->getEvent();
-}
+#endif //_BOARD_STM3210E_EVAL
 
-Event InputHandler::popEvent()
-{
-    return pImpl->popEvent();
-}
-
-InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
-
-} //namespace mxgui
-
-#endif //MXGUI_LEVEL_2
+#endif //EVENT_TYPES_STM3210E_EVAL_H

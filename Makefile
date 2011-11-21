@@ -16,6 +16,7 @@ resourcefs.cpp                      \
 resource_image.cpp                  \
 level2/input.cpp                    \
 drivers/display_stm3210e-eval.cpp   \
+drivers/event_stm3210e-eval.cpp     \
 drivers/display_mp3v2.cpp           \
 drivers/event_mp3v2.cpp             \
 drivers/resfs_mp3v2.cpp             \

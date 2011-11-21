@@ -69,8 +69,8 @@ static const int level2MaxNumApps=4;
 /// VERTICAL display orientation, and a mirrored options for both.
 /// Their meaninig depends on how the display backend is implemented.
 ///
-//#define MXGUI_ORIENTATION_VERTICAL
-#define MXGUI_ORIENTATION_HORIZONTAL
+#define MXGUI_ORIENTATION_VERTICAL
+//#define MXGUI_ORIENTATION_HORIZONTAL
 //#define MXGUI_ORIENTATION_VERTICAL_MIRRORED
 //#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
 
