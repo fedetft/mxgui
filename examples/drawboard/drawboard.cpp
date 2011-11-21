@@ -36,7 +36,14 @@
 #include <cstdio>
 
 using namespace mxgui;
+
+#ifdef _MIOSIX
 using namespace miosix;
+#else //_MIOSIX
+#define siprintf sprintf //On a non MCU environment siprintf doesn't exist
+#define ledOn() ;
+#define ledOff() ;
+#endif //_MIOSIX
 
 static const short int LEGEND0_B = 140;
 static const short int LEGEND0_E = 160;
@@ -94,66 +101,72 @@ ENTRY()
     Point prev(0, 0);
     Color color = white;
 
-    DrawingContext dc(display);
-    dc.setFont(miscFixed);
-    dc.setTextColor(white, black);
-    DrawLegend(dc);
+    {
+        DrawingContext dc(display);
+        dc.setFont(miscFixed);
+        dc.setTextColor(white, black);
+        DrawLegend(dc);
+    }
 
     for(;;)
     {
         Event e=backend.getEvent();
         Point p = e.getPoint();
-        switch(e.getEvent())
         {
-        case EventType::TouchDown:
-            ledOn();
-            if (p.y() <= LEGEND_H)
-            {                
-                if (p.x() >= LEGEND0_B && p.x() <= LEGEND0_E)
-                {
-                    dc.clear(black);
-                    color = white;
-                    DrawLegend(dc);
-                }
-                else if (p.x() >= LEGEND1_B && p.x() <= LEGEND1_E)
-                    color = red;
-                else if (p.x() >= LEGEND2_B && p.x() <= LEGEND2_E)
-                    color = green;
-                else if (p.x() >= LEGEND3_B && p.x() <= LEGEND3_E)
-                    color = blue;
-                dc.setTextColor(color, black);
-                OutCoord(dc, p);
-                prev = Point(-1, -1);
-            }
-            else
+            DrawingContext dc(display);
+            switch(e.getEvent())
             {
-                prev = p;
-                OutCoord(dc, p);
-                dc.setPixel(p, color);
-            }
-            break;
-
-        case EventType::TouchUp:
-            ledOff();
-            prev = Point(-1, -1);
-            break;
-
-        case EventType::TouchMove:
-            if (prev != Point(-1, -1))
-            {
+            case EventType::TouchDown:
+                ledOn();
                 if (p.y() <= LEGEND_H)
-                    break;
-                OutCoord(dc, p);
-                dc.line(prev, p, color);
-                dc.line(Point(prev.x()+1, prev.y()), Point(p.x()+1, p.y()), color);
-                dc.line(Point(prev.x(), prev.y()+1), Point(p.x(), p.y()+1), color);
-                prev = p;
-            }
-            break;
+                {
+                    if (p.x() >= LEGEND0_B && p.x() <= LEGEND0_E)
+                    {
+                        dc.clear(black);
+                        color = white;
+                        DrawLegend(dc);
+                    }
+                    else if (p.x() >= LEGEND1_B && p.x() <= LEGEND1_E)
+                        color = red;
+                    else if (p.x() >= LEGEND2_B && p.x() <= LEGEND2_E)
+                        color = green;
+                    else if (p.x() >= LEGEND3_B && p.x() <= LEGEND3_E)
+                        color = blue;
+                    dc.setTextColor(color, black);
+                    OutCoord(dc, p);
+                    prev = Point(-1, -1);
+                }
+                else
+                {
+                    prev = p;
+                    OutCoord(dc, p);
+                    dc.beginPixel();
+                    dc.setPixel(p, color);
+                }
+                break;
 
-        default:
-            break;
-        } // switch(e.getEvent())
+            case EventType::TouchUp:
+                ledOff();
+                prev = Point(-1, -1);
+                break;
+
+            case EventType::TouchMove:
+                if (prev != Point(-1, -1))
+                {
+                    if (p.y() <= LEGEND_H)
+                        break;
+                    OutCoord(dc, p);
+                    dc.line(prev, p, color);
+                    dc.line(Point(prev.x()+1, prev.y()), Point(p.x()+1, p.y()), color);
+                    dc.line(Point(prev.x(), prev.y()+1), Point(p.x(), p.y()+1), color);
+                    prev = p;
+                }
+                break;
+
+            default:
+                break;
+            } // switch(e.getEvent())
+        }
     } //for(;;)
     return 0;
 } // ENTRY()
