@@ -63,32 +63,21 @@ void OutCoord(DrawingContext& dc, Point& p)
     dc.write(Point(0,0), txt);
 } // OutCoord
 
-void DrawFilledRect(DrawingContext& dc, Point a, Point b, Color clr)
-{
-    short int y = a.y();
-    short int incrY = (b.y() - a.y()) >= 0 ? 1 : -1;
-    for(;;)
-    {
-        dc.line(Point(a.x(), y), Point(b.x(), y), clr);
-        if (y == b.y()) break;
-        y += incrY;
-    }
-} // DrawFilledRect
-
 void DrawLegend(DrawingContext& dc)
 {
     dc.drawRectangle( Point(LEGEND0_B, 0),
                       Point(LEGEND0_E, LEGEND_H),
                       white);
-    DrawFilledRect(dc,
+    //dc.clear() when passed two points produces a filled rectangle
+    dc.clear(
                    Point(LEGEND1_B, 0),
                    Point(LEGEND1_E, LEGEND_H),
                    red);
-    DrawFilledRect(dc,
+    dc.clear(
                    Point(LEGEND2_B, 0),
                    Point(LEGEND2_E, LEGEND_H),
                    green);
-    DrawFilledRect(dc,
+    dc.clear(
                    Point(LEGEND3_B, 0),
                    Point(LEGEND3_E, LEGEND_H),
                    blue);
