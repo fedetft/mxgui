@@ -36,7 +36,7 @@ void TgaImage::open(const char *filename)
     this->close();
 
     //Try to open file
-    this->f=fopen(filename,"r");
+    this->f=fopen(filename,"rb");
     if(this->f==NULL) return;
     //setbuf(this->f,0); //Too slow if unbuffered
 
