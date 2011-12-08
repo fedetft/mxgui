@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A5EC655E-4978-4975-9B40-DBB18C19F7F6}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>WinSimulator</RootNamespace>
+    <ProjectName>WinSimulator</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);MXGUI_LIBRARY;_CRT_SECURE_NO_DEPRECATE;M_PI=3.1415926</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\..\..\..;$(ProjectDir)\..\..\Examples\Particles</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <DisableSpecificWarnings>4305;4244</DisableSpecificWarnings>
+      <BrowseInformation>true</BrowseInformation>
+      <ForcedIncludeFiles>ForcedInclude.h</ForcedIncludeFiles>
+      <ErrorReporting>None</ErrorReporting>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="WinSimulator.ico" />
+    <None Include="ReadMe.txt" />
+    <None Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\color.h" />
+    <ClInclude Include="..\..\display.h" />
+    <ClInclude Include="..\..\drivers\display_win.h" />
+    <ClInclude Include="..\..\drivers\event_types_win.h" />
+    <ClInclude Include="..\..\drivers\event_win.h" />
+    <ClInclude Include="..\..\entry.h" />
+    <ClInclude Include="..\..\examples\particles\fps_counter.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\examples\teapot\bresenham_fsm.h" />
+    <ClInclude Include="..\..\examples\teapot\fps_counter.h" />
+    <ClInclude Include="..\..\examples\teapot\math_helpers.h" />
+    <ClInclude Include="..\..\examples\teapot\rendering_engine.h" />
+    <ClInclude Include="..\..\examples\teapot\teapot_model.h" />
+    <ClInclude Include="..\..\examples\teapot\triangle_fsm.h" />
+    <ClInclude Include="..\..\font.h" />
+    <ClInclude Include="..\..\image.h" />
+    <ClInclude Include="..\..\iterator_direction.h" />
+    <ClInclude Include="..\..\level2\input.h" />
+    <ClInclude Include="..\..\line.h" />
+    <ClInclude Include="..\..\misc_inst.h" />
+    <ClInclude Include="..\..\mxgui_settings.h" />
+    <ClInclude Include="..\..\point.h" />
+    <ClInclude Include="..\..\pthread_lock.h" />
+    <ClInclude Include="..\..\resourcefs.h" />
+    <ClInclude Include="..\..\resourcefs_types.h" />
+    <ClInclude Include="..\..\resource_image.h" />
+    <ClInclude Include="..\..\tga_image.h" />
+    <ClInclude Include="WinSimulator.h" />
+    <ClInclude Include="ForcedInclude.h" />
+    <ClInclude Include="pthread.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="winbackend.h" />
+    <ClInclude Include="window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\display.cpp" />
+    <ClCompile Include="..\..\drivers\display_win.cpp" />
+    <ClCompile Include="..\..\drivers\event_win.cpp" />
+    <ClCompile Include="..\..\examples\clipped image\clipped_image.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\drawboard\drawboard.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\particles\fps_counter.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\particles\particles.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\teapot\bresenham_fsm.cpp" />
+    <ClCompile Include="..\..\examples\teapot\fps_counter.cpp" />
+    <ClCompile Include="..\..\examples\teapot\rendering_engine.cpp" />
+    <ClCompile Include="..\..\examples\teapot\teapot.cpp" />
+    <ClCompile Include="..\..\examples\teapot\triangle_fsm.cpp" />
+    <ClCompile Include="..\..\font.cpp" />
+    <ClCompile Include="..\..\level2\input.cpp" />
+    <ClCompile Include="..\..\misc_inst.cpp" />
+    <ClCompile Include="..\..\resourcefs.cpp" />
+    <ClCompile Include="..\..\resource_image.cpp" />
+    <ClCompile Include="..\..\tga_image.cpp" />
+    <ClCompile Include="WinSimulator.cpp" />
+    <ClCompile Include="pthread.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="winbackend.cpp" />
+    <ClCompile Include="window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WinSimulator.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

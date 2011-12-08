@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="mxgui">
+      <UniqueIdentifier>{ceee73d5-387e-4d73-807a-a430785ee498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\drivers">
+      <UniqueIdentifier>{2405c7c8-1b5d-4d83-9a0f-dc1ae539f37f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\tools">
+      <UniqueIdentifier>{734bd044-fc91-4478-92c7-c16f944ccd37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\tools\winsimulator">
+      <UniqueIdentifier>{59bd2c1b-4f55-4b4a-b04e-97c0e3e3d163}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\level2">
+      <UniqueIdentifier>{09dc6bd8-b7e6-4cf6-8e78-03d4fc102fe6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\tools\winsimulator\Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="mxgui\tools\winsimulator\headers">
+      <UniqueIdentifier>{026b7cac-8e1d-4e64-9198-23d63afaa021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\examples">
+      <UniqueIdentifier>{278e5ead-291a-4104-8b35-74d7e6498060}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\examples\particles">
+      <UniqueIdentifier>{a20354ad-441a-4e55-b78d-9441925ebde7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\examples\drawboard">
+      <UniqueIdentifier>{8b9716b1-bf6c-409c-916e-2cf050a699d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\examples\clippedimage">
+      <UniqueIdentifier>{0e54a358-e056-4e1b-8ba6-dd8542270eb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mxgui\examples\teapot">
+      <UniqueIdentifier>{a11e9ca1-1f6d-4048-903b-52edc6b4e1a0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="small.ico">
+      <Filter>mxgui\tools\winsimulator\Resource Files</Filter>
+    </None>
+    <None Include="ReadMe.txt" />
+    <None Include="WinSimulator.ico">
+      <Filter>mxgui\tools\winsimulator\Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\color.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\display.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\entry.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\font.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\iterator_direction.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\line.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\misc_inst.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\mxgui_settings.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\point.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pthread_lock.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\resource_image.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\resourcefs.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\resourcefs_types.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tga_image.h">
+      <Filter>mxgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\level2\input.h">
+      <Filter>mxgui\level2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\drivers\display_win.h">
+      <Filter>mxgui\drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\drivers\event_win.h">
+      <Filter>mxgui\drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\drivers\event_types_win.h">
+      <Filter>mxgui\drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>mxgui\tools\winsimulator\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>mxgui\tools\winsimulator\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="window.h">
+      <Filter>mxgui\tools\winsimulator\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="winbackend.h">
+      <Filter>mxgui\tools\winsimulator\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>mxgui\tools\winsimulator\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pthread.h">
+      <Filter>mxgui\tools\winsimulator\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ForcedInclude.h">
+      <Filter>mxgui\tools\winsimulator\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="WinSimulator.h">
+      <Filter>mxgui\tools\winsimulator\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\examples\particles\fps_counter.h">
+      <Filter>mxgui\examples\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\examples\teapot\bresenham_fsm.h">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\examples\teapot\fps_counter.h">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\examples\teapot\math_helpers.h">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\examples\teapot\rendering_engine.h">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\examples\teapot\teapot_model.h">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\examples\teapot\triangle_fsm.h">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\display.cpp">
+      <Filter>mxgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\font.cpp">
+      <Filter>mxgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\misc_inst.cpp">
+      <Filter>mxgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\resource_image.cpp">
+      <Filter>mxgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\resourcefs.cpp">
+      <Filter>mxgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tga_image.cpp">
+      <Filter>mxgui</Filter>
+    </ClCompile>
+    <ClCompile Include="pthread.cpp">
+      <Filter>mxgui\tools\winsimulator</Filter>
+    </ClCompile>
+    <ClCompile Include="winbackend.cpp">
+      <Filter>mxgui\tools\winsimulator</Filter>
+    </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>mxgui\tools\winsimulator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\level2\input.cpp">
+      <Filter>mxgui\level2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\drivers\display_win.cpp">
+      <Filter>mxgui\drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\drivers\event_win.cpp">
+      <Filter>mxgui\drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>mxgui\tools\winsimulator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\clipped image\clipped_image.cpp">
+      <Filter>mxgui\examples\clippedimage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\drawboard\drawboard.cpp">
+      <Filter>mxgui\examples\drawboard</Filter>
+    </ClCompile>
+    <ClCompile Include="WinSimulator.cpp">
+      <Filter>mxgui\tools\winsimulator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\particles\fps_counter.cpp">
+      <Filter>mxgui\examples\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\particles\particles.cpp">
+      <Filter>mxgui\examples\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\teapot\bresenham_fsm.cpp">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\teapot\fps_counter.cpp">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\teapot\rendering_engine.cpp">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\teapot\teapot.cpp">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\examples\teapot\triangle_fsm.cpp">
+      <Filter>mxgui\examples\teapot</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WinSimulator.rc">
+      <Filter>mxgui\tools\winsimulator\Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
