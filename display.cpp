@@ -29,7 +29,9 @@
 #include "drivers/display_stm3210e-eval.h"
 #include "drivers/display_mp3v2.h"
 #include "drivers/display_qt.h"
+#include "drivers/display_win.h"
 #include "drivers/display_strive.h"
+#include "drivers/display_redbull_v2.h"
 #include "pthread_lock.h"
 
 namespace mxgui {

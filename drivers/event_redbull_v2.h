@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Yury Kuchura                                    *
+ *   Copyright (C) 2011 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,30 +25,42 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_STRIVE_H
-#define	EVENT_TYPES_STRIVE_H
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
 
-#ifdef _BOARD_STRIVE_MINI
+#include "mxgui/level2/input.h"
 
-class EventType
+#ifndef EVENT_REDBULL_V2_H
+#define	EVENT_REDBULL_V2_H
+
+#ifdef _BOARD_REDBULL_V2
+
+namespace mxgui {
+
+/**
+ * Implementation class to handle events in the Mp3v2 backend
+ */
+class InputHandlerImpl
 {
 public:
-    enum E
-    {
-        Default=0, //This is a must on all backends
-        TouchDown=1,
-        TouchUp=2,
-        TouchMove=3,
-        Button1Pressed=4,
-        Button1Released=5,
-        //The below buttons are just declared for compatibility, but not implemented
-        ButtonA,
-        ButtonB,
-    };
-private:
-    EventType();
+    InputHandlerImpl();
+
+    /**
+     * \return an event, blocking
+     */
+    Event getEvent();
+
+    /**
+     * \return an event, nonblocking. A default constructed event is returned
+     * if there are no events.
+     */
+    Event popEvent();
 };
 
-#endif //_BOARD_STRIVE_MINI
+} //namespace mxgui
 
-#endif //EVENT_TYPES_STRIVE_H
+#endif //_BOARD_REDBULL_V2
+
+#endif //EVENT_REDBULL_V2_H

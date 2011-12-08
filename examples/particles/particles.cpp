@@ -195,4 +195,5 @@ ENTRY()
     delete[] particles;
     delete[] sorted;
     delete[] oldPos;
+    return 0;
 }

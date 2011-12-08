@@ -28,9 +28,11 @@
 #include "mxgui/mxgui_settings.h"
 #include "mxgui/point.h"
 #include "mxgui/drivers/event_types_qt.h"
+#include "mxgui/drivers/event_types_win.h"
 #include "mxgui/drivers/event_types_mp3v2.h"
 #include "mxgui/drivers/event_types_strive.h"
 #include "mxgui/drivers/event_types_stm3210e-eval.h"
+#include "mxgui/drivers/event_types_redbull_v2.h"
 
 #ifdef MXGUI_LEVEL_2
 

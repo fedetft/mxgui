@@ -142,14 +142,21 @@ ENTRY()
             case EventType::TouchMove:
                 if (prev != Point(-1, -1))
                 {
-                    if (p.y() <= LEGEND_H)
-                        break;
                     OutCoord(dc, p);
+                    if ( (p.y() <= LEGEND_H) || (p.y() >= (display.getHeight()- 1)) ||
+                         (p.x() >= (display.getWidth() - 1)) )
+                        break;
                     dc.line(prev, p, color);
                     dc.line(Point(prev.x()+1, prev.y()), Point(p.x()+1, p.y()), color);
                     dc.line(Point(prev.x(), prev.y()+1), Point(p.x(), p.y()+1), color);
                     prev = p;
                 }
+                break;
+
+            case EventType::ButtonA:
+                dc.clear(black);
+                color = white;
+                DrawLegend(dc);
                 break;
 
             default:

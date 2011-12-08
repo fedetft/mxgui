@@ -92,8 +92,8 @@ static bool Poll2046Once(Point& coord)
     delayUs(5);
 
     //16-bits, DFR mode, measure Y, X.
-    static const uint8_t txBytes[9] = {0x90, 0x00, 0xD0, 0x00, 0x00};
-    uint8_t rxBytes[9];
+    static const uint8_t txBytes[5] = {0x90, 0x00, 0xD0, 0x00, 0x00};
+    uint8_t rxBytes[5];
     uint32_t i;
 
     //Exchange bytes
@@ -225,6 +225,49 @@ static void callback(Event e)
     eventQueue.IRQput(e);
 }
 
+enum ButtonState
+{
+    BTN_PRESSED, BTN_RELEASED
+};
+
+static void PollButtons()
+{
+    static uint32_t btnCounter = 0;
+    static ButtonState btnState = BTN_RELEASED;
+    if (BTN_RELEASED == btnState)
+    {
+        if (0 == buttons::button1::value())
+        {
+            if (++btnCounter >= 3)
+            {
+                btnCounter = 0;
+                btnState = BTN_PRESSED;
+                callback(Event(EventType::Button1Pressed));
+            }
+        }
+        else
+        {//Suppress short press
+            btnCounter = 0;
+        }
+    }
+    else
+    {//BTN_PRESSED
+        if (1 == buttons::button1::value())
+        {
+            if (++btnCounter >= 3)
+            {
+                btnCounter = 0;
+                btnState = BTN_RELEASED;
+                callback(Event(EventType::Button1Released));
+            }
+        }
+        else
+        {//Suppress short release
+            btnCounter = 0;
+        }
+    }
+} // PollButtons()
+
 static void eventThread(void*)
 {
     bool tPrev=false;
@@ -234,6 +277,9 @@ static void eventThread(void*)
     for(;;)
     {
         Thread::sleep(20); //Check for events 50 times a second
+
+        PollButtons();
+
         //Check touchscreen
         if( Poll2046(p) )
         {//Someone is touching the screen

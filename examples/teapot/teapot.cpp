@@ -270,4 +270,5 @@ ENTRY()
         dc.setFont(droid11);
         dc.setTextColor(white,black);
     }
+    return 0;
 }
