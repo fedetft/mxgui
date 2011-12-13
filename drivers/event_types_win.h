@@ -28,7 +28,7 @@
 #ifndef EVENT_TYPES_WIN_H
 #define	EVENT_TYPES_WIN_H
 
-#ifndef _MIOSIX
+#if !defined(_MIOSIX) && defined(_WINDOWS)
 
 class EventType
 {
@@ -46,6 +46,6 @@ private:
     EventType();
 };
 
-#endif //_MIOSIX
+#endif //!defined(_MIOSIX) && defined(_WINDOWS)
 
 #endif //EVENT_TYPES_WIN_H

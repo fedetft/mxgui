@@ -33,7 +33,7 @@
 #ifndef EVENT_QT_H
 #define	EVENT_QT_H
 
-#ifndef _MIOSIX
+#if !defined(_MIOSIX) && !defined(_WINDOWS)
 
 #include "mxgui/level2/input.h"
 
@@ -65,6 +65,6 @@ public:
 
 } //namespace mxgui
 
-#endif //_MIOSIX
+#endif //!defined(_MIOSIX) && !defined(_WINDOWS)
 
 #endif //EVENT_QT_H

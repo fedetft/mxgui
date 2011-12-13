@@ -34,9 +34,7 @@
 #ifndef DISPLAY_WIN_H
 #define	DISPLAY_WIN_H
 
-#ifdef _WINDOWS
-
-#ifndef _MIOSIX
+#if !defined(_MIOSIX) && defined(_WINDOWS)
 
 #include "mxgui/mxgui_settings.h"
 #include "mxgui/point.h"
@@ -343,8 +341,6 @@ private:
 
 } //namespace mxgui
 
-#endif //_MIOSIX
-
-#endif // _WINDOWS
+#endif //!defined(_MIOSIX) && defined(_WINDOWS)
 
 #endif //DISPLAY_WIN_H

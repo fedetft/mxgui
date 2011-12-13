@@ -33,7 +33,7 @@
 #ifndef DISPLAY_QT_H
 #define	DISPLAY_QT_H
 
-#ifndef _MIOSIX
+#if !defined(_MIOSIX) && !defined(_WINDOWS)
 
 #include "mxgui/mxgui_settings.h"
 #include "mxgui/point.h"
@@ -340,6 +340,6 @@ private:
 
 } //namespace mxgui
 
-#endif //_MIOSIX
+#endif //!defined(_MIOSIX) && !defined(_WINDOWS)
 
 #endif //DISPLAY_QT_H
