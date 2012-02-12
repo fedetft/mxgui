@@ -33,10 +33,6 @@ target_link_libraries(fontrendering ${Boost_LIBRARIES})
 target_link_libraries(pngconverter ${Boost_LIBRARIES})
 target_link_libraries(resourcefs ${Boost_LIBRARIES})
 
-find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIR})
-target_link_libraries(fontrendering fontcore ${ZLIB_LIBRARY})
-
 ## Uncomment this if you want to use the system's freetype library
 #find_package(Freetype REQUIRED)
 #include_directories(${FREETYPE_INCLUDE_DIRS})
@@ -45,3 +41,7 @@ target_link_libraries(fontrendering fontcore ${ZLIB_LIBRARY})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/build/freetype-2.4.3/include)
 find_library(FREETYPE NAMES freetype HINTS ${CMAKE_CURRENT_SOURCE_DIR}/build/freetype-2.4.3/objs/.libs)
 target_link_libraries(fontrendering ${FREETYPE})
+
+find_package(ZLIB REQUIRED)
+include_directories(${ZLIB_INCLUDE_DIR})
+target_link_libraries(fontrendering fontcore ${ZLIB_LIBRARY})

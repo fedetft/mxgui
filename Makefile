@@ -3,6 +3,7 @@
 ## TFT:Terraneo Federico Technlogies
 ## This makefile builds libmxgui.a
 ##
+MAKEFILE_VERSION := 1.01
 include ../miosix/config/Makefile.inc
 
 ## List of all mxgui source files (both .c and .cpp)
@@ -29,10 +30,10 @@ drivers/event_redbull_v2.cpp
 OBJ := $(addsuffix .o, $(basename $(SRC)))
 
 ## Includes the miosix base directory for C/C++
-CXXFLAGS := $(CXXFLAGS_BASE) -I.. -I../miosix -I../miosix/$(ARCH_INC) \
-    -I../miosix/$(BOARD_INC) -DMXGUI_LIBRARY
-CFLAGS   := $(CFLAGS_BASE)   -I.. -I../miosix -I../miosix/$(ARCH_INC) \
-    -I../miosix/$(BOARD_INC) -DMXGUI_LIBRARY
+CXXFLAGS := $(CXXFLAGS_BASE) -I.. -I../miosix -I../miosix/arch/common \
+    -I../miosix/$(ARCH_INC) -I../miosix/$(BOARD_INC) -DMXGUI_LIBRARY
+CFLAGS   := $(CFLAGS_BASE)   -I.. -I../miosix -I../miosix/arch/common \
+    -I../miosix/$(ARCH_INC) -I../miosix/$(BOARD_INC) -DMXGUI_LIBRARY
 AFLAGS   := $(AFLAGS_BASE)
 
 ## Build libmxgui.a

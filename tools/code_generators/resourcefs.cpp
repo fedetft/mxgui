@@ -91,9 +91,9 @@ int main(int argc, char *argv[])
 		if(is_directory(it->status()))
 		{
 			cerr<<"Warning: ignoring subdirectory \""<<it->path()<<"\""<<endl;
-		} else if(it->leaf().length()>resourceFsFileMax)
+		} else if(it->path().filename().string().length()>resourceFsFileMax)
 		{
-			cerr<<"Error: file name \""<<it->leaf()<<"\" is too long"<<endl;
+			cerr<<"Error: file name \""<<it->path().filename()<<"\" is too long"<<endl;
 			return 1;
 		} else files.push_back(it->path());
 	}
