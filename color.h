@@ -32,10 +32,28 @@
 
 namespace mxgui {
 
+/**
+ * This class is designed to behave just like a regular unsigned char, take the same
+ * amount of storage and, thanks to inlining, be as fast as dealing with an unsigned char.
+ * The reason why it exists is to avoid  Color being a typedef for an unsigned char
+ * both when MXGUI_COLOR_DEPTH_1_BIT_LINEAR and MXGUI_COLOR_DEPTH_8_BIT, which would
+ * prevent template specialization to handle the 1 bit per pixel color depth
+ */
+class Color1bitlinear
+{
+public:
+        Color1bitlinear() {} //Uninitialized just like a regular unsigned char
+        Color1bitlinear(unsigned char c) : color(c) {} //Not explicit by design
+        operator unsigned char() const { return color; }
+        Color1bitlinear& operator=(unsigned char c) { color=c; return *this; }
+private:
+        unsigned char color;
+};
+
 ///\ingroup pub_iface
 ///Define the Color type, depending on the COLOR_DEPTH constant
-#ifdef MXGUI_COLOR_DEPTH_1_BIT
-typedef unsigned char Color; //Only 0 and 1 allowed
+#ifdef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+typedef Color1bitlinear Color; //Only 0 and 1 allowed
 #elif defined(MXGUI_COLOR_DEPTH_8_BIT)
 typedef unsigned char Color;
 #elif defined(MXGUI_COLOR_DEPTH_16_BIT)

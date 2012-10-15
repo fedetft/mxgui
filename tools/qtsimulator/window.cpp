@@ -38,11 +38,15 @@ void UpdateSignalSender::update()
 
 Window::Window(QWidget *parent): QWidget(parent),
         image(QSize(FrameBuffer::width,FrameBuffer::height),
-        QImage::Format_RGB16), w(this), layout(&w), buttonA("<"), buttonB(">"),
+#ifdef MXGUI_COLOR_DEPTH_16_BIT
+        QImage::Format_RGB16),
+#elif defined(MXGUI_COLOR_DEPTH_1_BIT_LINEAR)
+        QImage::Format_MonoLSB),
+#endif
+        w(this), layout(&w), buttonA("<"), buttonB(">"),
         sender(new UpdateSignalSender)
 {
     this->setFixedSize(FrameBuffer::width,FrameBuffer::height+50);
-    image.fill(0x0000);
     w.setFixedSize(FrameBuffer::width,50);
     w.move(QPoint(0,FrameBuffer::height));
     layout.addWidget(&buttonA);
@@ -56,7 +60,10 @@ Window::Window(QWidget *parent): QWidget(parent),
             Qt::BlockingQueuedConnection);
     this->setWindowTitle(tr("Mxgui simulator"));
     this->show();
-    QTBackend::instance().start(sender);
+    QTBackend& qb=QTBackend::instance();
+    std::memcpy(image.bits(),qb.getFrameBuffer().getData(),image.byteCount());
+    this->update();
+    qb.start(sender);
 }
 
 void Window::updateFrameBuffer()

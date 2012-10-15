@@ -24,7 +24,8 @@ drivers/resfs_mp3v2.cpp             \
 drivers/display_strive.cpp          \
 drivers/event_strive.cpp            \
 drivers/display_redbull_v2.cpp      \
-drivers/event_redbull_v2.cpp
+drivers/event_redbull_v2.cpp        \
+drivers/display_bitsboard.cpp
 
 ## Replaces both "foo.cpp"-->"foo.o" and "foo.c"-->"foo.o"
 OBJ := $(addsuffix .o, $(basename $(SRC)))

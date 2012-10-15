@@ -21,16 +21,19 @@
 #include <cstring>
 #include <boost/shared_ptr.hpp>
 #include "mxgui/mxgui_settings.h"
+#include "mxgui/color.h"
 
 //Forward decl
 class UpdateSignalSender;
 
 /**
  * A framebuffer object
+ * \param T the color type, that is, the type of one pixel
  * \param N framebuffer width
  * \param M framebuffer height
+ * \param F framebuffer fill, used for clear()
  */
-template<unsigned int N, unsigned int M>
+template<typename T, unsigned int N, unsigned int M, unsigned int F>
 class basic_framebuffer
 {
 public:
@@ -41,14 +44,17 @@ public:
     static const unsigned int height=M;
     
     /**
-     * Initializes buffer to all black
+     * Initializes buffer to the fill color
      */
     basic_framebuffer() { clear(); }
 
     /**
-     * Clear the framebuffer to all black.
+     * Clear the framebuffer to the fill color
      */
-    void clear() { std::memset(data,0,sizeof(data)); }
+    void clear()
+    {
+        for(int i=0;i<M;i++) for(int j=0;j<N;j++) data[i][j]=F;
+    }
 
     /**
      * Get a pixel
@@ -56,7 +62,7 @@ public:
      * \param y
      * \return the pixel
      */
-    unsigned short getPixel(int x, int y) const { return data[y][x]; }
+    T getPixel(int x, int y) const { return data[y][x]; }
 
     /**
      * Set a pixel
@@ -64,22 +70,89 @@ public:
      * \param y
      * \param pixel pixel to set
      */
-    void setPixel(int x, int y, unsigned short pixel) { data[y][x]=pixel; }
+    void setPixel(int x, int y, T pixel) { data[y][x]=pixel; }
 
     /**
      * Get a pointer to the framebuffer data
      * \return the pointer to the framebuffer
      */
-    unsigned short *getData() { return &data[0][0]; }
+    void *getData() { return &data[0][0]; }
 
 private:
     ///Pixel data, stored as [M][N] because matches QImage's representation
-    unsigned short data[M][N];
+    T data[M][N];
+};
+
+/**
+ * Partial specialization of basic_framebuffer for
+ * 1 bit per pixel linear framebuffers
+ * \param N framebuffer width
+ * \param M framebuffer height
+ * \param F framebuffer fill, used for clear()
+ */
+template<unsigned int N, unsigned int M, unsigned int F>
+class basic_framebuffer<mxgui::Color1bitlinear, N, M, F>
+{
+public:
+    /// Height of framebuffer
+    static const unsigned int width=N;
+
+    /// Width of framebuffer
+    static const unsigned int height=M;
+    
+    /**
+     * Initializes buffer to the fill color
+     */
+    basic_framebuffer() { clear(); }
+
+    /**
+     * Clear the framebuffer to the fill color
+     */
+    void clear()
+    {
+        unsigned char fill=F ? 0xff : 0x00;
+        std::memset(data,fill,sizeof(data));
+    }
+
+    /**
+     * Get a pixel
+     * \param x
+     * \param y
+     * \return the pixel
+     */
+    mxgui::Color1bitlinear getPixel(int x, int y) const
+    {
+        return data[y][x/8] & (1<<(x & 7)) ? 1 : 0;
+    }
+
+    /**
+     * Set a pixel
+     * \param x
+     * \param y
+     * \param pixel pixel to set
+     */
+    void setPixel(int x, int y, mxgui::Color1bitlinear pixel)
+    {
+        if(pixel) data[y][x/8] |= (1<<(x & 7));
+        else data[y][x/8] &=~ (1<<(x & 7));
+    }
+
+    /**
+     * Get a pointer to the framebuffer data
+     * \return the pointer to the framebuffer
+     */
+    void *getData() { return &data[0][0]; }
+
+private:
+    ///Pixel data, stored as [M][N] because matches QImage's representation
+    unsigned char data[M][(N+7)/8];
 };
 
 ///Framebuffer instantiation
-typedef basic_framebuffer<
-    mxgui::SIMULATOR_DISP_WIDTH,mxgui::SIMULATOR_DISP_HEIGHT> FrameBuffer;
+typedef basic_framebuffer<mxgui::Color,
+    mxgui::SIMULATOR_DISP_WIDTH,
+    mxgui::SIMULATOR_DISP_HEIGHT,
+    mxgui::SIMULATOR_BGCOLOR> FrameBuffer;
 
 /**
  * Class that interfaces QT GUI (running from main thread) and mxgui (running

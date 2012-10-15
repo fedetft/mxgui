@@ -27,8 +27,8 @@
 
 #include "benchmark.h"
 #include "mxgui/misc_inst.h"
-#include "checkpattern.h"
 #include "mxgui/resource_image.h"
+#include "checkpattern2.h"
 #include "micro_qr_code_from_wikipedia.h"
 #include "benchmark.h"
 #include <cstdio>
@@ -71,56 +71,73 @@ Benchmark::Benchmark(mxgui::Display& display): display(display) {}
 void Benchmark::start()
 {
     //First, setup
+    index=0;
     {
         DrawingContext dc(display);
-        if(dc.getWidth()!=240 || dc.getHeight()!=320)
-        {
-            iprintf("Error: benchmark is designed for a display with a width\n"
-                    "of 240 pixels and a height of 320 pixels\n");
-            return;
-        }
         dc.clear(black);
     }
 
     //Then, do benchmarks
     fixedWidthTextBenchmark();
     variableWidthTextBenchmark();
+    #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
     antialiasingBenchmark();
+    #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
     horizontalLineBenchmark();
     verticalLineBenchmark();
     obliqueLineBenchmark();
     clearScreenBenchmark();
     imageBenchmark();
+    #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
     scanLineBenchmark();
+    #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
     clippedDrawBenchmark();
     clippedWriteBenchmark();
+    #ifdef MXGUI_ENABLE_RESOURCEFS
     resourceImageBenchmark();
+    #endif //MXGUI_ENABLE_RESOURCEFS
 
     //Last print results
+    #ifndef _BOARD_BITSBOARD
+    const Color fg=white;
+    const Color bg=black;
+    #else //_BOARD_BITSBOARD
+    const Color fg=black;
+    const Color bg=white;
+    #endif //_BOARD_BITSBOARD
     {
         DrawingContext dc(display);
-        dc.clear(black);
+        dc.clear(bg);
+        #ifdef MXGUI_FONT_DROID11
         dc.setFont(droid11);
-        dc.setTextColor(white,black);
+        #else //MXGUI_FONT_DROID11
+        dc.setFont(tahoma);
+        #endif //MXGUI_FONT_DROID11
+        dc.setTextColor(fg,bg);
         dc.write(Point(0,0),"Benchmark name                 Time         Fps");
-        dc.line(Point(0,12),Point(240,12),white);
-        for(unsigned int i=0, j=13;i<numBenchmarks;i++,j+=12)
-            results[i].print(dc,Point(0,j));
+        dc.line(Point(0,12),Point(dc.getWidth()-1,12),fg);
+        for(int i=0, j=13;i<index;i++,j+=12) results[i].print(dc,Point(0,j));
     }
 }
 
 void Benchmark::fixedWidthTextBenchmark()
 {
     unsigned int totalTime=0;
-    const char text[]="012345678901234567890123456789";
+    char text[64];
+    memset(text,0,sizeof(text));
+    for(int i=0;i<min(63,display.getWidth()/8);i++) text[i]='0'+i%10;
     for(int i=0;i<4;i++)
     {
         {
             DrawingContext dc(display);
             dc.setFont(miscFixed);
+            #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
             dc.setTextColor(i%2==0 ? red : green,black);
+            #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            i%2==0 ? dc.setTextColor(white,black) : dc.setTextColor(black,white);
+            #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
             timer.start();
-            for(int j=0;j<320;j+=16) dc.write(Point(0,j),text);
+            for(int j=0;j<dc.getHeight();j+=16) dc.write(Point(0,j),text);
             timer.stop();
         }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
@@ -128,22 +145,33 @@ void Benchmark::fixedWidthTextBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results[0]=BenchmarkResult("Monospace text",totalTime);
+    results[index++]=BenchmarkResult("Monospace text",totalTime);
 }
 
 void Benchmark::variableWidthTextBenchmark()
 { 
     unsigned int totalTime=0;
-    //This line with tahoma font is exactly 240 pixel wide
-    const char text[]="abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/";
+    char text[64];
+    if(display.getWidth()==240)
+    {
+        //This line with tahoma font is exactly 240 pixel wide
+        strcpy(text,"abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/");
+    } else {
+        memset(text,0,sizeof(text));
+        for(int i=0;i<min(63,display.getWidth()/6);i++) text[i]='0'+i%10;
+    }
     for(int i=0;i<4;i++)
     {
         {
             DrawingContext dc(display);
             dc.setFont(tahoma);
+            #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
             dc.setTextColor(i%2==0 ? red : green,black);
+            #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            i%2==0 ? dc.setTextColor(white,black) : dc.setTextColor(black,white);
+            #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
             timer.start();
-            for(int j=0;j<320;j+=12) dc.write(Point(0,j),text);
+            for(int j=0;j<dc.getHeight();j+=12) dc.write(Point(0,j),text);
             timer.stop();
         }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
@@ -151,13 +179,22 @@ void Benchmark::variableWidthTextBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results[1]=BenchmarkResult("Variable width text",totalTime);
+    results[index++]=BenchmarkResult("Variable width text",totalTime);
 }
 
+
+#ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
 void Benchmark::antialiasingBenchmark()
 {
     unsigned int totalTime=0;
-    const char text[]="abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/";
+    char text[64];
+    if(display.getWidth()==240)
+    {
+        strcpy(text,"abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/");
+    } else {
+        memset(text,0,sizeof(text));
+        for(int i=0;i<min(63,display.getWidth()/6);i++) text[i]='0'+i%10;
+    }
     for(int i=0;i<4;i++)
     {
         {
@@ -165,7 +202,7 @@ void Benchmark::antialiasingBenchmark()
             dc.setFont(droid11);
             dc.setTextColor(i%2==0 ? red : green,black);
             timer.start();
-            for(int j=0;j<320;j+=12) dc.write(Point(0,j),text);
+            for(int j=0;j<dc.getHeight();j+=12) dc.write(Point(0,j),text);
             timer.stop();
         }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
@@ -173,19 +210,25 @@ void Benchmark::antialiasingBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results[2]=BenchmarkResult("Antialiased text",totalTime);
+    results[index++]=BenchmarkResult("Antialiased text",totalTime);
 }
+#endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
 
 void Benchmark::horizontalLineBenchmark()
 {
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
+        #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         Color color=i%2==0?red:green;
+        #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        Color color=i%2==0?white:black;
+        #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         {
             DrawingContext dc(display);
             timer.start();
-            for(int j=0;j<320;j++) dc.line(Point(0,j),Point(239,j),color);
+            for(int j=0;j<dc.getHeight();j++)
+                dc.line(Point(0,j),Point(dc.getWidth()-1,j),color);
             timer.stop();
         }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
@@ -193,7 +236,7 @@ void Benchmark::horizontalLineBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results[3]=BenchmarkResult("Horizontal lines",totalTime);
+    results[index++]=BenchmarkResult("Horizontal lines",totalTime);
 }
 
 void Benchmark::verticalLineBenchmark()
@@ -201,11 +244,16 @@ void Benchmark::verticalLineBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
+        #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         Color color=i%2==0?red:green;
+        #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        Color color=i%2==0?white:black;
+        #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         {
             DrawingContext dc(display);
             timer.start();
-            for(int j=0;j<240;j++) dc.line(Point(j,0),Point(j,319),color);
+            for(int j=0;j<dc.getWidth();j++)
+                dc.line(Point(j,0),Point(j,dc.getHeight()-1),color);
             timer.stop();
         }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
@@ -213,34 +261,62 @@ void Benchmark::verticalLineBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results[4]=BenchmarkResult("Vertical lines",totalTime);
+    results[index++]=BenchmarkResult("Vertical lines",totalTime);
 }
 
 void Benchmark::obliqueLineBenchmark()
 {
-    unsigned int totalTime=0;
-    const Color darkRed(0x7800);
-    const Color darkGreen(0x3e00);
-    const Color darkBlue(0x000f);
+    unsigned int totalTime=0; 
     for(int i=0;i<4;i++)
     {
+        #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        const Color darkRed(0x7800);
+        const Color darkGreen(0x3e00);
+        const Color darkBlue(0x000f);
         Color colorA=i%2==0?darkRed:darkGreen;
         Color colorB=i%2==0?darkGreen:darkBlue;
         Color colorC=i%2==0?darkBlue:darkRed;
+        #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        Color colorA=i%2==0?white:black;
+        Color colorB=colorA;
+        Color colorC=i%2==0?black:white;
+        #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         {
             DrawingContext dc(display);
             timer.start();
-            for(int j=0;j<240;j++)
+            if(dc.getHeight()>=dc.getWidth())
             {
-                dc.line(Point(j,0),Point(239,239-j),colorA);
-            }
-            for(int j=0;j<240;j++)
-            {
-                dc.line(Point(0,320-240+j),Point(239-j,319),colorB);
-            }
-            for(int j=0;j<320-240;j++)
-            {
-                dc.line(Point(0,1+j),Point(239,240+j),colorC);
+                for(int j=0;j<dc.getWidth();j++)
+                {
+                    dc.line(Point(j,0),
+                        Point(dc.getWidth()-1,dc.getWidth()-1-j),colorA);
+                }
+                for(int j=0;j<dc.getWidth();j++)
+                {
+                    dc.line(Point(0,dc.getHeight()-dc.getWidth()+j),
+                        Point(dc.getWidth()-1-j,dc.getHeight()-1),colorB);
+                }
+                for(int j=0;j<dc.getHeight()-dc.getWidth();j++)
+                {
+                    dc.line(Point(0,1+j),
+                        Point(dc.getWidth()-1,dc.getWidth()+j),colorC);
+                }
+            } else {
+                for(int j=0;j<dc.getHeight();j++)
+                {
+                    dc.line(Point(0,j),
+                        Point(dc.getHeight()-1-j,dc.getHeight()-1),colorA);
+                }
+                for(int j=0;j<dc.getHeight();j++)
+                {
+                    dc.line(Point(dc.getWidth()-dc.getHeight()+j,0),
+                        Point(dc.getWidth()-1,dc.getHeight()-1-j),colorB);
+                }
+                for(int j=0;j<dc.getWidth()-dc.getHeight();j++)
+                {
+                    dc.line(Point(1+j,0),
+                        Point(dc.getHeight()+j,dc.getHeight()-1),colorC);
+                }
             }
             timer.stop();
         }
@@ -249,7 +325,7 @@ void Benchmark::obliqueLineBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results[5]=BenchmarkResult("Oblique lines",totalTime);
+    results[index++]=BenchmarkResult("Oblique lines",totalTime);
 }
 
 void Benchmark::clearScreenBenchmark()
@@ -257,7 +333,11 @@ void Benchmark::clearScreenBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
+        #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         Color color=i%2==0?red:green;
+        #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        Color color=i%2==0?white:black;
+        #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         {
             DrawingContext dc(display);
             timer.start();
@@ -269,38 +349,40 @@ void Benchmark::clearScreenBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results[6]=BenchmarkResult("Screen clear",totalTime);
+    results[index++]=BenchmarkResult("Screen clear",totalTime);
 }
 
 void Benchmark::imageBenchmark()
 {
     unsigned int totalTime=0;
-    for(int i=0;i<2;i++)
+    for(int i=0;i<4;i++)
     {
         {
             DrawingContext dc(display);
             timer.start();
-            for(int j=0;j<240;j+=16)
-                for(int k=0;k<320;k+=16)
+            for(int j=0;j<dc.getWidth();j+=16)
+                for(int k=0;k<dc.getHeight();k+=16)
+                    #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
                     dc.drawImage(Point(j,k),micro_qr_code_from_wikipedia);
+                    #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+                    dc.drawImage(Point(j,k),checkpattern2);
+                    #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
             timer.stop();
-            totalTime+=timer.interval()*1000000/TICK_FREQ;
-            timer.clear();
-            delayMs(250);
-            timer.start();
-            for(int j=0;j<240;j+=16)
-                for(int k=0;k<320;k+=16)
-                    dc.drawImage(Point(j,k),checkpattern);
-            timer.stop();
+        }
+        delayMs(250);
+        {
+            DrawingContext dc(display);
+            dc.clear(black);
         }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(250);
     }
     totalTime/=4;
-    results[7]=BenchmarkResult("Draw image",totalTime);
+    results[index++]=BenchmarkResult("Draw image",totalTime);
 }
 
+#ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
 static const Color rainbow[]={
  63488,63520,63584,63616,63680,63744,63776,63840,
  63872,63936,64000,64032,64096,64128,64192,64256,
@@ -336,6 +418,7 @@ static const Color rainbow[]={
 
 void Benchmark::scanLineBenchmark()
 {
+    //TODO: make it work also with screen different from 240x320
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
@@ -354,65 +437,75 @@ void Benchmark::scanLineBenchmark()
         delayMs(250);
     }
     totalTime/=4;
-    results[8]=BenchmarkResult("ScanLine",totalTime);
+    results[index++]=BenchmarkResult("ScanLine",totalTime);
 }
+#endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
 
 void Benchmark::clippedDrawBenchmark()
 {
     unsigned int totalTime=0;
-    for(int i=0;i<2;i++)
+    for(int i=0;i<4;i++)
     {
         {
             DrawingContext dc(display);
             timer.start();
-            for(int j=0;j<240;j+=8)
-                for(int k=0;k<320;k+=8)
+            for(int j=0;j<dc.getWidth();j+=8)
+                for(int k=0;k<dc.getHeight();k+=8)
                 {
                     Point p(j-8,k-8);
                     Point a(j,k);
                     Point b(j+8,k+8);
+                    #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
                     dc.clippedDrawImage(p,a,b,micro_qr_code_from_wikipedia);
+                    #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+                    dc.clippedDrawImage(p,a,b,checkpattern2);
+                    #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
                 }
             timer.stop();
-            totalTime+=timer.interval()*1000000/TICK_FREQ;
-            timer.clear();
-            delayMs(250);
-            timer.start();
-            for(int j=0;j<240;j+=8)
-                for(int k=0;k<320;k+=8)
-                {
-                    Point p(j-8,k-8);
-                    Point a(j,k);
-                    Point b(j+8,k+8);
-                    dc.clippedDrawImage(p,a,b,checkpattern);
-                }
-            timer.stop();
+        }
+        delayMs(250);
+        {
+            DrawingContext dc(display);
+            dc.clear(black);
         }
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(250);
     }
     totalTime/=4;
-    results[9]=BenchmarkResult("ClippedDraw",totalTime);
+    results[index++]=BenchmarkResult("ClippedDraw",totalTime);
 }
 
 void Benchmark::clippedWriteBenchmark()
 {
     unsigned int totalTime=0;
-    const char text[]="abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/";
+    char text[64];
+    if(display.getWidth()==240)
+    {
+        strcpy(text,"abcdefghijklmnopqrtstuvwxyz0123456789%$! '&/");
+    } else {
+        memset(text,0,sizeof(text));
+        for(int i=0;i<min(63,display.getWidth()/6);i++) text[i]='0'+i%10;
+    }
     for(int i=0;i<4;i++)
     {
         {
             DrawingContext dc(display);
+            #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
             dc.setFont(droid11);
             if(i%2==0) dc.setTextColor(red,black);
             else dc.setTextColor(green,black);
+            #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            dc.setFont(tahoma);
+            if(i%2==0) dc.setTextColor(white,black);
+            else dc.setTextColor(black,white);
+            #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
             timer.start();
-            for(int j=0;j<320;j+=6)
+            for(int j=0;j<dc.getHeight();j+=6)
             {
                 Point p(0,j-3);
                 Point a(0,j);
-                Point b(239,j+5);
+                Point b(dc.getWidth()-1,j+5);
                 dc.clippedWrite(p,a,b,text);
             }
             timer.stop();
@@ -422,12 +515,13 @@ void Benchmark::clippedWriteBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results[10]=BenchmarkResult("Clipped text",totalTime);
+    results[index++]=BenchmarkResult("Clipped text",totalTime);
 }
 
+#ifdef MXGUI_ENABLE_RESOURCEFS
 void Benchmark::resourceImageBenchmark()
 {
-    #ifdef MXGUI_ENABLE_RESOURCEFS
+    
     unsigned int totalTime=0;
     ResourceImage img("background");
     for(int i=0;i<4;i++)
@@ -444,8 +538,6 @@ void Benchmark::resourceImageBenchmark()
         delayMs(500);
     }
     totalTime/=4;
-    results[11]=BenchmarkResult("ResourceImage",totalTime);
-    #else //MXGUI_ENABLE_RESOURCEFS
-    results[11]=BenchmarkResult("ResourceImage",0); //Benchmark not done
-    #endif //MXGUI_ENABLE_RESOURCEFS
+    results[index++]=BenchmarkResult("ResourceImage",totalTime);    
 }
+#endif //MXGUI_ENABLE_RESOURCEFS

@@ -107,7 +107,7 @@ private:
     void obliqueLineBenchmark();
 
     void clearScreenBenchmark();
-	
+
     void imageBenchmark();
 
     void scanLineBenchmark();
@@ -121,6 +121,7 @@ private:
     static const unsigned int numBenchmarks=12;
     mxgui::Display& display;
     BenchmarkResult results[numBenchmarks];
+    int index;
     miosix::Timer timer;
 };
 

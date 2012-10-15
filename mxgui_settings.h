@@ -60,7 +60,7 @@ static const int level2MaxNumApps=4;
 ///
 /// Choose color depth. Three options are provided for 1, 8 or 16 bit per pixel
 ///
-//#define MXGUI_COLOR_DEPTH_1_BIT //Untested
+//#define MXGUI_COLOR_DEPTH_1_BIT_LINEAR
 //#define MXGUI_COLOR_DEPTH_8_BIT //Untested
 #define MXGUI_COLOR_DEPTH_16_BIT
 
@@ -101,12 +101,14 @@ static const int level2MaxNumApps=4;
 //
 // Choose color depth.
 //
-//#define MXGUI_COLOR_DEPTH_1_BIT //Untested
+//#define MXGUI_COLOR_DEPTH_1_BIT_LINEAR
 //#define MXGUI_COLOR_DEPTH_8_BIT //Untested
 #define MXGUI_COLOR_DEPTH_16_BIT
 
 static const unsigned int SIMULATOR_DISP_HEIGHT=320;
 static const unsigned int SIMULATOR_DISP_WIDTH=240;
+static const unsigned int SIMULATOR_FGCOLOR=0xffff;
+static const unsigned int SIMULATOR_BGCOLOR=0;
 
 //
 // Display orientation settings, choose ONE of these. Their meaninig depends

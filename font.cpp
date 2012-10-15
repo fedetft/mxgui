@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #include "font.h"
+#include "misc_inst.h"
 #include <cstring>
 
 using namespace std;
@@ -68,6 +69,7 @@ short int Font::calculateLength(const char *s) const
 
 void Font::generatePalette(Color out[4], Color fgcolor, Color bgcolor)
 {
+    #ifdef MXGUI_COLOR_DEPTH_16_BIT
     unsigned short fgR=fgcolor; //& 0xf800; Optimization, & not required
     unsigned short bgR=bgcolor; //& 0xf800; Optimization, & not required
     unsigned short fgG=fgcolor & 0x7e0;
@@ -82,6 +84,14 @@ void Font::generatePalette(Color out[4], Color fgcolor, Color bgcolor)
     out[2]=Color(bgcolor+2*delta);
     out[1]=Color(bgcolor+delta);
     out[0]=bgcolor;
+    #elif defined(MXGUI_COLOR_DEPTH_8_BIT)
+    #error TODO
+    #elif defined(MXGUI_COLOR_DEPTH_1_BIT_LINEAR)
+    out[0]=out[1]=bgcolor ? white : black;
+    out[2]=out[3]=fgcolor ? white : black;
+    #else
+    #error unsupported color depth
+    #endif
 }
 
 }  //namespace mxgui

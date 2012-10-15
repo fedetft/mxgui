@@ -73,8 +73,8 @@ void ResourceImage::open(const char* name)
     pImpl->file.read(reinterpret_cast<char*>(&imgData),6);
     this->height=imgData[0]; //TODO: endianness
     this->width=imgData[1]; //TODO: endianness
-    #ifdef MXGUI_COLOR_DEPTH_1_BIT
-    if(imgData[2]!=1) close(); //TODO: endianness
+    #ifdef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+    if(imgData[2]!=0x80 | 1) close(); //TODO: endianness
     #elif defined(MXGUI_COLOR_DEPTH_8_BIT)
     if(imgData[2]!=8) close(); //TODO: endianness
     #elif defined(MXGUI_COLOR_DEPTH_16_BIT)
@@ -92,12 +92,14 @@ void ResourceImage::close()
 bool ResourceImage::getScanLine(mxgui::Point p, mxgui::Color colors[],
             unsigned short length) const
 {
+    //TODO: specialize, only works for 16 bit per pixel
     if(isOpen()==false) return false;
     if(p.x()<0 || p.x()<0) return false;
     if(p.x()>=this->getWidth() || p.y()>=this->getHeight()) return false;
     int o=p.x()+this->getWidth()*p.y();
     pImpl->file.lseek(6+2*o,SEEK_SET);
-    int readBytes=pImpl->file.read(reinterpret_cast<char*>(colors),2*length); //TODO: endianness
+    //TODO: endianness
+    int readBytes=pImpl->file.read(reinterpret_cast<char*>(colors),2*length);
     return readBytes==2*length;
 }
 

@@ -8,9 +8,9 @@ copy the content of this directory in the top-level directory:
  |
  +-- benchmark.h
  |
- +-- checkpattern.cpp
+ +-- checkpattern2.cpp
  |
- +-- checkpattern.h
+ +-- checkpattern2.h
  |
  +-- micro_qr_code_from_wikipedia.cpp
  |

@@ -16,7 +16,6 @@ SUBDIRS := miosix mxgui
 SRC :=  \
 bm_main.cpp \
 benchmark.cpp \
-checkpattern.cpp \
 micro_qr_code_from_wikipedia.cpp
 
 ##

@@ -83,7 +83,7 @@ extern const Font droid21b;
 extern const Font tahoma;
 #endif //MXGUI_FONT_TAHOMA
 
-#ifdef MXGUI_COLOR_DEPTH_1_BIT
+#ifdef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
 const Color white(1);         ///< White color constant
 const Color black(0);         ///< Black color constant
 #elif defined(MXGUI_COLOR_DEPTH_8_BIT)

@@ -32,6 +32,7 @@
 #include "drivers/display_win.h"
 #include "drivers/display_strive.h"
 #include "drivers/display_redbull_v2.h"
+#include "drivers/display_bitsboard.h"
 #include "pthread_lock.h"
 
 namespace mxgui {

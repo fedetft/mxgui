@@ -18,16 +18,17 @@
 /*
  * pngconverter.cpp
  * convert a png image into a .cpp file to be used with mxgui.
- * number of bit per pixel of output image can be configured as 8, 16, 18 or 24.
+ * number of bit per pixel of output image can be configured as
+ * 1bitlinear, 8, 16, 18 or 24.
  */
 
 #include <iostream>
 #include <stdexcept>
-#include <string>
-#include "libs/png++/png.hpp"
 #include <boost/program_options.hpp>
+#include "pngconverter.h"
 
 using namespace std;
+using namespace std::tr1;
 using namespace png;
 using namespace boost::program_options;
 
@@ -35,7 +36,7 @@ using namespace boost::program_options;
  * \param an unsigned short
  * \return the same short forced into little endian representation
  */
-unsigned short toLittleEndian(unsigned short x)
+static unsigned short toLittleEndian(unsigned short x)
 {
 	static bool first=true, little;
 	union {
@@ -54,6 +55,10 @@ unsigned short toLittleEndian(unsigned short x)
 	return endian.a;
 }
 
+/**
+ * \param x a string
+ * \return the same string with uppercase characters
+ */
 static string toUpper(const string& x)
 {
     string result(x);
@@ -61,15 +66,196 @@ static string toUpper(const string& x)
     return result;
 }
 
+//
+// class ImageWriter
+//
+
+shared_ptr<ImageWriter> ImageWriter::fromPixDepth(image<rgb_pixel>& img,
+        bool binary, PixDepth pd)
+{
+    switch(pd)
+    {
+        case _1bitlinear:
+            return shared_ptr<ImageWriter>(new ImageWriter1bitLinear(img,binary));
+        case _8:
+            return shared_ptr<ImageWriter>(new ImageWriter8bit(img,binary));
+        case _16:
+            return shared_ptr<ImageWriter>(new ImageWriter16bit(img,binary));
+        case _18:
+            return shared_ptr<ImageWriter>(new ImageWriter18bit(img,binary));
+        case _24:
+            return shared_ptr<ImageWriter>(new ImageWriter24bit(img,binary));
+        default:
+            throw runtime_error("Unsupported pixel depth");
+    }
+}
+
+void ImageWriter::write(ofstream& out, image<rgb_pixel> *outImage)
+{
+    int numPerLine=0;//Number of pixel per line. when reaches limit, wrap
+    for(int y=0;y<img.get_height();y++)
+    {
+        for(int x=0;x<img.get_width();x++)
+        {
+            writePixel(x,y,out,outImage,img.get_pixel(x,y));
+            if(binary) continue;
+            if((x==img.get_width()-1)&&(y==img.get_height()-1))
+            {
+                //It's the last pixel, so do not print ','
+            } else {
+                out<<',';
+                if(++numPerLine==pixPerLine())
+                {
+                    numPerLine=0;
+                    out<<endl<<' ';
+                }
+            }
+        }
+    }
+}
+
+//
+// class  ImageWriter1bitLinear
+//
+
+void ImageWriter1bitLinear::write(ofstream& out,
+        image<rgb_pixel> *outImage)
+{
+    int numPerLine=0;//Number of pixel per line. when reaches limit, wrap
+    int ctr=0;
+    unsigned char buffer=0;
+    for(int y=0;y<img.get_height();y++)
+    {
+        for(int x=0;x<img.get_width();x++)
+        {
+            rgb_pixel pix=img.get_pixel(x,y);
+            if(pix.red!=0 && pix.blue!=0 && pix.green!=0)
+            {
+                buffer |= 0x1;
+                if(outImage)
+                    outImage->set_pixel(x,y,rgb_pixel(255,255,255));
+            } else {
+                if(outImage)
+                    outImage->set_pixel(x,y,rgb_pixel(0,0,0));
+            }
+            if(++ctr>=8)
+            {
+                ctr=0;
+                if(binary) out.write(reinterpret_cast<char*>(&buffer),1);
+                else {
+                    out<<static_cast<int>(buffer);
+                    if(x!=img.get_width()-1 || y!=img.get_height()-1) 
+                    {
+                        out<<',';
+                        if(++numPerLine==pixPerLine())
+                        {
+                            numPerLine=0;
+                            out<<endl<<' ';
+                        }
+                    }
+                }
+                buffer=0;
+            } else buffer<<=1;
+        }
+        //End of a line, flush buffer
+        if(ctr!=0)
+        { 
+            buffer<<=(7-ctr);
+            if(binary) out.write(reinterpret_cast<char*>(&buffer),1);
+            else {
+                out<<static_cast<int>(buffer);
+                if(y!=img.get_height()-1) 
+                {
+                    out<<',';
+                    if(++numPerLine==pixPerLine())
+                    {
+                        numPerLine=0;
+                        out<<endl<<' ';
+                    }
+                }
+            }
+            buffer=0;
+            ctr=0;
+        }
+    }    
+}
+
+//
+// class  ImageWriter8bit
+//
+
+void ImageWriter8bit::writePixel(int x, int y, ofstream& out,
+        png::image<rgb_pixel> *outImage, rgb_pixel pix)
+{
+    unsigned int r=pix.red & (7<<5);
+    unsigned int g=pix.green & (7<<5);
+    unsigned int b=pix.blue & (3<<6);
+    unsigned int i=r | g>>3 | b>>6;
+    if(binary)
+    {
+        unsigned char c=static_cast<unsigned char>(i);
+        out.write(reinterpret_cast<char*>(&c),1);
+    } else out<<i;
+    if(outImage) outImage->set_pixel(x,y,rgb_pixel(r,g,b));
+}
+
+//
+// class  ImageWriter16bit
+//
+
+void ImageWriter16bit::writePixel(int x, int y, ofstream& out,
+        png::image<rgb_pixel> *outImage, rgb_pixel pix)
+{
+    unsigned int r=(pix.red & (31<<3))>>3;
+    unsigned int g=(pix.green & (63<<2))>>2;
+    unsigned int b=(pix.blue & (31<<3))>>3;
+    unsigned int i=(r<<(5+6) | g<<5 | b);
+    if(binary)
+    {
+        unsigned short s=toLittleEndian(static_cast<unsigned short>(i));
+        out.write(reinterpret_cast<char*>(&s),2);
+    } else out<<i;
+    if(outImage) outImage->set_pixel(x,y,rgb_pixel(r,g,b));
+}
+
+//
+// class  ImageWriter18bit
+//
+
+void ImageWriter18bit::writePixel(int x, int y, ofstream& out,
+        png::image<rgb_pixel> *outImage, rgb_pixel pix)
+{
+    throw(runtime_error("Implement me"));
+//     r=pix.red & 0xfc;
+//     g=pix.green & 0xfc;
+//     b=pix.blue & 0xfc;
+//     file<<(r>>2)<<','<<(g>>2)<<','<<(b>>2);
+//     if(outRequested) outImage.set_pixel(x,y,rgb_pixel(r,g,b));
+}
+
+//
+// class  ImageWriter24bit
+//
+
+void ImageWriter24bit::writePixel(int x, int y, ofstream& out,
+        png::image<rgb_pixel> *outImage, rgb_pixel pix)
+{
+    throw(runtime_error("Implement me"));
+//     file<<(int)(pix.red)<<','
+//         <<(int)(pix.green)<<','
+//         <<(int)(pix.blue);
+//     if(outRequested) outImage.set_pixel(x,y,pix);
+}
+
 int main(int argc, char *argv[])
 {
     //Check args
-    options_description desc("PngConverter utility v1.21\n"
+    options_description desc("PngConverter utility v1.22\n"
         "Designed by TFT : Terraneo Federico Technologies\nOptions");
     desc.add_options()
         ("help", "Prints this.")
         ("in", value<string>(), "Input png file (required)")
-        ("depth", value<int>(), "Color depth, 1,8,16,18 or 24 bits (required)")
+        ("depth", value<string>(), "Color depth, 1bitlinear,8,16,18 or 24 bits (required)")
         ("out", value<string>(), "Output png file for validation")
         ("binary", "Generate a binary file instead of a .cpp/.h file")
     ;
@@ -90,28 +276,31 @@ int main(int argc, char *argv[])
     cout<<"Height  = "<<img.get_height()<<endl;
     cout<<"Width   = "<<img.get_width()<<endl;
 
-    int pixDepth=vm["depth"].as<int>();
-    int maxPixPerLine;//Used to print a limited number of pixel per line
-    switch(pixDepth)
+    string depth=vm["depth"].as<string>();
+    PixDepth pixDepth;
+    int pixDepthInt=0;
+    if(depth=="1bitlinear")
     {
-        case 1:
-            maxPixPerLine=16;
-            break;
-        case 8:
-            maxPixPerLine=16;
-            break;
-        case 16:
-            maxPixPerLine=8;
-            break;
-        case 18:
-            maxPixPerLine=6;
-            break;
-        case 24:
-            maxPixPerLine=6;
-            break;
-        default:
-            throw(runtime_error("Unsupported pixel depth (not 1,8,16,18,24)"));
-    }
+        pixDepth=_1bitlinear;
+        pixDepthInt=1 | 0x80; //Bit #0=1bit, bit #16=linear
+    } else if(depth=="8")
+    {
+        pixDepth=_8;
+        pixDepthInt=8;
+    } else if(depth=="16")
+    {
+        pixDepth=_16;
+        pixDepthInt=16;
+    } else if(depth=="18")
+    {
+        pixDepth=_16;
+        pixDepthInt=18;
+    } else if(depth=="24")
+    {
+        pixDepth=_24;
+        pixDepthInt=24;
+    } else
+    throw runtime_error("Unsupported pixel depth (not 1bitlinear,8,16,18,24)");
 
     /*
      * Get output filemane from input filename
@@ -159,88 +348,51 @@ int main(int argc, char *argv[])
                 <<"static const short int width ="<<img.get_width()<<';'<<endl
                 <<endl;
         //Optimization for 16 bit per pixel
-        if(pixDepth==16) 
+        if(pixDepth==_16) 
             file<<"static const unsigned short pixelData[]={"<<endl<<' ';
         else file<<"static const unsigned char pixelData[]={"<<endl<<' ';
     } else {
         unsigned short header[3];
         header[0]=toLittleEndian((unsigned short)img.get_height());
         header[1]=toLittleEndian((unsigned short)img.get_width());
-        header[2]=toLittleEndian((unsigned short)pixDepth);
+        header[2]=toLittleEndian((unsigned short)pixDepthInt);
         file.write(reinterpret_cast<char*>(&header),sizeof(header));
     }
 
-    int numPerLine=0;//Number of pixel per line. when reaches limit, wrap
-    for(int y=0;y<img.get_height();y++)
+    shared_ptr<ImageWriter> imgw=ImageWriter::fromPixDepth(img,binary,pixDepth);
+    imgw->write(file, outRequested ? &outImage : 0);
+
+    if(!binary)
     {
-        for(int x=0;x<img.get_width();x++)
+        // The image is declared simply as "Image" in the .h, while as
+        // "basic_image<type>" in the .cpp. This is a trick to allow a
+        // compile time check that the image pixel depth is correct.
+        // If both the image and the mxgui configurations agree the file
+        // will compile. Also, using "Image" in the .h allows to include
+        // heaer files that refer to "optional" images without causing
+        // compiler errors
+        string classname;
+        switch(pixDepth)
         {
-            rgb_pixel pix=img.get_pixel(x,y);
-            unsigned int i;
-            unsigned char c;
-            unsigned short s;
-            unsigned int r,g,b;
-            switch(pixDepth)
-            {
-                case 1:
-                    throw(runtime_error("Implement me"));
-                    break;
-                case 8:
-                    r=pix.red & (7<<5);
-                    g=pix.green & (7<<5);
-                    b=pix.blue & (3<<6);
-                    i=r | g>>3 | b>>6;
-                    if(binary)
-                    {
-                        c=(unsigned char)i;
-                        file.write(reinterpret_cast<char*>(&c),1);
-                    } else file<<i;
-                    if(outRequested) outImage.set_pixel(x,y,rgb_pixel(r,g,b));
-                    break;
-                case 16:
-                    r=(pix.red & (31<<3))>>3;
-                    g=(pix.green & (63<<2))>>2;
-                    b=(pix.blue & (31<<3))>>3;
-                    i=(r<<(5+6) | g<<5 | b);
-                    if(binary)
-                    {
-                        s=toLittleEndian((unsigned short)i);
-                        file.write(reinterpret_cast<char*>(&s),2);
-                    } else file<<i;
-                    if(outRequested) outImage.set_pixel(x,y,rgb_pixel(r,g,b));
-                    break;
-                case 18:
-                    throw(runtime_error("Implement me"));
-                    r=pix.red & 0xfc;
-                    g=pix.green & 0xfc;
-                    b=pix.blue & 0xfc;
-                    file<<(r>>2)<<','<<(g>>2)<<','<<(b>>2);
-                    if(outRequested) outImage.set_pixel(x,y,rgb_pixel(r,g,b));
-                    break;
-                case 24:
-                    throw(runtime_error("Implement me"));
-                    file<<(int)(pix.red)<<','
-                        <<(int)(pix.green)<<','
-                        <<(int)(pix.blue);
-                    if(outRequested) outImage.set_pixel(x,y,pix);
-                    break;
-            }
-            if(binary) continue;
-            if((x==img.get_width()-1)&&(y==img.get_height()-1))
-            {
-                //It's the last pixel, so do not print ','
-            } else {
-                file<<',';
-                if(++numPerLine==maxPixPerLine)
-                {
-                    numPerLine=0;
-                    file<<endl<<' ';
-                }
-            }
+            case _1bitlinear:
+                classname="Color1bitlinear";
+                break;
+            case _8:
+                classname="unsigned char";
+                break;
+            case _16:
+                classname="unsigned short";
+                break;
+            case _18:
+                throw runtime_error("TODO");
+                break;
+            case _24:
+                throw runtime_error("TODO");
+                break;
         }
+        file<<endl<<"};"<<endl<<endl<<"const basic_image<"<<classname<<"> "
+            <<filename<<"(height,width,pixelData);";
     }
-    if(!binary) file<<endl<<"};"<<endl<<endl<<"const Image "<<filename
-            <<"(height,width,pixelData);";
     file.close();
 
     if(outRequested) outImage.write(vm["out"].as<string>());
