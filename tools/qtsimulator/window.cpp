@@ -114,3 +114,31 @@ void Window::mouseDoubleClickEvent(QMouseEvent *event)
 {
     //Event ignored
 }
+
+void Window::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key()>0xff)
+    {
+        //Not a letter, number or anything like that, just forward it
+        QWidget::keyPressEvent(event);
+        return;
+    }
+    QString s=event->text();
+    if(s.size()==0) return;
+    char k=s[0].toAscii();
+    addEvent(Event(EventType::KeyDown,k));
+}
+
+void Window::keyReleaseEvent(QKeyEvent *event)
+{
+    if(event->key()>0xff)
+    {
+        //Not a letter, number or anything like that, just forward it
+        QWidget::keyReleaseEvent(event);
+        return;
+    }
+    QString s=event->text();
+    if(s.size()==0) return;
+    char k=s[0].toAscii();
+    addEvent(Event(EventType::KeyUp,k));
+}

@@ -121,6 +121,16 @@ private:
      */
     void mouseDoubleClickEvent(QMouseEvent *event);
 
+    /**
+     * Overridden to emulate keyboard
+     */
+    void keyPressEvent(QKeyEvent *event);
+
+    /**
+     * Overridden to emulate keyboard
+     */
+    void keyReleaseEvent(QKeyEvent *event);
+
     QImage image; ///< Image used to display framebuffer data
     QWidget w; ///< Widget used as a container for the layout below
     QHBoxLayout layout; ///< Horizontal layout for buttons

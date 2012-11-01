@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="79">
+<configurationDescriptor version="80">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df name="code" root="..">
       <df name="gui_utils">
@@ -49,6 +49,7 @@
       <in>font_core.h</in>
       <in>fontrendering.cpp</in>
       <in>pngconverter.cpp</in>
+      <in>pngconverter.h</in>
       <in>resourcefs.cpp</in>
       <in>resourcefs_types.h</in>
       <in>ttfparser.cpp</in>

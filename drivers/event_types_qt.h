@@ -40,7 +40,9 @@ public:
         TouchUp=2,
         TouchMove=3,
         ButtonA=4,
-        ButtonB=5
+        ButtonB=5,
+        KeyDown=6,
+        KeyUp=7
     };
 private:
     EventType();

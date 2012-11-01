@@ -56,13 +56,13 @@ public:
     /**
      * Default constructor
      */
-    Event(): e(EventType::Default), p(-1,-1) {}
+    Event(): e(EventType::Default), k(0), p(-1,-1) {}
 
     /**
      * Constructor for events without a position information
      * \param e event type
      */
-    explicit Event(EventType::E e): e(e), p(-1,-1) {}
+    explicit Event(EventType::E e): e(e), k(0), p(-1,-1) {}
 
 
     /**
@@ -70,7 +70,14 @@ public:
      * \param e event type
      * \param p point
      */
-    Event(EventType::E e, Point p): e(e), p(p) {}
+    Event(EventType::E e, Point p): e(e), k(0), p(p) {}
+    
+    /**
+     * Constructor for events that also carry a key information
+     * \param e even type
+     * \param k key data
+     */
+    explicit Event(EventType::E e, char k): e(e), k(k), p(-1,-1) {} 
 
     /**
      * \return the event information
@@ -86,9 +93,20 @@ public:
      * \return the point information
      */
     Point getPoint() const { return p; }
+    
+    /**
+     * \return true if the event has a valid key associated with it
+     */
+    bool hasValidKey() const { return k!=0; }
+    
+    /**
+     * \return the key information
+     */
+    char getKey() const { return k; }
 
 private:
     EventType::E e;
+    char k;
     Point p;
 };
 
