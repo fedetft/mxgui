@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="80">
+<configurationDescriptor version="89">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
-    <df name="code" root="..">
-      <df name="gui_utils">
-      </df>
+    <df root=".." name="code">
       <df name="libs">
         <df name="png++">
           <df name="example">
@@ -75,7 +73,11 @@
       <toolsSet>
         <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>GNU|GNU</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>../build</buildCommandWorkingDir>
@@ -96,6 +98,107 @@
           </ccTool>
         </makeTool>
       </makefileType>
+      <item path="../bdfparser.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../bdfparser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../fixed_width_generator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../fixed_width_generator.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../fixes_parser.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../fixes_parser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../font_core.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../font_core.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../fontrendering.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../libs/png++/color.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/config.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/consumer.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/convert_color_space.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../libs/png++/end_info.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/error.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/example/pixel_generator.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../libs/png++/ga_pixel.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/generator.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/gray_pixel.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/image.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/image_info.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/index_pixel.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/info.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/info_base.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/io_base.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/packed_pixel.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/palette.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/pixel_buffer.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/pixel_traits.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/png.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/reader.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/require_color_space.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../libs/png++/rgb_pixel.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/rgba_pixel.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/streaming_base.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/tRNS.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/types.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../libs/png++/writer.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../pngconverter.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../pngconverter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../resourcefs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../resourcefs_types.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../ttfparser.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../ttfparser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../variable_width_generator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../variable_width_generator.h" ex="false" tool="3" flavor2="0">
+      </item>
       <folder path="code/libs">
         <ccTool>
           <incDir>
