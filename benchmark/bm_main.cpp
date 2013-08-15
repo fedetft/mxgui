@@ -43,6 +43,9 @@ int main()
     #ifdef _BOARD_MP3V2
     while(button1::value()) Thread::sleep(100);
     display.turnOff();
+    #elif defined(_BOARD_SONY_NEWMAN)
+    while(POWER_BTN_PRESS_Pin::value()==0) Thread::sleep(100);
+    Display::instance().turnOff();
     #else //_BOARD_MP3V2
     for(;;) Thread::sleep(100);
     #endif //_BOARD_MP3V2

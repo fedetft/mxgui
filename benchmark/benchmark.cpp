@@ -51,12 +51,16 @@ BenchmarkResult::BenchmarkResult(const char name[20], unsigned int time)
 
 void BenchmarkResult::print(DrawingContext& dc, Point p)
 {
-    dc.write(p,name);
+    const int minWidth=200; //Below this there's no room to print bench name
+    const int numberSpace=76; //Number of pixels to write the numbers
+    const int x=dc.getWidth()-1-numberSpace;
+    if(dc.getWidth()>minWidth) dc.write(p,name);
+    else dc.clippedWrite(p,Point(0,0),Point(x,dc.getHeight()-1),name);
     char line[64];
     int a=getFps()/100;
     int b=getFps()%100;
     sniprintf(line,63,"%d.%06d %d.%02d",time/1000000,time%1000000,a,b);
-    dc.write(Point(130,p.y()),line);
+    dc.write(Point(dc.getWidth()>minWidth ? 130 : x+2,p.y()),line);
     iprintf("%s",name);
     for(unsigned int i=0;i<24-strlen(name);i++) putchar(' ');
     iprintf("%s\n",line);
@@ -116,7 +120,21 @@ void Benchmark::start()
         dc.setTextColor(fg,bg);
         dc.write(Point(0,0),"Benchmark name                 Time         Fps");
         dc.line(Point(0,12),Point(dc.getWidth()-1,12),fg);
-        for(int i=0, j=13;i<index;i++,j+=12) results[i].print(dc,Point(0,j));
+        for(int i=0, j=13;i<index;i++,j+=12)
+        {
+             if(j+12>=dc.getHeight())
+             {
+                 #ifdef _BOARD_SONY_NEWMAN
+                 while(POWER_BTN_PRESS_Pin::value()==0) Thread::sleep(100);
+                 #else //_BOARD_SONY_NEWMAN
+                 Thread::sleep(5000);
+                 #endif //_BOARD_SONY_NEWMAN
+                 dc.clear(bg);
+                 j=13;
+             }
+             results[i].print(dc,Point(0,j));
+        }
+        Thread::sleep(500); //To avoid immediate shutdown after pressing button
     }
 }
 
