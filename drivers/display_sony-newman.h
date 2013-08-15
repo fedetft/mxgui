@@ -89,6 +89,7 @@ public:
      */
     void write(Point p, const char *text)
     {
+        waitDmaCompletion();
         font.draw(*this,textColor,p,text);
     }
 
@@ -103,6 +104,7 @@ public:
      */
     void clippedWrite(Point p, Point a, Point b, const char *text)
     {
+        waitDmaCompletion();
         font.clippedDraw(*this,textColor,p,a,b,text);
     }
 
@@ -134,6 +136,7 @@ public:
      */
     void beginPixel()
     {
+        waitDmaCompletion();
         //TODO: uncomment this if we ever get access to the datasheet and find
         //a way to implement setCursor() in a proper way
         //imageWindow(Point(0,0),Point(width-1,height-1));//Restore default window
@@ -164,14 +167,15 @@ public:
     void line(Point a, Point b, Color color)
     {
         using namespace std;
+        waitDmaCompletion();
         //Horizontal line speed optimization
         if(a.y()==b.y())
         {
             imageWindow(Point(min(a.x(),b.x()),a.y()),
                         Point(max(a.x(),b.x()),a.y()));
             int numPixels=abs(a.x()-b.x());
-            startDmaTransfer(&color,numPixels+1,false);
-            waitDmaCompletion();
+            pixel=color;
+            startDmaTransfer(&pixel,numPixels+1,false);
             return;
         }
         //Vertical line speed optimization
@@ -180,8 +184,8 @@ public:
             textWindow(Point(a.x(),min(a.y(),b.y())),
                         Point(a.x(),max(a.y(),b.y())));
             int numPixels=abs(a.y()-b.y());
-            startDmaTransfer(&color,numPixels+1,false);
-            waitDmaCompletion();
+            pixel=color;
+            startDmaTransfer(&pixel,numPixels+1,false);
             return;
         }
         //General case, always works but it is much slower due to the display
@@ -200,6 +204,7 @@ public:
      */
     void scanLine(Point p, const Color *colors, unsigned short length)
     {
+        waitDmaCompletion();
         imageWindow(p,Point(width-1,p.y()));
         startDmaTransfer(colors,length,true);
         waitDmaCompletion();
@@ -215,6 +220,8 @@ public:
         short int xEnd=p.x()+img.getWidth()-1;
         short int yEnd=p.y()+img.getHeight()-1;
         if(xEnd >= width || yEnd >= height) return;
+        
+        waitDmaCompletion();
 
         const unsigned short *imgData=img.getData();
         if(imgData!=0)
@@ -223,7 +230,10 @@ public:
             imageWindow(p,Point(xEnd,yEnd));
             int numPixels=img.getHeight()*img.getWidth();
             startDmaTransfer(imgData,numPixels,true);
-            waitDmaCompletion();
+            //If the image is in RAM don't overlap I/O, as the caller could
+            //deallocate it. If it is in FLASH it's guaranteed to be const
+            if(reinterpret_cast<unsigned int>(imgData)>=0x20000000)
+                waitDmaCompletion();
         } else img.draw(*this,p);
     }
 
@@ -238,6 +248,7 @@ public:
      */
     void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
     {
+        waitDmaCompletion();
         img.clippedDraw(*this,p,a,b);
     }
 
@@ -313,7 +324,7 @@ public:
      * Make all changes done to the display since the last call to update()
      * visible. This backends does not require it, so it is empty.
      */
-    void update() {}
+    void update() { waitDmaCompletion(); }
 
     /**
      * Pixel iterator. A pixel iterator is an output iterator that allows to
@@ -539,6 +550,7 @@ private:
      */
     void waitDmaCompletion();
 
+    Color pixel; ///< Buffer of one pixel, for overlapped I/O
     /// textColors[0] is the background color, textColor[3] the foreground
     /// while the other two are the intermediate colors for drawing antialiased
     /// fonts.

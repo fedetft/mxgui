@@ -154,10 +154,13 @@ void Benchmark::fixedWidthTextBenchmark()
             #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
             i%2==0 ? dc.setTextColor(white,black) : dc.setTextColor(black,white);
             #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-            timer.start();
-            for(int j=0;j<dc.getHeight();j+=16) dc.write(Point(0,j),text);
-            timer.stop();
         }
+        timer.start();
+        {
+            DrawingContext dc(display);
+            for(int j=0;j<dc.getHeight();j+=16) dc.write(Point(0,j),text);
+        }
+        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -188,10 +191,13 @@ void Benchmark::variableWidthTextBenchmark()
             #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
             i%2==0 ? dc.setTextColor(white,black) : dc.setTextColor(black,white);
             #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-            timer.start();
-            for(int j=0;j<dc.getHeight();j+=12) dc.write(Point(0,j),text);
-            timer.stop();
         }
+        timer.start();
+        {
+            DrawingContext dc(display);
+            for(int j=0;j<dc.getHeight();j+=12) dc.write(Point(0,j),text);
+        }
+        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -219,10 +225,13 @@ void Benchmark::antialiasingBenchmark()
             DrawingContext dc(display);
             dc.setFont(droid11);
             dc.setTextColor(i%2==0 ? red : green,black);
-            timer.start();
-            for(int j=0;j<dc.getHeight();j+=12) dc.write(Point(0,j),text);
-            timer.stop();
         }
+        timer.start();
+        {
+            DrawingContext dc(display);
+            for(int j=0;j<dc.getHeight();j+=12) dc.write(Point(0,j),text);
+        }
+        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -242,13 +251,13 @@ void Benchmark::horizontalLineBenchmark()
         #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         Color color=i%2==0?white:black;
         #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        timer.start();
         {
             DrawingContext dc(display);
-            timer.start();
             for(int j=0;j<dc.getHeight();j++)
                 dc.line(Point(0,j),Point(dc.getWidth()-1,j),color);
-            timer.stop();
         }
+        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -267,13 +276,13 @@ void Benchmark::verticalLineBenchmark()
         #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         Color color=i%2==0?white:black;
         #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        timer.start();
         {
             DrawingContext dc(display);
-            timer.start();
             for(int j=0;j<dc.getWidth();j++)
                 dc.line(Point(j,0),Point(j,dc.getHeight()-1),color);
-            timer.stop();
         }
+        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -299,9 +308,9 @@ void Benchmark::obliqueLineBenchmark()
         Color colorB=colorA;
         Color colorC=i%2==0?black:white;
         #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        timer.start();
         {
             DrawingContext dc(display);
-            timer.start();
             if(dc.getHeight()>=dc.getWidth())
             {
                 for(int j=0;j<dc.getWidth();j++)
@@ -336,8 +345,8 @@ void Benchmark::obliqueLineBenchmark()
                         Point(dc.getHeight()+j,dc.getHeight()-1),colorC);
                 }
             }
-            timer.stop();
         }
+        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -356,12 +365,12 @@ void Benchmark::clearScreenBenchmark()
         #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         Color color=i%2==0?white:black;
         #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        timer.start();
         {
             DrawingContext dc(display);
-            timer.start();
             dc.clear(color);
-            timer.stop();
         }
+        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -375,9 +384,9 @@ void Benchmark::imageBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
+        timer.start();
         {
             DrawingContext dc(display);
-            timer.start();
             for(int j=0;j<dc.getWidth();j+=16)
                 for(int k=0;k<dc.getHeight();k+=16)
                     #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
@@ -385,8 +394,8 @@ void Benchmark::imageBenchmark()
                     #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
                     dc.drawImage(Point(j,k),checkpattern2);
                     #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-            timer.stop();
         }
+        timer.stop();
         delayMs(250);
         {
             DrawingContext dc(display);
@@ -439,18 +448,20 @@ void Benchmark::scanLineBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
+        timer.start();
         {
             DrawingContext dc(display);
-            timer.start();
             //TODO: does not work well for displays with width > 240
             for(int k=0;k<dc.getHeight();k++)
                 dc.scanLine(Point(0,k),rainbow,min<int>(240,dc.getWidth()));
-            timer.stop();
-            totalTime+=timer.interval()*1000000/TICK_FREQ;
-            timer.clear();
-            delayMs(250);
+        }
+        timer.stop();
+        totalTime+=timer.interval()*1000000/TICK_FREQ;
+        timer.clear();
+        delayMs(250);
+        {
+            DrawingContext dc(display);
             dc.clear(black);
-            timer.clear();
         }
         delayMs(250);
     }
@@ -464,9 +475,9 @@ void Benchmark::clippedDrawBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
+        timer.start();
         {
             DrawingContext dc(display);
-            timer.start();
             for(int j=0;j<dc.getWidth();j+=8)
                 for(int k=0;k<dc.getHeight();k+=8)
                 {
@@ -479,8 +490,8 @@ void Benchmark::clippedDrawBenchmark()
                     dc.clippedDrawImage(p,a,b,checkpattern2);
                     #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
                 }
-            timer.stop();
         }
+        timer.stop();
         delayMs(250);
         {
             DrawingContext dc(display);
@@ -518,7 +529,10 @@ void Benchmark::clippedWriteBenchmark()
             if(i%2==0) dc.setTextColor(white,black);
             else dc.setTextColor(black,white);
             #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-            timer.start();
+        }
+        timer.start();
+        {
+            DrawingContext dc(display);
             for(int j=0;j<dc.getHeight();j+=6)
             {
                 Point p(0,j-3);
@@ -526,8 +540,8 @@ void Benchmark::clippedWriteBenchmark()
                 Point b(dc.getWidth()-1,j+5);
                 dc.clippedWrite(p,a,b,text);
             }
-            timer.stop();
         }
+        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);
@@ -547,10 +561,13 @@ void Benchmark::resourceImageBenchmark()
         {
             DrawingContext dc(display);
             dc.clear(black);
-            timer.start();
-            dc.drawImage(Point(0,0),img);
-            timer.stop();
         }
+        timer.start();
+        {
+            DrawingContext dc(display);
+            dc.drawImage(Point(0,0),img);
+        }
+        timer.stop();
         totalTime+=timer.interval()*1000000/TICK_FREQ;
         timer.clear();
         delayMs(500);

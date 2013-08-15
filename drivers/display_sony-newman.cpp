@@ -43,9 +43,9 @@ void __attribute__((naked)) DMA2_Stream3_IRQHandler()
     restoreContext();
 }
 
-static Thread *waiting;     //Eventual thread waiting for the DMA to complete
-bool dmaTransferInProgress; //DMA transfer is in progress, requires waiting
-bool dmaTransferActivated;  //DMA transfer has been activated, and needs cleanup
+static Thread *waiting=0;     //Eventual thread waiting for the DMA to complete
+static bool dmaTransferInProgress=false; //DMA transfer is in progress, requires waiting
+static bool dmaTransferActivated=false;  //DMA transfer has been activated, and needs cleanup
 
 
 /**
@@ -78,10 +78,11 @@ DisplayImpl::DisplayImpl(): textColor(), font(droid11)
 
 void DisplayImpl::clear(Point p1, Point p2, Color color)
 {
+    waitDmaCompletion();
     imageWindow(p1,p2);
     int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
-    startDmaTransfer(&color,numPixels,false);
-    waitDmaCompletion();
+    pixel=color;
+    startDmaTransfer(&pixel,numPixels,false);
 }
 
 void DisplayImpl::drawRectangle(Point a, Point b, Color c)
@@ -181,6 +182,7 @@ void DisplayImpl::turnOn()
     setBrightness(40);
     
     clear(black);
+    waitDmaCompletion();
     
     //Turn on display
     writeReg(0x02,0x01);
@@ -205,6 +207,7 @@ void DisplayImpl::turnOn()
 
 void DisplayImpl::turnOff()
 {
+    //No need to call waitDmaCompletion() as it's already done in setBrightness
     setBrightness(0);
     oled::OLED_V_ENABLE_Pin::low();
     power::ENABLE_2V8_Pin::low();
@@ -214,6 +217,7 @@ void DisplayImpl::turnOff()
 
 void DisplayImpl::setBrightness(unsigned char brt)
 {
+    waitDmaCompletion();
     //Taken from underverk's SmartWatch_Toolchain/src/driver_display.c
     unsigned char buffer[6];
     brt=min<unsigned char>(brt,90);
@@ -229,6 +233,8 @@ DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
     if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height)
         return pixel_iterator();
     if(p2.x()<p1.x() || p2.y()<p1.y()) return pixel_iterator();
+    
+    waitDmaCompletion();
 
     if(d==DR) textWindow(p1,p2);
     else imageWindow(p1,p2);
@@ -319,6 +325,7 @@ void DisplayImpl::startDmaTransfer(const unsigned short *data, int length,
 void DisplayImpl::waitDmaCompletion()
 {
     if(dmaTransferActivated==false) return; //Nothing to do
+    
     {
         FastInterruptDisableLock dLock;
         if(dmaTransferInProgress)
