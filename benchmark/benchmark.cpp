@@ -436,15 +436,15 @@ static const Color rainbow[]={
 
 void Benchmark::scanLineBenchmark()
 {
-    //TODO: make it work also with screen different from 240x320
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
         {
             DrawingContext dc(display);
             timer.start();
-            for(int k=0;k<320;k++)
-                dc.scanLine(Point(0,k),rainbow,240);
+            //TODO: does not work well for displays with width > 240
+            for(int k=0;k<dc.getHeight();k++)
+                dc.scanLine(Point(0,k),rainbow,min<int>(240,dc.getWidth()));
             timer.stop();
             totalTime+=timer.interval()*1000000/TICK_FREQ;
             timer.clear();
