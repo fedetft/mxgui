@@ -132,6 +132,28 @@ public:
      * p.x()+length must be <= display.width()
      */
     void scanLine(Point p, const Color *colors, unsigned short length);
+    
+    /**
+     * \return a buffer of length equal to this->getWidth() that can be used to
+     * render a scanline.
+     */
+    Color *getScanLineBuffer()
+    {
+        if(buffer==0) buffer=new Color[getWidth()];
+        return buffer;
+    }
+    
+    /**
+     * Draw the content of the last getScanLineBuffer() on an horizontal line
+     * on the screen.
+     * \param p starting point of the line
+     * \param length length of colors array.
+     * p.x()+length must be <= display.width()
+     */
+    void scanLineBuffer(Point p, unsigned short length)
+    {
+        scanLine(p,buffer,length);
+    }
 
     /**
      * Draw an image on the screen
@@ -330,11 +352,20 @@ public:
      * begin()
      */
     pixel_iterator end() const { return last; }
+    
+    /**
+     * Destructor
+     */
+    ~DisplayImpl()
+    {
+        if(buffer) delete[] buffer;
+    }
 
 private:
     static const short int width = SIMULATOR_DISP_WIDTH;
     static const short int height = SIMULATOR_DISP_HEIGHT;
 
+    Color *buffer; ///< For scanLineBuffer
     /// textColors[0] is the background color, textColor[3] the foreground
     /// while the other two are the intermediate colors for drawing antialiased
     /// fonts.

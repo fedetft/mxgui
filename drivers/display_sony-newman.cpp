@@ -70,7 +70,7 @@ namespace mxgui {
 // Class DisplayImpl
 //
 
-DisplayImpl::DisplayImpl(): textColor(), font(droid11)
+DisplayImpl::DisplayImpl(): which(0), textColor(), font(droid11)
 {
     turnOn();
     setTextColor(Color(0xffff),Color(0x0000));

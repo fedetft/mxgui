@@ -135,7 +135,7 @@ enum
 // Class DisplayImpl
 //
 
-DisplayImpl::DisplayImpl(): textColor(), font(droid11)
+DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(droid11)
 {
     
     //LCD connection GPIO should have been initialized at

@@ -46,7 +46,7 @@ namespace mxgui {
 // Class DisplayStm32e_eval
 //
 
-DisplayImpl::DisplayImpl(): displayType(UNKNOWN), textColor(),
+DisplayImpl::DisplayImpl(): buffer(0), displayType(UNKNOWN), textColor(),
         font(droid11)
 {
     //FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,

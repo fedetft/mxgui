@@ -198,7 +198,7 @@ public:
      * Instead of line(), this member function takes an array of colors to be
      * able to individually set pixel colors of a line.
      * \param p starting point of the line
-     * \param colors an array of pixel colors whoase size must be b.x()-a.x()+1
+     * \param colors an array of pixel colors whose size must be b.x()-a.x()+1
      * \param length length of colors array.
      * p.x()+length must be <= display.width()
      */
@@ -208,6 +208,27 @@ public:
         imageWindow(p,Point(width-1,p.y()));
         startDmaTransfer(colors,length,true);
         waitDmaCompletion();
+    }
+    
+    /**
+     * \return a buffer of length equal to this->getWidth() that can be used to
+     * render a scanline.
+     */
+    Color *getScanLineBuffer() { return buffers[which]; }
+    
+    /**
+     * Draw the content of the last getScanLineBuffer() on an horizontal line
+     * on the screen.
+     * \param p starting point of the line
+     * \param length length of colors array.
+     * p.x()+length must be <= display.width()
+     */
+    void scanLineBuffer(Point p, unsigned short length)
+    {
+        waitDmaCompletion();
+        imageWindow(p,Point(width-1,p.y()));
+        startDmaTransfer(buffers[which],length,true);
+        which= (which==0 ? 1 : 0);
     }
 
     /**
@@ -551,6 +572,8 @@ private:
     void waitDmaCompletion();
 
     Color pixel; ///< Buffer of one pixel, for overlapped I/O
+    Color buffers[2][128]; ///< Line buffers for scanline overlapped I/O
+    int which; ///< Currently empty buffer
     /// textColors[0] is the background color, textColor[3] the foreground
     /// while the other two are the intermediate colors for drawing antialiased
     /// fonts.

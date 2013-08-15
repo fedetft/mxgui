@@ -41,7 +41,7 @@ namespace mxgui {
 // class DisplayImpl
 //
 
-DisplayImpl::DisplayImpl(): textColor(), font(droid11), last(),
+DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(droid11), last(),
         beginPixelCalled(false), backend(QTBackend::instance())
 {
     setTextColor(Color(SIMULATOR_FGCOLOR),Color(SIMULATOR_BGCOLOR));

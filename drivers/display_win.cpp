@@ -41,6 +41,7 @@ namespace mxgui {
 // class DisplayImpl
 //
 DisplayImpl::DisplayImpl():
+        buffer(0),
         font(droid11),
         last(),
         beginPixelCalled(false),

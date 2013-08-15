@@ -109,7 +109,7 @@ namespace mxgui {
 // class DisplayImpl
 //
 
-DisplayImpl::DisplayImpl(): textColor(), font(miscFixed), last()
+DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(miscFixed), last()
 {
     setTextColor(Color(black),Color(white));
     {

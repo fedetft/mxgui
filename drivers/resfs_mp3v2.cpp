@@ -31,6 +31,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace miosix;
 
 #ifdef _BOARD_MP3V2
 

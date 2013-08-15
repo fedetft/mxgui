@@ -38,7 +38,7 @@ namespace mxgui {
 // Class DisplayImpl
 //
 
-DisplayImpl::DisplayImpl(): textColor(), font(droid11)
+DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(droid11)
 {
     //FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
     //NWE are correctly initialized

@@ -182,7 +182,6 @@ void WireframeRenderingEngine::doRender(Display& disp)
     MinYLineSort sortOrder(xfmVertices);
     sort(lines.begin(),lines.end(),sortOrder);
     int lineBufferSize=b.x()-a.x()+1;
-    AutoArray<Color> lineBuffer(new Color[lineBufferSize]);
     
     DrawingContext dc(disp);
     vector<pair<short,short> >::iterator it=lines.begin();
@@ -192,6 +191,7 @@ void WireframeRenderingEngine::doRender(Display& disp)
     //int ml=0;
     for(;start<=b.y();start++)
     {
+        Color *lineBuffer=dc.getScanLineBuffer();
         memset(lineBuffer,0,sizeof(Color)*lineBufferSize);
         while(it!=lines.end() && minY(*it,xfmVertices)==start)
         {
@@ -214,7 +214,7 @@ void WireframeRenderingEngine::doRender(Display& disp)
             if(!it2->drawScanLine(lineBuffer,white)) it2=activeLines.erase(it2);
             else ++it2;
         }
-        dc.scanLine(Point(a.x(),start),lineBuffer,lineBufferSize);
+        dc.scanLineBuffer(Point(a.x(),start),lineBufferSize);
 
         if(activeLines.empty() && it==lines.end()) break;
     }
@@ -267,7 +267,6 @@ void SolidRenderingEngine::doRender(Display& disp)
     for(;it!=triangles.end();++it) it->updateY(polygons,xfmVertices);
     sort(triangles.begin(),triangles.end());
     int lineBufferSize=b.x()-a.x()+1;
-    AutoArray<Color> lineBuffer(new Color[lineBufferSize]);
 
     DrawingContext dc(disp);
     it=triangles.begin();
@@ -277,6 +276,7 @@ void SolidRenderingEngine::doRender(Display& disp)
     //int mt=0;
     for(;start<=b.y();start++)
     {
+        Color *lineBuffer=dc.getScanLineBuffer();
         memset(lineBuffer,0,sizeof(Color)*lineBufferSize);
         list<TriangleFSM>::iterator it2;
         for(it2=activeTriangles.begin();it2!=activeTriangles.end();)
@@ -284,7 +284,7 @@ void SolidRenderingEngine::doRender(Display& disp)
             if(!it2->drawScanLine(lineBuffer)) it2=activeTriangles.erase(it2);
             else ++it2;
         }
-        dc.scanLine(Point(a.x(),start),lineBuffer,lineBufferSize);
+        dc.scanLineBuffer(Point(a.x(),start),lineBufferSize);
 
         //Add new triangles after drawing the current scanline as to be able to
         //correctly stack triangles that share vertices the topmost scanline

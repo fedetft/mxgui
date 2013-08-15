@@ -183,6 +183,28 @@ public:
         writeIdx(0x22); //Write to GRAM
         for(int i=0;i<length;i++) writeRam(colors[i]);
     }
+    
+    /**
+     * \return a buffer of length equal to this->getWidth() that can be used to
+     * render a scanline.
+     */
+    Color *getScanLineBuffer()
+    {
+        if(buffer==0) buffer=new Color[getWidth()];
+        return buffer;
+    }
+    
+    /**
+     * Draw the content of the last getScanLineBuffer() on an horizontal line
+     * on the screen.
+     * \param p starting point of the line
+     * \param length length of colors array.
+     * p.x()+length must be <= display.width()
+     */
+    void scanLineBuffer(Point p, unsigned short length)
+    {
+        scanLine(p,buffer,length);
+    }
 
     /**
      * Draw an image on the screen
@@ -387,6 +409,14 @@ public:
     {
         //Default ctor: pixelLeft is zero.
         return pixel_iterator();
+    }
+    
+    /**
+     * Destructor
+     */
+    ~DisplayImpl()
+    {
+        if(buffer) delete[] buffer;
     }
 
 private:
@@ -597,6 +627,7 @@ private:
      */
     void hardwareInit();
     
+    Color *buffer; ///< For scanLineBuffer    
     DisplayType displayType;//Contains the display controller ID
 
     /// textColors[0] is the background color, textColor[3] the foreground

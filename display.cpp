@@ -125,6 +125,16 @@ void DrawingContext::scanLine(Point p, const Color* colors, unsigned short lengt
     display.pImpl->scanLine(p,colors,length);
 }
 
+Color *DrawingContext::getScanLineBuffer()
+{
+    return display.pImpl->getScanLineBuffer();
+}
+
+void DrawingContext::scanLineBuffer(Point p, unsigned short length)
+{
+    display.pImpl->scanLineBuffer(p,length);
+}
+
 void DrawingContext::drawImage(Point p, const ImageBase& img)
 {
     display.pImpl->drawImage(p,img);
