@@ -28,9 +28,41 @@
 #ifdef _BOARD_SONY_NEWMAN
 
 #include "display_sony-newman.h"
+#include <kernel/scheduler/scheduler.h>
 
 using namespace std;
 using namespace miosix;
+
+/**
+ * DMA TX end of transfer
+ */
+void __attribute__((naked)) DMA2_Stream3_IRQHandler()
+{
+    saveContext();
+    asm volatile("bl _Z20SPI1txDmaHandlerImplv");
+    restoreContext();
+}
+
+static Thread *waiting;     //Eventual thread waiting for the DMA to complete
+bool dmaTransferInProgress; //DMA transfer is in progress, requires waiting
+bool dmaTransferActivated;  //DMA transfer has been activated, and needs cleanup
+
+
+/**
+ * DMA TX end of transfer actual implementation
+ */
+void __attribute__((used)) SPI1txDmaHandlerImpl()
+{
+    DMA2->LIFCR=DMA_LIFCR_CTCIF3
+              | DMA_LIFCR_CTEIF3
+              | DMA_LIFCR_CDMEIF3;
+    dmaTransferInProgress=false;
+    if(waiting==0) return;
+    waiting->IRQwakeup();
+    if(waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority())
+        Scheduler::IRQfindNextThread();
+    waiting=0;
+}
 
 namespace mxgui {
 
@@ -47,11 +79,9 @@ DisplayImpl::DisplayImpl(): textColor(), font(droid11)
 void DisplayImpl::clear(Point p1, Point p2, Color color)
 {
     imageWindow(p1,p2);
-    SPITransaction t;
-    writeRamBegin();
     int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
-    for(int i=0;i<numPixels;i++) writeRam(color);
-    writeRamEnd();
+    startDmaTransfer(&color,numPixels,false);
+    waitDmaCompletion();
 }
 
 void DisplayImpl::drawRectangle(Point a, Point b, Color c)
@@ -241,6 +271,88 @@ void DisplayImpl::writeReg(unsigned char reg, const unsigned char *data, int len
         writeRam(reg);
     }
     if(data) for(int i=0;i<len;i++) writeRam(*data++);
+}
+
+void DisplayImpl::startDmaTransfer(const unsigned short *data, int length,
+        bool increm)
+{
+    miosix::oled::OLED_nSS_Pin::low();
+    {
+        CommandTransaction c;
+        writeRam(0xc);
+    }
+    //Wait until the SPI is busy, required otherwise the last byte is not
+    //fully sent
+    while((SPI1->SR & SPI_SR_TXE)==0) ;
+    while(SPI1->SR & SPI_SR_BSY) ;
+    SPI1->CR1=0;
+    SPI1->CR2=SPI_CR2_TXDMAEN;
+    SPI1->CR1=SPI_CR1_SSM
+            | SPI_CR1_SSI
+            | SPI_CR1_DFF
+            | SPI_CR1_MSTR
+            | SPI_CR1_SPE;
+
+    dmaTransferActivated=true;
+    dmaTransferInProgress=true;
+    NVIC_ClearPendingIRQ(DMA2_Stream3_IRQn);//DMA2 stream 3 channel 3 = SPI1_TX
+    NVIC_SetPriority(DMA2_Stream3_IRQn,10);//Low priority for DMA
+    NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+
+    DMA2_Stream3->CR=0;
+    DMA2_Stream3->PAR=reinterpret_cast<unsigned int>(&SPI1->DR);
+    DMA2_Stream3->M0AR=reinterpret_cast<unsigned int>(data);
+    DMA2_Stream3->NDTR=length;
+    DMA2_Stream3->CR=DMA_SxCR_CHSEL_0 //Channel 3
+                | DMA_SxCR_CHSEL_1
+                | DMA_SxCR_PL_1    //High priority because fifo disabled
+                | DMA_SxCR_MSIZE_0 //Read 16 bit from memory
+                | DMA_SxCR_PSIZE_0 //Write 16 bit to peripheral
+                | (increm ? DMA_SxCR_MINC : 0) //Increment memory pointer
+                | DMA_SxCR_DIR_0   //Memory to peripheral
+                | DMA_SxCR_TCIE    //Interrupt on transfer complete
+                | DMA_SxCR_TEIE    //Interrupt on transfer error
+                | DMA_SxCR_DMEIE   //Interrupt on direct mode error
+                | DMA_SxCR_EN;     //Start DMA
+}
+
+void DisplayImpl::waitDmaCompletion()
+{
+    if(dmaTransferActivated==false) return; //Nothing to do
+    {
+        FastInterruptDisableLock dLock;
+        if(dmaTransferInProgress)
+        {
+            waiting=Thread::IRQgetCurrentThread();
+            do {
+                waiting->IRQwait();
+                {
+                    FastInterruptEnableLock eLock(dLock);
+                    Thread::yield();
+                }
+            } while(waiting!=0);
+        }
+    }
+    dmaTransferActivated=false;
+    
+    NVIC_DisableIRQ(DMA2_Stream3_IRQn);
+
+    //Wait for last byte to be sent
+    while((SPI1->SR & SPI_SR_TXE)==0) ;
+    while(SPI1->SR & SPI_SR_BSY) ;
+    
+    miosix::oled::OLED_nSS_Pin::high();
+    
+    SPI1->CR1=0;
+    SPI1->CR2=0;
+    SPI1->CR1=SPI_CR1_SSM
+            | SPI_CR1_SSI
+            | SPI_CR1_MSTR
+            | SPI_CR1_SPE;
+
+    //Quirk: reset RXNE by reading DR, or a byte remains in the input buffer
+    volatile short temp=SPI1->DR;
+    (void)temp;
 }
 
 } //namespace mxgui

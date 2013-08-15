@@ -169,23 +169,19 @@ public:
         {
             imageWindow(Point(min(a.x(),b.x()),a.y()),
                         Point(max(a.x(),b.x()),a.y()));
-            SPITransaction t;
-            writeRamBegin();
             int numPixels=abs(a.x()-b.x());
-            for(int i=0;i<=numPixels;i++) writeRam(color);
-            writeRamEnd();
+            startDmaTransfer(&color,numPixels+1,false);
+            waitDmaCompletion();
             return;
         }
         //Vertical line speed optimization
         if(a.x()==b.x())
         {
-            imageWindow(Point(a.x(),min(a.y(),b.y())),
+            textWindow(Point(a.x(),min(a.y(),b.y())),
                         Point(a.x(),max(a.y(),b.y())));
-            SPITransaction t;
-            writeRamBegin();
             int numPixels=abs(a.y()-b.y());
-            for(int i=0;i<=numPixels;i++) writeRam(color);
-            writeRamEnd();
+            startDmaTransfer(&color,numPixels+1,false);
+            waitDmaCompletion();
             return;
         }
         //General case, always works but it is much slower due to the display
@@ -205,10 +201,8 @@ public:
     void scanLine(Point p, const Color *colors, unsigned short length)
     {
         imageWindow(p,Point(width-1,p.y()));
-        SPITransaction t;
-        writeRamBegin();
-        for(int i=0;i<length;i++) writeRam(colors[i]);
-        writeRamEnd();
+        startDmaTransfer(colors,length,true);
+        waitDmaCompletion();
     }
 
     /**
@@ -227,15 +221,9 @@ public:
         {
             //Optimized version for memory-loaded images
             imageWindow(p,Point(xEnd,yEnd));
-            SPITransaction t;
-            writeRamBegin();
             int numPixels=img.getHeight()*img.getWidth();
-            for(int i=0;i<=numPixels;i++)
-            {
-                writeRam(imgData[0]);
-                imgData++;
-            }
-            writeRamEnd();
+            startDmaTransfer(imgData,numPixels,true);
+            waitDmaCompletion();
         } else img.draw(*this,p);
     }
 
@@ -487,8 +475,12 @@ private:
         CommandTransaction c;
         writeRam(0xc);
         //Change SPI interface to 16 bit mode, for faster pixel transfer
-        SPI1->CR1 &= ~SPI_CR1_SPE;
-        SPI1->CR1 |= SPI_CR1_DFF | SPI_CR1_SPE;
+        SPI1->CR1=0;
+        SPI1->CR1=SPI_CR1_SSM
+            | SPI_CR1_SSI
+            | SPI_CR1_DFF
+            | SPI_CR1_MSTR
+            | SPI_CR1_SPE;
     }
     
     /**
@@ -507,11 +499,13 @@ private:
      * Ends a pixel transfer to the display
      */
     static void writeRamEnd()
-    {        
+    {
         //Put SPI back into 8 bit mode
-        SPI1->CR1 &= ~SPI_CR1_SPE;
-        SPI1->CR1 &= ~SPI_CR1_DFF;
-        SPI1->CR1 |= SPI_CR1_SPE;
+        SPI1->CR1=0;
+        SPI1->CR1=SPI_CR1_SSM
+            | SPI_CR1_SSI
+            | SPI_CR1_MSTR
+            | SPI_CR1_SPE;
     }
     
     /**
@@ -528,6 +522,22 @@ private:
      * \param len length of data, number of argument bytes
      */
     static void writeReg(unsigned char reg, const unsigned char *data=0, int len=1);
+    
+    /**
+     * Start a DMA transfer to the display
+     * \param data pointer to the data to be written
+     * \param length number of 16bit transfers to make to the display
+     * \param increm if true, the DMA will increment the pointer between
+     * successive transfers, otherwise the first 16bits pointed to will be
+     * repeatedly read length times
+     */
+    void startDmaTransfer(const unsigned short *data, int length, bool increm);
+    
+    /**
+     * Check if a pending DMA transfer is in progress, and wait for
+     * its completion
+     */
+    void waitDmaCompletion();
 
     /// textColors[0] is the background color, textColor[3] the foreground
     /// while the other two are the intermediate colors for drawing antialiased
