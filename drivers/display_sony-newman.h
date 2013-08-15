@@ -147,10 +147,12 @@ public:
      */
     void setPixel(Point p, Color color)
     {
+        //Very slow, but that's all we can do
         setCursor(p);
         SPITransaction t;
         writeRamBegin();
         writeRam(color);
+        writeRamEnd();
     }
 
     /**
@@ -171,6 +173,7 @@ public:
             writeRamBegin();
             int numPixels=abs(a.x()-b.x());
             for(int i=0;i<=numPixels;i++) writeRam(color);
+            writeRamEnd();
             return;
         }
         //Vertical line speed optimization
@@ -182,6 +185,7 @@ public:
             writeRamBegin();
             int numPixels=abs(a.y()-b.y());
             for(int i=0;i<=numPixels;i++) writeRam(color);
+            writeRamEnd();
             return;
         }
         //General case, always works but it is much slower due to the display
@@ -204,6 +208,7 @@ public:
         SPITransaction t;
         writeRamBegin();
         for(int i=0;i<length;i++) writeRam(colors[i]);
+        writeRamEnd();
     }
 
     /**
@@ -230,6 +235,7 @@ public:
                 writeRam(imgData[0]);
                 imgData++;
             }
+            writeRamEnd();
         } else img.draw(*this,p);
     }
 
@@ -341,7 +347,7 @@ public:
         pixel_iterator& operator= (Color color)
         {
             writeRam(color);
-            if(--pixelLeft==0) miosix::oled::OLED_nSS_Pin::high();
+            if(--pixelLeft==0) invalidate();
             return *this;
         }
 
@@ -377,6 +383,16 @@ public:
          * \return a reference to this. Does not increment pixel pointer.
          */
         pixel_iterator& operator++ (int)  { return *this; }
+        
+        /**
+         * Must be called if not all pixels of the required window are going
+         * to be written.
+         */
+        void invalidate()
+        {
+            miosix::oled::OLED_nSS_Pin::high();
+            writeRamEnd();
+        }
 
     private:
         /**
@@ -463,18 +479,39 @@ private:
     static void window(Point p1, Point p2);
     
     /**
-     * Sends command 0xc which seems to be the one to start sending pixels
+     * Sends command 0xc which seems to be the one to start sending pixels.
+     * Also, change SPI interface to 16 bit mode
      */
     static void writeRamBegin()
     {
         CommandTransaction c;
-        spi1sendRecv(0xc);
+        writeRam(0xc);
+        //Change SPI interface to 16 bit mode, for faster pixel transfer
+        SPI1->CR1 &= ~SPI_CR1_SPE;
+        SPI1->CR1 |= SPI_CR1_DFF | SPI_CR1_SPE;
     }
     
-    static void writeRam(Color color)
+    /**
+     * Used to send pixel data to the display's RAM, and also to send commands.
+     * The SPI chip select must be low before calling this member function
+     * \param data data to write
+     */
+    static unsigned short writeRam(unsigned short data)
     {
-        spi1sendRecv(color>>8);
-        spi1sendRecv(color & 0xff);
+        SPI1->DR=data;
+        while((SPI1->SR & SPI_SR_RXNE)==0) ;
+        return SPI1->DR; //Note: reading back SPI1->DR is necessary.
+    }
+    
+    /**
+     * Ends a pixel transfer to the display
+     */
+    static void writeRamEnd()
+    {        
+        //Put SPI back into 8 bit mode
+        SPI1->CR1 &= ~SPI_CR1_SPE;
+        SPI1->CR1 &= ~SPI_CR1_DFF;
+        SPI1->CR1 |= SPI_CR1_SPE;
     }
     
     /**
@@ -491,17 +528,6 @@ private:
      * \param len length of data, number of argument bytes
      */
     static void writeReg(unsigned char reg, const unsigned char *data=0, int len=1);
-    
-    /**
-     * Transfer a byte/short through SPI1
-     * \param data byte/short to send
-     */
-    static unsigned short spi1sendRecv(unsigned short data)
-    {
-        SPI1->DR=data;
-        while((SPI1->SR & SPI_SR_RXNE)==0) ;
-        return SPI1->DR; //Note: reading back SPI1->DR is necessary.
-    }
 
     /// textColors[0] is the background color, textColor[3] the foreground
     /// while the other two are the intermediate colors for drawing antialiased

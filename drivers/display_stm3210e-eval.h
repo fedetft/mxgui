@@ -348,6 +348,12 @@ public:
          * \return a reference to this. Does not increment pixel pointer.
          */
         pixel_iterator& operator++ (int)  { return *this; }
+        
+        /**
+         * Must be called if not all pixels of the required window are going
+         * to be written.
+         */
+        void invalidate() {}
 
     private:
         /**

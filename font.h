@@ -341,6 +341,7 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
                             p.x(),surface.getWidth(),colors,s);
             break;
     }
+    it.invalidate(); //May not fill the requested window
 }
 
 template<typename T>
@@ -549,6 +550,7 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
         }
         s++;
     }
+    it.invalidate(); //May not fill the requested window
 }
 
 template<typename T, typename U>
@@ -626,6 +628,7 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
         }
         s++;
     }
+    it.invalidate(); //May not fill the requested window
 }
 
 template<typename T, typename U>
@@ -701,6 +704,7 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
         }
         s++;
     }
+    it.invalidate(); //May not fill the requested window
 }
 
 } //namespace mxgui

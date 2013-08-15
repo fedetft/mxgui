@@ -51,6 +51,7 @@ void DisplayImpl::clear(Point p1, Point p2, Color color)
     writeRamBegin();
     int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
     for(int i=0;i<numPixels;i++) writeRam(color);
+    writeRamEnd();
 }
 
 void DisplayImpl::drawRectangle(Point a, Point b, Color c)
@@ -202,9 +203,9 @@ DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
     if(d==DR) textWindow(p1,p2);
     else imageWindow(p1,p2);
     
-    miosix::oled::OLED_nSS_Pin::low();
+    miosix::oled::OLED_nSS_Pin::low(); //Will be deasserted by the iterator
     writeRamBegin();
-
+    
     unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
     return pixel_iterator(numPixels);
 }
@@ -227,9 +228,9 @@ void DisplayImpl::writeReg(unsigned char reg, unsigned char data)
     SPITransaction t;
     {
         CommandTransaction c;
-        spi1sendRecv(reg);
+        writeRam(reg);
     }
-    spi1sendRecv(data);
+    writeRam(data);
 }
 
 void DisplayImpl::writeReg(unsigned char reg, const unsigned char *data, int len)
@@ -237,9 +238,9 @@ void DisplayImpl::writeReg(unsigned char reg, const unsigned char *data, int len
     SPITransaction t;
     {
         CommandTransaction c;
-        spi1sendRecv(reg);
+        writeRam(reg);
     }
-    if(data) for(int i=0;i<len;i++) spi1sendRecv(*data++);
+    if(data) for(int i=0;i<len;i++) writeRam(*data++);
 }
 
 } //namespace mxgui
