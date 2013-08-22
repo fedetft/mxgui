@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2013 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,43 +25,41 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "input.h"
+#ifndef EVENT_TYPES_SONY_NEWMAN_H
+#define	EVENT_TYPES_SONY_NEWMAN_H
 
-#ifdef MXGUI_LEVEL_2
+#ifdef _BOARD_SONY_NEWMAN
 
-#include "mxgui/drivers/event_qt.h"
-#include "mxgui/drivers/event_win.h"
-#include "mxgui/drivers/event_mp3v2.h"
-#include "mxgui/drivers/event_strive.h"
-#include "mxgui/drivers/event_stm3210e-eval.h"
-#include "mxgui/drivers/event_redbull_v2.h"
-#include "mxgui/drivers/event_sony-newman.h"
-
-namespace mxgui {
-
-//
-// class InputHandler
-//
-
-InputHandler& InputHandler::instance()
+class EventType
 {
-    static InputHandlerImpl implementation;
-    static InputHandler singleton(&implementation);
-    return singleton;
-}
+public:
+    enum E
+    {
+        Default=0, //This is a must on all backends
+        TouchDown=1,
+        TouchUp=2,
+        TouchMove=3,
+        ButtonA=4,
+    };
+private:
+    EventType();
+};
 
-Event InputHandler::getEvent()
-{
-    return pImpl->getEvent();
-}
+/**
+ * Allows to disable the touchscreen to save power
+ */
+void disableTouchscreen();
 
-Event InputHandler::popEvent()
-{
-    return pImpl->popEvent();
-}
+/**
+ * Allows to turn on again the touchscreen
+ */
+void enableTouchscreen();
 
-InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
+/**
+ * \return true if the touchscreen is enabled
+ */
+bool isTouchScreenEnabled();
 
-} //namespace mxgui
+#endif //_BOARD_SONY_NEWMAN
 
-#endif //MXGUI_LEVEL_2
+#endif //EVENT_TYPES_SONY_NEWMAN_H

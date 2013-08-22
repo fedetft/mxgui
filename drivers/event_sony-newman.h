@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2013 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,43 +25,42 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "input.h"
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
 
-#ifdef MXGUI_LEVEL_2
+#include "mxgui/level2/input.h"
 
-#include "mxgui/drivers/event_qt.h"
-#include "mxgui/drivers/event_win.h"
-#include "mxgui/drivers/event_mp3v2.h"
-#include "mxgui/drivers/event_strive.h"
-#include "mxgui/drivers/event_stm3210e-eval.h"
-#include "mxgui/drivers/event_redbull_v2.h"
-#include "mxgui/drivers/event_sony-newman.h"
+#ifndef EVENT_SONY_NEWMAN_H
+#define	EVENT_SONY_NEWMAN_H
+
+#ifdef _BOARD_SONY_NEWMAN
 
 namespace mxgui {
 
-//
-// class InputHandler
-//
-
-InputHandler& InputHandler::instance()
+/**
+ * Implementation class to handle events in the Mp3v2 backend
+ */
+class InputHandlerImpl
 {
-    static InputHandlerImpl implementation;
-    static InputHandler singleton(&implementation);
-    return singleton;
-}
+public:
+    InputHandlerImpl();
 
-Event InputHandler::getEvent()
-{
-    return pImpl->getEvent();
-}
+    /**
+     * \return an event, blocking
+     */
+    Event getEvent();
 
-Event InputHandler::popEvent()
-{
-    return pImpl->popEvent();
-}
-
-InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
+    /**
+     * \return an event, nonblocking. A default constructed event is returned
+     * if there are no events.
+     */
+    Event popEvent();
+};
 
 } //namespace mxgui
 
-#endif //MXGUI_LEVEL_2
+#endif //_BOARD_SONY_NEWMAN
+
+#endif //EVENT_SONY_NEWMAN_H

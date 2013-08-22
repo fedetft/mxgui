@@ -36,6 +36,8 @@
 #include "drivers/display_sony-newman.h"
 #include "pthread_lock.h"
 
+#include "interfaces/bsp.h"
+
 namespace mxgui {
 
 //
@@ -73,7 +75,11 @@ short int Display::getWidth() const
 
 Display::Display(DisplayImpl *impl) : pImpl(impl)
 {
-    pthread_mutex_init(&dispMutex,NULL);
+    pthread_mutexattr_t temp;
+    pthread_mutexattr_init(&temp);
+    pthread_mutexattr_settype(&temp,PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&dispMutex,&temp);
+    pthread_mutexattr_destroy(&temp);
 }
 
 //
