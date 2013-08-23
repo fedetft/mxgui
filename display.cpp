@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2011, 2012, 2013 by Terraneo Federico                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -54,13 +54,21 @@ Display& Display::instance()
 void Display::turnOn()
 {
     PthreadLock lock(dispMutex);
+    isDisplayOn=true;
     pImpl->turnOn();
 }
 
 void Display::turnOff()
 {
     PthreadLock lock(dispMutex);
+    isDisplayOn=false;
     pImpl->turnOff();
+}
+
+void Display::setBrightness(int brt)
+{
+    PthreadLock lock(dispMutex);
+    pImpl->setBrightness(brt);
 }
 
 short int Display::getHeight() const
@@ -73,7 +81,7 @@ short int Display::getWidth() const
     return pImpl->getWidth();
 }
 
-Display::Display(DisplayImpl *impl) : pImpl(impl)
+Display::Display(DisplayImpl *impl) : pImpl(impl), isDisplayOn(true)
 {
     pthread_mutexattr_t temp;
     pthread_mutexattr_init(&temp);

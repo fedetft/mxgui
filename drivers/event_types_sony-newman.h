@@ -40,10 +40,13 @@ public:
         TouchUp=2,
         TouchMove=3,
         ButtonA=4,
+        Timeout=6 //Sent after 30 seconds and no button or touch activity 
     };
 private:
     EventType();
 };
+
+namespace mxgui {
 
 /**
  * Allows to disable the touchscreen to save power
@@ -59,6 +62,8 @@ void enableTouchscreen();
  * \return true if the touchscreen is enabled
  */
 bool isTouchScreenEnabled();
+
+} //namespace mxxgui
 
 #endif //_BOARD_SONY_NEWMAN
 

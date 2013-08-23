@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2010, 2011, 2012, 2013 by Terraneo Federico             *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -66,6 +66,18 @@ public:
      * Turn the display Off. It can be later turned back On.
      */
     void turnOff();
+    
+    /**
+     * Set display brightness. Depending on the underlying driver,
+     * may do nothing.
+     * \param brt from 0 to 100
+     */
+    void setBrightness(int brt);
+    
+    /**
+     * \return true if the display is on
+     */
+    bool isOn() const { return isDisplayOn; }
 
     /**
      * \return the display's height
@@ -91,6 +103,7 @@ private:
 
     DisplayImpl *pImpl; //Implementation detal
     pthread_mutex_t dispMutex; //To lock concurrent access to the display
+    bool isDisplayOn;
 
     friend class DrawingContext;
 };

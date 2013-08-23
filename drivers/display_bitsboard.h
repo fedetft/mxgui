@@ -211,6 +211,13 @@ public:
      * Turn the display Off. It can be later turned back On.
      */
     void turnOff();
+    
+    /**
+     * Set display brightness. Depending on the underlying driver,
+     * may do nothing.
+     * \param brt from 0 to 100
+     */
+    void setBrightness(int brt) {}
 
     /**
      * Set colors used for writing text

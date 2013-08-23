@@ -181,6 +181,8 @@ void callback(Event e)
 
 void eventThread(void *)
 {
+    const int timeout=30*pollPeriod; //30s
+    int timeoutCounter;
     bool aPrev=false;
     bool tPrev=false;
     Point pOld;
@@ -190,6 +192,7 @@ void eventThread(void *)
         //Check buttons
         if(POWER_BTN_PRESS_Pin::value())
         {
+            timeoutCounter=0;
             if(aPrev==false) callback(Event(EventType::ButtonA));
             aPrev=true;
         } else aPrev=false;
@@ -197,6 +200,7 @@ void eventThread(void *)
         Point p=getTouchData();
         if(p.x()>=0) //Is someone touching the screen?
         {
+            timeoutCounter=0;
             //Ok, someone is touching the screen
             //did the touch point differ that much from the previous?
             if(abs(pOld.x()-p.x())>3 || abs(pOld.y()-p.y())>3 || !tPrev)
@@ -211,6 +215,7 @@ void eventThread(void *)
             if(tPrev==true) callback(Event(EventType::TouchUp,pOld));
             tPrev=false;
         }
+        if(++timeoutCounter==timeout) callback(Event(EventType::Timeout));
     }
 }
 

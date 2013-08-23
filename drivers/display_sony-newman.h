@@ -304,9 +304,9 @@ public:
     
     /**
      * Set display brightness
-     * \param brt from 0 to 90
+     * \param brt from 0 to 100
      */
-    void setBrightness(unsigned char brt);
+    void setBrightness(int brt);
 
     /**
      * Set colors used for writing text

@@ -215,12 +215,13 @@ void DisplayImpl::turnOff()
     oled::OLED_A0_Pin::low();
 }
 
-void DisplayImpl::setBrightness(unsigned char brt)
+void DisplayImpl::setBrightness(int brt)
 {
+    brt=brt*90/100; //Map from API brt range (0..100) to display range (0..90)
     waitDmaCompletion();
     //Taken from underverk's SmartWatch_Toolchain/src/driver_display.c
     unsigned char buffer[6];
-    brt=min<unsigned char>(brt,90);
+    brt=min(brt,90);
     buffer[0]=buffer[2]=buffer[4]=brt>>4;
     buffer[1]=buffer[3]=buffer[5]=brt & 15;
     writeReg(0x0e,buffer,sizeof(buffer));
