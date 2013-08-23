@@ -28,6 +28,7 @@
 #ifndef DISPLAY_H
 #define	DISPLAY_H
 
+#include <utility>
 #include <pthread.h>
 #include "mxgui_settings.h"
 #include "point.h"
@@ -252,6 +253,13 @@ public:
      * \param bgcolor background color
      */
     void setTextColor(Color fgcolor, Color bgcolor);
+    
+    /**
+     * Set colors used for writing text
+     * \param colors a pair where first is the foreground color, and second the
+     * background one
+     */
+    void setTextColor(std::pair<Color,Color> colors);
 
     /**
      * \return the current foreground color.
@@ -264,6 +272,11 @@ public:
      * The foreground color is used to draw text on screen
      */
     Color getBackground() const;
+    
+    /**
+     * \return a pari with the foreground and background color
+     */
+    std::pair<Color,Color> getTextColor() const;
 
     /**
      * Set the font used for writing text

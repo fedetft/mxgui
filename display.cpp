@@ -179,6 +179,11 @@ void DrawingContext::setTextColor(Color fgcolor, Color bgcolor)
     display.pImpl->setTextColor(fgcolor,bgcolor);
 }
 
+void DrawingContext::setTextColor(std::pair<Color,Color> colors)
+{
+    display.pImpl->setTextColor(colors.first,colors.second);
+}
+
 Color DrawingContext::getForeground() const
 {
     return display.pImpl->getForeground();
@@ -187,6 +192,12 @@ Color DrawingContext::getForeground() const
 Color DrawingContext::getBackground() const
 {
     return display.pImpl->getBackground();
+}
+
+std::pair<Color,Color> DrawingContext::getTextColor() const
+{
+    return std::make_pair(display.pImpl->getForeground(),
+        display.pImpl->getBackground());
 }
 
 void DrawingContext::setFont(const Font& font)
