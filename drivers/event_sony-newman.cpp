@@ -181,8 +181,8 @@ void callback(Event e)
 
 void eventThread(void *)
 {
-    const int timeout=30*pollPeriod; //30s
-    int timeoutCounter;
+    const int timeout=30000/pollPeriod; //30s
+    int timeoutCounter=0;
     bool aPrev=false;
     bool tPrev=false;
     Point pOld;

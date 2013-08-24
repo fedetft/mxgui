@@ -36,8 +36,6 @@
 #include "drivers/display_sony-newman.h"
 #include "pthread_lock.h"
 
-#include "interfaces/bsp.h"
-
 namespace mxgui {
 
 //

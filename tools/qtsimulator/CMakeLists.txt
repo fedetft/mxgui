@@ -14,6 +14,7 @@ set(FOO_SRCS
     ../../drivers/display_qt.cpp
     ../../drivers/event_qt.cpp
     ../../level2/input.cpp
+    ../../level2/simple_button.cpp
     qtbackend.cpp
     window.cpp
     qtsimulator.cpp
