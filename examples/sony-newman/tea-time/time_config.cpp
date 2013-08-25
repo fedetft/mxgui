@@ -216,7 +216,7 @@ void configureTime()
     
     struct tm t;
     t.tm_hour=hour.get(); t.tm_min=minutes.get(); t.tm_sec=seconds.get();
-    t.tm_mday=day.get(); t.tm_mon=month.get(); t.tm_year=year.get()-1900;
+    t.tm_mday=day.get(); t.tm_mon=month.get()-1; t.tm_year=year.get()-1900;
     t.tm_wday=inputWeekDay(display,input);
     #ifdef _MIOSIX
     miosix::Rtc::instance().setTime(t);

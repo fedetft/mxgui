@@ -76,7 +76,7 @@ static void printTime(DrawingContext& dc)
     char dateStr[64];
     sprintf(timeStr,"%02d:%02d:%02d",t.tm_hour,t.tm_min,t.tm_sec);
     sprintf(dateStr,"%s %02d/%02d/%04d",days[t.tm_wday],
-        t.tm_mday,t.tm_mon,t.tm_year+1900);
+        t.tm_mday,t.tm_mon+1,t.tm_year+1900);
     short timeStrLen=droid21b.calculateLength(timeStr);
     short dateStrLen=tahoma.calculateLength(dateStr);
     short timeX=(dc.getWidth()-timeStrLen)/2;
