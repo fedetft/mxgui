@@ -79,16 +79,34 @@ void PowerManager::showTime(bool show)
 void PowerManager::powerSave()
 {
 #ifdef _MIOSIX
-    //TODO: can be optimized further for low power
     display.turnOff();
     disableTouchscreen();
     PowerManagement::CoreFrequency cf=pmu.getCoreFrequency();
     pmu.setCoreFrequency(PowerManagement::FREQ_26MHz);
-    while(InputHandler::instance().getEvent().getEvent()!=EventType::ButtonA)
-        pmu.goDeepSleep(500);
+    
+    //Wait for button released
+    while(POWER_BTN_PRESS_Pin::value()) Thread::sleep(50);
+    //Now go in deep sleep waiting for button pressed
+    while(POWER_BTN_PRESS_Pin::value()==0)
+    {
+        pmu.setWakeOnButton(true);
+        pmu.goDeepSleep(1000);
+    }
+    
     pmu.setCoreFrequency(cf);
     enableTouchscreen();
     display.turnOn();
+    //Brightness may have changed since last time it was updated
+    pthread_mutex_lock(&mutex);
+    adjustBrightness();
+    pthread_mutex_unlock(&mutex);
+    
+    //Now we have to make sure the input handler doesn't send out a button
+    //pressed event. For this we wait a bit, and then flush all events
+    Thread::sleep(50);
+    InputHandler& input=InputHandler::instance();
+    while(input.popEvent().getEvent()!=EventType::Default) ;
+    
 #else //_MIOSIX
     showBatterIcon(false);
     showTime(false);
@@ -174,7 +192,7 @@ void PowerManager::adjustBrightness()
     if(display.isOn())
     {
         int lightLevel=light.read();
-        int brightness=10+min(90,lightLevel/2);
+        int brightness=15+min(85,lightLevel/2);
         if(abs(brightness-oldBrightness)>5)
         {
             oldBrightness=brightness;

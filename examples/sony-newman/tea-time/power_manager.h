@@ -49,14 +49,16 @@ public:
     
     /**
      * Selects if the battery icon should be shown in the top left corner of the
-     * screen.
+     * screen. If called with true as parameter when the battery icon is already
+     * shown, it forces a redraw of the icon.
      * \param show if true, show the battery icon
      */
     void showBatterIcon(bool show);
     
     /**
      * Although not related to the power management, this allows to show the
-     * time in the top right corner of the screen.
+     * time in the top right corner of the screen. If called with true as
+     * parameter when the time is already shown, it forces a redraw of the time.
      * \param show if true, show the time  
      */
     void showTime(bool show);
