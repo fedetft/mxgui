@@ -111,7 +111,7 @@ static bool readTouchRegs(I2C1Driver& i2c, I2C_regs_tiny& regs)
     const int retryMax=10;
     for(int i=0;i<retryMax;i++)
     {
-        Lock<FastMutex> l(i2cMutex);
+        Lock<FastMutex> l(i2cMutex());
         if(i2c.recv(TOUCH_I2C_ADDRESS,&regs,sizeof(regs))==false) continue;
         regs.sensorActiveMask=fromBigEndian16(regs.sensorActiveMask);
         return true;
