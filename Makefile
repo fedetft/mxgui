@@ -3,7 +3,7 @@
 ## TFT:Terraneo Federico Technlogies
 ## This makefile builds libmxgui.a
 ##
-MAKEFILE_VERSION := 1.01
+MAKEFILE_VERSION := 1.02
 include ../miosix/config/Makefile.inc
 
 ## List of all mxgui source files (both .c and .cpp)
@@ -39,19 +39,23 @@ CXXFLAGS := $(CXXFLAGS_BASE) -I.. -I../miosix -I../miosix/arch/common \
 CFLAGS   := $(CFLAGS_BASE)   -I.. -I../miosix -I../miosix/arch/common \
     -I../miosix/$(ARCH_INC) -I../miosix/$(BOARD_INC) -DMXGUI_LIBRARY
 AFLAGS   := $(AFLAGS_BASE)
+DFLAGS   := -MMD -MP
 
 ## Build libmxgui.a
 all: $(OBJ)
 	$(AR) rcs libmxgui.a $(OBJ)
 
 clean:
-	rm $(OBJ) libmxgui.a
+	rm $(OBJ) libmxgui.a $(OBJ:.o=.d)
 
 %.o: %.s
 	$(AS) $(AFLAGS) $< -o $@
 
 %.o : %.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(DFLAGS) $(CFLAGS) $< -o $@
 
 %.o : %.cpp
-	$(CXX) $(CXXFLAGS) $< -o $@
+	$(CXX) $(DFLAGS) $(CXXFLAGS) $< -o $@
+
+#pull in dependecy info for existing .o files
+-include $(OBJ:.o=.d)
