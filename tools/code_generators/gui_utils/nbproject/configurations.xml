@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="89">
+<configurationDescriptor version="90">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
-    <df root=".." name="code">
+    <df root=".." name="0">
       <df name="libs">
         <df name="png++">
           <df name="example">
@@ -71,7 +71,6 @@
   <confs>
     <conf name="Default" type="0">
       <toolsSet>
-        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>GNU|GNU</compilerSet>
         <dependencyChecking>false</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
@@ -199,7 +198,7 @@
       </item>
       <item path="../variable_width_generator.h" ex="false" tool="3" flavor2="0">
       </item>
-      <folder path="code/libs">
+      <folder path="0/libs">
         <ccTool>
           <incDir>
             <pElem>../libs/png++</pElem>
