@@ -34,6 +34,7 @@
 #include "drivers/display_redbull_v2.h"
 #include "drivers/display_bitsboard.h"
 #include "drivers/display_sony-newman.h"
+#include "drivers/display_stm32f4discovery.h"
 #include "pthread_lock.h"
 
 namespace mxgui {

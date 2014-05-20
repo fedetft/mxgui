@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2010, 2011, 2012, 2013, 2014 by Terraneo Federico       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,44 +25,47 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "input.h"
+#include "mxgui/entry.h"
+#include "mxgui/display.h"
+#include "mxgui/misc_inst.h"
+#include "mxgui/level2/input.h"
+#include <cstdio>
+#include <cstring>
 
-#ifdef MXGUI_LEVEL_2
+using namespace std;
+using namespace mxgui;
 
-#include "mxgui/drivers/event_qt.h"
-#include "mxgui/drivers/event_win.h"
-#include "mxgui/drivers/event_mp3v2.h"
-#include "mxgui/drivers/event_strive.h"
-#include "mxgui/drivers/event_stm3210e-eval.h"
-#include "mxgui/drivers/event_redbull_v2.h"
-#include "mxgui/drivers/event_sony-newman.h"
-#include "mxgui/drivers/event_stm32f4discovery.h"
-
-namespace mxgui {
-
-//
-// class InputHandler
-//
-
-InputHandler& InputHandler::instance()
+ENTRY()
 {
-    static InputHandlerImpl implementation;
-    static InputHandler singleton(&implementation);
-    return singleton;
+    Display& display=Display::instance();
+    InputHandler& backend=InputHandler::instance();
+    short oldX=0,oldY=0;
+    for(;;)
+    {
+        Event e=backend.getEvent();
+        switch(e.getEvent())
+        {   
+            case EventType::ButtonA:
+                display.turnOff();
+                return 0;
+            case EventType::TouchDown:
+            case EventType::TouchUp:
+            case EventType::TouchMove:
+            {
+                DrawingContext dc(display);
+                dc.line(Point(0,oldY),Point(239,oldY),black);
+                dc.line(Point(oldX,0),Point(oldX,319),black);
+                oldX=e.getPoint().x();
+                oldY=e.getPoint().y();
+                dc.line(Point(0,oldY),Point(239,oldY),white);
+                dc.line(Point(oldX,0),Point(oldX,319),white);
+                char line[128];
+                sprintf(line,"(%d, %d)          ",oldX,oldY);
+                dc.write(Point(0,0),line);
+                break;
+            }
+            default:
+                break;
+        }
+    }
 }
-
-Event InputHandler::getEvent()
-{
-    return pImpl->getEvent();
-}
-
-Event InputHandler::popEvent()
-{
-    return pImpl->popEvent();
-}
-
-InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
-
-} //namespace mxgui
-
-#endif //MXGUI_LEVEL_2

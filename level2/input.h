@@ -34,6 +34,7 @@
 #include "mxgui/drivers/event_types_stm3210e-eval.h"
 #include "mxgui/drivers/event_types_redbull_v2.h"
 #include "mxgui/drivers/event_types_sony-newman.h"
+#include "mxgui/drivers/event_types_stm32f4discovery.h"
 
 #ifdef MXGUI_LEVEL_2
 
