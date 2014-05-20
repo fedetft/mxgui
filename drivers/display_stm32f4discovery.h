@@ -76,7 +76,7 @@ public:
     }
 
     /**
-     *  Write part of text to the display
+     * Write part of text to the display
      * \param p point of the upper left corner where the text will be drawn.
      * Negative coordinates are allowed, as long as the clipped view has
      * positive or zero coordinates
@@ -216,22 +216,7 @@ public:
 //        const unsigned short *imgData=img.getData();
 //        if(imgData!=0)
 //        {
-//            //Optimized version for in-memory images
-//            if(p.x()==0 && xEnd==width-1)
-//            {
-//                //Can merge lines
-//                int numPixels=img.getHeight()*img.getWidth();
-//                memcpy(framebuffer1+p.y()*width,imgData,numPixels*bpp);
-//            } else {
-//                //Can't merge lines
-//                unsigned short *ptr=framebuffer1+p.x()+width*p.y();
-//                for(short i=0;i<img.getHeight();i++)
-//                {
-//                    memcpy(ptr,imgData,img.getWidth()*bpp);
-//                    ptr+=width;
-//                    imgData+=img.getWidth();
-//                }
-//            }
+//            //TODO Optimized version for in-memory images
 //        } else
             img.draw(*this,p);
     }
@@ -247,56 +232,12 @@ public:
      */
     void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
     {
-//        using namespace std;
 //        if(img.getData()==0)
 //        {
             img.clippedDraw(*this,p,a,b);
             return;
 //        } //else optimized version for memory-loaded images
-//
-//        //Find rectangle wich is the non-empty intersection of the image rectangle
-//        //with the clip rectangle
-//        short xa=max(p.x(),a.x());
-//        short xb=min<short>(p.x()+img.getWidth()-1,b.x());
-//        if(xa>xb) return; //Empty intersection
-//
-//        short ya=max(p.y(),a.y());
-//        short yb=min<short>(p.y()+img.getHeight()-1,b.y());
-//        if(ya>yb) return; //Empty intersection
-//
-//        //Draw image
-//        imageWindow(Point(xa,ya),Point(xb,yb));
-//        writeIdx(0x22);//Write to GRAM
-//        short nx=xb-xa+1;
-//        short ny=yb-ya+1;
-//        int skipStart=(ya-p.y())*img.getWidth()+(xa-p.x());
-//        const unsigned short *pix=img.getData()+skipStart;
-//        int toSkip=(xa-p.x())+((p.x()+img.getWidth()-1)-xb);
-//        short fastNx=nx/2;
-//        if((nx & 0x1)==0) //Scanline has odd number of pixels
-//        {
-//            for(short i=0;i<ny;i++)
-//            {
-//                for(short j=0;j<fastNx;j++)
-//                {
-//                    unsigned int twoPix=pix[0] | pix[1]<<16; //Pack two pixel
-//                    DISPLAY->TWOPIX_RAM=twoPix;
-//                    pix+=2;
-//                }
-//                pix+=toSkip;
-//            }
-//        } else {
-//            for(short i=0;i<ny;i++)
-//            {
-//                for(short j=0;j<fastNx;j++)
-//                {
-//                    unsigned int twoPix=pix[0] | pix[1]<<16; //Pack two pixel
-//                    DISPLAY->TWOPIX_RAM=twoPix;
-//                    pix+=2;
-//                }
-//                writeRam(pix[0]);
-//                pix+=toSkip+1;
-//            }
+//            //TODO: optimize
 //        }
     }
 

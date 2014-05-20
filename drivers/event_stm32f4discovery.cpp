@@ -46,6 +46,9 @@ typedef Gpio<GPIOA_BASE,15> interrupt;
 
 typedef SoftwareI2C<sda,scl> stmpe811;
 
+/**
+ * The registers of the stmpe811 touchscreen controller
+ */
 enum stmpe811regs
 {
     SYS_CTRL1=0x03,
@@ -59,6 +62,11 @@ enum stmpe811regs
     TSC_DATA=0xd7
 };
 
+/**
+ * Write into a register in the stmpe811
+ * \param reg register number
+ * \param val value to be written in the register
+ */
 static void stmpe811writeReg(unsigned char reg, unsigned char val)
 {
     stmpe811::sendStart();
@@ -68,6 +76,13 @@ static void stmpe811writeReg(unsigned char reg, unsigned char val)
     stmpe811::sendStop();
 }
 
+/**
+ * Read from a register of the stmpe811
+ * \param reg register number
+ * \param n number of bytes to read from register
+ * \param pointer to a memory area of at least n bytes where the read data will
+ * be stored
+ */
 static void stmpe811readReg(unsigned char reg, int n, unsigned char *result)
 {
     if(n<=0) return;
@@ -82,12 +97,18 @@ static void stmpe811readReg(unsigned char reg, int n, unsigned char *result)
     stmpe811::sendStop();
 }
 
+/**
+ * Clear the stmpe811 fifo
+ */
 static void touchFifoClear()
 {
     stmpe811writeReg(FIFO_STA,0x01); //RESET FIFO
     stmpe811writeReg(FIFO_STA,0x00); //RESET FIFO
 }
 
+/**
+ * \return the touch point or (-1,-1) if no touch is in progress
+ */
 static Point getTouchData()
 {
     unsigned char ctrl;

@@ -67,6 +67,11 @@ typedef Gpio<GPIOA_BASE, 3> b3; //b5
 typedef Gpio<GPIOB_BASE, 8> b4; //b6
 typedef Gpio<GPIOB_BASE, 9> b5; //b7
 
+/**
+ * Send and receive a byte through SPI5
+ * \param c byte to send
+ * \return byte received
+ */
 static unsigned char spi5sendRev(unsigned char c=0)
 {
     SPI5->DR=c;
@@ -74,6 +79,12 @@ static unsigned char spi5sendRev(unsigned char c=0)
     return SPI5->DR;
 }
 
+/**
+ * Send a command to the ILI9341 display controller
+ * \param cmd command
+ * \param len length of the (optional) argument, or 0 for commands without
+ * arguments.
+ */
 static void sendCmd(unsigned char cmd, int len, ...)
 {
     dcx::low();
