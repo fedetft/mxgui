@@ -1,5 +1,5 @@
 *.o
 *.a
-doc/html/*
-tools/code_generators/build/*
-tools/qtsimulator/build/*
+_doc/html/*
+_tools/code_generators/build/*
+_tools/qtsimulator/build/*
