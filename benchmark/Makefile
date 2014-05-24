@@ -1,22 +1,23 @@
 ##
-## Makefile for Miosix np embedded OS
-## TFT:Terraneo Federico Technlogies
+## Makefile for Miosix embedded OS
 ##
-MAKEFILE_VERSION := 1.02
-include miosix/config/Makefile.inc
+MAKEFILE_VERSION := 1.04
+## Path to kernel directory (edited by init_project_out_of_git_repo.pl)
+KPATH := miosix
+## Path to config directory (edited by init_project_out_of_git_repo.pl)
+CONFPATH := $(KPATH)
+include $(CONFPATH)/config/Makefile.inc
 
 ##
 ## List here subdirectories which contains makefiles
 ##
-SUBDIRS := miosix mxgui
+SUBDIRS := $(KPATH) mxgui
 
 ##
 ## List here your source files (both .s, .c and .cpp)
 ##
-SRC :=  \
-bm_main.cpp \
-benchmark.cpp \
-micro_qr_code_from_wikipedia.cpp
+SRC :=                                  \
+bm_main.cpp benchmark.cpp micro_qr_code_from_wikipedia.cpp
 
 ##
 ## List here additional static libraries with relative path
@@ -36,16 +37,19 @@ INCLUDE_DIRS :=
 OBJ := $(addsuffix .o, $(basename $(SRC)))
 
 ## Includes the miosix base directory for C/C++
-CXXFLAGS  := $(CXXFLAGS_BASE) -I. -Imiosix -Imiosix/arch/common \
-             -Imiosix/$(ARCH_INC) -Imiosix/$(BOARD_INC) $(INCLUDE_DIRS)
-CFLAGS    := $(CFLAGS_BASE)   -I. -Imiosix -Imiosix/arch/common \
-             -Imiosix/$(ARCH_INC) -Imiosix/$(BOARD_INC) $(INCLUDE_DIRS)
-AFLAGS    := $(AFLAGS_BASE)
-LFLAGS    := $(LFLAGS_BASE)
-DFLAGS    := -MMD -MP
+## Always include CONFPATH first, as it overrides the config file location
+CXXFLAGS := $(CXXFLAGS_BASE) -I$(CONFPATH) -I$(CONFPATH)/config/$(BOARD_INC)  \
+            -I. -I$(KPATH) -I$(KPATH)/arch/common -I$(KPATH)/$(ARCH_INC)      \
+            -I$(KPATH)/$(BOARD_INC) $(INCLUDE_DIRS)
+CFLAGS   := $(CFLAGS_BASE)   -I$(CONFPATH) -I$(CONFPATH)/config/$(BOARD_INC)  \
+            -I. -I$(KPATH) -I$(KPATH)/arch/common -I$(KPATH)/$(ARCH_INC)      \
+            -I$(KPATH)/$(BOARD_INC) $(INCLUDE_DIRS)
+AFLAGS   := $(AFLAGS_BASE)
+LFLAGS   := $(LFLAGS_BASE)
+DFLAGS   := -MMD -MP
 
-LINK_LIBS := $(LIBS) -L./miosix -Wl,--start-group -lmiosix -lstdc++ -lc -lm \
-    -lgcc -Wl,--end-group
+LINK_LIBS := $(LIBS) -L$(KPATH) -Wl,--start-group -lmiosix -lstdc++ -lc \
+             -lm -lgcc -Wl,--end-group
 
 all: all-recursive main
 
@@ -55,10 +59,16 @@ program:
 	$(PROGRAM_CMDLINE)
 
 all-recursive:
-	$(foreach i,$(SUBDIRS),$(MAKE) -C $(i) FOLDER="$(FOLDER) $(i)/" || exit 1;)
+	$(foreach i,$(SUBDIRS),$(MAKE) -C $(i)                               \
+	  KPATH=$(shell perl $(KPATH)/_tools/relpath.pl $(i) $(KPATH))       \
+	  CONFPATH=$(shell perl $(KPATH)/_tools/relpath.pl $(i) $(CONFPATH)) \
+	  || exit 1;)
 
 clean-recursive:
-	$(foreach i,$(SUBDIRS),$(MAKE) -C $(i) FOLDER="$(FOLDER) $(i)/" clean || exit 1;)
+	$(foreach i,$(SUBDIRS),$(MAKE) -C $(i)                               \
+	  KPATH=$(shell perl $(KPATH)/_tools/relpath.pl $(i) $(KPATH))       \
+	  CONFPATH=$(shell perl $(KPATH)/_tools/relpath.pl $(i) $(CONFPATH)) \
+	  clean || exit 1;)
 
 clean-topdir:
 	-rm -f $(OBJ) main.elf main.hex main.bin main.map $(OBJ:.o=.d)
@@ -70,13 +80,13 @@ main: main.elf
 
 main.elf: $(OBJ) all-recursive
 	@ echo "linking"
-	$(CXX) $(LFLAGS) -o main.elf $(OBJ) miosix/$(BOOT_FILE) $(LINK_LIBS)
+	$(CXX) $(LFLAGS) -o main.elf $(OBJ) $(KPATH)/$(BOOT_FILE) $(LINK_LIBS)
 
 %.o: %.s
-	$(AS) $(AFLAGS) $< -o $@
+	$(AS)  $(AFLAGS) $< -o $@
 
 %.o : %.c
-	$(CC) $(DFLAGS) $(CFLAGS) $< -o $@
+	$(CC)  $(DFLAGS) $(CFLAGS) $< -o $@
 
 %.o : %.cpp
 	$(CXX) $(DFLAGS) $(CXXFLAGS) $< -o $@
