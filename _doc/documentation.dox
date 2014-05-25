@@ -94,7 +94,7 @@ If you don't have a board such as an stm3210e-eval to test the code, you
 can test it in the \ref sim.
 
 \section examples Examples
-Examples on how to use the library are available in the mxgui/examples
+Examples on how to use the library are available in the mxgui/_examples
 folder. The range from a simple hello world to a 3D rendering engine.
 To try the examples, copy the corresponding directory in the top level
 directory, and edit the Makefile (or CMakeLists.txt if targeting the simulator)

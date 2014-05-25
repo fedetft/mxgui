@@ -27,7 +27,7 @@ LIBS := mxgui/libmxgui.a
 ##
 ## List here additional include directories (in the form -Iinclude_dir)
 ##
-INCLUDE_DIRS :=
+INCLUDE_DIRS := -Imxgui
 
 ##############################################################################
 ## You should not need to modify anything below                             ##

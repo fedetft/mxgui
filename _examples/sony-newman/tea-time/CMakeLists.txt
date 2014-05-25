@@ -18,10 +18,10 @@ set(FOO_SRCS
     qtbackend.cpp
     window.cpp
     qtsimulator.cpp
-    ../../examples/teapot/fps_counter.cpp
-    ../../examples/teapot/bresenham_fsm.cpp
-    ../../examples/teapot/triangle_fsm.cpp
-    ../../examples/teapot/rendering_engine.cpp
+    ../../_examples/teapot/fps_counter.cpp
+    ../../_examples/teapot/bresenham_fsm.cpp
+    ../../_examples/teapot/triangle_fsm.cpp
+    ../../_examples/teapot/rendering_engine.cpp
     ../../../images/batt0.cpp
     ../../../images/batt0c.cpp
     ../../../images/batt25.cpp
@@ -43,6 +43,8 @@ set(FOO_SRCS
     ../../../main.cpp)
 set(FOO_HEADERS window.h)
 
+# ../.. is the mxgui directory
+include_directories(../..)
 # ../../.. is the main project directory
 include_directories(../../..)
 add_definitions(-DMXGUI_LIBRARY)

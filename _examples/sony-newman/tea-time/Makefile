@@ -22,10 +22,10 @@ boot_message.cpp \
 time_config.cpp \
 power_manager.cpp \
 teapot_app.cpp \
-mxgui/examples/teapot/bresenham_fsm.cpp \
-mxgui/examples/teapot/fps_counter.cpp \
-mxgui/examples/teapot/rendering_engine.cpp \
-mxgui/examples/teapot/triangle_fsm.cpp \
+mxgui/_examples/teapot/bresenham_fsm.cpp \
+mxgui/_examples/teapot/fps_counter.cpp \
+mxgui/_examples/teapot/rendering_engine.cpp \
+mxgui/_examples/teapot/triangle_fsm.cpp \
 
 IMG :=  \
 images/batt0.png \
@@ -60,7 +60,7 @@ LIBS := mxgui/libmxgui.a
 ##
 ## List here additional include directories (in the form -Iinclude_dir)
 ##
-INCLUDE_DIRS :=
+INCLUDE_DIRS := -Imxgui
 
 ##############################################################################
 ## You should not need to modify anything below                             ##
