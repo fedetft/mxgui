@@ -30,7 +30,7 @@
 #error "If your code depends on a private header, it IS broken."
 #endif //MXGUI_LIBRARY
 
-#include "mxgui_settings.h"
+#include <config/mxgui_settings.h>
 #include <unistd.h>
 #ifndef _MIOSIX
 #include <fstream>

@@ -28,9 +28,9 @@
 #ifndef _MIOSIX
 
 #include "display_qt.h"
-#include "mxgui/misc_inst.h"
-#include "mxgui/tools/qtsimulator/window.h"
-#include "mxgui/line.h"
+#include "misc_inst.h"
+#include "_tools/qtsimulator/window.h"
+#include "line.h"
 #include <iostream>
 
 using namespace std;

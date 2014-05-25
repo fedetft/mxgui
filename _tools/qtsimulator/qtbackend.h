@@ -20,8 +20,8 @@
 
 #include <cstring>
 #include <boost/shared_ptr.hpp>
-#include "mxgui/mxgui_settings.h"
-#include "mxgui/color.h"
+#include "config/mxgui_settings.h"
+#include "color.h"
 
 //Forward decl
 class UpdateSignalSender;

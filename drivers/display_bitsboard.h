@@ -35,12 +35,12 @@
 
 #ifdef _BOARD_BITSBOARD
 
-#include "mxgui/mxgui_settings.h"
-#include "mxgui/point.h"
-#include "mxgui/color.h"
-#include "mxgui/font.h"
-#include "mxgui/image.h"
-#include "mxgui/iterator_direction.h"
+#include <config/mxgui_settings.h>
+#include "point.h"
+#include "color.h"
+#include "font.h"
+#include "image.h"
+#include "iterator_direction.h"
 #include <stdexcept>
 #include <limits>
 

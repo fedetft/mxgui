@@ -109,7 +109,7 @@
     <ClInclude Include="..\..\level2\input.h" />
     <ClInclude Include="..\..\line.h" />
     <ClInclude Include="..\..\misc_inst.h" />
-    <ClInclude Include="..\..\mxgui_settings.h" />
+    <ClInclude Include="..\..\config\mxgui_settings.h" />
     <ClInclude Include="..\..\point.h" />
     <ClInclude Include="..\..\pthread_lock.h" />
     <ClInclude Include="..\..\resourcefs.h" />

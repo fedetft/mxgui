@@ -17,7 +17,7 @@
 
 #include "window.h"
 #include "qtbackend.h"
-#include "mxgui/drivers/event_qt.h"
+#include "drivers/event_qt.h"
 #include <cstring>
 #include <QPainter>
 

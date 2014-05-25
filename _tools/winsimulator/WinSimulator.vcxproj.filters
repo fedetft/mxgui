@@ -73,7 +73,7 @@
     <ClInclude Include="..\..\misc_inst.h">
       <Filter>mxgui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\mxgui_settings.h">
+    <ClInclude Include="..\..\config\mxgui_settings.h">
       <Filter>mxgui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\point.h">

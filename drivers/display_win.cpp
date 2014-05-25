@@ -29,9 +29,9 @@
 
 #include "Windows.h"
 #include "display_win.h"
-#include "mxgui/misc_inst.h"
-#include "mxgui/tools/winsimulator/window.h"
-#include "mxgui/line.h"
+#include "misc_inst.h"
+#include "_tools/winsimulator/window.h"
+#include "line.h"
 
 using namespace std;
 

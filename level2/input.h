@@ -25,16 +25,16 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "mxgui/mxgui_settings.h"
-#include "mxgui/point.h"
-#include "mxgui/drivers/event_types_qt.h"
-#include "mxgui/drivers/event_types_win.h"
-#include "mxgui/drivers/event_types_mp3v2.h"
-#include "mxgui/drivers/event_types_strive.h"
-#include "mxgui/drivers/event_types_stm3210e-eval.h"
-#include "mxgui/drivers/event_types_redbull_v2.h"
-#include "mxgui/drivers/event_types_sony-newman.h"
-#include "mxgui/drivers/event_types_stm32f4discovery.h"
+#include <config/mxgui_settings.h>
+#include "point.h"
+#include "drivers/event_types_qt.h"
+#include "drivers/event_types_win.h"
+#include "drivers/event_types_mp3v2.h"
+#include "drivers/event_types_strive.h"
+#include "drivers/event_types_stm3210e-eval.h"
+#include "drivers/event_types_redbull_v2.h"
+#include "drivers/event_types_sony-newman.h"
+#include "drivers/event_types_stm32f4discovery.h"
 
 #ifdef MXGUI_LEVEL_2
 

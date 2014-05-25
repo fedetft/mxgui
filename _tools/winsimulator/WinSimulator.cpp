@@ -35,7 +35,7 @@
 #include "window.h"
 #include "mxgui/entry.h"
 #include "mxgui/display.h"
-#include "mxgui/mxgui_settings.h"
+#include "mxgui/config/mxgui_settings.h"
 #include "mxgui/misc_inst.h"
 #include "mxgui/level2/input.h"
 

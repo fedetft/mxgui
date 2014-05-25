@@ -28,7 +28,7 @@
 #ifndef COLOR_H
 #define	COLOR_H
 
-#include "mxgui_settings.h"
+#include <config/mxgui_settings.h>
 
 namespace mxgui {
 

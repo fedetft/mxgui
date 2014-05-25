@@ -29,14 +29,14 @@
 
 #ifdef MXGUI_LEVEL_2
 
-#include "mxgui/drivers/event_qt.h"
-#include "mxgui/drivers/event_win.h"
-#include "mxgui/drivers/event_mp3v2.h"
-#include "mxgui/drivers/event_strive.h"
-#include "mxgui/drivers/event_stm3210e-eval.h"
-#include "mxgui/drivers/event_redbull_v2.h"
-#include "mxgui/drivers/event_sony-newman.h"
-#include "mxgui/drivers/event_stm32f4discovery.h"
+#include "drivers/event_qt.h"
+#include "drivers/event_win.h"
+#include "drivers/event_mp3v2.h"
+#include "drivers/event_strive.h"
+#include "drivers/event_stm3210e-eval.h"
+#include "drivers/event_redbull_v2.h"
+#include "drivers/event_sony-newman.h"
+#include "drivers/event_stm32f4discovery.h"
 
 namespace mxgui {
 

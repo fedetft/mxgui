@@ -25,7 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "mxgui_settings.h"
+#include <config/mxgui_settings.h>
 #include "point.h"
 #include "color.h"
 #include "iterator_direction.h"

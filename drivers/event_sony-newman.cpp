@@ -25,7 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "mxgui/mxgui_settings.h"
+#include <config/mxgui_settings.h>
 #include "kernel/sync.h"
 
 #if defined(_BOARD_SONY_NEWMAN) && defined(MXGUI_LEVEL_2)

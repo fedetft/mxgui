@@ -35,7 +35,7 @@
 
 #if !defined(_MIOSIX) && !defined(_WINDOWS)
 
-#include "mxgui/level2/input.h"
+#include "level2/input.h"
 
 namespace mxgui {
 

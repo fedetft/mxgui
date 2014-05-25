@@ -120,10 +120,10 @@ window on screen.
 \section codegen Code generators
 The code generators are a set of three command line applications, namely
 pngconverter, fontrendering and resourcefs which are used to generate source
-code or binary files. They can be found in the mxgui/tools/code_generators
+code or binary files. They can be found in the mxgui/_tools/code_generators
 directory.
 
-To build them, open a shell in the mxgui/tools/code_generators/build directory
+To build them, open a shell in the mxgui/_tools/code_generators/build directory
 and type
 \code
 cmake ..
@@ -199,7 +199,7 @@ MXGUI_ENABLE_BOLD_FONTS in mxgui_settings.h
 However, if you have a specific font you want to use, you can convert it
 using fontrendering.
 
-Have a look at the mxgui/tools/code_generators/convert.sh script to see how
+Have a look at the mxgui/_tools/code_generators/convert.sh script to see how
 to use fontrendering, or type
 \code
 ./fontrendering --help
@@ -285,8 +285,8 @@ lower power processor, and also it does not help in debugging memory issues.
 For instance, allocating an 1MB data structure will succeed in the simulator,
 but will fail on the embedded system (unless it has more than 1MB of RAM...)
 
-The simulator is in the mxgui/tools/qtsimulator. To compile it, as usual,
-open a shell in the mxgui/tools/qtsimulator/build folder and type
+The simulator is in the mxgui/_tools/qtsimulator. To compile it, as usual,
+open a shell in the mxgui/_tools/qtsimulator/build folder and type
 \code
 cmake ..
 make
@@ -296,7 +296,7 @@ to add your sorce files. In fact, the simulator and the Miosix kernel use two
 different build systems, CMake for the simulator and plain makefiles for
 Miosix. This means that if you add a source file to your project, you need to
 remember to add it to both the Makefile in the top level directory (for Miosix)
-and to the CMakeLists.txt on mxgui/tools/qtsimulator (for the simulator).
+and to the CMakeLists.txt on mxgui/_tools/qtsimulator (for the simulator).
 
 The simulator compiles into a binary in the build folder. You can launch it by
 simply double-clicking the file.

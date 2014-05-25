@@ -25,8 +25,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "mxgui/mxgui_settings.h"
-#include "mxgui/display.h"
+#include <config/mxgui_settings.h>
+#include "display.h"
 
 #ifdef MXGUI_LEVEL_2
 

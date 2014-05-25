@@ -25,6 +25,8 @@ set(FOO_SRCS
     ../../../teapot.cpp)
 set(FOO_HEADERS window.h)
 
+# ../.. is the mxgui directory
+include_directories(../..)
 # ../../.. is the main project directory
 include_directories(../../..)
 add_definitions(-DMXGUI_LIBRARY)

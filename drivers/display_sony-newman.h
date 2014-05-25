@@ -35,14 +35,14 @@
 
 #ifdef _BOARD_SONY_NEWMAN
 
-#include "mxgui/mxgui_settings.h"
-#include "mxgui/point.h"
-#include "mxgui/color.h"
-#include "mxgui/font.h"
-#include "mxgui/image.h"
-#include "mxgui/iterator_direction.h"
-#include "mxgui/misc_inst.h"
-#include "mxgui/line.h"
+#include <config/mxgui_settings.h>
+#include "point.h"
+#include "color.h"
+#include "font.h"
+#include "image.h"
+#include "iterator_direction.h"
+#include "misc_inst.h"
+#include "line.h"
 #include "miosix.h"
 #include <algorithm>
 

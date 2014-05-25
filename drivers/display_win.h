@@ -36,13 +36,13 @@
 
 #if !defined(_MIOSIX) && defined(_WINDOWS)
 
-#include "mxgui/mxgui_settings.h"
-#include "mxgui/point.h"
-#include "mxgui/color.h"
-#include "mxgui/font.h"
-#include "mxgui/image.h"
-#include "mxgui/iterator_direction.h"
-#include "mxgui/tools/winsimulator/winbackend.h"
+#include <config/mxgui_settings.h>
+#include "point.h"
+#include "color.h"
+#include "font.h"
+#include "image.h"
+#include "iterator_direction.h"
+#include "_tools/winsimulator/winbackend.h"
 #include <stdexcept>
 
 //This display is 16 bit per pixel, check that the color depth is properly

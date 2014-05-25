@@ -33,7 +33,7 @@ using similar steps.
 Then build solution and run right from Visual Studio.
 
 NB: To run ClippedImage example copy "dis.tga" file to
-    mxgui/tools/winsimulator
+    mxgui/_tools/winsimulator
 
 -- 
 Yury Kuchura kuchura@gmail.com

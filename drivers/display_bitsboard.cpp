@@ -29,8 +29,8 @@
 
 #include <cstring>
 #include <miosix.h>
-#include "mxgui/misc_inst.h"
-#include "mxgui/line.h"
+#include "misc_inst.h"
+#include "line.h"
 #include "display_bitsboard.h"
 
 using namespace std;

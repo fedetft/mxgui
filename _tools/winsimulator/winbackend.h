@@ -18,7 +18,7 @@
 #define _WINBACKEND_H_
 
 #include <cstring>
-#include "mxgui/mxgui_settings.h"
+#include "mxgui/config/mxgui_settings.h"
 
 /**
  * Class that interfaces Windows GUI (running from main thread) and mxgui (running

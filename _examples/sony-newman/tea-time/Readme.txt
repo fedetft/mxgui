@@ -4,7 +4,7 @@ To compile the firmware for the watch:
 1) Make sure you have downloaded Miosix and mxgui, and installed the ARM compiler.
 You can find info here:
 
-miosix.org/download_menu.html
+miosix.org
 
 Also follow the section 'Downloading additional libraries' to download and configure
 the mxgui gui library.
@@ -23,7 +23,7 @@ in miosix/config/miosix_settings.h
 
 3) Open a shell in the
 
-mxgui/tools/code_generators
+mxgui/_tools/code_generators
 
 and type
 
@@ -50,16 +50,16 @@ to put the watch in dfu mode, and type 'make program'
 To simulate the code:
 =====================
 
-1) edit mxgui/mxgui_settings.h to configure the display rsolution:
+1) edit mxgui/config/mxgui_settings.h to configure the display rsolution:
 
 static const unsigned int SIMULATOR_DISP_HEIGHT=128;
 static const unsigned int SIMULATOR_DISP_WIDTH=128;
 
-replace mxgui/tools/qtsimulator/CMakeLists.txt with the one found in this directory
+replace mxgui/_tools/qtsimulator/CMakeLists.txt with the one found in this directory
 
 2) Open a shell in the directory
 
-mxgui/tools/qtsimulator
+mxgui/_tools/qtsimulator
 
 the, type:
 

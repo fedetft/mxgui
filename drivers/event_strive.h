@@ -30,7 +30,7 @@
 #error "If your code depends on a private header, it IS broken."
 #endif //MXGUI_LIBRARY
 
-#include "mxgui/level2/input.h"
+#include "level2/input.h"
 
 #ifndef EVENT_STIVE_H
 #define	EVENT_STRIVE_H

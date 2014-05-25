@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #include "image.h"
-#include "mxgui_settings.h"
+#include <config/mxgui_settings.h>
 
 #ifndef RESOURCE_IMAGE_H
 #define	RESOURCE_IMAGE_H

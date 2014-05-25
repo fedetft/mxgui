@@ -37,10 +37,10 @@ OBJ := $(addsuffix .o, $(basename $(SRC)))
 
 ## Includes the miosix base directory for C/C++
 CXXFLAGS := $(CXXFLAGS_BASE) -I$(CONFPATH) -I$(CONFPATH)/config/$(BOARD_INC) \
-            -I.. -I$(KPATH) -I$(KPATH)/arch/common -I$(KPATH)/$(ARCH_INC)    \
+            -I. -I$(KPATH) -I$(KPATH)/arch/common -I$(KPATH)/$(ARCH_INC)     \
             -I$(KPATH)/$(BOARD_INC) -DMXGUI_LIBRARY
 CFLAGS   := $(CFLAGS_BASE)   -I$(CONFPATH) -I$(CONFPATH)/config/$(BOARD_INC) \
-            -I.. -I$(KPATH) -I$(KPATH)/arch/common -I$(KPATH)/$(ARCH_INC)    \
+            -I. -I$(KPATH) -I$(KPATH)/arch/common -I$(KPATH)/$(ARCH_INC)     \
             -I$(KPATH)/$(BOARD_INC) -DMXGUI_LIBRARY
 AFLAGS   := $(AFLAGS_BASE)
 DFLAGS   := -MMD -MP

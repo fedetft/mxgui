@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #include "application.h"
-#include "mxgui/pthread_lock.h"
+#include "pthread_lock.h"
 
 #ifdef MXGUI_LEVEL_2
 

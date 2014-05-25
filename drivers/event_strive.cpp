@@ -25,7 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "mxgui/mxgui_settings.h"
+#include <config/mxgui_settings.h>
 
 #if defined(_BOARD_STRIVE_MINI) && defined(MXGUI_LEVEL_2)
 

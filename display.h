@@ -30,7 +30,7 @@
 
 #include <utility>
 #include <pthread.h>
-#include "mxgui_settings.h"
+#include <config/mxgui_settings.h>
 #include "point.h"
 #include "color.h"
 #include "font.h"
