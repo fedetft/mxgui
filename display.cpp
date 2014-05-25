@@ -37,6 +37,10 @@
 #include "drivers/display_stm32f4discovery.h"
 #include "pthread_lock.h"
 
+#if MXGUI_SETTINGS_VERSION != 100
+#error Wrong mxgui_settings.h version. You need to upgrade it.
+#endif
+
 namespace mxgui {
 
 //

@@ -33,6 +33,8 @@
 #ifndef MXGUI_SETTINGS_H
 #define	MXGUI_SETTINGS_H
 
+#define MXGUI_SETTINGS_VERSION 100
+
 // Before you can compile mxgui you have to configure it by editing this
 // file. After that, comment out this line to disable the reminder error.
 #error This error is a reminder that you have not edited mxgui_settings.h yet.
