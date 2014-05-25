@@ -37,7 +37,11 @@
 
 // Before you can compile mxgui you have to configure it by editing this
 // file. After that, comment out this line to disable the reminder error.
+// The PARSING_FROM_IDE is because Netbeans gets confused by this, it is never
+// defined when compiling the code.
+#ifndef PARSING_FROM_IDE
 #error This error is a reminder that you have not edited mxgui_settings.h yet.
+#endif //PARSING_FROM_IDE
 
 namespace mxgui {
 
