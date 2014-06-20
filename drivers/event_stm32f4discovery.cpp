@@ -60,6 +60,24 @@ void __attribute__((used)) EXTI15_10HandlerImpl()
     Waiting=0;
 }
 
+void __attribute__((naked)) EXTI0_IRQHandler()
+{
+    saveContext();
+    asm volatile("bl _Z16EXTI0HandlerImplv");
+    restoreContext();
+}
+
+void __attribute__((used)) EXTI0HandlerImpl()
+{
+    EXTI->PR=EXTI_PR_PR0;
+    
+    if(Waiting==0) return;
+    Waiting->IRQwakeup();
+    if(Waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority())
+		Scheduler::IRQfindNextThread();
+    Waiting=0;
+}
+
 namespace mxgui {
 
 typedef Gpio<GPIOA_BASE,0> buttonA;
@@ -186,13 +204,13 @@ void waitForTouch()
 	FastInterruptDisableLock dLock2;
         if(irq==false)
         {
-	    Waiting=Thread::IRQgetCurrentThread();
-	    while(Waiting)   
-	    {   
-		Thread::IRQwait();
-		FastInterruptEnableLock eLock(dLock2);
-		Thread::yield();
-	    }
+	        Waiting=Thread::IRQgetCurrentThread();
+	        while(Waiting)   
+	        {   
+		        Thread::IRQwait();
+		        FastInterruptEnableLock eLock(dLock2);
+		        Thread::yield();
+	        }
         }
         irq=false;
     }
@@ -251,8 +269,8 @@ InputHandlerImpl::InputHandlerImpl()
     {
         FastInterruptDisableLock dLock;
         buttonA::mode(Mode::INPUT_PULL_DOWN);
-	interrupt::mode(Mode::INPUT);             
-	stmpe811::init(); 
+	    interrupt::mode(Mode::INPUT);             
+	    stmpe811::init(); 
     }
     
     //To let the I2C voltages settle  
@@ -275,14 +293,24 @@ InputHandlerImpl::InputHandlerImpl()
     stmpe811writeReg(INT_CTRL,0x01);
     stmpe811writeReg(INT_EN,0x03);
 
-    stmpe811writeReg(TSC_CTRL,0x43); //TSC_CTRL=No window track, XY, Enabled
+    stmpe811writeReg(TSC_CTRL,0x73); //TSC_CTRL=No window track, XY, Enabled
+                                        //0xA3 Rumore escluso. impostare A da 1(min) a 7(max) per modificare l'assorbimento del rumore sul touch
     //impostiamo registri
     stmpe811writeReg(FIFO_TH,0x01);
    
+    //impostiamo l'interrupt del touchscreen
     EXTI->IMR |= EXTI_IMR_MR15;
     EXTI->FTSR |= EXTI_FTSR_TR15;
     NVIC_EnableIRQ(EXTI15_10_IRQn);
     NVIC_SetPriority(EXTI15_10_IRQn,15); //Low priority         
+
+    //impostiamo l'interrupt del bottone
+    EXTI->IMR |= EXTI_IMR_MR0;
+    EXTI->RTSR |= EXTI_RTSR_TR0;
+    EXTI->FTSR |= EXTI_FTSR_TR0;
+    NVIC_EnableIRQ(EXTI0_IRQn);
+    NVIC_SetPriority(EXTI0_IRQn,15); //Low priority       
+
     //Note that this class is instantiated only once. Otherwise   
     //we'd have to think a way to avoid creating multiple threads
     Thread::create(eventThread,STACK_MIN);
