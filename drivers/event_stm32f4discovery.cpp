@@ -1,11 +1,12 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Terraneo Federico                                *
- *                                                                             *
+ *   Copyright (C) 2014 by Terraneo Federico and Roberto Morlacchi and     *
+ *   Domenico Frasca'                                                      *
+ *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
- *                                                                             *
+ *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
@@ -38,10 +39,13 @@
 using namespace miosix;
 using namespace std;
 
-static Thread *Waiting=0;
+static Thread *waiting=0;
 static volatile bool irq=false;
-static volatile int Flag=0;
+static volatile int flag=0;
 
+/**
+ * Touchscreen interrupt
+ */
 void __attribute__((naked)) EXTI15_10_IRQHandler()
 {
     saveContext();
@@ -49,17 +53,23 @@ void __attribute__((naked)) EXTI15_10_IRQHandler()
     restoreContext();
 }
 
+/**
+ * Tochscreen interrupt actual implementation
+ */
 void __attribute__((used)) EXTI15_10HandlerImpl()
 {
-    EXTI->PR=EXTI_PR_PR15; 
+    EXTI->PR=EXTI_PR_PR15;
     
     irq=true;
-    if(Waiting==0) return;  
-    Waiting->IRQwakeup();
-    if(Waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority()) Scheduler::IRQfindNextThread();
-    Waiting=0;
+    if(waiting==0) return;
+    waiting->IRQwakeup();
+    if(waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority()) Scheduler::IRQfindNextThread();
+    waiting=0;
 }
 
+/**
+ * Button interrupt
+ */
 void __attribute__((naked)) EXTI0_IRQHandler()
 {
     saveContext();
@@ -67,15 +77,18 @@ void __attribute__((naked)) EXTI0_IRQHandler()
     restoreContext();
 }
 
+/**
+ * Button interrupt actual implementation
+ */
 void __attribute__((used)) EXTI0HandlerImpl()
 {
     EXTI->PR=EXTI_PR_PR0;
     
-    if(Waiting==0) return;
-    Waiting->IRQwakeup();
-    if(Waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority())
-		Scheduler::IRQfindNextThread();
-    Waiting=0;
+    if(waiting==0) return;
+    waiting->IRQwakeup();
+    if(waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority())
+        Scheduler::IRQfindNextThread();
+    waiting=0;
 }
 
 namespace mxgui {
@@ -83,10 +96,9 @@ namespace mxgui {
 typedef Gpio<GPIOA_BASE,0> buttonA;
 typedef Gpio<GPIOA_BASE,8> scl; //I2C3 SCL
 typedef Gpio<GPIOC_BASE,9> sda; //I2C3 SDA
+typedef Gpio<GPIOA_BASE,15> interrupt;
 
 typedef SoftwareI2C<sda,scl> stmpe811;
-
-typedef Gpio<GPIOA_BASE,15> interrupt;  
 
 /**
  * The registers of the stmpe811 touchscreen controller
@@ -159,12 +171,12 @@ static Point getTouchData()
     stmpe811readReg(TSC_CTRL,1,&ctrl);
     if((ctrl & 0x80)==0) 
     {
-       Flag=0;       
+       flag=0;
        return Point(-1,-1);
-    }    
-    if(Flag==0)
+    }
+    if(flag==0)
     {
-        Flag=1;
+        flag=1;
         return Point(-1,-1);
     }
     else
@@ -185,9 +197,9 @@ static Point getTouchData()
         x=((x-xMin)*240)/(xMax-xMin);
         y=((y-yMin)*320)/(yMax-yMin);
         x=min(239,max(0,x));
-        y=min(319,max(0,y));  
+        y=min(319,max(0,y));
         return Point(x,y);
-    }   
+    }
 }
 
 Queue<Event,10> eventQueue;
@@ -198,19 +210,19 @@ void callback(Event e)
     eventQueue.IRQput(e);
 }
 
-void waitForTouch()
+void waitForTouchOrButton()
 {
     {
-	FastInterruptDisableLock dLock2;
+        FastInterruptDisableLock dLock2;
         if(irq==false)
         {
-	        Waiting=Thread::IRQgetCurrentThread();
-	        while(Waiting)   
-	        {   
-		        Thread::IRQwait();
-		        FastInterruptEnableLock eLock(dLock2);
-		        Thread::yield();
-	        }
+            waiting=Thread::IRQgetCurrentThread();
+            while(waiting)   
+            {   
+                Thread::IRQwait();
+                FastInterruptEnableLock eLock(dLock2);
+               Thread::yield();
+            }
         }
         irq=false;
     }
@@ -224,19 +236,17 @@ void eventThread(void *)
     Point pOld; 
     for(;;)
     {
-        //TODO: use interrupts to avoid polling   
-        // Thread::sleep(50);   
-	waitForTouch(); //Check for events 20 times a second   
+        waitForTouchOrButton();
 
-	//Check buttons 
-        if(buttonA::value()==1)  
+        //Check buttons
+        if(buttonA::value()==1)
         {
             if(aPrev==false) callback(Event(EventType::ButtonA));
             aPrev=true;
-        } else aPrev=false;  
+        } else aPrev=false;
         //Check touchscreen
-        Point p=getTouchData();        
-	if(p.x()>=0) //Is someone touching the screen?  
+        Point p=getTouchData();
+        if(p.x()>=0) //Is someone touching the screen?
         {
             //Ok, someone is touching the screen
             //Did the touch point differ that much from the previous?
@@ -255,8 +265,7 @@ void eventThread(void *)
                 callback(Event(EventType::TouchUp,pOld));
             }
             tPrev=false;
-		
-        }  
+        }
     }
 }
 
@@ -269,11 +278,11 @@ InputHandlerImpl::InputHandlerImpl()
     {
         FastInterruptDisableLock dLock;
         buttonA::mode(Mode::INPUT_PULL_DOWN);
-	    interrupt::mode(Mode::INPUT);             
-	    stmpe811::init(); 
+        interrupt::mode(Mode::INPUT);
+        stmpe811::init();
     }
     
-    //To let the I2C voltages settle  
+    //To let the I2C voltages settle
     Thread::sleep(5);
     
     stmpe811writeReg(SYS_CTRL1,0x02); //SOFT_RESET=1
@@ -294,7 +303,7 @@ InputHandlerImpl::InputHandlerImpl()
     stmpe811writeReg(INT_EN,0x03);
 
     stmpe811writeReg(TSC_CTRL,0x73); //TSC_CTRL=No window track, XY, Enabled
-                                        //0xA3 Rumore escluso. impostare A da 1(min) a 7(max) per modificare l'assorbimento del rumore sul touch
+                                     //0xA3 Rumore escluso. impostare A da 1(min) a 7(max) per modificare l'assorbimento del rumore sul touch
     //impostiamo registri
     stmpe811writeReg(FIFO_TH,0x01);
    
@@ -302,20 +311,18 @@ InputHandlerImpl::InputHandlerImpl()
     EXTI->IMR |= EXTI_IMR_MR15;
     EXTI->FTSR |= EXTI_FTSR_TR15;
     NVIC_EnableIRQ(EXTI15_10_IRQn);
-    NVIC_SetPriority(EXTI15_10_IRQn,15); //Low priority         
+    NVIC_SetPriority(EXTI15_10_IRQn,15); //Low priority
 
     //impostiamo l'interrupt del bottone
     EXTI->IMR |= EXTI_IMR_MR0;
     EXTI->RTSR |= EXTI_RTSR_TR0;
     EXTI->FTSR |= EXTI_FTSR_TR0;
     NVIC_EnableIRQ(EXTI0_IRQn);
-    NVIC_SetPriority(EXTI0_IRQn,15); //Low priority       
+    NVIC_SetPriority(EXTI0_IRQn,15); //Low priority
 
-    //Note that this class is instantiated only once. Otherwise   
+    //Note that this class is instantiated only once. Otherwise
     //we'd have to think a way to avoid creating multiple threads
     Thread::create(eventThread,STACK_MIN);
-    
-    
 }
 
 Event InputHandlerImpl::getEvent()
