@@ -51,7 +51,7 @@ public:
 
 protected:
     /**
-     * Write a single pixel. Subclasses need to implemen this if they want
+     * Write a single pixel. Subclasses need to implement this if they want
      * the default implementation of write() to work, otherwise can directly
      * reimplement write().
      * \param x x coord of the pixel to write

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010, 2011 by Terraneo Federico                         *
+ *   Copyright (C) 2010, 2011, 2012, 2013, 2014 by Terraneo Federico       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -257,6 +257,7 @@ int main(int argc, char *argv[])
         ("in", value<string>(), "Input png file (required)")
         ("depth", value<string>(), "Color depth, 1bitlinear,8,16,18 or 24 bits (required)")
         ("out", value<string>(), "Output png file for validation")
+        ("outdir", value<string>(), "Directory where to generate files (default is src dir)")
         ("binary", "Generate a binary file instead of a .cpp/.h file")
     ;
 
@@ -309,6 +310,7 @@ int main(int argc, char *argv[])
      * path            is "/home/"
      * cppFilename     is "/home/mypng.cpp"
      * hFilename       is "/home/mypng.h"
+     * unless outdir is set
      */
     string path="";
     string filename=vm["in"].as<string>();
@@ -319,6 +321,8 @@ int main(int argc, char *argv[])
         path=filename.substr(0,lastSlash+1);
         filename=filename.substr(lastSlash+1,filename.length());
     }
+    //Override path if requested
+    if(vm.count("outdir")) path=vm["outdir"].as<string>()+'/';
     //Remove extension
     filename=filename.substr(0,filename.find('.'));
     string cppFilename=path+filename+".cpp";

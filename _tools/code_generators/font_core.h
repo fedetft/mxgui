@@ -37,14 +37,13 @@ std::string toUpper(const std::string& x);
 
 /**
  * Contains one glyph, stored as a vector of bitsets.
- * The glyph width is currently limited to at most 32 bits when not antialiased,
- * and to at most 16 bits when antialiased. Or not? FIXME: check
  */
 class Glyph
 {
 public:
     /**
-     * Maximum width for a glyph
+     * The glyph width is currently limited to at most maxWidth when not
+     * antialiased, and to at most maxWidth/2 bits when antialiased.
      */
     static const unsigned int maxWidth=64;
 
