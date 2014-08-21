@@ -1,85 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="69">
-  <logicalFolder name="root" displayName="root" projectFiles="true">
-    <df name="mxgui" root="../../..">
-      <df name="drivers" kind="SOURCE_LOGICAL_FOLDER">
-        <in>backend_lpc2138spi.cpp</in>
-        <in>backend_lpc2138spi.h</in>
-        <in>backend_stm32fsmc.cpp</in>
-        <in>backend_stm32fsmc.h</in>
-        <in>display_qt.cpp</in>
-        <in>display_qt.h</in>
-        <in>display_s6e63d6.cpp</in>
-        <in>display_s6e63d6.h</in>
-        <in>display_spfd5408.cpp</in>
-        <in>display_spfd5408.h</in>
-      </df>
-      <df name="fonts" kind="SOURCE_LOGICAL_FOLDER">
-        <in>droid11.h</in>
-        <in>droid11.png</in>
-        <in>droid11b.h</in>
-        <in>droid11b.png</in>
-        <in>droid21.h</in>
-        <in>droid21.png</in>
-        <in>droid21b.h</in>
-        <in>droid21b.png</in>
-        <in>miscfixed.h</in>
-        <in>miscfixed.png</in>
-        <in>miscfixed_bold.h</in>
-        <in>miscfixed_bold.png</in>
-        <in>tahoma.h</in>
-        <in>tahoma.png</in>
-      </df>
-      <df name="tools" kind="SOURCE_LOGICAL_FOLDER">
-        <df name="font_collection" kind="SOURCE_LOGICAL_FOLDER">
-          <df name="droid" kind="SOURCE_LOGICAL_FOLDER">
-            <in>DroidSans-Bold.ttf</in>
-            <in>DroidSans.ttf</in>
-            <in>DroidSans11.fixes</in>
-            <in>DroidSansBold11.fixes</in>
-            <in>DroidSansMono.ttf</in>
-            <in>DroidSerif-Bold.ttf</in>
-            <in>DroidSerif-Italic.ttf</in>
-            <in>DroidSerif-Regular.ttf</in>
-            <in>NOTICE</in>
+<configurationDescriptor version="90">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="../../.." name="0">
+      <df name="_examples">
+        <df name="benchmark">
+          <in>benchmark.cpp</in>
+          <in>bm_main.cpp</in>
+          <in>micro_qr_code_from_wikipedia.cpp</in>
+        </df>
+        <df name="clipped image">
+          <in>clipped_image.cpp</in>
+        </df>
+        <df name="drawboard">
+          <in>drawboard.cpp</in>
+        </df>
+        <df name="hello">
+          <in>hello_world.cpp</in>
+        </df>
+        <df name="particles">
+          <in>fps_counter.cpp</in>
+          <in>particles.cpp</in>
+        </df>
+        <df name="sony-newman">
+          <df name="systeminfo">
+            <in>systeminfo.cpp</in>
           </df>
-          <df name="miscfixed" kind="SOURCE_LOGICAL_FOLDER">
-            <in>8x13B.bdf</in>
-            <in>9x15.bdf</in>
-            <in>Changes.txt</in>
+          <df name="tea-time">
+            <in>boot_message.cpp</in>
+            <in>main.cpp</in>
+            <in>power_manager.cpp</in>
+            <in>teapot_app.cpp</in>
+            <in>time_config.cpp</in>
           </df>
-          <df name="tahoma" kind="SOURCE_LOGICAL_FOLDER">
-            <in>Changes.txt</in>
-            <in>tahoma-11.bdf</in>
+          <df name="touchtest">
+            <in>touch_test.cpp</in>
           </df>
         </df>
-        <df name="qtsimulator" kind="SOURCE_LOGICAL_FOLDER">
-          <df name="qtsimulator" kind="SOURCE_LOGICAL_FOLDER">
-            <in>qtsimulator-Makefile.mk</in>
-          </df>
-          <in>CMakeLists.txt</in>
+        <df name="teapot">
+          <in>bresenham_fsm.cpp</in>
+          <in>fps_counter.cpp</in>
+          <in>rendering_engine.cpp</in>
+          <in>teapot.cpp</in>
+          <in>triangle_fsm.cpp</in>
+        </df>
+        <df name="touch_test">
+          <in>touch_test.cpp</in>
+        </df>
+      </df>
+      <df name="_tools">
+        <df name="qtsimulator">
           <in>qtbackend.cpp</in>
-          <in>qtbackend.h</in>
           <in>qtsimulator.cpp</in>
           <in>window.cpp</in>
-          <in>window.h</in>
         </df>
-        <df name="test_image" kind="SOURCE_LOGICAL_FOLDER">
-          <in>dispersion.png</in>
+        <df name="winsimulator">
+          <in>WinSimulator.cpp</in>
+          <in>pthread.cpp</in>
+          <in>stdafx.cpp</in>
+          <in>winbackend.cpp</in>
+          <in>window.cpp</in>
         </df>
       </df>
-      <in>Makefile</in>
-      <in>color.h</in>
-      <in>display.h</in>
-      <in>display_base.h</in>
+      <df name="drivers">
+        <in>backend_lpc2138spi.cpp</in>
+        <in>backend_stm32fsmc.cpp</in>
+        <in>display_bitsboard.cpp</in>
+        <in>display_mp3v2.cpp</in>
+        <in>display_qt.cpp</in>
+        <in>display_redbull_v2.cpp</in>
+        <in>display_s6e63d6.cpp</in>
+        <in>display_sony-newman.cpp</in>
+        <in>display_spfd5408.cpp</in>
+        <in>display_stm3210e-eval.cpp</in>
+        <in>display_stm32f4discovery.cpp</in>
+        <in>display_strive.cpp</in>
+        <in>display_win.cpp</in>
+        <in>event_mp3v2.cpp</in>
+        <in>event_qt.cpp</in>
+        <in>event_redbull_v2.cpp</in>
+        <in>event_sony-newman.cpp</in>
+        <in>event_stm3210e-eval.cpp</in>
+        <in>event_stm32f4discovery.cpp</in>
+        <in>event_strive.cpp</in>
+        <in>event_win.cpp</in>
+        <in>resfs_mp3v2.cpp</in>
+      </df>
+      <df name="level2">
+        <in>application.cpp</in>
+        <in>input.cpp</in>
+        <in>simple_button.cpp</in>
+      </df>
+      <in>display.cpp</in>
       <in>font.cpp</in>
-      <in>font.h</in>
-      <in>image.h</in>
-      <in>iterator_direction.h</in>
       <in>misc_inst.cpp</in>
-      <in>misc_inst.h</in>
-      <in>mxgui_settings.h</in>
-      <in>point.h</in>
+      <in>resource_image.cpp</in>
+      <in>resourcefs.cpp</in>
+      <in>tga_image.cpp</in>
     </df>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -89,7 +105,7 @@
       <itemPath>qtsimulator-Makefile.mk</itemPath>
     </logicalFolder>
   </logicalFolder>
-  <sourceFolderFilter>^(nbproject|build|test|tests|code_generators)$</sourceFolderFilter>
+  <sourceFolderFilter>^(nbproject|build|_doc|_examples|code_generators|font_collection|test_image|winsimulator)$</sourceFolderFilter>
   <sourceRootList>
     <Elem>../../..</Elem>
   </sourceRootList>
@@ -97,30 +113,975 @@
   <confs>
     <conf name="Default" type="0">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
         <compilerSet>GNU|GNU</compilerSet>
-        <platform>2</platform>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
+      <codeAssistance>
+        <buildAnalyzer>false</buildAnalyzer>
+      </codeAssistance>
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>../build</buildCommandWorkingDir>
           <buildCommand>${MAKE} -f Makefile</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>../build/qtsimulator</executablePath>
-          <ccTool>
-            <incDir>
-              <pElem>..</pElem>
-              <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
-              <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
-              <pElem>/usr/include/QtGui</pElem>
-              <pElem>/usr/include/QtCore</pElem>
-              <pElem>../../..</pElem>
-              <pElem>../../../..</pElem>
-              <pElem>../../test_image</pElem>
-            </incDir>
-          </ccTool>
         </makeTool>
       </makefileType>
+      <item path="../../../_examples/benchmark/benchmark.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/benchmark/bm_main.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/benchmark/micro_qr_code_from_wikipedia.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/clipped image/clipped_image.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/drawboard/drawboard.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/hello/hello_world.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/particles/fps_counter.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/particles/particles.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/sony-newman/systeminfo/systeminfo.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/sony-newman/tea-time/boot_message.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/sony-newman/tea-time/main.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/sony-newman/tea-time/power_manager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/sony-newman/tea-time/teapot_app.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/sony-newman/tea-time/time_config.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/sony-newman/touchtest/touch_test.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/teapot/bresenham_fsm.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/teapot/fps_counter.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/teapot/rendering_engine.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/teapot/teapot.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/teapot/triangle_fsm.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_examples/touch_test/touch_test.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_tools/qtsimulator/qtbackend.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_tools/qtsimulator/qtsimulator.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_tools/qtsimulator/window.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_tools/winsimulator/WinSimulator.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_tools/winsimulator/pthread.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_tools/winsimulator/stdafx.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_tools/winsimulator/winbackend.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../_tools/winsimulator/window.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../display.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/backend_lpc2138spi.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/backend_stm32fsmc.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_bitsboard.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_mp3v2.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_qt.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_redbull_v2.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_s6e63d6.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_sony-newman.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_spfd5408.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_stm3210e-eval.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_stm32f4discovery.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_strive.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/display_win.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/event_mp3v2.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/event_qt.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/event_redbull_v2.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/event_sony-newman.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/event_stm3210e-eval.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/event_stm32f4discovery.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/event_strive.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/event_win.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../drivers/resfs_mp3v2.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../font.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../level2/application.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../level2/input.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../level2/simple_button.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../misc_inst.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../resource_image.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../resourcefs.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="../../../tga_image.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <folder path="0">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/benchmark">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/clipped image">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/drawboard">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/hello">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/particles">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/sony-newman/systeminfo">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/sony-newman/tea-time">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/sony-newman/touchtest">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/teapot">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_examples/touch_test">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_tools/qtsimulator">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/_tools/winsimulator">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/drivers">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
+      <folder path="0/level2">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/qt4/QtNetwork</pElem>
+            <pElem>/usr/include/qt4</pElem>
+            <pElem>/usr/include/qt4/QtGui</pElem>
+            <pElem>/usr/include/qt4/QtSql</pElem>
+            <pElem>/usr/include/qt4/QtCLucene</pElem>
+            <pElem>/usr/include/qt4/QtScriptTools</pElem>
+            <pElem>/Library/Frameworks/QtCore.framework/Headers</pElem>
+            <pElem>/usr/include/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtDBus</pElem>
+            <pElem>/usr/include/qt4/QtHelp</pElem>
+            <pElem>..</pElem>
+            <pElem>/usr/include/qt4/QtDesigner</pElem>
+            <pElem>/usr/include/qt4/QtDeclarative</pElem>
+            <pElem>/usr/include/qt4/QtUiTools</pElem>
+            <pElem>/usr/include/qt4/QtTest</pElem>
+            <pElem>../..</pElem>
+            <pElem>/usr/include/QtGui</pElem>
+            <pElem>/usr/include/qt4/Qt3Support</pElem>
+            <pElem>/usr/include/qt4/QtXmlPatterns</pElem>
+            <pElem>/usr/include/qt4/QtCore</pElem>
+            <pElem>/usr/include/qt4/QtSvg</pElem>
+            <pElem>/usr/include/qt4/QtXml</pElem>
+            <pElem>/usr/include/qt4/QtDesignerComponents</pElem>
+            <pElem>/usr/include/qt4/QtScript</pElem>
+            <pElem>../../test_image</pElem>
+            <pElem>/Library/Frameworks/QtGui.framework/Headers</pElem>
+          </incDir>
+          <inheritIncValues>false</inheritIncValues>
+          <preprocessorList>
+            <Elem>QT3_SUPPORT</Elem>
+            <Elem>QT_SHARED</Elem>
+          </preprocessorList>
+          <inheritPreValues>false</inheritPreValues>
+          <inheritUndefValues>false</inheritUndefValues>
+        </ccTool>
+      </folder>
     </conf>
   </confs>
 </configurationDescriptor>

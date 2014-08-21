@@ -18,11 +18,11 @@ set(FOO_SRCS
     qtbackend.cpp
     window.cpp
     qtsimulator.cpp
-    ../../../fps_counter.cpp
-    ../../../bresenham_fsm.cpp
-    ../../../triangle_fsm.cpp
-    ../../../rendering_engine.cpp
-    ../../../teapot.cpp)
+    ../../_examples/teapot/fps_counter.cpp
+    ../../_examples/teapot/bresenham_fsm.cpp
+    ../../_examples/teapot/triangle_fsm.cpp
+    ../../_examples/teapot/rendering_engine.cpp
+    ../../_examples/teapot/teapot.cpp)
 set(FOO_HEADERS window.h)
 
 # ../.. is the mxgui directory
