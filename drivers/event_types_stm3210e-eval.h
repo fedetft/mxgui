@@ -35,7 +35,14 @@ class EventType
 public:
     enum E
     {
-        Default=0, //This is a must on all backends
+        // These are a must on all backends -- begin
+        Default=0,           // This actually means 'no event'
+        WindowPartialRedraw, // At least one drawable has requested redraw
+        WindowForeground,    // Window manager moved this window to foreground
+        WindowBackground,    // Window manager moved this window to background
+        WindowQuit,          // Window manager requested the window to close
+        // These are a must on all backends -- end
+        
         ButtonA=4, //"Wakeup" button (PA0)
         ButtonB=5, //"Tamper" button (PC13)
         ButtonC=6  //"Key"    button (PG8)

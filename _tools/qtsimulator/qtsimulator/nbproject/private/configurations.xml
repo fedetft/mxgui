@@ -5,10 +5,8 @@
       <df name="_examples">
         <df name="benchmark">
           <in>benchmark.cpp</in>
-          <in>benchmark.h</in>
           <in>bm_main.cpp</in>
           <in>micro_qr_code_from_wikipedia.cpp</in>
-          <in>micro_qr_code_from_wikipedia.h</in>
         </df>
         <df name="clipped image">
           <in>clipped_image.cpp</in>
@@ -21,7 +19,6 @@
         </df>
         <df name="particles">
           <in>fps_counter.cpp</in>
-          <in>fps_counter.h</in>
           <in>particles.cpp</in>
         </df>
         <df name="sony-newman">
@@ -30,14 +27,10 @@
           </df>
           <df name="tea-time">
             <in>boot_message.cpp</in>
-            <in>boot_message.h</in>
             <in>main.cpp</in>
             <in>power_manager.cpp</in>
-            <in>power_manager.h</in>
             <in>teapot_app.cpp</in>
-            <in>teapot_app.h</in>
             <in>time_config.cpp</in>
-            <in>time_config.h</in>
           </df>
           <df name="touchtest">
             <in>touch_test.cpp</in>
@@ -45,16 +38,10 @@
         </df>
         <df name="teapot">
           <in>bresenham_fsm.cpp</in>
-          <in>bresenham_fsm.h</in>
           <in>fps_counter.cpp</in>
-          <in>fps_counter.h</in>
-          <in>math_helpers.h</in>
           <in>rendering_engine.cpp</in>
-          <in>rendering_engine.h</in>
           <in>teapot.cpp</in>
-          <in>teapot_model.h</in>
           <in>triangle_fsm.cpp</in>
-          <in>triangle_fsm.h</in>
         </df>
         <df name="touch_test">
           <in>touch_test.cpp</in>
@@ -72,24 +59,16 @@
         </df>
         <df name="winsimulator">
           <in>WinSimulator.cpp</in>
-          <in>WinSimulator.h</in>
           <in>pthread.cpp</in>
-          <in>pthread.h</in>
           <in>stdafx.cpp</in>
-          <in>stdafx.h</in>
-          <in>targetver.h</in>
           <in>winbackend.cpp</in>
-          <in>winbackend.h</in>
           <in>window.cpp</in>
-          <in>window.h</in>
         </df>
       </df>
       <df name="config">
         <in>mxgui_settings.h</in>
       </df>
       <df name="drivers">
-        <in>backend_lpc2138spi.cpp</in>
-        <in>backend_stm32fsmc.cpp</in>
         <in>display_bitsboard.cpp</in>
         <in>display_bitsboard.h</in>
         <in>display_mp3v2.cpp</in>
@@ -98,10 +77,8 @@
         <in>display_qt.h</in>
         <in>display_redbull_v2.cpp</in>
         <in>display_redbull_v2.h</in>
-        <in>display_s6e63d6.cpp</in>
         <in>display_sony-newman.cpp</in>
         <in>display_sony-newman.h</in>
-        <in>display_spfd5408.cpp</in>
         <in>display_stm3210e-eval.cpp</in>
         <in>display_stm3210e-eval.h</in>
         <in>display_stm32f4discovery.cpp</in>
@@ -149,8 +126,13 @@
       <df name="level2">
         <in>application.cpp</in>
         <in>application.h</in>
+        <in>draw_area.h</in>
+        <in>drawing_context_proxy.cpp</in>
+        <in>drawing_context_proxy.h</in>
         <in>input.cpp</in>
         <in>input.h</in>
+        <in>label.cpp</in>
+        <in>label.h</in>
         <in>simple_button.cpp</in>
         <in>simple_button.h</in>
       </df>

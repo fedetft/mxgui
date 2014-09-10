@@ -62,15 +62,11 @@
         </df>
       </df>
       <df name="drivers">
-        <in>backend_lpc2138spi.cpp</in>
-        <in>backend_stm32fsmc.cpp</in>
         <in>display_bitsboard.cpp</in>
         <in>display_mp3v2.cpp</in>
         <in>display_qt.cpp</in>
         <in>display_redbull_v2.cpp</in>
-        <in>display_s6e63d6.cpp</in>
         <in>display_sony-newman.cpp</in>
-        <in>display_spfd5408.cpp</in>
         <in>display_stm3210e-eval.cpp</in>
         <in>display_stm32f4discovery.cpp</in>
         <in>display_strive.cpp</in>
@@ -87,7 +83,12 @@
       </df>
       <df name="level2">
         <in>application.cpp</in>
+        <in>draw_area.h</in>
+        <in>drawing_context_proxy.cpp</in>
+        <in>drawing_context_proxy.h</in>
         <in>input.cpp</in>
+        <in>label.cpp</in>
+        <in>label.h</in>
         <in>simple_button.cpp</in>
       </df>
       <in>display.cpp</in>
@@ -335,20 +336,6 @@
         <ccTool>
         </ccTool>
       </item>
-      <item path="../../../drivers/backend_lpc2138spi.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-        <ccTool>
-        </ccTool>
-      </item>
-      <item path="../../../drivers/backend_stm32fsmc.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-        <ccTool>
-        </ccTool>
-      </item>
       <item path="../../../drivers/display_bitsboard.cpp"
             ex="false"
             tool="1"
@@ -371,21 +358,7 @@
         <ccTool>
         </ccTool>
       </item>
-      <item path="../../../drivers/display_s6e63d6.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-        <ccTool>
-        </ccTool>
-      </item>
       <item path="../../../drivers/display_sony-newman.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-        <ccTool>
-        </ccTool>
-      </item>
-      <item path="../../../drivers/display_spfd5408.cpp"
             ex="false"
             tool="1"
             flavor2="4">
@@ -473,9 +446,25 @@
         <ccTool>
         </ccTool>
       </item>
+      <item path="../../../level2/draw_area.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../level2/drawing_context_proxy.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../level2/drawing_context_proxy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="../../../level2/input.cpp" ex="false" tool="1" flavor2="4">
         <ccTool>
         </ccTool>
+      </item>
+      <item path="../../../level2/label.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../level2/label.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../../level2/simple_button.cpp" ex="false" tool="1" flavor2="4">
         <ccTool>
@@ -533,7 +522,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/benchmark">
@@ -572,7 +560,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/clipped image">
@@ -611,7 +598,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/drawboard">
@@ -650,7 +636,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/hello">
@@ -689,7 +674,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/particles">
@@ -728,7 +712,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/sony-newman/systeminfo">
@@ -767,7 +750,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/sony-newman/tea-time">
@@ -806,7 +788,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/sony-newman/touchtest">
@@ -845,7 +826,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/teapot">
@@ -884,7 +864,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_examples/touch_test">
@@ -923,7 +902,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_tools/qtsimulator">
@@ -962,7 +940,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/_tools/winsimulator">
@@ -1001,7 +978,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/drivers">
@@ -1040,7 +1016,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
       <folder path="0/level2">
@@ -1079,7 +1054,6 @@
             <Elem>QT_SHARED</Elem>
           </preprocessorList>
           <inheritPreValues>false</inheritPreValues>
-          <inheritUndefValues>false</inheritUndefValues>
         </ccTool>
       </folder>
     </conf>

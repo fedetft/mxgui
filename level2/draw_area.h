@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Yury Kuchura                                    *
+ *   Copyright (C) 2014 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,37 +25,45 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_STRIVE_H
-#define	EVENT_TYPES_STRIVE_H
+#ifndef DRAW_AREA_H
+#define	DRAW_AREA_H
 
-#ifdef _BOARD_STRIVE_MINI
+#include <utility>
+#include "point.h"
 
-class EventType
+namespace mxgui {
+
+/**
+ * \ingroup pub_iface_2
+ * This class represents a rectangle on screen, used to specify a drawing area
+ * \param first upper left point
+ * \param second lower right point
+ */
+typedef std::pair<Point,Point> DrawArea;
+
+/**
+ * This class just encapsulates the Alignment_ enum so that the enum names don't
+ * clobber the global namespace.
+ */
+class Alignment
 {
 public:
-    enum E
+    /**
+     * Possible alignments
+     */
+    enum Alignment_
     {
-        // These are a must on all backends -- begin
-        Default=0,           // This actually means 'no event'
-        WindowPartialRedraw, // At least one drawable has requested redraw
-        WindowForeground,    // Window manager moved this window to foreground
-        WindowBackground,    // Window manager moved this window to background
-        WindowQuit,          // Window manager requested the window to close
-        // These are a must on all backends -- end
-        
-        TouchDown=1,
-        TouchUp=2,
-        TouchMove=3,
-        Button1Pressed=4,
-        Button1Released=5,
-        //The below buttons are just declared for compatibility, but not implemented
-        ButtonA,
-        ButtonB,
+        TOP,
+        BOTTOM,
+        RIGHT,
+        LEFT,
+        CENTER
     };
+    
 private:
-    EventType();
+    Alignment(); //Just a wrapper class, disallow creating instances
 };
 
-#endif //_BOARD_STRIVE_MINI
+} //namespace mxgui
 
-#endif //EVENT_TYPES_STRIVE_H
+#endif //DRAW_AREA_H

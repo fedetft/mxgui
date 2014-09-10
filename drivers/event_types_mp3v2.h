@@ -35,7 +35,13 @@ class EventType
 public:
     enum E
     {
-        Default=0, //This is a must on all backends
+        // These are a must on all backends -- begin
+        Default=0,           // This actually means 'no event'
+        WindowPartialRedraw, // At least one drawable has requested redraw
+        WindowForeground,    // Window manager moved this window to foreground
+        WindowBackground,    // Window manager moved this window to background
+        // These are a must on all backends -- end
+        
         TouchDown=1,
         TouchUp=2,
         TouchMove=3,

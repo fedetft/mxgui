@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2011, 2012, 2013, 2014 by Terraneo Federico             *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -27,45 +27,196 @@
 
 #include "application.h"
 #include "pthread_lock.h"
+#include "misc_inst.h"
 
 #ifdef MXGUI_LEVEL_2
+
+using namespace std;
+using namespace std::tr1;
 
 namespace mxgui {
 
 //
-// class ApplicationImpl
+// class Drawable
 //
 
-
-//
-// class Application
-//
-
-
-//
-// class ApplicationManager
-//
-
-static pthread_mutex_t appManagerMutex=PTHREAD_MUTEX_INITIALIZER;
-static ApplicationImpl impls;
-static Application *apps;
-static bool first=true;
-
-void *applicationEntryPoint()
+Drawable::Drawable(Window* w, DrawArea da) : w(w), da(da), needRedraw(false)
 {
-
+    w->addDrawable(this);
 }
 
-bool ApplicationManager::start(Application* app, bool modal)
+Drawable::Drawable(Window *w, Point p, short width, short height)
+    : w(w), da(make_pair(p,Point(p.x()+width,p.y()+height))), needRedraw(false)
 {
-    if(app==0) return false;
-    PthreadLock lock(appManagerMutex);
-    if(first)
+    w->addDrawable(this);
+}
+
+void Drawable::enqueueForRedraw()
+{
+    needRedraw=true;
+    w->needsPartialRedraw(this);
+}
+
+void Drawable::onEvent(Event e) {}
+
+Drawable::~Drawable()
+{
+    w->removeDrawable(this);
+}
+
+//
+// class Window
+//
+
+Window::Window() : prefs(white,black,
+#ifdef MXGUI_FONT_DROID11
+    droid11),
+#elif defined(MXGUI_FONT_TAHOMA)
+    tahoma),
+#elif defined(MXGUI_FONT_MISCFIXED)
+    miscFixed),
+#else
+#error "Need a font"
+#endif
+    redrawNeeded(false)
+{
+    pthread_mutex_init(&mutex,NULL);
+    pthread_cond_init(&cond,NULL);
+}
+
+void Window::addDrawable(Drawable* d)
+{
+    PthreadLock lock(mutex);
+    drawables.push_back(d);
+}
+
+void Window::removeDrawable(Drawable* d)
+{
+    PthreadLock lock(mutex);
+    drawables.remove(d); //O(n) removal, space-speed tradeoff
+}
+
+void Window::needsPartialRedraw(Drawable* d)
+{
+    PthreadLock lock(mutex);
+    //This function needs to be callable also by a thread different from the one
+    //that runs the event loop, so we need to post an event to wake the event
+    //loop thread
+    if(redrawNeeded==false) postEventImpl(Event(EventType::WindowPartialRedraw));
+    
+    redrawNeeded=true;
+}
+
+void Window::postEvent(Event e)
+{
+    PthreadLock lock(mutex);
+    postEventImpl(e);
+}
+
+void Window::eventLoop()
+{
+    for(;;)
     {
-        first=false;
-        //TODO: fill impls with valid renderer instances and the like
+        Event e=getEvent();
+        
+        if(e.getEvent()==EventType::WindowQuit) return;
+        if(e.getEvent()==EventType::WindowPartialRedraw)
+        {
+            FullScreenDrawingContextProxy dc(Display::instance());//FIXME: get it fron the window manager
+            dc.setTextColor(make_pair(prefs.foreground,prefs.background));
+            for(list<Drawable*>::iterator it=drawables.begin();
+                it!=drawables.end();++it)
+            {
+                if((*it)->needsRedraw()==false) continue;
+                (*it)->onDraw(dc);
+                (*it)->redrawDone();
+            }
+            //Filter out this event
+            continue;
+        }
+        if(e.getEvent()==EventType::WindowForeground)
+        {
+            FullScreenDrawingContextProxy dc(Display::instance());//FIXME: get it fron the window manager
+            dc.setTextColor(make_pair(prefs.foreground,prefs.background));
+            dc.clear(prefs.background);
+            for(list<Drawable*>::iterator it=drawables.begin();
+                it!=drawables.end();++it)
+            {
+                (*it)->onDraw(dc);
+                (*it)->redrawDone();
+            }
+            //Do not filter this out
+        }
+        //Forward event. For now we do not yet have a way for a Drawable to
+        //register only for a certain class of events, such as touch events only
+        //in their draw area, but we simply forward each event to all Drawables,
+        //this is a space-speed tradeoff
+        for(list<Drawable*>::iterator it=drawables.begin();
+            it!=drawables.end();++it)
+                (*it)->onEvent(e);
     }
-    //TODO: everything else
+}
+
+void Window::postEventImpl(Event e)
+{
+    events.push_back(e);
+    pthread_cond_signal(&cond);
+}
+
+Event Window::getEvent()
+{
+    PthreadLock lock(mutex);
+    for(;;)
+    {
+        if(events.empty()==false)
+        {
+            Event result=events.front();
+            events.pop_front();
+            //Filter out WindowPartialRedraw that is done through redrawNeeded
+            if(result.getEvent()==EventType::WindowPartialRedraw) continue;
+            return result;
+        } else {
+            //No event, check if we need to redraw. The idea behind this is:
+            //in case more than one event show up, we first process them all
+            //and redraw after all events if redrawNeeded is true
+            if(redrawNeeded)
+            {
+                redrawNeeded=false;
+                return Event(EventType::WindowPartialRedraw);
+            } else {
+                //No event and no redraw needed, wait for an event
+                pthread_cond_wait(&cond,&mutex);
+            }
+        }
+    }
+}
+
+Window::~Window()
+{
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
+}
+
+//
+// class WindowManager
+//
+
+WindowManager& WindowManager::instance()
+{
+    static WindowManager singleton;
+    return singleton;
+}
+
+bool WindowManager::start(shared_ptr<Window> window, bool modal)
+{
+    if(window==0) return false;
+    PthreadLock lock(mutex);
+    if(windows.size()>=level2MaxNumApps) return false;
+}
+
+WindowManager::WindowManager()
+{
+    pthread_mutex_init(&mutex,NULL);
 }
 
 } //namespace mxgui

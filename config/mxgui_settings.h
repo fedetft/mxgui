@@ -103,6 +103,12 @@ static const int level2MaxNumApps=4;
 //
 #define MXGUI_LEVEL_2
 
+///
+/// Maximum number of appications that can run simultaneously
+/// (valid only if MXGUI_LEVEL_2 is defined)
+///
+static const int level2MaxNumApps=4;
+
 //
 // Enable or disable ResourceFs, only some targets support it
 //

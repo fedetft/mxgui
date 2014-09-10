@@ -17,6 +17,9 @@ resourcefs.cpp                         \
 resource_image.cpp                     \
 level2/input.cpp                       \
 level2/simple_button.cpp               \
+level2/application.cpp                 \
+level2/drawing_context_proxy.cpp       \
+level2/label.cpp                       \
 drivers/display_stm3210e-eval.cpp      \
 drivers/event_stm3210e-eval.cpp        \
 drivers/display_mp3v2.cpp              \
