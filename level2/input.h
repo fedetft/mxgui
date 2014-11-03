@@ -25,6 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#include <tr1/functional>
 #include <config/mxgui_settings.h>
 #include "point.h"
 #include "drivers/event_types_qt.h"
@@ -43,6 +44,22 @@
 
 namespace mxgui {
 
+class EventDirection
+{
+public:
+    /**
+     * Event direction is used to distringuish butoon events being pressed or
+     * released
+     */
+    enum D
+    {
+        DOWN, ///< Button is being pressed
+        UP    ///< Button is being released
+    };
+private:
+    EventDirection();
+};
+
 /**
  * \ingroup pub_iface_2
  * Generic event class. Events are the object type used to dispatch events
@@ -58,28 +75,42 @@ public:
     /**
      * Default constructor
      */
-    Event(): e(EventType::Default), k(0), p(-1,-1) {}
+    Event(): e(EventType::Default), k(0), d(false), p(-1,-1) {}
 
     /**
      * Constructor for events without a position information
      * \param e event type
      */
-    explicit Event(EventType::E e): e(e), k(0), p(-1,-1) {}
-
+    explicit Event(EventType::E e): e(e), k(0), d(false), p(-1,-1) {}
+    
+    /**
+     * Constructor for events without a position information
+     * \param e event type
+     */
+    explicit Event(EventType::E e, EventDirection::D d)
+            : e(e), k(0), d(d==EventDirection::UP), p(-1,-1) {}
 
     /**
      * Constructor for events that also carry a position information
      * \param e event type
      * \param p point
      */
-    Event(EventType::E e, Point p): e(e), k(0), p(p) {}
+    Event(EventType::E e, Point p): e(e), k(0), d(false), p(p) {}
+    
+    /**
+     * Constructor for events that also carry a position information
+     * \param e event type
+     * \param p point
+     */
+    Event(EventType::E e, Point p, EventDirection::D d)
+        : e(e), k(0), d(d==EventDirection::UP), p(p) {}
     
     /**
      * Constructor for events that also carry a key information
      * \param e even type
      * \param k key data
      */
-    explicit Event(EventType::E e, char k): e(e), k(k), p(-1,-1) {} 
+    explicit Event(EventType::E e, char k): e(e), k(k), d(false), p(-1,-1) {} 
 
     /**
      * \return the event information
@@ -97,6 +128,14 @@ public:
     Point getPoint() const { return p; }
     
     /**
+     * \return the event direction, either DOWN or UP 
+     */
+    EventDirection::D getDirection() const
+    {
+        return d ? EventDirection::UP : EventDirection::DOWN;
+    }
+    
+    /**
      * \return true if the event has a valid key associated with it
      */
     bool hasValidKey() const { return k!=0; }
@@ -109,6 +148,7 @@ public:
 private:
     EventType::E e;
     char k;
+    bool d;
     Point p;
 };
 
@@ -136,6 +176,29 @@ public:
      * available. Nonblocking.
      */
     Event popEvent();
+    
+    /**
+     * \internal
+     * Register a callback that is called whenever a new event is available.
+     * Only one callback can be registered at any time, so registering a new
+     * callback removes the previous one, which is returned.
+     * 
+     * Note: this member function is used internally by the window manager to
+     * be notified when an event occurs. Thus, user code registering a callback
+     * will make the window manager non-functional.
+     * 
+     * Note: the thread calling the callback has a very small stack.
+     * 
+     * Note: concurrent access to this memebr function causes undefined behaviour
+     * 
+     * Note: to get the event from the callback, always use popEvent() and not
+     * getEvent(), because if another thread gets the event before you, deadlock
+     * will occur
+     * 
+     * \param cb new callback to register
+     * \return the previous callback
+     */
+    std::tr1::function<void ()> registerEventCallback(std::tr1::function<void ()> cb);
 
 private:
     /**

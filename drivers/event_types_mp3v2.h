@@ -40,6 +40,7 @@ public:
         WindowPartialRedraw, // At least one drawable has requested redraw
         WindowForeground,    // Window manager moved this window to foreground
         WindowBackground,    // Window manager moved this window to background
+        WindowQuit,          // Window manager requested the window to close
         // These are a must on all backends -- end
         
         TouchDown=1,

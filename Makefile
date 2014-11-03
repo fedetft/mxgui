@@ -16,7 +16,6 @@ tga_image.cpp                          \
 resourcefs.cpp                         \
 resource_image.cpp                     \
 level2/input.cpp                       \
-level2/simple_button.cpp               \
 level2/application.cpp                 \
 level2/drawing_context_proxy.cpp       \
 level2/label.cpp                       \
@@ -53,7 +52,7 @@ all: $(OBJ)
 	$(AR) rcs libmxgui.a $(OBJ)
 
 clean:
-	rm $(OBJ) libmxgui.a $(OBJ:.o=.d)
+	rm -f $(OBJ) libmxgui.a $(OBJ:.o=.d)
 
 %.o: %.s
 	$(AS) $(AFLAGS) $< -o $@

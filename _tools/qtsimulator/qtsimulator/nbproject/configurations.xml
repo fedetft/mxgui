@@ -89,7 +89,6 @@
         <in>input.cpp</in>
         <in>label.cpp</in>
         <in>label.h</in>
-        <in>simple_button.cpp</in>
       </df>
       <in>display.cpp</in>
       <in>font.cpp</in>
@@ -465,10 +464,6 @@
       <item path="../../../level2/label.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../../../level2/label.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../../level2/simple_button.cpp" ex="false" tool="1" flavor2="4">
-        <ccTool>
-        </ccTool>
       </item>
       <item path="../../../misc_inst.cpp" ex="false" tool="1" flavor2="4">
         <ccTool>

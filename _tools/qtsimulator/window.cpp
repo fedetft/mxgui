@@ -51,8 +51,10 @@ Window::Window(QWidget *parent): QWidget(parent),
     w.move(QPoint(0,FrameBuffer::height));
     layout.addWidget(&buttonA);
     layout.addWidget(&buttonB);
-    connect(&buttonA,SIGNAL(clicked()),this,SLOT(aClicked()));
-    connect(&buttonB,SIGNAL(clicked()),this,SLOT(bClicked()));
+    connect(&buttonA,SIGNAL(pressed()),this,SLOT(aPressed()));
+    connect(&buttonA,SIGNAL(released()),this,SLOT(aReleased()));
+    connect(&buttonB,SIGNAL(pressed()),this,SLOT(bPressed()));
+    connect(&buttonB,SIGNAL(released()),this,SLOT(bReleased()));
     //Note: the Qt::BlockingQueuedConnection is important to ensure that the
     //background thread does not write the framebuffer while the main thread
     //reads it.
@@ -73,14 +75,24 @@ void Window::updateFrameBuffer()
     this->update();
 }
 
-void Window::aClicked()
+void Window::aPressed()
 {
-    addEvent(Event(EventType::ButtonA));
+    addEvent(Event(EventType::ButtonA,EventDirection::DOWN));
 }
 
-void Window::bClicked()
+void Window::aReleased()
 {
-    addEvent(Event(EventType::ButtonB));
+    addEvent(Event(EventType::ButtonA,EventDirection::UP));
+}
+
+void Window::bPressed()
+{
+    addEvent(Event(EventType::ButtonB,EventDirection::DOWN));
+}
+
+void Window::bReleased()
+{
+    addEvent(Event(EventType::ButtonB,EventDirection::UP));
 }
 
 void Window::paintEvent(QPaintEvent *event)
@@ -93,21 +105,24 @@ void Window::mouseMoveEvent(QMouseEvent *event)
 {
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
-    addEvent(Event(EventType::TouchMove,Point(event->x(),event->y())));
+    addEvent(Event(EventType::TouchMove,Point(event->x(),event->y()),
+        EventDirection::DOWN));
 }
 
 void Window::mousePressEvent(QMouseEvent *event)
 {
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
-    addEvent(Event(EventType::TouchDown,Point(event->x(),event->y())));
+    addEvent(Event(EventType::TouchDown,Point(event->x(),event->y()),
+        EventDirection::DOWN));
 }
 
 void Window::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->x()<0 || event->x()>=FrameBuffer::width) return;
     if(event->y()<0 || event->y()>=FrameBuffer::height) return;
-    addEvent(Event(EventType::TouchUp,Point(event->x(),event->y())));
+    addEvent(Event(EventType::TouchUp,Point(event->x(),event->y()),
+        EventDirection::UP));
 }
 
 void Window::mouseDoubleClickEvent(QMouseEvent *event)

@@ -46,11 +46,10 @@ public:
         TouchDown=1,
         TouchUp=2,
         TouchMove=3,
-        Button1Pressed=4,
-        Button1Released=5,
-        //The below buttons are just declared for compatibility, but not implemented
-        ButtonA,
-        ButtonB,
+        ButtonA=4,
+        
+        //Not implemented, but kept for compatibility
+        ButtonB
     };
 private:
     EventType();

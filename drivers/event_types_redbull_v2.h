@@ -46,18 +46,10 @@ public:
         TouchDown=1,
         TouchUp=2,
         TouchMove=3,
-        Button1Pressed=4,
-        Button1Released=5,
-        Button2Pressed=6,
-        Button2Released=7,
-        ButtonTamperPressed=8,
-        ButtonTamperReleased=9,
-        ButtonWakeupPressed=8,
-        ButtonWakeupReleased=9,
-        //The below buttons are just declared for compatibility, but not implemented.
-        //They are the same as Button1Pressed and Button2Pressed.
         ButtonA=4,
         ButtonB=6,
+        ButtonTamper=8,
+        ButtonWakeup=10, 
     };
 private:
     EventType();

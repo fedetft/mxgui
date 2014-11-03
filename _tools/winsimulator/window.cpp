@@ -33,29 +33,31 @@ void Window::mouseMoveEvent(int x, int y)
 {
     if(x<0 || x>=Display::instance().getWidth()) return;
     if(y<0 || y>=Display::instance().getHeight()) return;
-    addEvent(mxgui::Event(EventType::TouchMove,Point(x,y)));
+    addEvent(mxgui::Event(EventType::TouchMove,Point(x,y),EventDirection::DOWN));
 }
 
 void Window::mousePressEvent(int x, int y)
 {
     if(x<0 || x>=Display::instance().getWidth()) return;
     if(y<0 || y>=Display::instance().getHeight()) return;
-    addEvent(mxgui::Event(EventType::TouchDown,Point(x,y)));
+    addEvent(mxgui::Event(EventType::TouchDown,Point(x,y),EventDirection::DOWN));
 }
 
 void Window::mouseReleaseEvent(int x, int y)
 {
     if(x<0 || x>=Display::instance().getWidth()) return;
     if(y<0 || y>=Display::instance().getHeight()) return;
-    addEvent(mxgui::Event(EventType::TouchUp,Point(x,y)));
+    addEvent(mxgui::Event(EventType::TouchUp,Point(x,y),EventDirection::UP));
 }
 
 void Window::ButtonAEvent()
 {
-    addEvent(mxgui::Event(EventType::ButtonA));
+    addEvent(mxgui::Event(EventType::ButtonA,EventDirection::DOWN));
+    //FIXME: we should also generate a button up event, but how?
 }
 
 void Window::ButtonBEvent()
 {
-    addEvent(mxgui::Event(EventType::ButtonB));
+    addEvent(mxgui::Event(EventType::ButtonB,EventDirection::DOWN));
+    //FIXME: we should also generate a button up event, but how?
 }

@@ -31,11 +31,14 @@
 #include <list>
 #include <windows.h>
 
+using namespace std::tr1;
+
 namespace mxgui {
 
 static pthread_mutex_t eqMutex; ///< Mutex to guard the event queue
 static HANDLE hEvnt;
 static std::list<Event> eventQueue; ///< Queue of events from the GUI
+static std::tr1::function<void ()> eventCallback;
 
 struct EventWrapper
 {
@@ -54,9 +57,15 @@ static EventWrapper __ev;
 void addEvent(Event e)
 {
     eqMutex.lock();
-    if(eventQueue.size()<100) eventQueue.push_back(e); //Drop if queue too long
+    if(eventQueue.size()>=100)
+    {
+        eqMutex.unlock();
+        return;
+    }    
+    eventQueue.push_back(e); //Drop if queue too long
     SetEvent(hEvnt);
     eqMutex.unlock();
+    if(eventCallback) eventCallback();
 }
 
 //
@@ -86,6 +95,12 @@ Event InputHandlerImpl::popEvent()
     eventQueue.pop_front();
     eqMutex.unlock();
     return result;
+}
+
+function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
+{
+    swap(eventCallback,cb);
+    return cb;
 }
 
 } //namespace mxgui

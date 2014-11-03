@@ -34,49 +34,56 @@
 #include "miosix.h"
 
 using namespace miosix;
+using namespace std::tr1;
 
 namespace mxgui {
 
-typedef Gpio<GPIOA_BASE,0>  button1;
+typedef Gpio<GPIOG_BASE,8>  button1;
 typedef Gpio<GPIOC_BASE,13> button2;
-typedef Gpio<GPIOG_BASE,8>  button3;
 
-Queue<Event,10> eventQueue;
+static Queue<Event,10> eventQueue;
+static std::tr1::function<void ()> eventCallback;
 
-void callback(Event e)
+static void callback(Event e)
 {
-    FastInterruptDisableLock dLock;
-    eventQueue.IRQput(e);
+    {
+        FastInterruptDisableLock dLock;
+        if(eventQueue.IRQput(e)==false) return;
+    }
+    if(eventCallback) eventCallback();
 }
 
-void eventThread(void *)
+static void eventThread(void *)
 {
     button1::mode(Mode::INPUT);
     button2::mode(Mode::INPUT);
-    button3::mode(Mode::INPUT);
 
     bool aPrev=false;
     bool bPrev=false;
-    bool cPrev=false;
     for(;;)
     {
         Thread::sleep(50); //Check for events 20 times a second
         //Check buttons
         if(button1::value()==0)
         {
-            if(aPrev==false) callback(Event(EventType::ButtonA));
+            if(aPrev==false)
+                callback(Event(EventType::ButtonA,EventDirection::DOWN));
             aPrev=true;
-        } else aPrev=false;
+        } else {
+            if(aPrev==true)
+                callback(Event(EventType::ButtonA,EventDirection::UP));
+            aPrev=false;
+        }
         if(button2::value()==0)
         {
-            if(bPrev==false) callback(Event(EventType::ButtonB));
+            if(bPrev==false)
+                callback(Event(EventType::ButtonB,EventDirection::DOWN));
             bPrev=true;
-        } else bPrev=false;
-        if(button3::value()==0)
-        {
-            if(cPrev==false) callback(Event(EventType::ButtonC));
-            cPrev=true;
-        } else cPrev=false;
+        } else {
+            if(bPrev==true)
+                callback(Event(EventType::ButtonB,EventDirection::UP));
+            bPrev=false;
+        }
     }
 }
 

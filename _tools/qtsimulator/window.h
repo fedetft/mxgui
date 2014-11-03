@@ -83,12 +83,22 @@ private slots:
     /**
      * First button clicked
      */
-    void aClicked();
+    void aPressed();
+
+    /**
+     * First button released
+     */
+    void aReleased();
 
     /**
      * Second button clicked
      */
-    void bClicked();
+    void bPressed();
+
+    /**
+     * First button released
+     */
+    void bReleased();
 
 private:
     /**

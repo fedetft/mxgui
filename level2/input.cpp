@@ -38,6 +38,8 @@
 #include "drivers/event_sony-newman.h"
 #include "drivers/event_stm32f4discovery.h"
 
+using namespace std::tr1;
+
 namespace mxgui {
 
 //
@@ -59,6 +61,11 @@ Event InputHandler::getEvent()
 Event InputHandler::popEvent()
 {
     return pImpl->popEvent();
+}
+
+function<void ()> InputHandler::registerEventCallback(function<void ()> cb)
+{
+    return pImpl->registerEventCallback(cb);
 }
 
 InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}

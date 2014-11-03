@@ -55,6 +55,7 @@ set(FOO_SRCS
     ../../_examples/sony-newman/tea-time/time_config.cpp
     ../../_examples/sony-newman/tea-time/power_manager.cpp
     ../../_examples/sony-newman/tea-time/teapot_app.cpp
+    ../../_examples/sony-newman/tea-time/simple_button.cpp
     ../../_examples/sony-newman/tea-time/main.cpp
     ../../_examples/teapot/fps_counter.cpp
     ../../_examples/teapot/bresenham_fsm.cpp

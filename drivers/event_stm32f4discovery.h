@@ -30,6 +30,7 @@
 #error "If your code depends on a private header, it IS broken."
 #endif //MXGUI_LIBRARY
 
+#include <tr1/functional>
 #include "level2/input.h"
 
 #ifndef EVENT_STM32F4DISCOVERY_H
@@ -57,6 +58,18 @@ public:
      * if there are no events.
      */
     Event popEvent();
+    
+    /**
+     * Register a callback that will be called every time an event is geenrated
+     * 
+     * Note: the thread calling the callback has a very small stack.
+     *
+     * Note: concurrent access to this memebr function causes undefined behaviour
+     * 
+     * \param cb new callback to register
+     * \return the previous callback
+     */
+    std::tr1::function<void ()> registerEventCallback(std::tr1::function<void ()> cb);
 };
 
 } //namespace mxgui

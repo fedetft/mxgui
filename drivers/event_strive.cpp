@@ -34,6 +34,7 @@
 
 using namespace miosix;
 using namespace std;
+using namespace std::tr1;
 
 namespace mxgui {
 
@@ -218,11 +219,15 @@ static bool Poll2046(Point& coord)
 }
 
 static Queue<Event,50> eventQueue;
+static std::tr1::function<void ()> eventCallback;
 
 static void callback(Event e)
 {
-    FastInterruptDisableLock dLock;
-    eventQueue.IRQput(e);
+    {
+        FastInterruptDisableLock dLock;
+        if(eventQueue.IRQput(e)==false) return;
+    }
+    if(eventCallback) eventCallback();
 }
 
 enum ButtonState
@@ -242,7 +247,7 @@ static void PollButtons()
             {
                 btnCounter = 0;
                 btnState = BTN_PRESSED;
-                callback(Event(EventType::Button1Pressed));
+                callback(Event(EventType::ButtonA, EventDirection::DOWN));
             }
         }
         else
@@ -258,7 +263,7 @@ static void PollButtons()
             {
                 btnCounter = 0;
                 btnState = BTN_RELEASED;
-                callback(Event(EventType::Button1Released));
+                callback(Event(EventType::ButtonA, EventDirection::UP));
             }
         }
         else
@@ -288,15 +293,17 @@ static void eventThread(void*)
             if( !tPrev || pOld != p)
             {
                 pOld = p;
-                if(tPrev == false) callback(Event(EventType::TouchDown, pOld));
-                else callback(Event(EventType::TouchMove, pOld));
+                if(tPrev == false)
+                    callback(Event(EventType::TouchDown, pOld, EventDirection::DOWN));
+                else callback(Event(EventType::TouchMove, pOld, EventDirection::DOWN));
             }
             tPrev=true;
         }
         else
         {
             //No, no one is touching the screen
-            if(tPrev==true) callback(Event(EventType::TouchUp, pOld));
+            if(tPrev==true)
+                callback(Event(EventType::TouchUp, pOld, EventDirection::UP));
             tPrev=false;
         }
     }// for(;;)
@@ -326,6 +333,12 @@ Event InputHandlerImpl::popEvent()
     Event result;
     if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
     return result;
+}
+
+function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
+{
+    swap(eventCallback,cb);
+    return cb;
 }
 
 } //namespace mxgui

@@ -198,7 +198,7 @@ public:
     /**
      * \return the window preferences
      */
-    const WindowPreferences getPreferences() const { return prefs; }
+    const WindowPreferences& getPreferences() const { return prefs; }
 
     /**
      * Destructor

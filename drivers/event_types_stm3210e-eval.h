@@ -43,9 +43,9 @@ public:
         WindowQuit,          // Window manager requested the window to close
         // These are a must on all backends -- end
         
-        ButtonA=4, //"Wakeup" button (PA0)
+        ButtonA=4, //"Key"    button (PG8)
         ButtonB=5, //"Tamper" button (PC13)
-        ButtonC=6  //"Key"    button (PG8)
+        //Note: board also has a "Wakeup" button connected to PA0 but 
     };
 private:
     EventType();

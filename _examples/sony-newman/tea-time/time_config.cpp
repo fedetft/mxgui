@@ -26,11 +26,11 @@
  ***************************************************************************/
 
 #include "time_config.h"
+#include "simple_button.h"
 #include <stdio.h>
 #include <mxgui/display.h>
 #include <mxgui/misc_inst.h>
 #include <mxgui/level2/input.h>
-#include <mxgui/level2/simple_button.h>
 #ifdef _MIOSIX
 #include <interfaces/bsp.h>
 #endif //_MIOSIX

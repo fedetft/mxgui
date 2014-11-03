@@ -99,11 +99,11 @@ void Window::removeDrawable(Drawable* d)
 void Window::needsPartialRedraw(Drawable* d)
 {
     PthreadLock lock(mutex);
+    if(redrawNeeded) return;
     //This function needs to be callable also by a thread different from the one
     //that runs the event loop, so we need to post an event to wake the event
     //loop thread
-    if(redrawNeeded==false) postEventImpl(Event(EventType::WindowPartialRedraw));
-    
+    postEventImpl(Event(EventType::WindowPartialRedraw));
     redrawNeeded=true;
 }
 

@@ -35,6 +35,7 @@
 
 using namespace miosix;
 using namespace std;
+using namespace std::tr1;
 
 namespace mxgui {
 
@@ -50,17 +51,15 @@ struct ButtonDescr
     ButtonState m_BtnState;
     uint32_t m_GpioBase;
     uint32_t m_GpioPin;
-    EventType::E m_EventPressed;
-    EventType::E m_EventReleased;
+    EventType::E m_Event;
 
     ButtonDescr(uint32_t gpioBase, uint8_t gpioPin,
-                EventType::E eventPressed, EventType::E eventReleased) :
+                EventType::E event) :
                     m_BtnCounter(0),
                     m_BtnState(BTN_RELEASED),
                     m_GpioBase(gpioBase),
                     m_GpioPin(gpioPin),
-                    m_EventPressed(eventPressed),
-                    m_EventReleased(eventReleased)
+                    m_Event(event)
     {
     }
 
@@ -85,20 +84,24 @@ static const uint32_t YBW = YMAX - YMIN; //y bandwidth
 //Buttons
 static ButtonDescr buttons[4] =
 {
-    ButtonDescr(GPIOA_BASE, 8, EventType::Button1Pressed, EventType::Button1Released),
-    ButtonDescr(GPIOD_BASE, 3, EventType::Button2Pressed, EventType::Button2Released),
-    ButtonDescr(GPIOA_BASE, 0, EventType::ButtonWakeupPressed, EventType::ButtonWakeupReleased),
-    ButtonDescr(GPIOC_BASE, 13, EventType::ButtonTamperPressed, EventType::ButtonTamperReleased)
+    ButtonDescr(GPIOA_BASE, 8, EventType::ButtonA),
+    ButtonDescr(GPIOD_BASE, 3, EventType::ButtonB),
+    ButtonDescr(GPIOA_BASE, 0, EventType::ButtonWakeup),
+    ButtonDescr(GPIOC_BASE, 13, EventType::ButtonTamper)
 };
 
 //Events queue
 static Queue<Event, 10> eventQueue;
+static std::tr1::function<void ()> eventCallback;
 
 //==============================================================================
 static void callback(Event e)
 {
-    FastInterruptDisableLock dLock;
-    eventQueue.IRQput(e);
+    {
+        FastInterruptDisableLock dLock;
+        if(eventQueue.IRQput(e)==false) return;
+    }
+    if(eventCallback) eventCallback();
 }
 
 /**
@@ -285,7 +288,7 @@ void ButtonDescr::Poll()
                 m_BtnCounter = 0;
                 m_BtnState = BTN_PRESSED;
                 FastInterruptDisableLock dLock;
-                callback(Event(m_EventPressed));
+                callback(Event(m_Event,EventDirection::DOWN));
             }
         }
         else
@@ -301,7 +304,7 @@ void ButtonDescr::Poll()
             {
                 m_BtnCounter = 0;
                 m_BtnState = BTN_RELEASED;
-                callback(Event(m_EventReleased));
+                callback(Event(m_Event,EventDirection::UP));
             }
         }
         else
@@ -339,15 +342,17 @@ static void eventThread(void*)
             if( !tPrev || pOld != p)
             {
                 pOld = p;
-                if(tPrev == false) callback(Event(EventType::TouchDown, pOld));
-                else callback(Event(EventType::TouchMove, pOld));
+                if(tPrev == false)
+                    callback(Event(EventType::TouchDown, pOld, EventDirection::DOWN));
+                else callback(Event(EventType::TouchMove, pOld, EventDirection::DOWN));
             }
             tPrev=true;
         }
         else
         {
             //No, no one is touching the screen
-            if(tPrev==true) callback(Event(EventType::TouchUp, pOld));
+            if(tPrev==true)
+                callback(Event(EventType::TouchUp, pOld, EventDirection::UP));
             tPrev=false;
         }
     }// for(;;)
@@ -377,6 +382,12 @@ Event InputHandlerImpl::popEvent()
     Event result;
     if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
     return result;
+}
+
+function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
+{
+    swap(eventCallback,cb);
+    return cb;
 }
 
 } //namespace mxgui

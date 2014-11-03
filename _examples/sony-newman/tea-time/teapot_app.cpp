@@ -28,10 +28,10 @@
 #include "teapot_app.h"
 #include "time_config.h"
 #include "power_manager.h"
+#include "simple_button.h"
 #include <mxgui/display.h>
 #include <mxgui/misc_inst.h>
 #include <mxgui/level2/input.h>
-#include <mxgui/level2/simple_button.h>
 #include <mxgui/_examples/teapot/rendering_engine.h>
 #include <mxgui/_examples/teapot/fps_counter.h>
 #include <mxgui/_examples/teapot/teapot_model.h>

@@ -33,15 +33,15 @@ using namespace std;
 namespace mxgui {
 
 Label::Label(Window* w, DrawArea da, const string& text)
-    : Drawable(w,da), text(text), overrideColors(false),
-      xAlign(Alignment::RIGHT), yAlign(Alignment::BOTTOM)
+    : Drawable(w,da), text(text), xAlign(Alignment::LEFT),
+      yAlign(Alignment::CENTER), overrideColors(false)
 {
     enqueueForRedraw();
 }
 
 Label::Label(Window *w, Point p, short width, short height, const string& text)
-    : Drawable(w,p,width,height), text(text), overrideColors(false),
-      xAlign(Alignment::LEFT), yAlign(Alignment::CENTER)
+    : Drawable(w,p,width,height), text(text), xAlign(Alignment::LEFT),
+      yAlign(Alignment::CENTER), overrideColors(false)
 {
     enqueueForRedraw();
 }

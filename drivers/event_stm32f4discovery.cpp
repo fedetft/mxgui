@@ -38,6 +38,7 @@
 
 using namespace miosix;
 using namespace std;
+using namespace std::tr1;
 
 static Thread *waiting=0;
 static volatile bool irq=false;
@@ -202,15 +203,19 @@ static Point getTouchData()
     }
 }
 
-Queue<Event,10> eventQueue;
+static Queue<Event,10> eventQueue;
+static std::tr1::function<void ()> eventCallback;
 
-void callback(Event e)
+static void callback(Event e)
 {
-    FastInterruptDisableLock dLock;
-    eventQueue.IRQput(e);
+    {
+        FastInterruptDisableLock dLock;
+        if(eventQueue.IRQput(e)==false) return;
+    }
+    if(eventCallback) eventCallback();
 }
 
-void waitForTouchOrButton()
+static void waitForTouchOrButton()
 {
     {
         FastInterruptDisableLock dLock2;
@@ -229,7 +234,7 @@ void waitForTouchOrButton()
     stmpe811writeReg(INT_STA,0x03);
 }
 
-void eventThread(void *)
+static void eventThread(void *)
 {
     bool aPrev=false;
     bool tPrev=false;
@@ -241,9 +246,14 @@ void eventThread(void *)
         //Check buttons
         if(buttonA::value()==1)
         {
-            if(aPrev==false) callback(Event(EventType::ButtonA));
+            if(aPrev==false)
+                callback(Event(EventType::ButtonA,EventDirection::DOWN));
             aPrev=true;
-        } else aPrev=false;
+        } else {
+            if(aPrev==true)
+                callback(Event(EventType::ButtonA,EventDirection::UP));
+            aPrev=false;
+        }
         //Check touchscreen
         Point p=getTouchData();
         if(p.x()>=0) //Is someone touching the screen?
@@ -253,8 +263,9 @@ void eventThread(void *)
             if(abs(pOld.x()-p.x())>3 || abs(pOld.y()-p.y())>3 || !tPrev)
             {
                 pOld=p;
-                if(tPrev==false) callback(Event(EventType::TouchDown,pOld));
-                else callback(Event(EventType::TouchMove,pOld));
+                if(tPrev==false)
+                    callback(Event(EventType::TouchDown,pOld,EventDirection::DOWN));
+                else callback(Event(EventType::TouchMove,pOld,EventDirection::DOWN));
             }  
             tPrev=true;
         } else {
@@ -262,7 +273,7 @@ void eventThread(void *)
             if(tPrev==true)
             {
                 touchFifoClear();
-                callback(Event(EventType::TouchUp,pOld));
+                callback(Event(EventType::TouchUp,pOld,EventDirection::UP));
             }
             tPrev=false;
         }
@@ -338,6 +349,12 @@ Event InputHandlerImpl::popEvent()
     Event result;
     if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
     return result;
+}
+
+function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
+{
+    swap(eventCallback,cb);
+    return cb;
 }
 
 } //namespace mxgui

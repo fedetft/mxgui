@@ -22,6 +22,7 @@ boot_message.cpp \
 time_config.cpp \
 power_manager.cpp \
 teapot_app.cpp \
+simple_button.cpp \
 mxgui/_examples/teapot/bresenham_fsm.cpp \
 mxgui/_examples/teapot/fps_counter.cpp \
 mxgui/_examples/teapot/rendering_engine.cpp \

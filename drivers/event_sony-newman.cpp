@@ -38,6 +38,7 @@
 
 using namespace miosix;
 using namespace std;
+using namespace std::tr1;
 
 namespace mxgui {
 
@@ -171,15 +172,19 @@ static Point getTouchData()
     return Point(127-regs.bX,127-regs.bY);
 }
 
-Queue<Event,10> eventQueue;
+static Queue<Event,10> eventQueue;
+static std::tr1::function<void ()> eventCallback;
 
-void callback(Event e)
+static void callback(Event e)
 {
-    FastInterruptDisableLock dLock;
-    eventQueue.IRQput(e);
+    {
+        FastInterruptDisableLock dLock;
+        if(eventQueue.IRQput(e)==false) return;
+    }
+    if(eventCallback) eventCallback();
 }
 
-void eventThread(void *)
+static void eventThread(void *)
 {
     const int timeout=30000/pollPeriod; //30s
     int timeoutCounter=0;
@@ -193,9 +198,14 @@ void eventThread(void *)
         if(POWER_BTN_PRESS_Pin::value())
         {
             timeoutCounter=0;
-            if(aPrev==false) callback(Event(EventType::ButtonA));
+            if(aPrev==false)
+                callback(Event(EventType::ButtonA,EventDirection::DOWN));
             aPrev=true;
-        } else aPrev=false;
+        } else {
+            if(aPrev==true)
+                callback(Event(EventType::ButtonA,EventDirection::UP));
+            aPrev=false;
+        }
         //Check touchscreen
         Point p=getTouchData();
         if(p.x()>=0) //Is someone touching the screen?
@@ -206,13 +216,15 @@ void eventThread(void *)
             if(abs(pOld.x()-p.x())>3 || abs(pOld.y()-p.y())>3 || !tPrev)
             {
                 pOld=p;
-                if(tPrev==false) callback(Event(EventType::TouchDown,pOld));
-                else callback(Event(EventType::TouchMove,pOld));
+                if(tPrev==false)
+                    callback(Event(EventType::TouchDown,pOld,EventDirection::DOWN));
+                else callback(Event(EventType::TouchMove,pOld,EventDirection::DOWN));
             }
             tPrev=true;
         } else {
             //No, no one is touching the screen
-            if(tPrev==true) callback(Event(EventType::TouchUp,pOld));
+            if(tPrev==true)
+                callback(Event(EventType::TouchUp,pOld,EventDirection::UP));
             tPrev=false;
         }
         if(++timeoutCounter==timeout) callback(Event(EventType::Timeout));
@@ -263,6 +275,12 @@ Event InputHandlerImpl::popEvent()
     Event result;
     if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
     return result;
+}
+
+function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
+{
+    swap(eventCallback,cb);
+    return cb;
 }
 
 } //namespace mxgui

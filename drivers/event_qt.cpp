@@ -31,17 +31,24 @@
 #include <list>
 #include <boost/thread.hpp>
 
+using namespace std::tr1;
+
 namespace mxgui {
 
 static boost::mutex eqMutex; ///< Mutex to guard the event queue
 static boost::condition_variable eqCond; ///< Condvar for blocking getEvent
 static std::list<Event> eventQueue; ///< Queue of events from the GUI
+static std::tr1::function<void ()> eventCallback;
 
 void addEvent(Event e)
 {
-    boost::unique_lock<boost::mutex> l(eqMutex);
-    if(eventQueue.size()<100) eventQueue.push_back(e); //Drop if queue too long
-    eqCond.notify_one();
+    {
+        boost::unique_lock<boost::mutex> l(eqMutex);
+        if(eventQueue.size()>=100) return;
+        eventQueue.push_back(e); //Drop if queue too long
+        eqCond.notify_one();
+    }
+    if(eventCallback) eventCallback();
 }
 
 //
@@ -64,6 +71,13 @@ Event InputHandlerImpl::popEvent()
     Event result=eventQueue.front();
     eventQueue.pop_front();
     return result;
+}
+
+function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
+{
+    boost::unique_lock<boost::mutex> l(eqMutex);
+    swap(eventCallback,cb);
+    return cb;
 }
 
 } //namespace mxgui
