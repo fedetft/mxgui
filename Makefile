@@ -25,6 +25,7 @@ drivers/display_mp3v2.cpp              \
 drivers/event_mp3v2.cpp                \
 drivers/resfs_mp3v2.cpp                \
 drivers/display_strive.cpp             \
+drivers/display_oledboard2.cpp         \
 drivers/event_strive.cpp               \
 drivers/display_redbull_v2.cpp         \
 drivers/event_redbull_v2.cpp           \

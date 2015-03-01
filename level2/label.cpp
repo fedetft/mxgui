@@ -26,6 +26,9 @@
  ***************************************************************************/
 
 #include "label.h"
+
+#ifdef MXGUI_LEVEL_2
+
 #include <utility>
 
 using namespace std;
@@ -123,3 +126,5 @@ void Label::onDraw(DrawingContextProxy& dc)
 }
 
 } //namespace mxgui
+
+#endif //MXGUI_LEVEL_2

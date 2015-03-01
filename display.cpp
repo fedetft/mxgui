@@ -35,6 +35,7 @@
 #include "drivers/display_bitsboard.h"
 #include "drivers/display_sony-newman.h"
 #include "drivers/display_stm32f4discovery.h"
+#include "drivers/display_oledboard2.h"
 #include "pthread_lock.h"
 
 #if MXGUI_SETTINGS_VERSION != 100
