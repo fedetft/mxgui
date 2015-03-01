@@ -73,6 +73,8 @@
         <in>display_bitsboard.h</in>
         <in>display_mp3v2.cpp</in>
         <in>display_mp3v2.h</in>
+        <in>display_oledboard2.cpp</in>
+        <in>display_oledboard2.h</in>
         <in>display_qt.cpp</in>
         <in>display_qt.h</in>
         <in>display_redbull_v2.cpp</in>
