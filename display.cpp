@@ -58,6 +58,7 @@ Display& Display::instance()
 void Display::turnOn()
 {
     PthreadLock lock(dispMutex);
+    if(isDisplayOn) return;
     isDisplayOn=true;
     pImpl->turnOn();
 }
@@ -65,6 +66,7 @@ void Display::turnOn()
 void Display::turnOff()
 {
     PthreadLock lock(dispMutex);
+    if(isDisplayOn==false) return;
     isDisplayOn=false;
     pImpl->turnOff();
 }

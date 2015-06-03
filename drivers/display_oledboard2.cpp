@@ -142,19 +142,21 @@ DisplayImpl::DisplayImpl()
             | SPI_CR1_CPOL  //Clock default high
             | SPI_CR1_CPHA; //Rising edge is active edge
     
-    //
-    // After boot wait at least 25ms and then deassert display reset
-    //
-    Thread::sleep(25);
+    display::reset::low();
+    delayUs(10);
     display::reset::high();
     
     //
-    // Then, configure LDTC so as to output RGB data
+    // Configure LDTC so as to output RGB data
     //
+    //Note: hbp is defined as 8-hsync as the display considers the hsync and
+    //vsync time as part of the back porch, while the stm32 does not. For some
+    //unknown reason not taking this into account causes a weird behaviour:
+    //the RGB data being sent to the display gets interpreted as BGR.
     const unsigned int hsync=4;    //hsync timing
     const unsigned int vsync=1;    //vsync timing
-    const unsigned int hbp=8;      //horizontal back porch
-    const unsigned int vbp=8;      //vertical back porch
+    const unsigned int hbp=8-hsync;//horizontal back porch
+    const unsigned int vbp=8-vsync;//vertical back porch
     const unsigned int hfp=8;      //horizontal front porch
     const unsigned int vfp=8;      //vertical front porch
     enum {
@@ -322,10 +324,12 @@ void DisplayImpl::drawRectangle(Point a, Point b, Color c)
 void DisplayImpl::turnOn()
 {
     LTDC->GCR |= LTDC_GCR_LTDCEN;
-    display::vregEn::high();
-    Thread::sleep(35);
     sendCommand8(0x1d,0xa0);
-    Thread::sleep(250);
+    Thread::sleep(200);
+    //If display supply is provided too early an intense white flash appears
+    //Total delay should be 250ms, display power is added after the first 200ms
+    display::vregEn::high();
+    Thread::sleep(50);
     sendCommand8(0x14,0x03);
 }
 
@@ -333,10 +337,10 @@ void DisplayImpl::turnOff()
 {
     sendCommand8(0x14,0x00);
     Thread::sleep(35);
-    sendCommand8(0x1d,0xa1);
     display::vregEn::low();
+    Thread::sleep(15);
+    sendCommand8(0x1d,0xa1);
     LTDC->GCR &=~ LTDC_GCR_LTDCEN;
-    Thread::sleep(200);
 }
 
 void DisplayImpl::setBrightness(int brt)
