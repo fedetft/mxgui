@@ -32,7 +32,9 @@
 #ifdef MXGUI_LEVEL_2
 
 using namespace std;
+#if __cplusplus <= 199711L
 using namespace std::tr1;
+#endif //!c++11
 
 namespace mxgui {
 
@@ -212,6 +214,7 @@ bool WindowManager::start(shared_ptr<Window> window, bool modal)
     if(window==0) return false;
     PthreadLock lock(mutex);
     if(windows.size()>=level2MaxNumApps) return false;
+    return true;
 }
 
 WindowManager::WindowManager()
