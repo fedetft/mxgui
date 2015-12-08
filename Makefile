@@ -2,7 +2,7 @@
 ## Makefile for mxgui
 ## This makefile builds libmxgui.a
 ##
-MAKEFILE_VERSION := 1.04
+MAKEFILE_VERSION := 1.07
 ## KPATH and CONFPATH are forwarded by the parent Makefile
 include $(CONFPATH)/config/Makefile.inc
 
@@ -36,6 +36,14 @@ drivers/event_sony-newman.cpp          \
 drivers/display_stm32f4discovery.cpp   \
 drivers/event_stm32f4discovery.cpp
 
+ifeq ("$(VERBOSE)","1")
+Q := 
+ECHO := @true
+else
+Q := @
+ECHO := @echo
+endif
+
 ## Replaces both "foo.cpp"-->"foo.o" and "foo.c"-->"foo.o"
 OBJ := $(addsuffix .o, $(basename $(SRC)))
 
@@ -51,19 +59,23 @@ DFLAGS   := -MMD -MP
 
 ## Build libmxgui.a
 all: $(OBJ)
-	$(AR) rcs libmxgui.a $(OBJ)
+	$(ECHO) "[AR  ] libmxgui.a"
+	$(Q)$(AR) rcs libmxgui.a $(OBJ)
 
 clean:
 	rm -f $(OBJ) libmxgui.a $(OBJ:.o=.d)
 
 %.o: %.s
-	$(AS) $(AFLAGS) $< -o $@
+	$(ECHO) "[AS  ] $<"
+	$(Q)$(AS)  $(AFLAGS) $< -o $@
 
 %.o : %.c
-	$(CC) $(DFLAGS) $(CFLAGS) $< -o $@
+	$(ECHO) "[CC  ] $<"
+	$(Q)$(CC)  $(DFLAGS) $(CFLAGS) $< -o $@
 
 %.o : %.cpp
-	$(CXX) $(DFLAGS) $(CXXFLAGS) $< -o $@
+	$(ECHO) "[CXX ] $<"
+	$(Q)$(CXX) $(DFLAGS) $(CXXFLAGS) $< -o $@
 
 #pull in dependecy info for existing .o files
 -include $(OBJ:.o=.d)
