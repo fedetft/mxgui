@@ -40,7 +40,7 @@ namespace mxgui {
 //
 
 //#define DBG iprintf
-#define DBG (void)
+#define DBG(x,...) ;
 
 //
 // Class DisplayStm32e_eval

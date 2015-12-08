@@ -42,7 +42,7 @@ void SimplePlot::draw(DrawingContext& dc, const vector<Dataset>& dataset, bool f
         numElem=dataset.front().data->size();
         for(vector<Dataset>::const_iterator it=dataset.begin();it!=dataset.end();++it)
         {
-            if(it->data->size()!=numElem) return; //For now inconsistent size unsupported
+            if(it->data->size()!=static_cast<unsigned int>(numElem)) return; //For now inconsistent size unsupported
             for(vector<float>::const_iterator it2=it->data->begin();it2!=it->data->end();++it2)
             {
                 ymin=min(ymin,*it2);
@@ -173,7 +173,7 @@ void SimplePlot::draw(DrawingContext& dc, const vector<Dataset>& dataset, bool f
             int range2=min(static_cast<int>(xAccNext),numElem);
             xAcc=xAccNext;
             
-            for(int i=0;i<dataset.size();i++)
+            for(unsigned int i=0;i<dataset.size();i++)
             {
                 int yMin=numeric_limits<int>::max();
                 int yMax=numeric_limits<int>::min();

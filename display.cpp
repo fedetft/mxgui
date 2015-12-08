@@ -38,7 +38,7 @@
 #include "drivers/display_oledboard2.h"
 #include "pthread_lock.h"
 
-#if MXGUI_SETTINGS_VERSION != 100
+#if MXGUI_SETTINGS_VERSION != 101
 #error Wrong mxgui_settings.h version. You need to upgrade it.
 #endif
 

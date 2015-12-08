@@ -33,7 +33,7 @@
 #ifndef MXGUI_SETTINGS_H
 #define	MXGUI_SETTINGS_H
 
-#define MXGUI_SETTINGS_VERSION 100
+#define MXGUI_SETTINGS_VERSION 101
 
 // Before you can compile mxgui you have to configure it by editing this
 // file. After that, comment out this line to disable the reminder error.
@@ -60,7 +60,7 @@ namespace mxgui {
 /// Maximum number of appications that can run simultaneously
 /// (valid only if MXGUI_LEVEL_2 is defined)
 ///
-static const int level2MaxNumApps=4;
+static const unsigned int level2MaxNumApps=4;
 
 ///
 /// Enable or disable ResourceFs, only some targets support it
