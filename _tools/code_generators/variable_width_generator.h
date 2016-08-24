@@ -18,6 +18,7 @@
 #ifndef VARIABLE_WIDTH_GENERATOR_H
 #define	VARIABLE_WIDTH_GENERATOR_H
 
+#include <memory>
 #include "font_core.h"
 
 namespace fontcore {
@@ -32,7 +33,7 @@ public:
     /**
      * Constructor.
      */
-    VariableWidthGenerator(boost::shared_ptr<FontParser> parser);
+    VariableWidthGenerator(std::shared_ptr<FontParser> parser);
 
     /**
      * Generate the .h file with the look up tables

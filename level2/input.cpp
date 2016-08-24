@@ -38,7 +38,7 @@
 #include "drivers/event_sony-newman.h"
 #include "drivers/event_stm32f4discovery.h"
 
-using namespace std::tr1;
+using namespace std;
 
 namespace mxgui {
 

@@ -1,10 +1,12 @@
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 project(GUIUTILS)
+
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_STANDARD 11)
 
 ## This script has to run before CMake looks for libraries, since it builds
 ## freetype 2.4.3
-set(CMAKE_BUILD_TYPE Release)
 execute_process(COMMAND ../compile_freetype.sh)
 
 ## Targets

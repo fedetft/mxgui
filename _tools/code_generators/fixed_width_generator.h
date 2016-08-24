@@ -18,6 +18,7 @@
 #ifndef FIXED_WIDTH_GENERATOR_H
 #define	FIXED_WIDTH_GENERATOR_H
 
+#include <memory>
 #include "font_core.h"
 
 namespace fontcore {
@@ -32,7 +33,7 @@ public:
     /**
      * Constructor.
      */
-    FixedWidthGenerator(boost::shared_ptr<FontParser> parser);
+    FixedWidthGenerator(std::shared_ptr<FontParser> parser);
 
     /**
      * Generate the .h file with the look up tables

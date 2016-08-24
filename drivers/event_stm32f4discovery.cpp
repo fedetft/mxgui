@@ -36,9 +36,8 @@
 #include "util/software_i2c.h"
 #include <algorithm>
 
-using namespace miosix;
 using namespace std;
-using namespace std::tr1;
+using namespace miosix;
 
 static Thread *waiting=0;
 static volatile bool irq=false;
@@ -204,7 +203,7 @@ static Point getTouchData()
 }
 
 static Queue<Event,10> eventQueue;
-static std::tr1::function<void ()> eventCallback;
+static std::function<void ()> eventCallback;
 
 static void callback(Event e)
 {

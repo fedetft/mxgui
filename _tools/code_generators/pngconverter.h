@@ -4,7 +4,7 @@
 
 #include <string>
 #include <ostream>
-#include <tr1/memory>
+#include <memory>
 #include "libs/png++/png.hpp"
 
 /**
@@ -33,7 +33,7 @@ public:
      * or a C++ header file
      * \param pd desired pixel depth for the target image
      */
-    static std::tr1::shared_ptr<ImageWriter> fromPixDepth(
+    static std::shared_ptr<ImageWriter> fromPixDepth(
             png::image<png::rgb_pixel>& img, bool binary, PixDepth pd);
 
     /**

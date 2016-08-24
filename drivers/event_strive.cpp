@@ -32,9 +32,8 @@
 #include "event_strive.h"
 #include "miosix.h"
 
-using namespace miosix;
 using namespace std;
-using namespace std::tr1;
+using namespace miosix;
 
 namespace mxgui {
 
@@ -219,7 +218,7 @@ static bool Poll2046(Point& coord)
 }
 
 static Queue<Event,50> eventQueue;
-static std::tr1::function<void ()> eventCallback;
+static std::function<void ()> eventCallback;
 
 static void callback(Event e)
 {

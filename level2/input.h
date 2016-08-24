@@ -25,7 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include <tr1/functional>
+#include <functional>
 #include <config/mxgui_settings.h>
 #include "point.h"
 #include "drivers/event_types_qt.h"
@@ -198,7 +198,7 @@ public:
      * \param cb new callback to register
      * \return the previous callback
      */
-    std::tr1::function<void ()> registerEventCallback(std::tr1::function<void ()> cb);
+    std::function<void ()> registerEventCallback(std::function<void ()> cb);
 
 private:
     /**

@@ -32,9 +32,6 @@
 #ifdef MXGUI_LEVEL_2
 
 using namespace std;
-#if __cplusplus <= 199711L
-using namespace std::tr1;
-#endif //!c++11
 
 namespace mxgui {
 

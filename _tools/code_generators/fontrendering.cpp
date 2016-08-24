@@ -73,8 +73,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    boost::shared_ptr<FontParser> parser=
-            FontParser::getParser(vm["font"].as<string>());
+    shared_ptr<FontParser> parser=FontParser::getParser(vm["font"].as<string>());
     parser->setLogStream(cout);
 
     if(vm.count("range"))
@@ -110,8 +109,7 @@ int main(int argc, char *argv[])
     }
 
     parser->parse();
-    boost::shared_ptr<CodeGenerator> generator=
-            CodeGenerator::getGenerator(parser);
+    shared_ptr<CodeGenerator> generator=CodeGenerator::getGenerator(parser);
     generator->setLogStream(cout);
     generator->generateRendering(vm["image"].as<string>());
     generator->generateCode(vm["header"].as<string>(),vm["name"].as<string>());

@@ -26,7 +26,7 @@ namespace fontcore {
 //
 
 FixedWidthGenerator::FixedWidthGenerator(
-        boost::shared_ptr<FontParser> parser): CodeGenerator(parser) {}
+        shared_ptr<FontParser> parser): CodeGenerator(parser) {}
 
 void FixedWidthGenerator::generateCode(const std::string filename,
         const std::string& fontName)

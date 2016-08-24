@@ -33,8 +33,8 @@
 #include "event_stm3210e-eval.h"
 #include "miosix.h"
 
+using namespace std;
 using namespace miosix;
-using namespace std::tr1;
 
 namespace mxgui {
 
@@ -42,7 +42,7 @@ typedef Gpio<GPIOG_BASE,8>  button1;
 typedef Gpio<GPIOC_BASE,13> button2;
 
 static Queue<Event,10> eventQueue;
-static std::tr1::function<void ()> eventCallback;
+static function<void ()> eventCallback;
 
 static void callback(Event e)
 {

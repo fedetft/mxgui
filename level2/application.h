@@ -30,16 +30,8 @@
 
 #include <vector>
 #include <list>
-#if __cplusplus > 199711L
 #include <functional>
 #include <memory>
-//TODO: remove this once we make the full transition to C++11
-#define FUN_NAMESPACE std
-#else //c++11
-#include <tr1/functional>
-#include <tr1/memory>
-#define FUN_NAMESPACE std::tr1
-#endif //c++11
 #include <config/mxgui_settings.h>
 #include "display.h"
 #include "input.h"
@@ -252,13 +244,13 @@ public:
      * application will terminate.
      * \return true if success, false on failure
      */
-    bool start(FUN_NAMESPACE::shared_ptr<Window> window, bool modal=false);
+    bool start(std::shared_ptr<Window> window, bool modal=false);
     
 private:
     WindowManager();
     
     pthread_mutex_t mutex;
-    std::vector<FUN_NAMESPACE::shared_ptr<Window> > windows;
+    std::vector<std::shared_ptr<Window> > windows;
 };
 
 } //namespace mxgui

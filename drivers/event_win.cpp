@@ -31,14 +31,14 @@
 #include <list>
 #include <windows.h>
 
-using namespace std::tr1;
+using namespace std;
 
 namespace mxgui {
 
 static pthread_mutex_t eqMutex; ///< Mutex to guard the event queue
 static HANDLE hEvnt;
 static std::list<Event> eventQueue; ///< Queue of events from the GUI
-static std::tr1::function<void ()> eventCallback;
+static std::function<void ()> eventCallback;
 
 struct EventWrapper
 {

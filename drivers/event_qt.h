@@ -35,7 +35,7 @@
 
 #if !defined(_MIOSIX) && !defined(_WINDOWS)
 
-#include <tr1/functional>
+#include <functional>
 #include "level2/input.h"
 
 namespace mxgui {
@@ -73,7 +73,7 @@ public:
      * \param cb new callback to register
      * \return the previous callback
      */
-    std::tr1::function<void ()> registerEventCallback(std::tr1::function<void ()> cb);
+    std::function<void ()> registerEventCallback(std::function<void ()> cb);
 };
 
 } //namespace mxgui

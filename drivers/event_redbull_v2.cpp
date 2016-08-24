@@ -33,9 +33,8 @@
 #include "miosix.h"
 #include <cstdio>
 
-using namespace miosix;
 using namespace std;
-using namespace std::tr1;
+using namespace miosix;
 
 namespace mxgui {
 
@@ -92,7 +91,7 @@ static ButtonDescr buttons[4] =
 
 //Events queue
 static Queue<Event, 10> eventQueue;
-static std::tr1::function<void ()> eventCallback;
+static std::function<void ()> eventCallback;
 
 //==============================================================================
 static void callback(Event e)

@@ -31,14 +31,14 @@
 #include <list>
 #include <boost/thread.hpp>
 
-using namespace std::tr1;
+using namespace std;
 
 namespace mxgui {
 
 static boost::mutex eqMutex; ///< Mutex to guard the event queue
 static boost::condition_variable eqCond; ///< Condvar for blocking getEvent
 static std::list<Event> eventQueue; ///< Queue of events from the GUI
-static std::tr1::function<void ()> eventCallback;
+static std::function<void ()> eventCallback;
 
 void addEvent(Event e)
 {

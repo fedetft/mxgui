@@ -24,7 +24,6 @@
 
 using namespace std;
 using namespace png;
-using namespace boost;
 
 namespace fontcore {
 

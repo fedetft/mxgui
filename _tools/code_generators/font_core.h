@@ -24,7 +24,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace fontcore {
 
@@ -129,7 +129,7 @@ public:
      * \param filename a bdf or ttf file
      * \return an instance of a parser able to support the format
      */
-    static boost::shared_ptr<FontParser> getParser(const std::string& filename);
+    static std::shared_ptr<FontParser> getParser(const std::string& filename);
 
     /**
      * Constructor
@@ -214,14 +214,14 @@ public:
      * a font file.
      * \return an instance of a code generator
      */
-    static boost::shared_ptr<CodeGenerator>
-        getGenerator(boost::shared_ptr<FontParser> parser);
+    static std::shared_ptr<CodeGenerator>
+    getGenerator(std::shared_ptr<FontParser> parser);
 
     /**
      * Constructor.
      * \param the parser
      */
-    CodeGenerator(boost::shared_ptr<FontParser> parser);
+    CodeGenerator(std::shared_ptr<FontParser> parser);
 
     /**
      * Enable logging mode.

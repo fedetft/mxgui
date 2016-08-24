@@ -28,7 +28,6 @@
 #include "pngconverter.h"
 
 using namespace std;
-using namespace std::tr1;
 using namespace png;
 using namespace boost::program_options;
 
@@ -70,7 +69,7 @@ static string toUpper(const string& x)
 // class ImageWriter
 //
 
-shared_ptr<ImageWriter> ImageWriter::fromPixDepth(image<rgb_pixel>& img,
+std::shared_ptr<ImageWriter> ImageWriter::fromPixDepth(image<rgb_pixel>& img,
         bool binary, PixDepth pd)
 {
     switch(pd)

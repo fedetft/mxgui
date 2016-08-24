@@ -30,7 +30,7 @@
 #error "If your code depends on a private header, it IS broken."
 #endif //MXGUI_LIBRARY
 
-#include <tr1/functional>
+#include <functional>
 #include "level2/input.h"
 
 #ifndef EVENT_STIVE_H
@@ -69,7 +69,7 @@ public:
      * \param cb new callback to register
      * \return the previous callback
      */
-    std::tr1::function<void ()> registerEventCallback(std::tr1::function<void ()> cb);
+    std::function<void ()> registerEventCallback(std::function<void ()> cb);
 };
 
 } //namespace mxgui

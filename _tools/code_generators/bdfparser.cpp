@@ -19,6 +19,7 @@
 #include <sstream>
 #include <cassert>
 #include <cctype>
+#include <algorithm>
 
 using namespace std;
 
@@ -28,7 +29,7 @@ namespace fontcore {
 // Class BDFParser
 //
 
-BDFParser::BDFParser(const std::string& filename): FontParser(filename),
+BDFParser::BDFParser(const string& filename): FontParser(filename),
         fontAscent(0), fontDescent(0) {}
 
 void BDFParser::parse()
@@ -110,7 +111,7 @@ unsigned int BDFParser::getHeight() const
     return fontAscent+fontDescent;
 }
 
-std::vector<std::string> BDFParser::getNextChar(std::ifstream& file)
+vector<string> BDFParser::getNextChar(ifstream& file)
 {
     vector<string> result;
     bool start=false;
@@ -124,7 +125,7 @@ std::vector<std::string> BDFParser::getNextChar(std::ifstream& file)
     }
 }
 
-void BDFParser::generateGlyph(std::vector<std::string> data)
+void BDFParser::generateGlyph(vector<string> data)
 {
     Glyph result;
 

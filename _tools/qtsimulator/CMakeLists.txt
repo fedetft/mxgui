@@ -1,8 +1,9 @@
 
 project(QTSIMULATOR)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 
-set(CMAKE_BUILD_TYPE release)
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_STANDARD 11)
 
 # Function to handle embedding images in the executable binary
 # It basically calls the pngconverter tool and generates the corresponding
