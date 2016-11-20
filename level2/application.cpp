@@ -121,7 +121,7 @@ void Window::eventLoop()
         if(e.getEvent()==EventType::WindowQuit) return;
         if(e.getEvent()==EventType::WindowPartialRedraw)
         {
-            FullScreenDrawingContextProxy dc(Display::instance());//FIXME: get it fron the window manager
+            FullScreenDrawingContextProxy dc(DisplayManager::instance().getDisplay());//FIXME: get it fron the window manager
             dc.setTextColor(make_pair(prefs.foreground,prefs.background));
             for(list<Drawable*>::iterator it=drawables.begin();
                 it!=drawables.end();++it)
@@ -135,7 +135,7 @@ void Window::eventLoop()
         }
         if(e.getEvent()==EventType::WindowForeground)
         {
-            FullScreenDrawingContextProxy dc(Display::instance());//FIXME: get it fron the window manager
+            FullScreenDrawingContextProxy dc(DisplayManager::instance().getDisplay());//FIXME: get it fron the window manager
             dc.setTextColor(make_pair(prefs.foreground,prefs.background));
             dc.clear(prefs.background);
             for(list<Drawable*>::iterator it=drawables.begin();
