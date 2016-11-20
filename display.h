@@ -38,8 +38,67 @@
 
 namespace mxgui {
 
-class DisplayImpl;    //Forward declaration
+class DisplayImpl;
+class Display;        //Forward declaration
 class DrawingContext;
+
+/**
+ * This class allows to register and retrieve one or more displays in the
+ * system. Selected boards supported by miosix already have a display driver
+ * provided. When working with those boards, the driver will be already
+ * registered.
+ * This design also allows to support multiple displays connected to the same
+ * microcontroller.
+ */
+class DisplayManager
+{
+public:
+    /**
+     * \return a reference to the instance of the DisplayManager
+     * Multiple calls return the same display instance (singleton)
+     */
+    DisplayManager& instance();
+
+    /**
+     * \param id display id. This allows to select one of the registered
+     * displays for boards that have multiple displays.
+     * \return a reference to the display class with the given id
+     * \throws exception if no display with the given id exists
+     */
+    Display& getDisplay(unsigned int id=0);
+
+    /**
+     * Register a display to the display manager.
+     * \param display a pointer to the new display to be registered. Note that
+     * there is no way to unregister a display. This is done on purpose, as
+     * the applications may cache the reference returned by getDisplay(),
+     * and so removing displays may cause dangling pointers. Moreover, display
+     * subclasses are expected to be singletons.
+     * \return the display id associated with the registered display
+     */
+    int registerDisplay(Display *display);
+
+private:
+    DisplayManager(const DisplayManager&)=delete;
+    DisplayManager& operator=(const DisplayManager&)=delete;
+
+    /**
+     * Constructor
+     */
+    DisplayManager();
+
+    pthread_mutex_t mutex;          ///< Mutex to support concurrent access
+    std::vector<Display*> displays; ///< Registered displays
+};
+
+/**
+ * If a board has a display driver, this function should be implemented by it
+ * to register the display. An attempt to compile mxgui for a board for which
+ * no display driver is provided will result in an undefined reference to this
+ * function. It can be implemented by writing a custom display driver and
+ * registering it.
+ */
+void registerDisplayHook(DisplayManager& dm);
 
 /**
  * \ingroup pub_iface

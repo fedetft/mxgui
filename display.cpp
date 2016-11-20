@@ -45,6 +45,35 @@
 namespace mxgui {
 
 //
+// class DisplayManager
+//
+
+DisplayManager& DisplayManager::instance()
+{
+    static DisplayManager singleton;
+    return singleton;
+}
+
+Display& DisplayManager::getDisplay(unsigned int id)
+{
+    PthreadLock lock(mutex);
+    return *displays.at(id);
+}
+
+int DisplayManager::registerDisplay(Display *display)
+{
+    PthreadLock lock(mutex);
+    displays.push_back(display);
+    return displays.size()-1;
+}
+
+DisplayManager::DisplayManager()
+{
+    pthread_mutex_init(&mutex,NULL);
+    registerDisplayHook(*this);
+}
+
+//
 // class Display
 //
 
