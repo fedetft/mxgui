@@ -139,16 +139,24 @@ public:
      * \return true if the display is on
      */
     bool isOn() const { return isDisplayOn; }
+    
+    /**
+     * \return a pair with the display height and width
+     */
+    std::pair<short int, short int> getSize() const
+    {
+        return doGetSize();
+    }
 
     /**
      * \return the display's height
      */
-    short int getHeight() const { return doGetHeight(); }
+    short int getHeight() const { return doGetSize().first; }
 
     /**
      * \return the display's width
      */
-    short int getWidth() const { return doGetWidth(); }
+    short int getWidth() const { return doGetSize().second; }
     
     /**
      * Destructor
@@ -176,16 +184,11 @@ private:
      * \param brt from 0 to 100
      */
     virtual void doSetBrightness(int brt)=0;
-    
-    /**
-     * \return the display's height
-     */
-    virtual short int doGetHeight() const=0;
 
     /**
-     * \return the display's width
+     * \return a pair with the display height and width
      */
-    virtual short int doGetWidth() const=0;
+    virtual std::pair<short int, short int> doGetSize() const=0;
     
     /**
      * Write text to the display. If text is too long it will be truncated
@@ -300,22 +303,15 @@ private:
 
     /**
      * Set colors used for writing text
-     * \param fgcolor text color
-     * \param bgcolor background color
+     * \param colors a pair with the text foreground and background colors
      */
-    virtual void setTextColor(Color fgcolor, Color bgcolor)=0;
+    virtual void setTextColor(std::pair<Color,Color> colors)=0;
 
     /**
-     * \return the current foreground color.
-     * The foreground color is used to draw text on screen
+     * \return a pair with the foreground and background colors.
+     * Those colors are used to draw text on screen
      */
-    virtual Color getForeground() const=0;
-
-    /**
-     * \return the current background color.
-     * The foreground color is used to draw text on screen
-     */
-    virtual Color getBackground() const=0;
+    virtual std::pair<Color,Color> getTextColor() const=0;
 
     /**
      * Set the font used for writing text
@@ -358,6 +354,30 @@ public:
     DrawingContext(Display& display) : display(display)
     {
         pthread_mutex_lock(&display.dispMutex);
+    }
+    
+    /**
+     * \return a pair with the display height and width
+     */
+    std::pair<short int, short int> getSize() const
+    {
+        return display.doGetSize();
+    }
+
+    /**
+     * \return the display's height
+     */
+    short int getHeight() const
+    {
+        return display.doGetSize().first;
+    }
+
+    /**
+     * \return the display's width
+     */
+    short int getWidth() const
+    {
+        return display.doGetSize().second;
     }
 
     /**
@@ -535,29 +555,13 @@ public:
     }
 
     /**
-     * \return the display's height
-     */
-    short int getHeight() const
-    {
-        return display.doGetHeight();
-    }
-
-    /**
-     * \return the display's width
-     */
-    short int getWidth() const
-    {
-        return display.doGetWidth();
-    }
-
-    /**
      * Set colors used for writing text
      * \param fgcolor text color
      * \param bgcolor background color
      */
     void setTextColor(Color fgcolor, Color bgcolor)
     {
-        display.setTextColor(fgcolor,bgcolor);
+        display.setTextColor(std::make_pair(fgcolor,bgcolor));
     }
     
     /**
@@ -567,7 +571,7 @@ public:
      */
     void setTextColor(std::pair<Color,Color> colors)
     {
-        display.setTextColor(colors.first,colors.second);
+        display.setTextColor(colors);
     }
 
     /**
@@ -576,7 +580,7 @@ public:
      */
     Color getForeground() const
     {
-        return display.getForeground();
+        return display.getTextColor().first;
     }
 
     /**
@@ -585,7 +589,7 @@ public:
      */
     Color getBackground() const
     {
-        return display.getBackground();
+        return display.getTextColor().second;
     }
     
     /**
@@ -593,7 +597,7 @@ public:
      */
     std::pair<Color,Color> getTextColor() const
     {
-        return std::make_pair(display.getForeground(),display.getBackground());
+        return display.getTextColor();
     }
 
     /**
