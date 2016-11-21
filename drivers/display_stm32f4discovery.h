@@ -362,8 +362,7 @@ public:
 private:
     /**
      * Constructor.
-     * Do not instantiate objects of this type directly from application code,
-     * use Display::instance() instead.
+     * Do not instantiate objects of this type directly from application code.
      */
     DisplayImpl();
     

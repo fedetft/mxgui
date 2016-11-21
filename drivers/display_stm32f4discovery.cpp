@@ -112,7 +112,7 @@ void registerDisplayHook(DisplayManager& dm)
 }
 
 //
-// Class DisplayImpl
+// class DisplayImpl
 //
 
 DisplayImpl& DisplayImpl::instance()
