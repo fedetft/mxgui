@@ -28,6 +28,8 @@
 #ifndef DISPLAY_H
 #define	DISPLAY_H
 
+#include <vector>
+#include <string>
 #include <utility>
 #include <pthread.h>
 #include <config/mxgui_settings.h>
@@ -367,6 +369,16 @@ public:
     {
         display.write(p,text);
     }
+    
+    /**
+     * Write text to the display. If text is too long it will be truncated
+     * \param p point where the upper left corner of the text will be printed
+     * \param text, text to print.
+     */
+    void write(Point p, const std::string& text)
+    {
+        display.write(p,text.c_str());
+    }
 
     /**
      *  Write part of text to the display
@@ -380,6 +392,20 @@ public:
     void clippedWrite(Point p, Point a, Point b, const char *text)
     {
         display.clippedWrite(p,a,b,text);
+    }
+    
+    /**
+     *  Write part of text to the display
+     * \param p point of the upper left corner where the text will be drawn.
+     * Negative coordinates are allowed, as long as the clipped view has
+     * positive or zero coordinates
+     * \param a Upper left corner of clipping rectangle
+     * \param b Lower right corner of clipping rectangle
+     * \param text text to write
+     */
+    void clippedWrite(Point p, Point a, Point b, const std::string& text)
+    {
+        display.clippedWrite(p,a,b,text.c_str());
     }
 
     /**
