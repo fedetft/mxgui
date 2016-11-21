@@ -31,6 +31,7 @@
 #include "miosix.h"
 #include <cstdio>
 
+using namespace std;
 using namespace miosix;
 
 namespace mxgui {
@@ -42,9 +43,216 @@ namespace mxgui {
 //#define DBG iprintf
 #define DBG(x,...) ;
 
+void registerDisplayHook(DisplayManager& dm)
+{
+    dm.registerDisplay(&DisplayImpl::instance());
+}
+
 //
-// Class DisplayStm32e_eval
+// class DisplayImpl
 //
+
+DisplayImpl& DisplayImpl::instance()
+{
+    static DisplayImpl instance;
+    return instance;
+}
+
+void DisplayImpl::doTurnOn()
+{
+    switch(displayType)
+    {
+        case SPFD5408:
+            writeReg(0x10,0x0);//Out of deep standby
+            initSPFD5408();//Everything is lost, so initialze again
+            break;
+        case ILI9320:
+            //Unimplemented as I don't have this kind of display
+            break;
+        default:
+            break;
+    }
+}
+
+void DisplayImpl::doTurnOff()
+{
+    switch(displayType)
+    {
+        case SPFD5408:
+            delayMs(30);
+            writeReg(0x10,0x280);//SAP & AP[1:0] @ 0
+            delayMs(15);
+            writeReg(0x10,0x200);//APE @ 0
+            writeReg(0x10,0x4);//Deep standby
+            break;
+        case ILI9320:
+            //Unimplemented as I don't have this kind of display
+            break;
+        default:
+            break;
+    }
+}
+
+void DisplayImpl::doSetBrightness(int brt) {}
+
+pair<short int, short int> DisplayImpl::doGetSize() const
+{
+    return make_pair(height,width);
+}
+
+void DisplayImpl::write(Point p, const char *text)
+{
+    font.draw(*this,textColor,p,text);
+}
+
+void DisplayImpl::clippedWrite(Point p, Point a, Point b, const char *text)
+{
+    font.clippedDraw(*this,textColor,p,a,b,text);
+}
+
+void DisplayImpl::clear(Color color)
+{
+    clear(Point(0,0),Point(width-1,height-1),color);
+}
+
+void DisplayImpl::clear(Point p1, Point p2, Color color)
+{
+    imageWindow(p1,p2);
+    writeIdx(0x22);//Write to GRAM
+    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
+    for(int i=0;i<numPixels;i++) writeRam(color);
+}
+
+void DisplayImpl::beginPixel()
+{
+    textWindow(Point(0,0),Point(width-1,height-1));//Restore default window
+}
+
+void DisplayImpl::setPixel(Point p, Color color)
+{
+    setCursor(p);
+    writeIdx(0x22);//Write to GRAM
+    writeRam(color);
+}
+
+void DisplayImpl::line(Point a, Point b, Color color)
+{
+    //Horizontal line speed optimization
+    //The height-8 and width-8 condition is because from the spfd5408 datasheet
+    //a window has minimum size constraints
+    if(a.y()==b.y() && a.y()<height-8 && min(a.x(),b.x())<width-8)
+    {
+        imageWindow(Point(min(a.x(),b.x()),a.y()),Point(width-1,a.y()+8));
+        writeIdx(0x22);//Write to GRAM
+        int numPixels=abs(a.x()-b.x());
+        for(int i=0;i<=numPixels;i++) writeRam(color);
+        return;
+    }
+    //Vertical line speed optimization
+    //The height-8 and width-8 condition is because from the spfd5408 datasheet
+    //a window has minimum size constraints
+    if(a.x()==b.x() && min(a.y(),b.y())<height-8 && a.x()<width-8)
+    {
+        textWindow(Point(a.x(),min(a.y(),b.y())),Point(a.x()+8,height-1));
+        writeIdx(0x22);//Write to GRAM
+        int numPixels=abs(a.y()-b.y());
+        //Loop not unrolled because when running from flash is slower
+        for(int i=0;i<=numPixels;i++) writeRam(color);
+        return;
+    }
+    //General case, always works but it is much slower due to the display
+    //not having fast random access to pixels
+    Line::draw(*this,a,b,color);
+}
+
+void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
+{
+    imageWindow(p,Point(width-1,p.y()));
+    writeIdx(0x22); //Write to GRAM
+    for(int i=0;i<length;i++) writeRam(colors[i]);
+}
+
+Color *DisplayImpl::getScanLineBuffer()
+{
+    if(buffer==0) buffer=new Color[getWidth()];
+    return buffer;
+}
+
+void DisplayImpl::scanLineBuffer(Point p, unsigned short length)
+{
+    scanLine(p,buffer,length);
+}
+
+void DisplayImpl::drawImage(Point p, const ImageBase& img)
+{
+    short int xEnd=p.x()+img.getWidth()-1;
+    short int yEnd=p.y()+img.getHeight()-1;
+    if(xEnd >= width || yEnd >= height) return;
+
+    const unsigned short *imgData=img.getData();
+    if(imgData!=0)
+    {
+        //Optimized version for memory-loaded images
+        imageWindow(p,Point(xEnd,yEnd));
+        writeIdx(0x22);//Write to GRAM
+        int numPixels=img.getHeight()*img.getWidth();
+        for(int i=0;i<=numPixels;i++)
+        {
+            writeRam(imgData[0]);
+            imgData++;
+        }
+    } else img.draw(*this,p);
+}
+
+void DisplayImpl::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
+{
+    img.clippedDraw(*this,p,a,b);
+}
+
+void DisplayImpl::drawRectangle(Point a, Point b, Color c)
+{
+    line(a,Point(b.x(),a.y()),c);
+    line(Point(b.x(),a.y()),b,c);
+    line(b,Point(a.x(),b.y()),c);
+    line(Point(a.x(),b.y()),a,c);
+}
+
+void DisplayImpl::setTextColor(pair<Color,Color> colors)
+{
+    Font::generatePalette(textColor,colors.first,colors.second);
+}
+
+std::pair<Color,Color> DisplayImpl::getTextColor() const
+{
+    return make_pair(textColor[3],textColor[0]);
+}
+
+void DisplayImpl::setFont(const Font& font) { this->font=font; }
+
+Font DisplayImpl::getFont() const { return font; }
+
+void DisplayImpl::update() {}
+
+DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
+        Point p2, IteratorDirection d)
+{
+    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return pixel_iterator();
+    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height)
+        return pixel_iterator();
+    if(p2.x()<p1.x() || p2.y()<p1.y()) return pixel_iterator();
+
+    if(d==DR) textWindow(p1,p2);
+    else imageWindow(p1,p2);
+    writeIdx(0x22);//Write to GRAM
+
+    unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
+    return pixel_iterator(numPixels);
+}
+
+DisplayImpl::~DisplayImpl()
+{
+    if(buffer) delete[] buffer;
+}
 
 DisplayImpl::DisplayImpl(): buffer(0), displayType(UNKNOWN), textColor(),
         font(droid11)
@@ -97,75 +305,8 @@ DisplayImpl::DisplayImpl(): buffer(0), displayType(UNKNOWN), textColor(),
             break;
     }
 
-    setTextColor(Color(0xffff),Color(0x0000));
+    setTextColor(make_pair(Color(0xffff),Color(0x0000)));
     clear(black);
-}
-
-void DisplayImpl::clear(Point p1, Point p2, Color color)
-{
-    imageWindow(p1,p2);
-    writeIdx(0x22);//Write to GRAM
-    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
-    for(int i=0;i<numPixels;i++) writeRam(color);
-}
-
-void DisplayImpl::drawRectangle(Point a, Point b, Color c)
-{
-    line(a,Point(b.x(),a.y()),c);
-    line(Point(b.x(),a.y()),b,c);
-    line(b,Point(a.x(),b.y()),c);
-    line(Point(a.x(),b.y()),a,c);
-}
-
-void DisplayImpl::turnOn()
-{
-    switch(displayType)
-    {
-        case SPFD5408:
-            writeReg(0x10,0x0);//Out of deep standby
-            initSPFD5408();//Everything is lost, so initialze again
-            break;
-        case ILI9320:
-            //Unimplemented as I don't have this kind of display
-            break;
-        default:
-            break;
-    }
-}
-
-void DisplayImpl::turnOff()
-{
-    switch(displayType)
-    {
-        case SPFD5408:
-            delayMs(30);
-            writeReg(0x10,0x280);//SAP & AP[1:0] @ 0
-            delayMs(15);
-            writeReg(0x10,0x200);//APE @ 0
-            writeReg(0x10,0x4);//Deep standby
-            break;
-        case ILI9320:
-            //Unimplemented as I don't have this kind of display
-            break;
-        default:
-            break;
-    }
-}
-
-DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
-        Point p2, IteratorDirection d)
-{
-    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return pixel_iterator();
-    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height)
-        return pixel_iterator();
-    if(p2.x()<p1.x() || p2.y()<p1.y()) return pixel_iterator();
-
-    if(d==DR) textWindow(p1,p2);
-    else imageWindow(p1,p2);
-    writeIdx(0x22);//Write to GRAM
-
-    unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
-    return pixel_iterator(numPixels);
 }
 
 void DisplayImpl::initSPFD5408()
