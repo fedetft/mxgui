@@ -28,6 +28,7 @@
 #include "display_strive.h"
 #include "miosix.h"
 
+using namespace std;
 using namespace miosix;
 
 #ifdef _BOARD_STRIVE_MINI
@@ -131,9 +132,258 @@ enum
     //Reg A5h OTP Programming ID Key (16 bits)
 }; //enum
 
+void registerDisplayHook(DisplayManager& dm)
+{
+    dm.registerDisplay(&DisplayImpl::instance());
+}
+
 //
 // Class DisplayImpl
 //
+
+DisplayImpl& DisplayImpl::instance()
+{
+    static DisplayImpl instance;
+    return instance;
+}
+
+void DisplayImpl::doTurnOn()
+{
+    writeReg(0x10, 0); //Exit standby mode
+    writeReg(0x10, SAP | BT2 | BT1 | APE | AP0); //Enable power supply circuits
+    disp::ncpEn::high(); //Backlight on
+}
+
+void DisplayImpl::doTurnOff()
+{
+    disp::ncpEn::low(); //Backlight off
+    writeReg(0x10, STB);//Standby (Only GRAM continues operation).
+}
+
+void DisplayImpl::doSetBrightness(int brt) {}
+
+pair<short int, short int> DisplayImpl::doGetSize() const
+{
+    return make_pair(height,width);
+}
+
+void DisplayImpl::write(Point p, const char *text)
+{
+    font.draw(*this,textColor,p,text);
+}
+
+void DisplayImpl::clippedWrite(Point p, Point a, Point b, const char *text)
+{
+    font.clippedDraw(*this,textColor,p,a,b,text);
+}
+
+void DisplayImpl::clear(Color color)
+{
+    clear(Point(0,0),Point(width-1,height-1),color);
+}
+
+void DisplayImpl::clear(Point p1, Point p2, Color color)
+{
+    imageWindow(p1,p2);
+    writeIdx(0x22);//Write to GRAM
+    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
+    int fastPixels=numPixels/2;
+    unsigned int twoPixColor=color | color<<16;
+    for(int i=0;i<fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+    if(numPixels & 0x1) writeRam(color);
+}
+
+void DisplayImpl::beginPixel() {}
+
+void DisplayImpl::setPixel(Point p, Color color)
+{
+    setCursor(p);
+    writeIdx(0x22);//Write to GRAM
+    writeRam(color);
+}
+
+void DisplayImpl::line(Point a, Point b, Color color)
+{
+    //Horizontal line speed optimization
+    if(a.y()==b.y())
+    {
+        imageWindow(Point(min(a.x(),b.x()),a.y()),
+                    Point(max(a.x(),b.x()),a.y()));
+        writeIdx(0x22);//Write to GRAM
+        int numPixels=abs(a.x()-b.x());
+        int fastPixels=numPixels/2;
+        unsigned int twoPixColor=color | color<<16;
+        for(int i=0;i<=fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+        if(numPixels & 0x1) writeRam(color);
+        return;
+    }
+    //Vertical line speed optimization
+    if(a.x()==b.x())
+    {
+        textWindow(Point(a.x(),min(a.y(),b.y())),
+                    Point(a.x(),max(a.y(),b.y())));
+        writeIdx(0x22);//Write to GRAM
+        int numPixels=abs(a.y()-b.y());
+        int fastPixels=numPixels/2;
+        unsigned int twoPixColor=color | color<<16;
+        for(int i=0;i<=fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
+        if(numPixels & 0x1) writeRam(color);
+        return;
+    }
+    //General case, always works but it is much slower due to the display
+    //not having fast random access to pixels
+    Line::draw(*this,a,b,color);
+}
+
+void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
+{
+    imageWindow(p,Point(width-1,p.y()));
+    writeIdx(0x22); //Write to GRAM
+    int fastPixels=length/2;
+    for(int i=0;i<fastPixels;i++)
+    {
+        unsigned int twoPix=colors[0] | colors[1]<<16;
+        DISPLAY->TWOPIX_RAM=twoPix;
+        colors+=2;
+    }
+    if(length & 0x1) writeRam(colors[0]);
+}
+
+Color *DisplayImpl::getScanLineBuffer()
+{
+    if(buffer==0) buffer=new Color[getWidth()];
+    return buffer;
+}
+
+void DisplayImpl::scanLineBuffer(Point p, unsigned short length)
+{
+    scanLine(p,buffer,length);
+}
+
+void DisplayImpl::drawImage(Point p, const ImageBase& img)
+{
+    short int xEnd=p.x()+img.getWidth()-1;
+    short int yEnd=p.y()+img.getHeight()-1;
+    if(xEnd >= width || yEnd >= height) return;
+
+    const unsigned short *imgData=img.getData();
+    if(imgData!=0)
+    {
+        //Optimized version for memory-loaded images
+        imageWindow(p,Point(xEnd,yEnd));
+        writeIdx(0x22);//Write to GRAM
+        int numPixels=img.getHeight()*img.getWidth();
+        int fastPixels=numPixels/2;
+        for(int i=0;i<fastPixels;i++)
+        {
+            unsigned int twoPix=imgData[0] | imgData[1]<<16; //Pack two pixel
+            DISPLAY->TWOPIX_RAM=twoPix;
+            imgData+=2;
+        }
+        if(numPixels & 0x1) writeRam(imgData[0]);
+
+    } else img.draw(*this,p);
+}
+
+void DisplayImpl::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
+{
+    using namespace std;
+    if(img.getData()==0)
+    {
+        img.clippedDraw(*this,p,a,b);
+        return;
+    } //else optimized version for memory-loaded images
+
+    //Find rectangle wich is the non-empty intersection of the image rectangle
+    //with the clip rectangle
+    short xa=max(p.x(),a.x());
+    short xb=min<short>(p.x()+img.getWidth()-1,b.x());
+    if(xa>xb) return; //Empty intersection
+
+    short ya=max(p.y(),a.y());
+    short yb=min<short>(p.y()+img.getHeight()-1,b.y());
+    if(ya>yb) return; //Empty intersection
+
+    //Draw image
+    imageWindow(Point(xa,ya),Point(xb,yb));
+    writeIdx(0x22);//Write to GRAM
+    short nx=xb-xa+1;
+    short ny=yb-ya+1;
+    int skipStart=(ya-p.y())*img.getWidth()+(xa-p.x());
+    const unsigned short *pix=img.getData()+skipStart;
+    int toSkip=(xa-p.x())+((p.x()+img.getWidth()-1)-xb);
+    short fastNx=nx/2;
+    if((nx & 0x1)==0) //Scanline has odd number of pixels
+    {
+        for(short i=0;i<ny;i++)
+        {
+            for(short j=0;j<fastNx;j++)
+            {
+                unsigned int twoPix=pix[0] | pix[1]<<16; //Pack two pixel
+                DISPLAY->TWOPIX_RAM=twoPix;
+                pix+=2;
+            }
+            pix+=toSkip;
+        }
+    } else {
+        for(short i=0;i<ny;i++)
+        {
+            for(short j=0;j<fastNx;j++)
+            {
+                unsigned int twoPix=pix[0] | pix[1]<<16; //Pack two pixel
+                DISPLAY->TWOPIX_RAM=twoPix;
+                pix+=2;
+            }
+            writeRam(pix[0]);
+            pix+=toSkip+1;
+        }
+    }
+}
+
+void DisplayImpl::drawRectangle(Point a, Point b, Color c)
+{
+    line(a,Point(b.x(),a.y()),c);
+    line(Point(b.x(),a.y()),b,c);
+    line(b,Point(a.x(),b.y()),c);
+    line(Point(a.x(),b.y()),a,c);
+}
+
+void DisplayImpl::setTextColor(pair<Color,Color> colors)
+{
+    Font::generatePalette(textColor,colors.first,colors.second);
+}
+
+pair<Color,Color> DisplayImpl::getTextColor() const
+{
+    return make_pair(textColor[3],textColor[0]);
+}
+
+void DisplayImpl::setFont(const Font& font) { this->font=font; }
+
+Font DisplayImpl::getFont() const { return font; }
+
+void DisplayImpl::update() {}
+
+DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2,
+        IteratorDirection d)
+{
+    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return pixel_iterator();
+    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height)
+        return pixel_iterator();
+    if(p2.x()<p1.x() || p2.y()<p1.y()) return pixel_iterator();
+
+    if(d==DR) textWindow(p1,p2);
+    else imageWindow(p1,p2);
+    writeIdx(0x22);//Write to GRAM
+
+    unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
+    return pixel_iterator(numPixels);
+}
+
+DisplayImpl::~DisplayImpl()
+{
+    if(buffer) delete[] buffer;
+}
 
 DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(droid11)
 {
@@ -243,56 +493,8 @@ DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(droid11)
     writeReg(0x07, D0 | D1 |DTE | GON | BASEE);
 
     //Fill display
-    setTextColor(white, black);
+    setTextColor(make_pair(white, black));
     clear(black);
-}
-
-void DisplayImpl::clear(Point p1, Point p2, Color color)
-{
-    imageWindow(p1,p2);
-    writeIdx(0x22);//Write to GRAM
-    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
-    int fastPixels=numPixels/2;
-    unsigned int twoPixColor=color | color<<16;
-    for(int i=0;i<fastPixels;i++) DISPLAY->TWOPIX_RAM=twoPixColor;
-    if(numPixels & 0x1) writeRam(color);
-}
-
-void DisplayImpl::drawRectangle(Point a, Point b, Color c)
-{
-    line(a,Point(b.x(),a.y()),c);
-    line(Point(b.x(),a.y()),b,c);
-    line(b,Point(a.x(),b.y()),c);
-    line(Point(a.x(),b.y()),a,c);
-}
-
-void DisplayImpl::turnOn()
-{
-    writeReg(0x10, 0); //Exit standby mode
-    writeReg(0x10, SAP | BT2 | BT1 | APE | AP0); //Enable power supply circuits
-    disp::ncpEn::high(); //Backlight on
-}
-
-void DisplayImpl::turnOff()
-{
-    disp::ncpEn::low(); //Backlight off
-    writeReg(0x10, STB);//Standby (Only GRAM continues operation).
-}
-
-DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2,
-        IteratorDirection d)
-{
-    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return pixel_iterator();
-    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height)
-        return pixel_iterator();
-    if(p2.x()<p1.x() || p2.y()<p1.y()) return pixel_iterator();
-
-    if(d==DR) textWindow(p1,p2);
-    else imageWindow(p1,p2);
-    writeIdx(0x22);//Write to GRAM
-
-    unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
-    return pixel_iterator(numPixels);
 }
 
 DisplayImpl::DisplayMemLayout *const DisplayImpl::DISPLAY=
