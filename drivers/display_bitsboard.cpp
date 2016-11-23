@@ -105,13 +105,184 @@ void TIM7_IRQHandler()
 
 namespace mxgui {
 
+void registerDisplayHook(DisplayManager& dm)
+{
+    dm.registerDisplay(&DisplayImpl::instance());
+}
+
 //
 // class DisplayImpl
 //
 
+DisplayImpl& DisplayImpl::instance()
+{
+    static DisplayImpl instance;
+    return instance;
+}
+
+void DisplayImpl::doTurnOn()
+{
+    dispoff::low();
+}
+
+void DisplayImpl::doTurnOff()
+{
+    dispoff::high();
+}
+
+void DisplayImpl::doSetBrightness(int brt) {}
+
+pair<short int, short int> DisplayImpl::doGetSize() const
+{
+    return make_pair(height,width);
+}
+
+void DisplayImpl::write(Point p, const char *text)
+{
+    if(p.x()<0 || p.y()<0 || p.x()>=width || p.y()>=height) return;
+
+    font.draw(*this,textColor,p,text);
+}
+
+void DisplayImpl::clippedWrite(Point p, Point a, Point b, const char *text)
+{
+    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0) return;
+    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height) return;
+
+    font.clippedDraw(*this,textColor,p,a,b,text);
+}
+
+void DisplayImpl::clear(Color color)
+{
+    memset(framebuffer,color ? 0x00 : 0xff,256*128/8);
+}
+
+void DisplayImpl::clear(Point p1, Point p2, Color color)
+{
+    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return;
+    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height) return;
+
+    //TODO: can be optimized further
+    pixel_iterator it=begin(p1,p2,RD);
+    while(it!=end()) *it=color;
+}
+
+void DisplayImpl::beginPixel() {}
+
+void DisplayImpl::setPixel(Point p, Color color)
+{
+    //if(p.x()<0 || p.y()<0 || p.x()>=width || p.y()>=height) return;
+    unsigned short x=p.x();
+    unsigned short y=p.y();
+    if(y>=64)
+    {
+        y-=64;
+        x+=256;
+    }
+    framebufferBitBandAlias[512*y+x]= color ? 0 : 1;
+}
+
+void DisplayImpl::line(Point a, Point b, Color color)
+{
+    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0) return;
+    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height) return;
+    
+    //TODO: can be optimized for vertical or horizontal lines
+    Line::draw(*this,a,b,color);
+}
+
+void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
+{
+    if(p.x()<0 || p.y()<0 || p.x()>=width || p.y()>=height) return;
+    if(p.x()+length>width) return;
+    pixel_iterator it=begin(p,Point(p.x()+length-1,p.y()),RD);
+    for(int i=0;i<length;i++) *it=colors[i];
+}
+
+Color *DisplayImpl::getScanLineBuffer()
+{
+    if(buffer==0) buffer=new Color[getWidth()];
+    return buffer;
+}
+
+void DisplayImpl::scanLineBuffer(Point p, unsigned short length)
+{
+    scanLine(p,buffer,length);
+}
+
+void DisplayImpl::drawImage(Point p, const ImageBase& img)
+{
+    short int xEnd=p.x()+img.getWidth()-1;
+    short int yEnd=p.y()+img.getHeight()-1;
+
+    if(xEnd >= width || yEnd >= height) return;
+
+    //TODO: can be optimized if image and point are 8-bit aligned
+    img.draw(*this,p);
+}
+
+void DisplayImpl::clippedDrawImage(Point p, Point a, Point b,
+        const ImageBase& img)
+{
+    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0) return;
+    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height) return;
+
+    //TODO: can be optimized if image and point are 8-bit aligned
+    img.clippedDraw(*this,p,a,b);
+}
+
+void DisplayImpl::drawRectangle(Point a, Point b, Color c)
+{
+    line(a,Point(b.x(),a.y()),c);
+    line(Point(b.x(),a.y()),b,c);
+    line(b,Point(a.x(),b.y()),c);
+    line(Point(a.x(),b.y()),a,c);
+}
+
+void DisplayImpl::setTextColor(pair<Color,Color> colors)
+{
+    Font::generatePalette(textColor,colors.first,colors.second);
+}
+
+pair<Color,Color> DisplayImpl::getTextColor() const
+{
+    return make_pair(textColor[3],textColor[0]);
+}
+
+void DisplayImpl::setFont(const Font& font) { this->font=font; }
+
+Font DisplayImpl::getFont() const { return font; }
+
+void DisplayImpl::update() {}
+
+DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2, IteratorDirection d)
+{
+    bool fail=false;
+    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) fail=true;
+    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height) fail=true;
+    if(p2.x()<p1.x() || p2.y()<p1.y()) fail=true;
+    if(fail)
+    {
+        //Failsafe values
+        this->last=pixel_iterator(Point(1,0),Point(1,0),RD,this);
+        return pixel_iterator(Point(0,0),Point(getWidth()-1,getHeight()-1),RD,this);
+    }
+
+    //Set the last iterator to a suitable one-past-the last value
+    if(d==DR) this->last=pixel_iterator(Point(p2.x()+1,p1.y()),p2,d,this);
+    else this->last=pixel_iterator(Point(p1.x(),p2.y()+1),p2,d,this);
+
+    return pixel_iterator(p1,p2,d,this);
+}
+
+DisplayImpl::~DisplayImpl()
+{
+    if(buffer) delete[] buffer;
+}
+
 DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(miscFixed), last()
 {
-    setTextColor(Color(black),Color(white));
+    setTextColor(make_pair(Color(black),Color(white)));
     {
         FastInterruptDisableLock dLock;
         RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
@@ -163,122 +334,6 @@ DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(miscFixed), last()
 
     Thread::sleep(500);
     dispoff::low();
-}
-
-void DisplayImpl::write(Point p, const char *text)
-{
-    if(p.x()<0 || p.y()<0 || p.x()>=width || p.y()>=height) return;
-
-    font.draw(*this,textColor,p,text);
-}
-
-void DisplayImpl::clippedWrite(Point p, Point a, Point b, const char *text)
-{
-    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0) return;
-    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height) return;
-
-    font.clippedDraw(*this,textColor,p,a,b,text);
-}
-
-void DisplayImpl::clear(Color color)
-{
-    memset(framebuffer,color ? 0x00 : 0xff,256*128/8);
-}
-
-void DisplayImpl::clear(Point p1, Point p2, Color color)
-{
-    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) return;
-    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height) return;
-
-    //TODO: can be optimized further
-    pixel_iterator it=begin(p1,p2,RD);
-    while(it!=end()) *it=color;
-}
-
-void DisplayImpl::line(Point a, Point b, Color color)
-{
-    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0) return;
-    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height) return;
-    
-    //TODO: can be optimized for vertical or horizontal lines
-    Line::draw(*this,a,b,color);
-}
-
-void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
-{
-    if(p.x()<0 || p.y()<0 || p.x()>=width || p.y()>=height) return;
-    if(p.x()+length>width) return;
-    pixel_iterator it=begin(p,Point(p.x()+length-1,p.y()),RD);
-    for(int i=0;i<length;i++) *it=colors[i];
-}
-
-void DisplayImpl::drawImage(Point p, const ImageBase& img)
-{
-    short int xEnd=p.x()+img.getWidth()-1;
-    short int yEnd=p.y()+img.getHeight()-1;
-
-    if(xEnd >= width || yEnd >= height) return;
-
-    //TODO: can be optimized if image and point are 8-bit aligned
-    img.draw(*this,p);
-}
-
-void DisplayImpl::clippedDrawImage(Point p, Point a, Point b,
-        const ImageBase& img)
-{
-    if(a.x()<0 || a.y()<0 || b.x()<0 || b.y()<0) return;
-    if(a.x()>=width || a.y()>=height || b.x()>=width || b.y()>=height) return;
-
-    //TODO: can be optimized if image and point are 8-bit aligned
-    img.clippedDraw(*this,p,a,b);
-}
-
-void DisplayImpl::drawRectangle(Point a, Point b, Color c)
-{
-    line(a,Point(b.x(),a.y()),c);
-    line(Point(b.x(),a.y()),b,c);
-    line(b,Point(a.x(),b.y()),c);
-    line(Point(a.x(),b.y()),a,c);
-}
-
-void DisplayImpl::turnOn()
-{
-    dispoff::low();
-}
-
-void DisplayImpl::turnOff()
-{
-    dispoff::high();
-}
-
-void DisplayImpl::setTextColor(Color fgcolor, Color bgcolor)
-{
-    Font::generatePalette(textColor,fgcolor,bgcolor);
-}
-
-void DisplayImpl::setFont(const Font& font)
-{
-    this->font=font;
-}
-
-DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2, IteratorDirection d)
-{
-    bool fail=false;
-    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) fail=true;
-    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height) fail=true;
-    if(p2.x()<p1.x() || p2.y()<p1.y()) fail=true;
-    if(fail)
-    {
-        //Failsafe values
-        this->last=pixel_iterator(Point(1,0),Point(1,0),RD,this);
-        return pixel_iterator(Point(0,0),Point(getWidth()-1,getHeight()-1),RD,this);
-    }
-
-    //Set the last iterator to a suitable one-past-the last value
-    if(d==DR) this->last=pixel_iterator(Point(p2.x()+1,p1.y()),p2,d,this);
-    else this->last=pixel_iterator(Point(p1.x(),p2.y()+1),p2,d,this);
-
-    return pixel_iterator(p1,p2,d,this);
 }
 
 } //namespace mxgui
