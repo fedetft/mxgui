@@ -66,34 +66,22 @@ void __attribute__((used)) SPI1txDmaHandlerImpl()
 
 namespace mxgui {
 
+void registerDisplayHook(DisplayManager& dm)
+{
+    dm.registerDisplay(&DisplayImpl::instance());
+}
+
 //
 // Class DisplayImpl
 //
 
-DisplayImpl::DisplayImpl(): which(0), textColor(), font(droid11)
+DisplayImpl& DisplayImpl::instance()
 {
-    turnOn();
-    setTextColor(Color(0xffff),Color(0x0000));
+    static DisplayImpl instance;
+    return instance;
 }
 
-void DisplayImpl::clear(Point p1, Point p2, Color color)
-{
-    waitDmaCompletion();
-    imageWindow(p1,p2);
-    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
-    pixel=color;
-    startDmaTransfer(&pixel,numPixels,false);
-}
-
-void DisplayImpl::drawRectangle(Point a, Point b, Color c)
-{
-    line(a,Point(b.x(),a.y()),c);
-    line(Point(b.x(),a.y()),b,c);
-    line(b,Point(a.x(),b.y()),c);
-    line(Point(a.x(),b.y()),a,c);
-}
-
-void DisplayImpl::turnOn()
+void DisplayImpl::doTurnOn()
 {
     power::ENABLE_2V8_Pin::high();
     oled::OLED_nSS_Pin::high();
@@ -205,7 +193,7 @@ void DisplayImpl::turnOn()
     oled::OLED_V_ENABLE_Pin::high();
 }
 
-void DisplayImpl::turnOff()
+void DisplayImpl::doTurnOff()
 {
     //No need to call waitDmaCompletion() as it's already done in setBrightness
     setBrightness(0);
@@ -215,7 +203,7 @@ void DisplayImpl::turnOff()
     oled::OLED_A0_Pin::low();
 }
 
-void DisplayImpl::setBrightness(int brt)
+void DisplayImpl::doSetBrightness(int brt)
 {
     brt=brt*90/100; //Map from API brt range (0..100) to display range (0..90)
     waitDmaCompletion();
@@ -226,6 +214,153 @@ void DisplayImpl::setBrightness(int brt)
     buffer[1]=buffer[3]=buffer[5]=brt & 15;
     writeReg(0x0e,buffer,sizeof(buffer));
 }
+
+pair<short int, short int> DisplayImpl::doGetSize() const
+{
+    return make_pair(height,width);
+}
+
+void DisplayImpl::write(Point p, const char *text)
+{
+    waitDmaCompletion();
+    font.draw(*this,textColor,p,text);
+}
+
+void DisplayImpl::clippedWrite(Point p, Point a, Point b, const char *text)
+{
+    waitDmaCompletion();
+    font.clippedDraw(*this,textColor,p,a,b,text);
+}
+
+void DisplayImpl::clear(Color color)
+{
+    clear(Point(0,0),Point(width-1,height-1),color);
+}
+
+void DisplayImpl::clear(Point p1, Point p2, Color color)
+{
+    waitDmaCompletion();
+    imageWindow(p1,p2);
+    int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
+    pixel=color;
+    startDmaTransfer(&pixel,numPixels,false);
+}
+
+void DisplayImpl::beginPixel()
+{
+    waitDmaCompletion();
+    //TODO: uncomment this if we ever get access to the datasheet and find
+    //a way to implement setCursor() in a proper way
+    //imageWindow(Point(0,0),Point(width-1,height-1));//Restore default window
+}
+
+void DisplayImpl::setPixel(Point p, Color color)
+{
+    //Very slow, but that's all we can do
+    setCursor(p);
+    SPITransaction t;
+    writeRamBegin();
+    writeRam(color);
+    writeRamEnd();
+}
+
+void DisplayImpl::line(Point a, Point b, Color color)
+{
+    waitDmaCompletion();
+    //Horizontal line speed optimization
+    if(a.y()==b.y())
+    {
+        imageWindow(Point(min(a.x(),b.x()),a.y()),
+                    Point(max(a.x(),b.x()),a.y()));
+        int numPixels=abs(a.x()-b.x());
+        pixel=color;
+        startDmaTransfer(&pixel,numPixels+1,false);
+        return;
+    }
+    //Vertical line speed optimization
+    if(a.x()==b.x())
+    {
+        textWindow(Point(a.x(),min(a.y(),b.y())),
+                    Point(a.x(),max(a.y(),b.y())));
+        int numPixels=abs(a.y()-b.y());
+        pixel=color;
+        startDmaTransfer(&pixel,numPixels+1,false);
+        return;
+    }
+    //General case, always works but it is much slower due to the display
+    //not having fast random access to pixels
+    Line::draw(*this,a,b,color);
+}
+
+void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
+{
+    waitDmaCompletion();
+    imageWindow(p,Point(width-1,p.y()));
+    startDmaTransfer(colors,length,true);
+    waitDmaCompletion();
+}
+
+Color *DisplayImpl::getScanLineBuffer() { return buffers[which]; }
+
+void DisplayImpl::scanLineBuffer(Point p, unsigned short length)
+{
+    waitDmaCompletion();
+    imageWindow(p,Point(width-1,p.y()));
+    startDmaTransfer(buffers[which],length,true);
+    which= (which==0 ? 1 : 0);
+}
+
+void DisplayImpl::drawImage(Point p, const ImageBase& img)
+{
+    short int xEnd=p.x()+img.getWidth()-1;
+    short int yEnd=p.y()+img.getHeight()-1;
+    if(xEnd >= width || yEnd >= height) return;
+    
+    waitDmaCompletion();
+
+    const unsigned short *imgData=img.getData();
+    if(imgData!=0)
+    {
+        //Optimized version for memory-loaded images
+        imageWindow(p,Point(xEnd,yEnd));
+        int numPixels=img.getHeight()*img.getWidth();
+        startDmaTransfer(imgData,numPixels,true);
+        //If the image is in RAM don't overlap I/O, as the caller could
+        //deallocate it. If it is in FLASH it's guaranteed to be const
+        if(reinterpret_cast<unsigned int>(imgData)>=0x20000000)
+            waitDmaCompletion();
+    } else img.draw(*this,p);
+}
+
+void DisplayImpl::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
+{
+    waitDmaCompletion();
+    img.clippedDraw(*this,p,a,b);
+}
+
+void DisplayImpl::drawRectangle(Point a, Point b, Color c)
+{
+    line(a,Point(b.x(),a.y()),c);
+    line(Point(b.x(),a.y()),b,c);
+    line(b,Point(a.x(),b.y()),c);
+    line(Point(a.x(),b.y()),a,c);
+}
+
+void DisplayImpl::setTextColor(pair<Color,Color> colors)
+{
+    Font::generatePalette(textColor,colors.first,colors.second);
+}
+
+pair<Color,Color> DisplayImpl::getTextColor() const
+{
+    return make_pair(textColor[3],textColor[0]);
+}
+
+void DisplayImpl::setFont(const Font& font) { this->font=font; }
+
+Font DisplayImpl::getFont() const { return font; }
+
+void DisplayImpl::update() { waitDmaCompletion(); }
 
 DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
         Point p2, IteratorDirection d)
@@ -245,6 +380,14 @@ DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
     
     unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
     return pixel_iterator(numPixels);
+}
+
+DisplayImpl::~DisplayImpl() {}
+
+DisplayImpl::DisplayImpl(): which(0), textColor(), font(droid11)
+{
+    turnOn();
+    setTextColor(make_pair(Color(0xffff),Color(0x0000)));
 }
 
 void DisplayImpl::window(Point p1, Point p2)

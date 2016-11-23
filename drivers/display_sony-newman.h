@@ -36,6 +36,7 @@
 #ifdef _BOARD_SONY_NEWMAN
 
 #include <config/mxgui_settings.h>
+#include "display.h"
 #include "point.h"
 #include "color.h"
 #include "font.h"
@@ -72,26 +73,43 @@ public:
     ~CommandTransaction() { miosix::oled::OLED_A0_Pin::high(); }
 };
 
-class DisplayImpl
+class DisplayImpl : public Display
 {
 public:
     /**
-     * Constructor.
-     * Do not instantiate objects of this type directly from application code,
-     * use Display::instance() instead.
+     * \return an instance to this class (singleton)
      */
-    DisplayImpl();
+    static DisplayImpl& instance();
+    
+    /**
+     * Turn the display On after it has been turned Off.
+     * Display initial state is On.
+     */
+    void doTurnOn() override;
+
+    /**
+     * Turn the display Off. It can be later turned back On.
+     */
+    void doTurnOff() override;
+    
+    /**
+     * Set display brightness. Depending on the underlying driver,
+     * may do nothing.
+     * \param brt from 0 to 100
+     */
+    void doSetBrightness(int brt) override;
+    
+    /**
+     * \return a pair with the display height and width
+     */
+    std::pair<short int, short int> doGetSize() const override;
 
     /**
      * Write text to the display. If text is too long it will be truncated
      * \param p point where the upper left corner of the text will be printed
      * \param text, text to print.
      */
-    void write(Point p, const char *text)
-    {
-        waitDmaCompletion();
-        font.draw(*this,textColor,p,text);
-    }
+    void write(Point p, const char *text) override;
 
     /**
      *  Write part of text to the display
@@ -102,20 +120,13 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param text text to write
      */
-    void clippedWrite(Point p, Point a, Point b, const char *text)
-    {
-        waitDmaCompletion();
-        font.clippedDraw(*this,textColor,p,a,b,text);
-    }
+    void clippedWrite(Point p, Point a, Point b, const char *text) override;
 
     /**
      * Clear the Display. The screen will be filled with the desired color
      * \param color fill color
      */
-    void clear(Color color)
-    {
-        clear(Point(0,0),Point(width-1,height-1),color);
-    }
+    void clear(Color color) override;
 
     /**
      * Clear an area of the screen
@@ -123,7 +134,7 @@ public:
      * \param p2 lower right corner of area to clear
      * \param color fill color
      */
-    void clear(Point p1, Point p2, Color color);
+    void clear(Point p1, Point p2, Color color) override;
 
     /**
      * This member function is used on some target displays to reset the
@@ -134,13 +145,7 @@ public:
      * member function, for example line(), you have to call beginPixel() again
      * before calling setPixel().
      */
-    void beginPixel()
-    {
-        waitDmaCompletion();
-        //TODO: uncomment this if we ever get access to the datasheet and find
-        //a way to implement setCursor() in a proper way
-        //imageWindow(Point(0,0),Point(width-1,height-1));//Restore default window
-    }
+    void beginPixel() override;
 
     /**
      * Draw a pixel with desired color. You have to call beginPixel() once
@@ -148,15 +153,7 @@ public:
      * \param p point where to draw pixel
      * \param color pixel color
      */
-    void setPixel(Point p, Color color)
-    {
-        //Very slow, but that's all we can do
-        setCursor(p);
-        SPITransaction t;
-        writeRamBegin();
-        writeRam(color);
-        writeRamEnd();
-    }
+    void setPixel(Point p, Color color) override;
 
     /**
      * Draw a line between point a and point b, with color c
@@ -164,34 +161,7 @@ public:
      * \param b second point
      * \param c line color
      */
-    void line(Point a, Point b, Color color)
-    {
-        using namespace std;
-        waitDmaCompletion();
-        //Horizontal line speed optimization
-        if(a.y()==b.y())
-        {
-            imageWindow(Point(min(a.x(),b.x()),a.y()),
-                        Point(max(a.x(),b.x()),a.y()));
-            int numPixels=abs(a.x()-b.x());
-            pixel=color;
-            startDmaTransfer(&pixel,numPixels+1,false);
-            return;
-        }
-        //Vertical line speed optimization
-        if(a.x()==b.x())
-        {
-            textWindow(Point(a.x(),min(a.y(),b.y())),
-                        Point(a.x(),max(a.y(),b.y())));
-            int numPixels=abs(a.y()-b.y());
-            pixel=color;
-            startDmaTransfer(&pixel,numPixels+1,false);
-            return;
-        }
-        //General case, always works but it is much slower due to the display
-        //not having fast random access to pixels
-        Line::draw(*this,a,b,color);
-    }
+    void line(Point a, Point b, Color color) override;
 
     /**
      * Draw an horizontal line on screen.
@@ -202,19 +172,13 @@ public:
      * \param length length of colors array.
      * p.x()+length must be <= display.width()
      */
-    void scanLine(Point p, const Color *colors, unsigned short length)
-    {
-        waitDmaCompletion();
-        imageWindow(p,Point(width-1,p.y()));
-        startDmaTransfer(colors,length,true);
-        waitDmaCompletion();
-    }
+    void scanLine(Point p, const Color *colors, unsigned short length) override;
     
     /**
      * \return a buffer of length equal to this->getWidth() that can be used to
      * render a scanline.
      */
-    Color *getScanLineBuffer() { return buffers[which]; }
+    Color *getScanLineBuffer() override;
     
     /**
      * Draw the content of the last getScanLineBuffer() on an horizontal line
@@ -223,40 +187,14 @@ public:
      * \param length length of colors array.
      * p.x()+length must be <= display.width()
      */
-    void scanLineBuffer(Point p, unsigned short length)
-    {
-        waitDmaCompletion();
-        imageWindow(p,Point(width-1,p.y()));
-        startDmaTransfer(buffers[which],length,true);
-        which= (which==0 ? 1 : 0);
-    }
+    void scanLineBuffer(Point p, unsigned short length) override;
 
     /**
      * Draw an image on the screen
      * \param p point of the upper left corner where the image will be drawn
      * \param i image to draw
      */
-    void drawImage(Point p, const ImageBase& img)
-    {
-        short int xEnd=p.x()+img.getWidth()-1;
-        short int yEnd=p.y()+img.getHeight()-1;
-        if(xEnd >= width || yEnd >= height) return;
-        
-        waitDmaCompletion();
-
-        const unsigned short *imgData=img.getData();
-        if(imgData!=0)
-        {
-            //Optimized version for memory-loaded images
-            imageWindow(p,Point(xEnd,yEnd));
-            int numPixels=img.getHeight()*img.getWidth();
-            startDmaTransfer(imgData,numPixels,true);
-            //If the image is in RAM don't overlap I/O, as the caller could
-            //deallocate it. If it is in FLASH it's guaranteed to be const
-            if(reinterpret_cast<unsigned int>(imgData)>=0x20000000)
-                waitDmaCompletion();
-        } else img.draw(*this,p);
-    }
+    void drawImage(Point p, const ImageBase& img) override;
 
     /**
      * Draw part of an image on the screen
@@ -267,11 +205,7 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param i Image to draw
      */
-    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
-    {
-        waitDmaCompletion();
-        img.clippedDraw(*this,p,a,b);
-    }
+    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img) override;
 
     /**
      * Draw a rectangle (not filled) with the desired color
@@ -279,73 +213,37 @@ public:
      * \param b lower right corner of the rectangle
      * \param c color of the line
      */
-    void drawRectangle(Point a, Point b, Color c);
-
-    /**
-     * \return the display's height
-     */
-    short int getHeight() const { return height; }
-
-    /**
-     * \return the display's width
-     */
-    short int getWidth() const { return width; }
-
-    /**
-     * Turn the display On after it has been turned Off.
-     * Display initial state is On.
-     */
-    void turnOn();
-
-    /**
-     * Turn the display Off. It can be later turned back On.
-     */
-    void turnOff();
-    
-    /**
-     * Set display brightness
-     * \param brt from 0 to 100
-     */
-    void setBrightness(int brt);
+    void drawRectangle(Point a, Point b, Color c) override;
 
     /**
      * Set colors used for writing text
      * \param fgcolor text color
      * \param bgcolor background color
      */
-    void setTextColor(Color fgcolor, Color bgcolor)
-    {
-        Font::generatePalette(textColor,fgcolor,bgcolor);
-    }
+    void setTextColor(std::pair<Color,Color> colors) override;
 
     /**
-     * \return the current foreground color.
-     * The foreground color is used to draw text on screen
+     * \return a pair with the foreground and background colors.
+     * Those colors are used to draw text on screen
      */
-    Color getForeground() const { return textColor[3]; }
-
-    /**
-     * \return the current background color.
-     * The foreground color is used to draw text on screen
-     */
-    Color getBackground() const { return textColor[0]; }
+    std::pair<Color,Color> getTextColor() const override;
 
     /**
      * Set the font used for writing text
      * \param font new font
      */
-    void setFont(const Font& font) { this->font=font; }
+    void setFont(const Font& font) override;
 
     /**
      * \return the current font used to draw text
      */
-    Font getFont() const { return font; }
+    Font getFont() const override;
 
     /**
      * Make all changes done to the display since the last call to update()
-     * visible. This backends does not require it, so it is empty.
+     * visible. This backends does require it.
      */
-    void update() { waitDmaCompletion(); }
+    void update() override;
 
     /**
      * Pixel iterator. A pixel iterator is an output iterator that allows to
@@ -447,10 +345,22 @@ public:
         //Default ctor: pixelLeft is zero.
         return pixel_iterator();
     }
+    
+    /**
+     * Destructor
+     */
+    ~DisplayImpl() override;
 
 private:
     static const short int width=128;
     static const short int height=128;
+    
+    /**
+     * Constructor.
+     * Do not instantiate objects of this type directly from application code,
+     * use Display::instance() instead.
+     */
+    DisplayImpl();
 
     /**
      * Set cursor to desired location
