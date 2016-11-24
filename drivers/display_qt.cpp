@@ -37,14 +37,36 @@ using namespace std;
 
 namespace mxgui {
 
+void registerDisplayHook(DisplayManager& dm)
+{
+    dm.registerDisplay(&DisplayImpl::instance());
+}
+
 //
 // class DisplayImpl
 //
 
-DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(droid11), last(),
-        beginPixelCalled(false), backend(QTBackend::instance())
+DisplayImpl& DisplayImpl::instance()
 {
-    setTextColor(Color(SIMULATOR_FGCOLOR),Color(SIMULATOR_BGCOLOR));
+    static DisplayImpl instance;
+    return instance;
+}
+
+void DisplayImpl::doTurnOn()
+{
+    //Unsupported for this display, so just ignore
+}
+
+void DisplayImpl::doTurnOff()
+{
+    //Unsupported for this display, so just ignore
+}
+
+void DisplayImpl::doSetBrightness(int brt) {}
+
+pair<short int, short int> DisplayImpl::doGetSize() const
+{
+    return make_pair(height,width);
 }
 
 void DisplayImpl::write(Point p, const char *text)
@@ -140,6 +162,17 @@ void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
     beginPixelCalled=false;
 }
 
+Color *DisplayImpl::getScanLineBuffer()
+{
+    if(buffer==0) buffer=new Color[getWidth()];
+    return buffer;
+}
+
+void DisplayImpl::scanLineBuffer(Point p, unsigned short length)
+{
+    scanLine(p,buffer,length);
+}
+
 void DisplayImpl::drawImage(Point p, const ImageBase& img)
 {
     short int xEnd=p.x()+img.getWidth()-1;
@@ -178,25 +211,19 @@ void DisplayImpl::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplayImpl::turnOn()
+void DisplayImpl::setTextColor(pair<Color,Color> colors)
 {
-    //Unsupported for this display, so just ignore
+    Font::generatePalette(textColor,colors.first,colors.second);
 }
 
-void DisplayImpl::turnOff()
+pair<Color,Color> DisplayImpl::getTextColor() const
 {
-    //Unsupported for this display, so just ignore
+    return make_pair(textColor[3],textColor[0]);
 }
 
-void DisplayImpl::setTextColor(Color fgcolor, Color bgcolor)
-{
-    Font::generatePalette(textColor,fgcolor,bgcolor);
-}
+void DisplayImpl::setFont(const Font& font) { this->font=font; }
 
-void DisplayImpl::setFont(const Font& font)
-{
-    this->font=font;
-}
+Font DisplayImpl::getFont() const { return font; }
 
 void DisplayImpl::update()
 {  
@@ -220,6 +247,17 @@ DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2, IteratorDirec
 
     beginPixelCalled=false;
     return pixel_iterator(p1,p2,d,this);
+}
+
+DisplayImpl::~DisplayImpl()
+{
+    if(buffer) delete[] buffer;
+}
+
+DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(droid11), last(),
+        beginPixelCalled(false), backend(QTBackend::instance())
+{
+    setTextColor(make_pair(Color(SIMULATOR_FGCOLOR),Color(SIMULATOR_BGCOLOR)));
 }
 
 } //namespace mxgui
