@@ -83,9 +83,250 @@ static void sendCommand16(unsigned char reg, unsigned short val)
     delayUs(1);
 }
 
+void registerDisplayHook(DisplayManager& dm)
+{
+    dm.registerDisplay(&DisplayImpl::instance());
+}
+
 //
 // Class DisplayImpl
 //
+
+DisplayImpl& DisplayImpl::instance()
+{
+    static DisplayImpl instance;
+    return instance;
+}
+
+void DisplayImpl::doTurnOn()
+{
+    LTDC->GCR |= LTDC_GCR_LTDCEN;
+    sendCommand8(0x1d,0xa0);
+    Thread::sleep(200);
+    //If display supply is provided too early an intense white flash appears
+    //Total delay should be 250ms, display power is added after the first 200ms
+    display::vregEn::high();
+    Thread::sleep(50);
+    sendCommand8(0x14,0x03);
+}
+
+void DisplayImpl::doTurnOff()
+{
+    sendCommand8(0x14,0x00);
+    Thread::sleep(35);
+    display::vregEn::low();
+    Thread::sleep(15);
+    sendCommand8(0x1d,0xa1);
+    LTDC->GCR &=~ LTDC_GCR_LTDCEN;
+}
+
+void DisplayImpl::doSetBrightness(int brt)
+{
+    int brightness=max(0,min(4,brt/24));
+    sendCommand8(0x39,brightness<<4);
+}
+
+pair<short int, short int> DisplayImpl::doGetSize() const
+{
+    return make_pair(height,width);
+}
+
+void DisplayImpl::write(Point p, const char *text)
+{
+    font.draw(*this,textColor,p,text);
+}
+
+void DisplayImpl::clippedWrite(Point p, Point a, Point b, const char *text)
+{
+    font.clippedDraw(*this,textColor,p,a,b,text);
+}
+
+void DisplayImpl::clear(Color color)
+{
+    clear(Point(0,0),Point(width-1,height-1),color);
+}
+
+void DisplayImpl::clear(Point p1, Point p2, Color color)
+{
+    if(p1.x()<0 || p2.x()<p1.x() || p2.x()>=width
+     ||p1.y()<0 || p2.y()<p1.y() || p2.y()>=height) return;
+    if((color & 0xff)==(color>>8))
+    {
+        //Can use memset
+        if(p1.x()==0 && p2.x()==width-1)
+        {
+            //Can merge lines
+            memset(framebuffer1+p1.y()*width,color,(p2.y()-p1.y()+1)*width*bpp);
+        } else {
+            //Can't merge lines
+            Color *ptr=framebuffer1+p1.x()+width*p1.y();
+            short len=p2.x()-p1.x()+1;
+            for(short i=p1.y();i<=p2.y();i++)
+            {
+                memset(ptr,color,len*bpp);
+                ptr+=width;
+            }
+        }
+    } else {
+        //Can't use memset
+        if(p1.x()==0 && p2.x()==width-1)
+        {
+            //Can merge lines
+            Color *ptr=framebuffer1+p1.y()*width;
+            int numPixels=(p2.y()-p1.y()+1)*width;
+            //This loop is worth unrolling
+            for(int i=0;i<numPixels/4;i++)
+            {
+                *ptr++=color;
+                *ptr++=color;
+                *ptr++=color;
+                *ptr++=color;
+            }
+            for(int i=0;i<(numPixels & 3);i++) *ptr++=color;
+        } else {
+            //Can't merge lines
+            Color *ptr=framebuffer1+p1.x()+width*p1.y();
+            short len=p2.x()-p1.x()+1;
+            for(short i=p1.y();i<=p2.y();i++)
+            {
+                for(short j=0;j<len;j++) *ptr++=color;
+                ptr+=width-len;
+            }
+        }
+    }
+}
+
+void DisplayImpl::beginPixel() {}
+
+void DisplayImpl::setPixel(Point p, Color color)
+{
+    int offset=p.x()+p.y()*width;
+    if(offset<0 || offset>=numPixels) return;
+    *(framebuffer1+offset)=color;
+}
+
+void DisplayImpl::line(Point a, Point b, Color color)
+{
+    //Horizontal line speed optimization
+    if(a.y()==b.y())
+    {
+        short minx=min(a.x(),b.x());
+        short maxx=max(a.x(),b.x());
+        if(minx<0 || maxx>=width || a.y()<0 || a.y()>=height) return;
+        Color *ptr=framebuffer1+minx+width*a.y();
+        for(short i=minx;i<=maxx;i++) *ptr++=color;
+        return;
+    }
+    //Vertical line speed optimization
+    if(a.x()==b.x())
+    {
+        short miny=min(a.y(),b.y());
+        short maxy=max(a.y(),b.y());
+        if(a.x()<0 || a.x()>=width || miny<0 || maxy>=height) return;
+        Color *ptr=framebuffer1+a.x()+width*miny;
+        for(short i=miny;i<=maxy;i++)
+        {
+            *ptr=color;
+            ptr+=width;
+        }
+        return;
+    }
+    //General case
+    Line::draw(*this,a,b,color);
+}
+
+void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
+{
+    if(p.x()<0 || static_cast<int>(p.x())+static_cast<int>(length)>width
+        ||p.y()<0 || p.y()>=height) return;
+    Color *ptr=framebuffer1+p.x()+p.y()*width;
+    memcpy(ptr,colors,length*bpp);
+}
+
+Color *DisplayImpl::getScanLineBuffer()
+{
+    return buffer;
+}
+
+void DisplayImpl::scanLineBuffer(Point p, unsigned short length)
+{
+    int offset=p.x()+p.y()*width;
+    if(offset<0 || offset>=numPixels) return;
+    memcpy(framebuffer1+offset,buffer,length*bpp);
+}
+
+void DisplayImpl::drawImage(Point p, const ImageBase& img)
+{
+    short int xEnd=p.x()+img.getWidth()-1;
+    short int yEnd=p.y()+img.getHeight()-1;
+    if(p.x()<0 || p.y()<0 || xEnd<p.x() || yEnd<p.y()
+        ||xEnd >= width || yEnd >= height) return;
+
+//    const unsigned short *imgData=img.getData();
+//    if(imgData!=0)
+//    {
+//        //TODO Optimized version for in-memory images
+//    } else
+    img.draw(*this,p);
+}
+
+void DisplayImpl::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
+{
+//    if(img.getData()==0)
+//    {
+    img.clippedDraw(*this,p,a,b);
+    return;
+//    } //else optimized version for memory-loaded images
+//        //TODO: optimize
+//    }
+}
+
+void DisplayImpl::drawRectangle(Point a, Point b, Color c)
+{
+    line(a,Point(b.x(),a.y()),c);
+    line(Point(b.x(),a.y()),b,c);
+    line(b,Point(a.x(),b.y()),c);
+    line(Point(a.x(),b.y()),a,c);
+}
+
+void DisplayImpl::setTextColor(pair<Color,Color> colors)
+{
+    Font::generatePalette(textColor,colors.first,colors.second);
+}
+
+pair<Color,Color> DisplayImpl::getTextColor() const
+{
+    return make_pair(textColor[3],textColor[0]);
+}
+
+void DisplayImpl::setFont(const Font& font) { this->font=font; }
+
+Font DisplayImpl::getFont() const { return font; }
+
+void DisplayImpl::update() {}
+
+DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2,
+        IteratorDirection d)
+{
+    bool fail=false;
+    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) fail=true;
+    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height) fail=true;
+    if(p2.x()<p1.x() || p2.y()<p1.y()) fail=true;
+    if(fail)
+    {
+        //Return invalid (dummy) iterators
+        this->last=pixel_iterator();
+        return this->last;
+    }
+
+    //Set the last iterator to a suitable one-past-the last value
+    if(d==DR) this->last=pixel_iterator(Point(p2.x()+1,p1.y()),p2,d,this);
+    else this->last=pixel_iterator(Point(p1.x(),p2.y()+1),p2,d,this);
+
+    return pixel_iterator(p1,p2,d,this);
+}
+
+DisplayImpl::~DisplayImpl() {}
 
 DisplayImpl::DisplayImpl()
     : framebuffer1(reinterpret_cast<unsigned short*>(0xd0600000)),
@@ -101,7 +342,7 @@ DisplayImpl::DisplayImpl()
      * current consumption measured as the STOD13AS power supply (the chip used
      * to generate ELVDD and ELVSS) when powered at 4.3V and with a fully white
      * display and the gamma settings that produce the maximum brightness.
-     * As I don't have a way to measure the display brightness un cd/m^2, the
+     * As I don't have a way to measure the display brightness in cd/m^2, the
      * brightness data is measured connecting a SFH216 photodiode to an
      * oscilloscope and measuring the voltage produced in mV when facing the
      * display.
@@ -258,116 +499,9 @@ DisplayImpl::DisplayImpl()
     sendCommand8(0x23,0x00);
     sendCommand8(0x26,0xa0);
     
-    setTextColor(Color(0xffff),Color(0x0000));
+    setTextColor(make_pair(Color(0xffff),Color(0x0000)));
     clear(black);
-    turnOn();
-}
-
-void DisplayImpl::clear(Point p1, Point p2, Color color)
-{
-    if(p1.x()<0 || p2.x()<p1.x() || p2.x()>=width
-     ||p1.y()<0 || p2.y()<p1.y() || p2.y()>=height) return;
-    if((color & 0xff)==(color>>8))
-    {
-        //Can use memset
-        if(p1.x()==0 && p2.x()==width-1)
-        {
-            //Can merge lines
-            memset(framebuffer1+p1.y()*width,color,(p2.y()-p1.y()+1)*width*bpp);
-        } else {
-            //Can't merge lines
-            Color *ptr=framebuffer1+p1.x()+width*p1.y();
-            short len=p2.x()-p1.x()+1;
-            for(short i=p1.y();i<=p2.y();i++)
-            {
-                memset(ptr,color,len*bpp);
-                ptr+=width;
-            }
-        }
-    } else {
-        //Can't use memset
-        if(p1.x()==0 && p2.x()==width-1)
-        {
-            //Can merge lines
-            Color *ptr=framebuffer1+p1.y()*width;
-            int numPixels=(p2.y()-p1.y()+1)*width;
-            //This loop is worth unrolling
-            for(int i=0;i<numPixels/4;i++)
-            {
-                *ptr++=color;
-                *ptr++=color;
-                *ptr++=color;
-                *ptr++=color;
-            }
-            for(int i=0;i<(numPixels & 3);i++) *ptr++=color;
-        } else {
-            //Can't merge lines
-            Color *ptr=framebuffer1+p1.x()+width*p1.y();
-            short len=p2.x()-p1.x()+1;
-            for(short i=p1.y();i<=p2.y();i++)
-            {
-                for(short j=0;j<len;j++) *ptr++=color;
-                ptr+=width-len;
-            }
-        }
-    }
-}
-
-void DisplayImpl::drawRectangle(Point a, Point b, Color c)
-{
-    line(a,Point(b.x(),a.y()),c);
-    line(Point(b.x(),a.y()),b,c);
-    line(b,Point(a.x(),b.y()),c);
-    line(Point(a.x(),b.y()),a,c);
-}
-
-void DisplayImpl::turnOn()
-{
-    LTDC->GCR |= LTDC_GCR_LTDCEN;
-    sendCommand8(0x1d,0xa0);
-    Thread::sleep(200);
-    //If display supply is provided too early an intense white flash appears
-    //Total delay should be 250ms, display power is added after the first 200ms
-    display::vregEn::high();
-    Thread::sleep(50);
-    sendCommand8(0x14,0x03);
-}
-
-void DisplayImpl::turnOff()
-{
-    sendCommand8(0x14,0x00);
-    Thread::sleep(35);
-    display::vregEn::low();
-    Thread::sleep(15);
-    sendCommand8(0x1d,0xa1);
-    LTDC->GCR &=~ LTDC_GCR_LTDCEN;
-}
-
-void DisplayImpl::setBrightness(int brt)
-{
-    int brightness=max(0,min(4,brt/24));
-    sendCommand8(0x39,brightness<<4);
-}
-
-DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2,
-        IteratorDirection d)
-{
-    bool fail=false;
-    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) fail=true;
-    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height) fail=true;
-    if(p2.x()<p1.x() || p2.y()<p1.y()) fail=true;
-    if(fail)
-    {
-        //Return invalid (dummy) iterators
-        this->last=pixel_iterator();
-        return this->last;
-    }
-
-    //Set the last iterator to a suitable one-past-the last value
-    if(d==DR) this->last=pixel_iterator(Point(p2.x()+1,p1.y()),p2,d,this);
-    else this->last=pixel_iterator(Point(p1.x(),p2.y()+1),p2,d,this);
-
-    return pixel_iterator(p1,p2,d,this);
+    doTurnOn();
 }
 
 Color DisplayImpl::pixel_iterator::dummy;

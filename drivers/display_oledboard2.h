@@ -36,6 +36,7 @@
 #ifdef _BOARD_STM32F429ZI_OLEDBOARD2
 
 #include <config/mxgui_settings.h>
+#include "display.h"
 #include "point.h"
 #include "color.h"
 #include "font.h"
@@ -52,28 +53,46 @@ namespace mxgui {
 //This display is 16 bit per pixel, check that the color depth is properly
 //configured
 #ifndef MXGUI_COLOR_DEPTH_16_BIT
-#error The  AMS369FG03-0 driver requires a color depth of 16bit per pixel
+#error The AMS369FG03-0 driver requires a color depth of 16bit per pixel
 #endif
 
-class DisplayImpl
+class DisplayImpl : public Display
 {
 public:
     /**
-     * Constructor.
-     * Do not instantiate objects of this type directly from application code,
-     * use Display::instance() instead.
+     * \return an instance to this class (singleton)
      */
-    DisplayImpl();
+    static DisplayImpl& instance();
+    
+    /**
+     * Turn the display On after it has been turned Off.
+     * Display initial state is On.
+     */
+    void doTurnOn() override;
+
+    /**
+     * Turn the display Off. It can be later turned back On.
+     */
+    void doTurnOff() override;
+    
+    /**
+     * Set display brightness. Depending on the underlying driver,
+     * may do nothing.
+     * \param brt from 0 to 100
+     */
+    void doSetBrightness(int brt) override;
+    
+    /**
+     * \return a pair with the display height and width
+     */
+    std::pair<short int, short int> doGetSize() const override;
 
     /**
      * Write text to the display. If text is too long it will be truncated
      * \param p point where the upper left corner of the text will be printed
      * \param text, text to print.
      */
-    void write(Point p, const char *text)
-    {
-        font.draw(*this,textColor,p,text);
-    }
+    void write(Point p, const char *text) override;
 
     /**
      * Write part of text to the display
@@ -84,19 +103,13 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param text text to write
      */
-    void clippedWrite(Point p, Point a, Point b, const char *text)
-    {
-        font.clippedDraw(*this,textColor,p,a,b,text);
-    }
+    void clippedWrite(Point p, Point a, Point b, const char *text) override;
 
     /**
      * Clear the Display. The screen will be filled with the desired color
      * \param color fill color
      */
-    void clear(Color color)
-    {
-        clear(Point(0,0),Point(width-1,height-1),color);
-    }
+    void clear(Color color) override;
 
     /**
      * Clear an area of the screen
@@ -104,12 +117,12 @@ public:
      * \param p2 lower right corner of area to clear
      * \param color fill color
      */
-    void clear(Point p1, Point p2, Color color);
+    void clear(Point p1, Point p2, Color color) override;
 
     /**
      * This backend does not require it, so it is a blank.
      */
-    void beginPixel() {}
+    void beginPixel() override;
 
     /**
      * Draw a pixel with desired color. You have to call beginPixel() once
@@ -117,12 +130,7 @@ public:
      * \param p point where to draw pixel
      * \param color pixel color
      */
-    void setPixel(Point p, Color color)
-    {
-        int offset=p.x()+p.y()*width;
-        if(offset<0 || offset>=numPixels) return;
-        *(framebuffer1+offset)=color;
-    }
+    void setPixel(Point p, Color color) override;
 
     /**
      * Draw a line between point a and point b, with color c
@@ -130,36 +138,7 @@ public:
      * \param b second point
      * \param c line color
      */
-    void line(Point a, Point b, Color color)
-    {
-        using namespace std;
-        //Horizontal line speed optimization
-        if(a.y()==b.y())
-        {
-            short minx=min(a.x(),b.x());
-            short maxx=max(a.x(),b.x());
-            if(minx<0 || maxx>=width || a.y()<0 || a.y()>=height) return;
-            Color *ptr=framebuffer1+minx+width*a.y();
-            for(short i=minx;i<=maxx;i++) *ptr++=color;
-            return;
-        }
-        //Vertical line speed optimization
-        if(a.x()==b.x())
-        {
-            short miny=min(a.y(),b.y());
-            short maxy=max(a.y(),b.y());
-            if(a.x()<0 || a.x()>=width || miny<0 || maxy>=height) return;
-            Color *ptr=framebuffer1+a.x()+width*miny;
-            for(short i=miny;i<=maxy;i++)
-            {
-                *ptr=color;
-                ptr+=width;
-            }
-            return;
-        }
-        //General case
-        Line::draw(*this,a,b,color);
-    }
+    void line(Point a, Point b, Color color) override;
 
     /**
      * Draw an horizontal line on screen.
@@ -170,22 +149,13 @@ public:
      * \param length length of colors array.
      * p.x()+length must be <= display.width()
      */
-    void scanLine(Point p, const Color *colors, unsigned short length)
-    {
-        if(p.x()<0 || static_cast<int>(p.x())+static_cast<int>(length)>width
-         ||p.y()<0 || p.y()>=height) return;
-        Color *ptr=framebuffer1+p.x()+p.y()*width;
-        memcpy(ptr,colors,length*bpp);
-    }
+    void scanLine(Point p, const Color *colors, unsigned short length) override;
     
     /**
      * \return a buffer of length equal to this->getWidth() that can be used to
      * render a scanline.
      */
-    Color *getScanLineBuffer()
-    {
-        return buffer;
-    }
+    Color *getScanLineBuffer() override;
     
     /**
      * Draw the content of the last getScanLineBuffer() on an horizontal line
@@ -194,32 +164,14 @@ public:
      * \param length length of colors array.
      * p.x()+length must be <= display.width()
      */
-    void scanLineBuffer(Point p, unsigned short length)
-    {
-        int offset=p.x()+p.y()*width;
-        if(offset<0 || offset>=numPixels) return;
-        memcpy(framebuffer1+offset,buffer,length*bpp);
-    }
+    void scanLineBuffer(Point p, unsigned short length) override;
 
     /**
      * Draw an image on the screen
      * \param p point of the upper left corner where the image will be drawn
      * \param i image to draw
      */
-    void drawImage(Point p, const ImageBase& img)
-    {
-        short int xEnd=p.x()+img.getWidth()-1;
-        short int yEnd=p.y()+img.getHeight()-1;
-        if(p.x()<0 || p.y()<0 || xEnd<p.x() || yEnd<p.y()
-         ||xEnd >= width || yEnd >= height) return;
-
-//        const unsigned short *imgData=img.getData();
-//        if(imgData!=0)
-//        {
-//            //TODO Optimized version for in-memory images
-//        } else
-            img.draw(*this,p);
-    }
+    void drawImage(Point p, const ImageBase& img) override;
 
     /**
      * Draw part of an image on the screen
@@ -230,16 +182,7 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param i Image to draw
      */
-    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
-    {
-//        if(img.getData()==0)
-//        {
-            img.clippedDraw(*this,p,a,b);
-            return;
-//        } //else optimized version for memory-loaded images
-//            //TODO: optimize
-//        }
-    }
+    void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img) override;
 
     /**
      * Draw a rectangle (not filled) with the desired color
@@ -247,74 +190,37 @@ public:
      * \param b lower right corner of the rectangle
      * \param c color of the line
      */
-    void drawRectangle(Point a, Point b, Color c);
-
-    /**
-     * \return the display's height
-     */
-    short int getHeight() const { return height; }
-
-    /**
-     * \return the display's width
-     */
-    short int getWidth() const { return width; }
-
-    /**
-     * Turn the display On after it has been turned Off.
-     * Display initial state is On.
-     */
-    void turnOn();
-
-    /**
-     * Turn the display Off. It can be later turned back On.
-     */
-    void turnOff();
-    
-    /**
-     * Set display brightness. Depending on the underlying driver,
-     * may do nothing.
-     * \param brt from 0 to 100
-     */
-    void setBrightness(int brt);
+    void drawRectangle(Point a, Point b, Color c) override;
 
     /**
      * Set colors used for writing text
      * \param fgcolor text color
      * \param bgcolor background color
      */
-    void setTextColor(Color fgcolor, Color bgcolor)
-    {
-        Font::generatePalette(textColor,fgcolor,bgcolor);
-    }
+    void setTextColor(std::pair<Color,Color> colors) override;
 
     /**
-     * \return the current foreground color.
-     * The foreground color is used to draw text on screen
+     * \return a pair with the foreground and background colors.
+     * Those colors are used to draw text on screen
      */
-    Color getForeground() const { return textColor[3]; }
-
-    /**
-     * \return the current background color.
-     * The foreground color is used to draw text on screen
-     */
-    Color getBackground() const { return textColor[0]; }
+    std::pair<Color,Color> getTextColor() const override;
 
     /**
      * Set the font used for writing text
      * \param font new font
      */
-    void setFont(const Font& font) { this->font=font; }
+    void setFont(const Font& font) override;
 
     /**
      * \return the current font used to draw text
      */
-    Font getFont() const { return font; }
+    Font getFont() const override;
 
     /**
      * Make all changes done to the display since the last call to update()
      * visible. This backends does not require it, so it is empty.
      */
-    void update() {}
+    void update() override;
     
     /**
      * Pixel iterator. A pixel iterator is an output iterator that allows to
@@ -451,9 +357,15 @@ public:
     /**
      * Destructor
      */
-    ~DisplayImpl() {}
+    ~DisplayImpl() override;
 
 private:
+    /**
+     * Constructor.
+     * Do not instantiate objects of this type directly from application code.
+     */
+    DisplayImpl();
+    
     #if defined MXGUI_ORIENTATION_VERTICAL
     static const short int width=480;
     static const short int height=800;
