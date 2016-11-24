@@ -386,7 +386,7 @@ DisplayImpl::~DisplayImpl() {}
 
 DisplayImpl::DisplayImpl(): which(0), textColor(), font(droid11)
 {
-    turnOn();
+    doTurnOn();
     setTextColor(make_pair(Color(0xffff),Color(0x0000)));
 }
 
