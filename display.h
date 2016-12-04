@@ -163,10 +163,7 @@ public:
      */
     virtual ~Display();
 
-private:
-    Display(const Display&)=delete;
-    Display& operator=(const Display&)=delete;
-    
+protected:
     /**
      * Turn the display On after it has been turned Off.
      * Display initial state is On.
@@ -305,33 +302,44 @@ private:
      * Set colors used for writing text
      * \param colors a pair with the text foreground and background colors
      */
-    virtual void setTextColor(std::pair<Color,Color> colors)=0;
+    void setTextColor(std::pair<Color,Color> colors);
 
     /**
      * \return a pair with the foreground and background colors.
      * Those colors are used to draw text on screen
      */
-    virtual std::pair<Color,Color> getTextColor() const=0;
+    std::pair<Color,Color> getTextColor() const;
 
     /**
      * Set the font used for writing text
      * \param font new font
      */
-    virtual void setFont(const Font& font)=0;
+    void setFont(const Font& font);
 
     /**
      * \return the current font used to draw text
      */
-    virtual Font getFont() const=0;
+    Font getFont() const;
     
     /**
      * Make all changes done to the display since the last call to update()
-     * visible. This backends does not require it, so it is empty.
+     * visible. Backends that require it may override this.
      */
-    virtual void update()=0;
+    virtual void update();
 
+private:
+    Display(const Display&)=delete;
+    Display& operator=(const Display&)=delete;
+    
     pthread_mutex_t dispMutex; ///< To lock concurrent access to the display
     bool isDisplayOn;          ///< True if display is on
+    
+protected:
+    Font font;                 ///< Current font selected for writing text
+    /// textColors[0] is the background color, textColor[3] the foreground
+    /// while the other two are the intermediate colors for drawing antialiased
+    /// fonts. They remain just for compatibilty, as this screen in monochrome
+    Color textColor[4];
 
     friend class DrawingContext;
 };

@@ -300,22 +300,6 @@ void DisplayImpl::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplayImpl::setTextColor(pair<Color,Color> colors)
-{
-    Font::generatePalette(textColor,colors.first,colors.second);
-}
-
-pair<Color,Color> DisplayImpl::getTextColor() const
-{
-    return make_pair(textColor[3],textColor[0]);
-}
-
-void DisplayImpl::setFont(const Font& font) { this->font=font; }
-
-Font DisplayImpl::getFont() const { return font; }
-
-void DisplayImpl::update() {}
-
 DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2,
         IteratorDirection d)
 {
@@ -341,7 +325,7 @@ DisplayImpl::~DisplayImpl() {}
 
 DisplayImpl::DisplayImpl()
     : framebuffer1(reinterpret_cast<unsigned short*>(0xd0600000)),
-      buffer(framebuffer1+numPixels), font(droid11)
+      buffer(framebuffer1+numPixels)
 {
     {
         FastInterruptDisableLock dLock;
@@ -483,6 +467,7 @@ DisplayImpl::DisplayImpl()
             | 0                //no dithering
             | LTDC_GCR_LTDCEN; //Display enabled
     
+    setFont(droid11);
     setTextColor(make_pair(Color(0xffff),Color(0x0000)));
     clear(black);
 }

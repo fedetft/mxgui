@@ -191,36 +191,6 @@ public:
      * \param c color of the line
      */
     void drawRectangle(Point a, Point b, Color c) override;;
-
-    /**
-     * Set colors used for writing text
-     * \param fgcolor text color
-     * \param bgcolor background color
-     */
-    void setTextColor(std::pair<Color,Color> colors) override;
-
-    /**
-     * \return a pair with the foreground and background colors.
-     * Those colors are used to draw text on screen
-     */
-    std::pair<Color,Color> getTextColor() const override;
-
-    /**
-     * Set the font used for writing text
-     * \param font new font
-     */
-    void setFont(const Font& font) override;
-
-    /**
-     * \return the current font used to draw text
-     */
-    Font getFont() const override;
-
-    /**
-     * Make all changes done to the display since the last call to update()
-     * visible. This backends does not require it, so it is empty.
-     */
-    void update() override;
     
     /**
      * Pixel iterator. A pixel iterator is an output iterator that allows to
@@ -507,11 +477,6 @@ private:
     }
     
     Color *buffer; ///< For scanLineBuffer
-    /// textColors[0] is the background color, textColor[3] the foreground
-    /// while the other two are the intermediate colors for drawing antialiased
-    /// fonts.
-    Color textColor[4];
-    Font font; ///< Current font selected for writing text
 };
 
 } //namespace mxgui

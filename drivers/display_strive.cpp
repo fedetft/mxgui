@@ -348,22 +348,6 @@ void DisplayImpl::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplayImpl::setTextColor(pair<Color,Color> colors)
-{
-    Font::generatePalette(textColor,colors.first,colors.second);
-}
-
-pair<Color,Color> DisplayImpl::getTextColor() const
-{
-    return make_pair(textColor[3],textColor[0]);
-}
-
-void DisplayImpl::setFont(const Font& font) { this->font=font; }
-
-Font DisplayImpl::getFont() const { return font; }
-
-void DisplayImpl::update() {}
-
 DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2,
         IteratorDirection d)
 {
@@ -385,7 +369,7 @@ DisplayImpl::~DisplayImpl()
     if(buffer) delete[] buffer;
 }
 
-DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(droid11)
+DisplayImpl::DisplayImpl(): buffer(0)
 {
     
     //LCD connection GPIO should have been initialized at
@@ -493,6 +477,7 @@ DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(droid11)
     writeReg(0x07, D0 | D1 |DTE | GON | BASEE);
 
     //Fill display
+    setFont(droid11);
     setTextColor(make_pair(white, black));
     clear(black);
 }

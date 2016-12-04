@@ -214,20 +214,6 @@ void DisplayImpl::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplayImpl::setTextColor(pair<Color,Color> colors)
-{
-    Font::generatePalette(textColor,colors.first,colors.second);
-}
-
-pair<Color,Color> DisplayImpl::getTextColor() const
-{
-    return make_pair(textColor[3],textColor[0]);
-}
-
-void DisplayImpl::setFont(const Font& font) { this->font=font; }
-
-Font DisplayImpl::getFont() const { return font; }
-
 void DisplayImpl::update()
 {
     beginPixelCalled=false;
@@ -258,11 +244,11 @@ DisplayImpl::~DisplayImpl()
 
 DisplayImpl::DisplayImpl():
         buffer(0),
-        font(droid11),
         last(),
         beginPixelCalled(false),
         backend(WinBackend::instance())
 {
+    setFont(droid11);
     setTextColor(make_pair(Color(0xffff), Color(0x0000)));
 }
 

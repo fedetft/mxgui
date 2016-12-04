@@ -239,22 +239,6 @@ void DisplayImpl::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplayImpl::setTextColor(pair<Color,Color> colors)
-{
-    Font::generatePalette(textColor,colors.first,colors.second);
-}
-
-pair<Color,Color> DisplayImpl::getTextColor() const
-{
-    return make_pair(textColor[3],textColor[0]);
-}
-
-void DisplayImpl::setFont(const Font& font) { this->font=font; }
-
-Font DisplayImpl::getFont() const { return font; }
-
-void DisplayImpl::update() {}
-
 DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2, IteratorDirection d)
 {
     bool fail=false;
@@ -280,8 +264,9 @@ DisplayImpl::~DisplayImpl()
     if(buffer) delete[] buffer;
 }
 
-DisplayImpl::DisplayImpl(): buffer(0), textColor(), font(miscFixed), last()
+DisplayImpl::DisplayImpl(): buffer(0), last()
 {
+    setFont(miscFixed);
     setTextColor(make_pair(Color(black),Color(white)));
     {
         FastInterruptDisableLock dLock;

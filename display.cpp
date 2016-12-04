@@ -26,11 +26,14 @@
  ***************************************************************************/
 
 #include "display.h"
+#include "misc_inst.h"
 #include "pthread_lock.h"
 
 #if MXGUI_SETTINGS_VERSION != 101
 #error Wrong mxgui_settings.h version. You need to upgrade it.
 #endif
+
+using namespace std;
 
 namespace mxgui {
 
@@ -67,7 +70,7 @@ DisplayManager::DisplayManager()
 // class Display
 //
 
-Display::Display() : isDisplayOn(true)
+Display::Display() : isDisplayOn(true), font(miscFixed)
 {
     pthread_mutexattr_t temp;
     pthread_mutexattr_init(&temp);
@@ -97,6 +100,22 @@ void Display::setBrightness(int brt)
     PthreadLock lock(dispMutex);
     doSetBrightness(brt);
 }
+
+void Display::setTextColor(pair<Color,Color> colors)
+{
+    Font::generatePalette(textColor,colors.first,colors.second);
+}
+
+pair<Color,Color> Display::getTextColor() const
+{
+    return make_pair(textColor[3],textColor[0]);
+}
+
+void Display::setFont(const Font& font) { this->font=font; }
+
+Font Display::getFont() const { return font; }
+
+void Display::update() {}
 
 Display::~Display() {}
 

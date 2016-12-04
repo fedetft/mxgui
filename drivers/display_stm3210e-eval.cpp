@@ -217,22 +217,6 @@ void DisplayImpl::drawRectangle(Point a, Point b, Color c)
     line(Point(a.x(),b.y()),a,c);
 }
 
-void DisplayImpl::setTextColor(pair<Color,Color> colors)
-{
-    Font::generatePalette(textColor,colors.first,colors.second);
-}
-
-std::pair<Color,Color> DisplayImpl::getTextColor() const
-{
-    return make_pair(textColor[3],textColor[0]);
-}
-
-void DisplayImpl::setFont(const Font& font) { this->font=font; }
-
-Font DisplayImpl::getFont() const { return font; }
-
-void DisplayImpl::update() {}
-
 DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1,
         Point p2, IteratorDirection d)
 {
@@ -254,8 +238,7 @@ DisplayImpl::~DisplayImpl()
     if(buffer) delete[] buffer;
 }
 
-DisplayImpl::DisplayImpl(): buffer(0), displayType(UNKNOWN), textColor(),
-        font(droid11)
+DisplayImpl::DisplayImpl(): buffer(0), displayType(UNKNOWN)
 {
     //FIXME: This assumes xram is already initialized an so D0..D15, A0, NOE,
     //NWE are correctly initialized
@@ -305,6 +288,7 @@ DisplayImpl::DisplayImpl(): buffer(0), displayType(UNKNOWN), textColor(),
             break;
     }
 
+    setFont(droid11);
     setTextColor(make_pair(Color(0xffff),Color(0x0000)));
     clear(black);
 }
