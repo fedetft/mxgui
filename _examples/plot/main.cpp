@@ -18,7 +18,7 @@ ENTRY()
     dataset.push_back(Dataset(data1,red));
     dataset.push_back(Dataset(data2,green));
     
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     SimplePlot plot1(Point(0,0),Point(239,200));
     
     for(;;i+=2)

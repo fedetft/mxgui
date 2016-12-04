@@ -54,7 +54,7 @@ void WinBackend::start()
     if(started==true) return;
 
     {
-        mxgui::Display& display = mxgui::Display::instance();
+        mxgui::Display& display = mxgui::DisplayManager::instance().getDisplay();
         mxgui::DrawingContext dc(display);
         dc.beginPixel();
         dc.clear(mxgui::black);

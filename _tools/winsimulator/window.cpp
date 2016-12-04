@@ -31,22 +31,22 @@ Window::Window()
 
 void Window::mouseMoveEvent(int x, int y)
 {
-    if(x<0 || x>=Display::instance().getWidth()) return;
-    if(y<0 || y>=Display::instance().getHeight()) return;
+    if(x<0 || x>=DisplayManager::instance().getDisplay().getWidth()) return;
+    if(y<0 || y>=DisplayManager::instance().getDisplay().getHeight()) return;
     addEvent(mxgui::Event(EventType::TouchMove,Point(x,y),EventDirection::DOWN));
 }
 
 void Window::mousePressEvent(int x, int y)
 {
-    if(x<0 || x>=Display::instance().getWidth()) return;
-    if(y<0 || y>=Display::instance().getHeight()) return;
+    if(x<0 || x>=DisplayManager::instance().getDisplay().getWidth()) return;
+    if(y<0 || y>=DisplayManager::instance().getDisplay().getHeight()) return;
     addEvent(mxgui::Event(EventType::TouchDown,Point(x,y),EventDirection::DOWN));
 }
 
 void Window::mouseReleaseEvent(int x, int y)
 {
-    if(x<0 || x>=Display::instance().getWidth()) return;
-    if(y<0 || y>=Display::instance().getHeight()) return;
+    if(x<0 || x>=DisplayManager::instance().getDisplay().getWidth()) return;
+    if(y<0 || y>=DisplayManager::instance().getDisplay().getHeight()) return;
     addEvent(mxgui::Event(EventType::TouchUp,Point(x,y),EventDirection::UP));
 }
 

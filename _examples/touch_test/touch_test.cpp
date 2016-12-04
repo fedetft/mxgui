@@ -37,7 +37,7 @@ using namespace mxgui;
 
 ENTRY()
 {
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     InputHandler& backend=InputHandler::instance();
     short oldX=0,oldY=0;
     for(;;)

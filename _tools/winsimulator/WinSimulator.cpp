@@ -116,7 +116,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
     hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DRAWINGCONTEXT));
 
-    mxgui::Display& display = mxgui::Display::instance();
+    mxgui::Display& display = mxgui::DisplayManager::instance().getDisplay();
     {
         mxgui::DrawingContext dc(display);
         dc.beginPixel();

@@ -8,7 +8,7 @@ using namespace mxgui;
 
 int main()
 {
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     const short w=display.getWidth();
     const short h=display.getHeight();
     InputHandler& input=InputHandler::instance();

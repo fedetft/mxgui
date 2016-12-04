@@ -85,7 +85,7 @@ void DrawLegend(DrawingContext& dc)
 
 ENTRY()
 {
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     InputHandler& backend=InputHandler::instance();
     Point prev(0, 0);
     Color color = white;

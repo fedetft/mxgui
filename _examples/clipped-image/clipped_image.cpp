@@ -94,7 +94,7 @@ void bootMessage(Display& display)
 
 ENTRY()
 {
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     bootMessage(display);
 
     TgaImage img("dis.tga");

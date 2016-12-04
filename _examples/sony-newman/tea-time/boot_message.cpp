@@ -61,7 +61,7 @@ static void blinkingDot(Display& display, Point p)
 
 void bootMessage()
 {
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     const char s0[]="Miosix";
     const char s1[]="We do what we must";
     const char s2[]="Because we can";

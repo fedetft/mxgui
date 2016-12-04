@@ -49,7 +49,7 @@ const Point buttonFpsB(220,300);
  */
 static void printFps(int fps, int cpu)
 {
-    DrawingContext dc(Display::instance());
+    DrawingContext dc(DisplayManager::instance().getDisplay());
     dc.setFont(droid21);
     dc.setTextColor(green,black);
     char line[16];
@@ -167,7 +167,7 @@ ENTRY()
 {
     //Initial drawing, print fixed strings, buttons, etc.
     {
-        DrawingContext dc(Display::instance());
+        DrawingContext dc(DisplayManager::instance().getDisplay());
         dc.setTextColor(black,grey);
         dc.clear(Point(0,160),Point(239,319),grey);
         shadowRectangle(dc,Point(0,0),Point(239,159));
@@ -201,7 +201,7 @@ ENTRY()
     {
         Matrix3f xfm=xrot(M_PI/8-M_PI/2)*zrot(angle)*scale(105+30*sin(angle/4));
         engine->setTransformMatrix(xfm);
-        engine->render(Display::instance());
+        engine->render(DisplayManager::instance().getDisplay());
         printFps(fps.getFps(),fps.getCpuUsed());
         fps.sleepBetweenFrames();
 
@@ -215,12 +215,12 @@ ENTRY()
             case EventType::TouchDown:
                 if(within(e.getPoint(),buttonFpsA,buttonFpsB))
                 {
-                    DrawingContext dc(Display::instance());
+                    DrawingContext dc(DisplayManager::instance().getDisplay());
                     drawButton(dc,buttonFpsA,buttonFpsB,
                             fpsStr[fpsOption],true);
                 } else if(within(e.getPoint(),buttonModeA,buttonModeB))
                 {
-                    DrawingContext dc(Display::instance());
+                    DrawingContext dc(DisplayManager::instance().getDisplay());
                     drawButton(dc,buttonModeA,buttonModeB,
                             renderingStr[renderingOption],true);
                 }
@@ -237,7 +237,7 @@ ENTRY()
                         fps.setFpsCap(10);
                     }
                     {
-                        DrawingContext dc(Display::instance());
+                        DrawingContext dc(DisplayManager::instance().getDisplay());
                         drawButton(dc,buttonFpsA,buttonFpsB,
                                 fpsStr[fpsOption],false);
                     }
@@ -253,7 +253,7 @@ ENTRY()
                         engine=configureWireframe();
                     }
                     {
-                        DrawingContext dc(Display::instance());
+                        DrawingContext dc(DisplayManager::instance().getDisplay());
                         drawButton(dc,buttonModeA,buttonModeB,
                                 renderingStr[renderingOption],false);
                     }
@@ -266,7 +266,7 @@ ENTRY()
     quit:;
     delete engine;
     {
-        DrawingContext dc(Display::instance()); //Restore defaults
+        DrawingContext dc(DisplayManager::instance().getDisplay()); //Restore defaults
         dc.setFont(droid11);
         dc.setTextColor(white,black);
     }

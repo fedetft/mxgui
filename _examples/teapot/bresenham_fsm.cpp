@@ -155,7 +155,7 @@ using namespace mxgui;
 
 void ll(float angle)
 {
-    DrawingContext dc(Display::instance());
+    DrawingContext dc(DisplayManager::instance().getDisplay());
     dc.clear(0);
     Point a(240/2,320/2),b(240/2+100*std::cos(angle),320/2+100*std::sin(angle));
 

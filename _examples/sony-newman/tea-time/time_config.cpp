@@ -199,7 +199,7 @@ int inputWeekDay(Display& display, InputHandler& input)
 
 void configureTime()
 {
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     InputHandler& input=InputHandler::instance();
     
     NumberWithRange day(1,1,31);

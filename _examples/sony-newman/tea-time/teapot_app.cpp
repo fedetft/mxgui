@@ -169,7 +169,7 @@ static RenderingEngine *configureWireframe()
 
 void teapotApp()
 {
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     InputHandler& input=InputHandler::instance();
     PowerManager& power=PowerManager::instance();
     power.showBatterIcon(true);

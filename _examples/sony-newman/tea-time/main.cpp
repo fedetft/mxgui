@@ -43,10 +43,10 @@ ENTRY()
     power.showBatterIcon(true);
     configureTime();
     {
-        DrawingContext dc(Display::instance());
+        DrawingContext dc(DisplayManager::instance().getDisplay());
         dc.clear(black);
     }
     //power.showTime(true);
     teapotApp();
-    Display::instance().turnOff();
+    DisplayManager::instance().getDisplay().turnOff();
 }

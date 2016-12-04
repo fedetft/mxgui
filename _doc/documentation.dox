@@ -81,7 +81,7 @@ using namespace mxgui;
 
 ENTRY()
 {
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     {
         DrawingContext dc(display);
         dc.write(Point(0,0),"Hello world!");
@@ -176,7 +176,7 @@ using namespace mxgui;
 ENTRY()
 {
     {
-        DrawingContext dc(Display::instance());
+        DrawingContext dc(DisplayManager::instance().getDisplay());
         dc.drawImage(Point(0,0),test);
     }
     for(;;) ;
@@ -255,7 +255,7 @@ using namespace mxgui;
 ENTRY()
 {
     {
-        DrawingContext dc(Display::instance());
+        DrawingContext dc(DisplayManager::instance().getDisplay());
         ResourceImage image("test");
         dc.drawImage(Point(0,0),image);
     }

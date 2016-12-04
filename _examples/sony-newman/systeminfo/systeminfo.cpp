@@ -12,7 +12,7 @@ int main()
 {
     Rtc& rtc=Rtc::instance();
     InputHandler& input=InputHandler::instance();
-    Display& display=Display::instance();
+    Display& display=DisplayManager::instance().getDisplay();
     struct tm start;
     start.tm_sec=30;
     start.tm_min=7;
@@ -43,7 +43,7 @@ int main()
                                             t.tm_hour,t.tm_min,t.tm_sec);
         siprintf(k,"%#x",rtc.notSetYet());
 		{
-			DrawingContext dc(Display::instance());
+			DrawingContext dc(display);
 			dc.clear(black);
 			dc.write(Point(0,0),usb?"USB connected":"USB disconnected");
 			dc.write(Point(0,12),chg?"Charging":"Not charging");

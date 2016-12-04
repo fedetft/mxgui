@@ -7,7 +7,7 @@ using namespace mxgui;
 ENTRY()
 {
 	{
-		DrawingContext dc(Display::instance());
+		DrawingContext dc(DisplayManager::instance().getDisplay());
 		dc.write(Point(0,0),"Hello world");
 	}
 	for(;;) ;

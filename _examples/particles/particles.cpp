@@ -85,7 +85,7 @@ static bool particleAnimation(Particle *particles)
     static const int cosTab[]={0, 1, 1, 1, 0,-1,-1,-1};
     static const int sinTab[]={1, 1, 0,-1,-1,-1, 0, 1};
 
-    Display& disp=Display::instance();
+    Display& disp=DisplayManager::instance().getDisplay();
     static int state=0;
     if(state==0)
     {
@@ -120,7 +120,7 @@ static bool particleAnimation(Particle *particles)
  */
 static void drawNextFrame(Particle **sorted, Point *oldPosition)
 {
-    DrawingContext dc(Display::instance());
+    DrawingContext dc(DisplayManager::instance().getDisplay());
     const Point last(dc.getWidth(),dc.getHeight());
     dc.beginPixel();
     int a=0, b=0;
@@ -162,7 +162,7 @@ static void printFps(int fps, int cpu)
 {
     char line[32];
     siprintf(line,"%d fps  %d%% cpu          ",fps,cpu);
-    DrawingContext dc(Display::instance());
+    DrawingContext dc(DisplayManager::instance().getDisplay());
     dc.write(Point(0,0),line);
 }
 

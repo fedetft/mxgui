@@ -205,7 +205,7 @@ void PowerManager::adjustBrightness()
     #endif //_MIOSIX
 }
 
-PowerManager::PowerManager() : display(Display::instance()),
+PowerManager::PowerManager() : display(DisplayManager::instance().getDisplay()),
 #ifdef _MIOSIX
         pmu(PowerManagement::instance()), light(LightSensor::instance()),
         rtc(Rtc::instance()),

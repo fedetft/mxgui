@@ -178,7 +178,7 @@ ENTRY()
             *(xfmvertices+3*i+2)=z;
         }
         {
-            DrawingContext dc(Display::instance());
+            DrawingContext dc(DisplayManager::instance().getDisplay());
             dc.clear(black);
             short minya=min(xfmvertices[1],min(xfmvertices[4],xfmvertices[7]));
             short minyb=min(xfmvertices[4],min(xfmvertices[7],xfmvertices[10]));
