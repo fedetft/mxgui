@@ -776,7 +776,7 @@ DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2,
 DisplayImpl::~DisplayImpl() {}
 
 DisplayImpl::DisplayImpl()
-    : framebuffer1(reinterpret_cast<unsigned short *>(0xc0000000)),
+    : framebuffer1(reinterpret_cast<unsigned short *>(0xc0c00000)),
       buffer(framebuffer1 + numPixels)
 {
     /* This driver uses DSI interface in command mode, but it was firstly programmed in video mode.
