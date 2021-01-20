@@ -122,7 +122,6 @@ private:
     mxgui::Display& display;
     BenchmarkResult results[numBenchmarks];
     int index;
-    miosix::Timer timer;
 };
 
 #endif //_MIOSIX

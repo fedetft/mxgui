@@ -33,8 +33,10 @@
 #include "benchmark.h"
 #include <cstdio>
 #include <cstring>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 using namespace mxgui;
 using namespace miosix;
 
@@ -155,14 +157,13 @@ void Benchmark::fixedWidthTextBenchmark()
             i%2==0 ? dc.setTextColor(white,black) : dc.setTextColor(black,white);
             #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         }
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             for(int j=0;j<dc.getHeight();j+=16) dc.write(Point(0,j),text);
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(500);
     }
     totalTime/=4;
@@ -192,14 +193,13 @@ void Benchmark::variableWidthTextBenchmark()
             i%2==0 ? dc.setTextColor(white,black) : dc.setTextColor(black,white);
             #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         }
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             for(int j=0;j<dc.getHeight();j+=12) dc.write(Point(0,j),text);
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(500);
     }
     totalTime/=4;
@@ -226,14 +226,13 @@ void Benchmark::antialiasingBenchmark()
             dc.setFont(droid11);
             dc.setTextColor(i%2==0 ? red : green,black);
         }
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             for(int j=0;j<dc.getHeight();j+=12) dc.write(Point(0,j),text);
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(500);
     }
     totalTime/=4;
@@ -251,15 +250,14 @@ void Benchmark::horizontalLineBenchmark()
         #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         Color color=i%2==0?white:black;
         #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             for(int j=0;j<dc.getHeight();j++)
                 dc.line(Point(0,j),Point(dc.getWidth()-1,j),color);
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(500);
     }
     totalTime/=4;
@@ -276,15 +274,14 @@ void Benchmark::verticalLineBenchmark()
         #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         Color color=i%2==0?white:black;
         #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             for(int j=0;j<dc.getWidth();j++)
                 dc.line(Point(j,0),Point(j,dc.getHeight()-1),color);
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(500);
     }
     totalTime/=4;
@@ -308,7 +305,7 @@ void Benchmark::obliqueLineBenchmark()
         Color colorB=colorA;
         Color colorC=i%2==0?black:white;
         #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             if(dc.getHeight()>=dc.getWidth())
@@ -346,9 +343,8 @@ void Benchmark::obliqueLineBenchmark()
                 }
             }
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(500);
     }
     totalTime/=4;
@@ -365,14 +361,13 @@ void Benchmark::clearScreenBenchmark()
         #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         Color color=i%2==0?white:black;
         #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             dc.clear(color);
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(500);
     }
     totalTime/=4;
@@ -384,7 +379,7 @@ void Benchmark::imageBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             for(int j=0;j<dc.getWidth();j+=16)
@@ -395,14 +390,13 @@ void Benchmark::imageBenchmark()
                     dc.drawImage(Point(j,k),checkpattern2);
                     #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         }
-        timer.stop();
+        auto d=system_clock::now()-t;
         delayMs(250);
         {
             DrawingContext dc(display);
             dc.clear(black);
         }
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(250);
     }
     totalTime/=4;
@@ -448,16 +442,15 @@ void Benchmark::scanLineBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             //TODO: does not work well for displays with width > 240
             for(int k=0;k<dc.getHeight();k++)
                 dc.scanLine(Point(0,k),rainbow,min<int>(240,dc.getWidth()));
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(250);
         {
             DrawingContext dc(display);
@@ -475,7 +468,7 @@ void Benchmark::clippedDrawBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             for(int j=0;j<dc.getWidth();j+=8)
@@ -491,14 +484,13 @@ void Benchmark::clippedDrawBenchmark()
                     #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
                 }
         }
-        timer.stop();
+        auto d=system_clock::now()-t;
         delayMs(250);
         {
             DrawingContext dc(display);
             dc.clear(black);
         }
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(250);
     }
     totalTime/=4;
@@ -530,7 +522,7 @@ void Benchmark::clippedWriteBenchmark()
             else dc.setTextColor(black,white);
             #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
         }
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             for(int j=0;j<dc.getHeight();j+=6)
@@ -541,9 +533,8 @@ void Benchmark::clippedWriteBenchmark()
                 dc.clippedWrite(p,a,b,text);
             }
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(500);
     }
     totalTime/=4;
@@ -562,14 +553,13 @@ void Benchmark::resourceImageBenchmark()
             DrawingContext dc(display);
             dc.clear(black);
         }
-        timer.start();
+        auto t=system_clock::now();
         {
             DrawingContext dc(display);
             dc.drawImage(Point(0,0),img);
         }
-        timer.stop();
-        totalTime+=timer.interval()*1000000/TICK_FREQ;
-        timer.clear();
+        auto d=system_clock::now()-t;
+        totalTime+=duration_cast<microseconds>(d).count();
         delayMs(500);
     }
     totalTime/=4;
