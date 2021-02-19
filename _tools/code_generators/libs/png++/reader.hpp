@@ -92,7 +92,7 @@ namespace png
          */
         void read_png()
         {
-            if (setjmp(m_png->jmpbuf))
+            if (setjmp(png_jmpbuf(m_png)))
             {
                 throw error(m_error);
             }
@@ -107,7 +107,7 @@ namespace png
          */
         void read_info()
         {
-            if (setjmp(m_png->jmpbuf))
+            if (setjmp(png_jmpbuf(m_png)))
             {
                 throw error(m_error);
             }
@@ -119,7 +119,7 @@ namespace png
          */
         void read_row(byte* bytes)
         {
-            if (setjmp(m_png->jmpbuf))
+            if (setjmp(png_jmpbuf(m_png)))
             {
                 throw error(m_error);
             }
@@ -131,7 +131,7 @@ namespace png
          */
         void read_end_info()
         {
-            if (setjmp(m_png->jmpbuf))
+            if (setjmp(png_jmpbuf(m_png)))
             {
                 throw error(m_error);
             }
@@ -144,7 +144,7 @@ namespace png
         }
 
     private:
-        static void read_data(png_struct* png, byte* data, size_t length)
+        static void read_data(png_struct* png, byte* data, png_size_t length)
         {
             io_base* io = static_cast< io_base* >(png_get_error_ptr(png));
             reader* rd = static_cast< reader* >(io);

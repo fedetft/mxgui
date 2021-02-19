@@ -56,8 +56,8 @@ namespace png
     template< typename pixel,
               typename component,
               color_type pixel_color_type,
-              size_t channels = sizeof(pixel) / sizeof(component),
-              size_t bit_depth = std::numeric_limits< component >::digits >
+              int channels_value = sizeof(pixel) / sizeof(component),
+              int bit_depth_value = std::numeric_limits< component >::digits >
     struct basic_pixel_traits
     {
         typedef pixel pixel_type;
@@ -67,11 +67,15 @@ namespace png
         {
             return pixel_color_type;
         }
-        static size_t get_channels()
+        
+        static const int channels = channels_value;
+        static int get_channels()
         {
             return channels;
         }
-        static size_t get_bit_depth()
+        
+        static const int bit_depth = bit_depth_value;
+        static int get_bit_depth()
         {
             return bit_depth;
         }

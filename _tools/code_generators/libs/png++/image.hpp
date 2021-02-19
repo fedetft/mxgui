@@ -47,8 +47,18 @@ namespace png
      * %info like interlace type, compression method, palette (for
      * colormap-based images) etc.  Provides methods to read and write
      * images from/to a generic stream and to manipulate %image pixels.
+     * 
+     * The default pixel_buffer stores pixels in a vector of vectors, which
+     * is good for openning, editing or converting an image to any
+     * pixel type.
+     * But for simple and fast image unpacking to one memory chunk this approch
+     * is unacceptable, because it leads to multiple memory allocations, the
+     * unpacked image is spread across the memory and client code needs to
+     * gather it manualy. solid_pixel_buffer solves this problem, but with
+     * restriction: pixels with fractional number of bytes per channel are
+     * not allowed (see solid_pixel_buffer.hpp for details).
      */
-    template< typename pixel >
+    template< typename pixel, typename pixel_buffer_type = pixel_buffer< pixel > >
     class image
     {
     public:
@@ -60,12 +70,14 @@ namespace png
         /**
          * \brief The pixel buffer type for \c pixel.
          */
-        typedef pixel_buffer< pixel > pixbuf;
+        typedef pixel_buffer_type pixbuf;
 
         /**
          * \brief Represents a row of image pixel data.
          */
         typedef typename pixbuf::row_type row_type;
+        typedef typename pixbuf::row_access row_access;
+        typedef typename pixbuf::row_const_access row_const_access;
 
         /**
          * \brief A transformation functor to convert any image to
@@ -92,7 +104,7 @@ namespace png
         /**
          * \brief Constructs an empty image of specified width and height.
          */
-        image(size_t width, size_t height)
+        image(uint_32 width, uint_32 height)
             : m_info(make_image_info< pixel >())
         {
             resize(width, height);
@@ -265,14 +277,6 @@ namespace png
         /**
          * \brief Writes an image to a stream.
          */
-        void write_stream(std::ostream& stream)
-        {
-            write_stream(stream);
-        }
-
-        /**
-         * \brief Writes an image to a stream.
-         */
         template< class ostream >
         void write_stream(ostream& stream)
         {
@@ -306,12 +310,12 @@ namespace png
             m_pixbuf = buffer;
         }
 
-        size_t get_width() const
+        uint_32 get_width() const
         {
             return m_pixbuf.get_width();
         }
 
-        size_t get_height() const
+        uint_32 get_height() const
         {
             return m_pixbuf.get_height();
         }
@@ -319,7 +323,7 @@ namespace png
         /**
          * \brief Resizes the image pixel buffer.
          */
-        void resize(size_t width, size_t height)
+        void resize(uint_32 width, uint_32 height)
         {
             m_pixbuf.resize(width, height);
             m_info.set_width(width);
@@ -332,7 +336,7 @@ namespace png
          *
          * \see pixel_buffer::get_row()
          */
-        row_type& get_row(size_t index)
+        row_access get_row(size_t index)
         {
             return m_pixbuf.get_row(index);
         }
@@ -343,7 +347,7 @@ namespace png
          *
          * \see pixel_buffer::get_row()
          */
-        row_type const& get_row(size_t index) const
+        row_const_access get_row(size_t index) const
         {
             return m_pixbuf.get_row(index);
         }
@@ -351,7 +355,7 @@ namespace png
         /**
          * \brief The non-checking version of get_row() method.
          */
-        row_type& operator[](size_t index)
+        row_access operator[](size_t index)
         {
             return m_pixbuf[index];
         }
@@ -359,7 +363,7 @@ namespace png
         /**
          * \brief The non-checking version of get_row() method.
          */
-        row_type const& operator[](size_t index) const
+        row_const_access operator[](size_t index) const
         {
             return m_pixbuf[index];
         }
@@ -447,6 +451,16 @@ namespace png
         void set_tRNS(tRNS const& trns)
         {
             m_info.set_tRNS(trns);
+        }
+
+        double get_gamma() const
+        {
+            return m_info.get_gamma();
+        }
+
+        void set_gamma(double gamma)
+        {
+            m_info.set_gamma(gamma);
         }
 
     protected:

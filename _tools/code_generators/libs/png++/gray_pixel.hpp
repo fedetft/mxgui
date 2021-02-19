@@ -52,7 +52,7 @@ namespace png
      * \brief The packed gray pixel class template.  The available
      * specializations are for 1-, 2- and 4-bit pixels.
      */
-    template< size_t bits >
+    template< int bits >
     class packed_gray_pixel
         : public packed_pixel< bits >
     {
@@ -99,7 +99,7 @@ namespace png
     /**
      * \brief Pixel traits specialization for packed_gray_pixel.
      */
-    template< size_t bits >
+    template< int bits >
     struct pixel_traits< packed_gray_pixel< bits > >
         : basic_pixel_traits< packed_gray_pixel< bits >, byte,
                               color_type_gray, /* channels = */ 1, bits >

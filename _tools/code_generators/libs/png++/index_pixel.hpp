@@ -62,7 +62,7 @@ namespace png
      * \brief The packed indexed pixel class template.  The available
      * specializations are for 1-, 2- and 4-bit pixels.
      */
-    template< size_t bits >
+    template< int bits >
     class packed_index_pixel
         : public packed_pixel< bits >
     {
@@ -100,7 +100,7 @@ namespace png
     /**
      * \brief Pixel traits specialization for packed_index_pixel.
      */
-    template< size_t bits >
+    template< int bits >
     struct pixel_traits< packed_index_pixel< bits > >
         : basic_pixel_traits< packed_index_pixel< bits >, byte,
                               color_type_palette, /* channels = */ 1, bits >

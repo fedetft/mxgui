@@ -54,6 +54,7 @@
 #include "generator.hpp"
 #include "consumer.hpp"
 #include "pixel_buffer.hpp"
+#include "solid_pixel_buffer.hpp"
 #include "require_color_space.hpp"
 #include "convert_color_space.hpp"
 #include "image.hpp"
@@ -158,9 +159,9 @@
  * #include <png++/png.hpp>
  * //...
  * png::image< png::rgb_pixel > image(128, 128);
- * for (size_t y = 0; y < image.get_height(); ++y)
+ * for (png::uint_32 y = 0; y < image.get_height(); ++y)
  * {
- *     for (size_t x = 0; x < image.get_width(); ++x)
+ *     for (png::uint_32 x = 0; x < image.get_width(); ++x)
  *     {
  *         image[y][x] = png::rgb_pixel(x, y, x + y);
  *         // non-checking equivalent of image.set_pixel(x, y, ...);
@@ -262,10 +263,10 @@
  *
  * Also, you can check out sources directly from SVN repository:
  * svn://svn.sv.nongnu.org/pngpp/trunk/ or
- * http://svn.sv.nongnu.org/pngpp/trunk/ (for people w/o outgoing svn).
+ * http://svn.sv.nongnu.org/svn/pngpp/trunk/ (for people w/o outgoing svn).
  *
  * Online version of this documentation can be found here:
- * http://www.nongnu.org/pngpp/doc/0.2.3/index.html
+ * http://www.nongnu.org/pngpp/doc/
  *
  * \section sec_bugs Bugs
  *

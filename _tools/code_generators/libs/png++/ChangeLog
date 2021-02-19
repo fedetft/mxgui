@@ -1,3 +1,8 @@
+2009-06-21  Alex Shulgin
+
+	* config.hpp: Added support for FreeBSD (detect endianness).
+	Patch by <c.petrik.sosa@gmail.com>.
+
 png++-0.2.3	19 Oct 2008
 
 	Fixed numerous `already defined' errors due to require_color_space

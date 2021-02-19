@@ -33,9 +33,23 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstdarg>
 #include "error.hpp"
 #include "info.hpp"
 #include "end_info.hpp"
+
+static void
+trace_io_transform(char const* fmt, ...)
+{
+#ifdef DEBUG_IO_TRANSFORM
+    va_list va;
+    va_start(va, fmt);
+    fprintf(stderr, "TRANSFORM_IO: ");
+    vfprintf(stderr, fmt, va);
+    va_end(va);
+#endif
+}
+#define TRACE_IO_TRANSFORM trace_io_transform
 
 namespace png
 {
@@ -103,22 +117,22 @@ namespace png
         //////////////////////////////////////////////////////////////////////
         // info accessors
         //
-        size_t get_width() const
+        uint_32 get_width() const
         {
             return m_info.get_width();
         }
 
-        void set_width(size_t width)
+        void set_width(uint_32 width)
         {
             m_info.set_width(width);
         }
 
-        size_t get_height() const
+        uint_32 get_height() const
         {
             return m_info.get_height();
         }
 
-        void set_height(size_t height)
+        void set_height(uint_32 height)
         {
             m_info.set_height(height);
         }
@@ -133,12 +147,12 @@ namespace png
             m_info.set_color_type(color_space);
         }
 
-        size_t get_bit_depth() const
+        int get_bit_depth() const
         {
             return m_info.get_bit_depth();
         }
 
-        void set_bit_depth(size_t bit_depth)
+        void set_bit_depth(int bit_depth)
         {
             m_info.set_bit_depth(bit_depth);
         }
@@ -185,16 +199,19 @@ namespace png
 #if defined(PNG_READ_EXPAND_SUPPORTED)
         void set_gray_1_2_4_to_8() const
         {
-            png_set_gray_1_2_4_to_8(m_png);
+            TRACE_IO_TRANSFORM("png_set_expand_gray_1_2_4_to_8\n");
+            png_set_expand_gray_1_2_4_to_8(m_png);
         }
 
         void set_palette_to_rgb() const
         {
+            TRACE_IO_TRANSFORM("png_set_palette_to_rgb\n");
             png_set_palette_to_rgb(m_png);
         }
 
         void set_tRNS_to_alpha() const
         {
+            TRACE_IO_TRANSFORM("png_set_tRNS_to_alpha\n");
             png_set_tRNS_to_alpha(m_png);
         }
 #endif // defined(PNG_READ_EXPAND_SUPPORTED)
@@ -202,6 +219,7 @@ namespace png
 #if defined(PNG_READ_BGR_SUPPORTED) || defined(PNG_WRITE_BGR_SUPPORTED)
         void set_bgr() const
         {
+            TRACE_IO_TRANSFORM("png_set_bgr\n");
             png_set_bgr(m_png);
         }
 #endif
@@ -209,6 +227,7 @@ namespace png
 #if defined(PNG_READ_GRAY_TO_RGB_SUPPORTED)
         void set_gray_to_rgb() const
         {
+            TRACE_IO_TRANSFORM("png_set_gray_to_rgb\n");
             png_set_gray_to_rgb(m_png);
         }
 #endif
@@ -219,6 +238,10 @@ namespace png
                              double red_weight   = -1.0,
                              double green_weight = -1.0) const
         {
+            TRACE_IO_TRANSFORM("png_set_rgb_to_gray: error_action=%d,"
+                               " red_weight=%lf, green_weight=%lf\n",
+                               error_action, red_weight, green_weight);
+
             png_set_rgb_to_gray(m_png, error_action, red_weight, green_weight);
         }
 #else
@@ -227,6 +250,10 @@ namespace png
                              fixed_point red_weight   = -1,
                              fixed_point green_weight = -1) const
         {
+            TRACE_IO_TRANSFORM("png_set_rgb_to_gray_fixed: error_action=%d,"
+                               " red_weight=%d, green_weight=%d\n",
+                               error_action, red_weight, green_weight);
+
             png_set_rgb_to_gray_fixed(m_png, error_action,
                                       red_weight, green_weight);
         }
@@ -238,6 +265,7 @@ namespace png
 #if defined(PNG_READ_STRIP_ALPHA_SUPPORTED)
         void set_strip_alpha() const
         {
+            TRACE_IO_TRANSFORM("png_set_strip_alpha\n");
             png_set_strip_alpha(m_png);
         }
 #endif
@@ -246,6 +274,7 @@ namespace png
     || defined(PNG_WRITE_SWAP_ALPHA_SUPPORTED)
         void set_swap_alpha() const
         {
+            TRACE_IO_TRANSFORM("png_set_swap_alpha\n");
             png_set_swap_alpha(m_png);
         }
 #endif
@@ -254,6 +283,7 @@ namespace png
     || defined(PNG_WRITE_INVERT_ALPHA_SUPPORTED)
         void set_invert_alpha() const
         {
+            TRACE_IO_TRANSFORM("png_set_invert_alpha\n");
             png_set_invert_alpha(m_png);
         }
 #endif
@@ -261,12 +291,18 @@ namespace png
 #if defined(PNG_READ_FILLER_SUPPORTED) || defined(PNG_WRITE_FILLER_SUPPORTED)
         void set_filler(uint_32 filler, filler_type type) const
         {
+            TRACE_IO_TRANSFORM("png_set_filler: filler=%08x, type=%d\n",
+                               filler, type);
+
             png_set_filler(m_png, filler, type);
         }
 
 #if !defined(PNG_1_0_X)
         void set_add_alpha(uint_32 filler, filler_type type) const
         {
+            TRACE_IO_TRANSFORM("png_set_add_alpha: filler=%08x, type=%d\n",
+                               filler, type);
+
             png_set_add_alpha(m_png, filler, type);
         }
 #endif
@@ -275,6 +311,7 @@ namespace png
 #if defined(PNG_READ_SWAP_SUPPORTED) || defined(PNG_WRITE_SWAP_SUPPORTED)
         void set_swap() const
         {
+            TRACE_IO_TRANSFORM("png_set_swap\n");
             png_set_swap(m_png);
         }
 #endif
@@ -282,6 +319,7 @@ namespace png
 #if defined(PNG_READ_PACK_SUPPORTED) || defined(PNG_WRITE_PACK_SUPPORTED)
         void set_packing() const
         {
+            TRACE_IO_TRANSFORM("png_set_packing\n");
             png_set_packing(m_png);
         }
 #endif
@@ -290,6 +328,7 @@ namespace png
     || defined(PNG_WRITE_PACKSWAP_SUPPORTED)
         void set_packswap() const
         {
+            TRACE_IO_TRANSFORM("png_set_packswap\n");
             png_set_packswap(m_png);
         }
 #endif
@@ -298,6 +337,10 @@ namespace png
         void set_shift(byte red_bits, byte green_bits, byte blue_bits,
                        byte alpha_bits = 0) const
         {
+            TRACE_IO_TRANSFORM("png_set_shift: red_bits=%d, green_bits=%d,"
+                               " blue_bits=%d, alpha_bits=%d\n",
+                               red_bits, green_bits, blue_bits, alpha_bits);
+
             if (get_color_type() != color_type_rgb
                 || get_color_type() != color_type_rgb_alpha)
             {
@@ -313,11 +356,13 @@ namespace png
 
         void set_shift(byte gray_bits, byte alpha_bits = 0) const
         {
+            TRACE_IO_TRANSFORM("png_set_shift: gray_bits=%d, alpha_bits=%d\n",
+                               gray_bits, alpha_bits);
+
             if (get_color_type() != color_type_gray
                 || get_color_type() != color_type_gray_alpha)
             {
-                throw error("set_shift: expected Gray or Gray+Alpha"
-                            " color type");
+                throw error("set_shift: expected Gray or Gray+Alpha color type");
             }
             color_info bits;
             bits.gray = gray_bits;
@@ -330,6 +375,7 @@ namespace png
     || defined(PNG_WRITE_INTERLACING_SUPPORTED)
         int set_interlace_handling() const
         {
+            TRACE_IO_TRANSFORM("png_set_interlace_handling\n");
             return png_set_interlace_handling(m_png);
         }
 #endif
@@ -337,6 +383,7 @@ namespace png
 #if defined(PNG_READ_INVERT_SUPPORTED) || defined(PNG_WRITE_INVERT_SUPPORTED)
         void set_invert_mono() const
         {
+            TRACE_IO_TRANSFORM("png_set_invert_mono\n");
             png_set_invert_mono(m_png);
         }
 #endif
@@ -344,6 +391,7 @@ namespace png
 #if defined(PNG_READ_16_TO_8_SUPPORTED)
         void set_strip_16() const
         {
+            TRACE_IO_TRANSFORM("png_set_strip_16\n");
             png_set_strip_16(m_png);
         }
 #endif
@@ -351,6 +399,7 @@ namespace png
 #if defined(PNG_READ_USER_TRANSFORM_SUPPORTED)
         void set_read_user_transform(png_user_transform_ptr transform_fn)
         {
+            TRACE_IO_TRANSFORM("png_set_read_user_transform_fn\n");
             png_set_read_user_transform_fn(m_png, transform_fn);
         }
 #endif
@@ -359,6 +408,9 @@ namespace png
     || defined(PNG_WRITE_USER_TRANSFORM_SUPPORTED)
         void set_user_transform_info(void* info, int bit_depth, int channels)
         {
+            TRACE_IO_TRANSFORM("png_set_user_transform_info: bit_depth=%d,"
+                               " channels=%d\n", bit_depth, channels);
+
             png_set_user_transform_info(m_png, info, bit_depth, channels);
         }
 #endif
@@ -394,7 +446,7 @@ namespace png
 
         void raise_error()
         {
-            longjmp(m_png->jmpbuf, -1);
+            longjmp(png_jmpbuf(m_png), -1);
         }
 
         static void raise_error(png_struct* png, char const* message)

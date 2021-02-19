@@ -69,7 +69,7 @@ namespace png
      * as follows:
      *
      * \code
-     * png::byte* get_next_row(size_t pos);
+     * png::byte* get_next_row(png::uint_32 pos);
      * void reset(size_t pass);
      * \endcode
      *
@@ -138,8 +138,7 @@ namespace png
 #ifdef PNG_WRITE_SWAP_SUPPORTED
                 wr.set_swap();
 #else
-                throw error("Cannot write 16-bit image:"
-                            " recompile with PNG_WRITE_SWAP_SUPPORTED.");
+                throw error("Cannot write 16-bit image: recompile with PNG_WRITE_SWAP_SUPPORTED.");
 #endif
             }
 #endif
@@ -154,12 +153,10 @@ namespace png
                 }
                 else
                 {
-                    throw std::logic_error("Cannot write interlaced image:"
-                                           " generator does not support it.");
+                    throw std::logic_error("Cannot write interlaced image: generator does not support it.");
                 }
 #else
-                throw error("Cannot write interlaced image:"
-                            " interlace handling disabled.");
+                throw error("Cannot write interlaced image: interlace handling disabled.");
 #endif
             }
             else
@@ -171,7 +168,7 @@ namespace png
             {
                 pixel_gen->reset(pass);
 
-                for (size_t pos = 0; pos < this->get_info().get_height(); ++pos)
+                for (uint_32 pos = 0; pos < this->get_info().get_height(); ++pos)
                 {
                     wr.write_row(pixel_gen->get_next_row(pos));
                 }

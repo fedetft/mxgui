@@ -97,7 +97,7 @@ namespace png
         {
         }
 
-        streaming_base(size_t width, size_t height)
+        streaming_base(uint_32 width, uint_32 height)
             : m_info_holder(make_image_info< pixel >())
         {
             get_info().set_width(width);

@@ -68,7 +68,7 @@ namespace png
      * as follows:
      *
      * \code
-     * png::byte* get_next_row(size_t pos);
+     * png::byte* get_next_row(png::uint_32 pos);
      * void reset(size_t pass);
      * \endcode
      *
@@ -167,8 +167,7 @@ namespace png
 #ifdef PNG_READ_SWAP_SUPPORTED
                 rd.set_swap();
 #else
-                throw error("Cannot read 16-bit image:"
-                            " recompile with PNG_READ_SWAP_SUPPORTED.");
+                throw error("Cannot read 16-bit image: recompile with PNG_READ_SWAP_SUPPORTED.");
 #endif
             }
 #endif
@@ -180,8 +179,7 @@ namespace png
 #ifdef PNG_READ_INTERLACING_SUPPORTED
                 pass_count = rd.set_interlace_handling();
 #else
-                throw error("Cannot read interlaced image:"
-                            " interlace handling disabled.");
+                throw error("Cannot read interlaced image: interlace handling disabled.");
 #endif
             }
             else
@@ -244,7 +242,7 @@ namespace png
             {
                 pixel_con->reset(pass);
 
-                for (size_t pos = 0; pos < this->get_info().get_height(); ++pos)
+                for (uint_32 pos = 0; pos < this->get_info().get_height(); ++pos)
                 {
                     rd.read_row(pixel_con->get_next_row(pos));
                 }

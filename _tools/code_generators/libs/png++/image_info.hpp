@@ -59,26 +59,27 @@ namespace png
               m_color_type(color_type_none),
               m_interlace_type(interlace_none),
               m_compression_type(compression_type_default),
-              m_filter_type(filter_type_default)
+              m_filter_type(filter_type_default),
+              m_gamma(0.0)
         {
         }
 
-        size_t get_width() const
+        uint_32 get_width() const
         {
             return m_width;
         }
 
-        void set_width(size_t width)
+        void set_width(uint_32 width)
         {
             m_width = width;
         }
 
-        size_t get_height() const
+        uint_32 get_height() const
         {
             return m_height;
         }
 
-        void set_height(size_t height)
+        void set_height(uint_32 height)
         {
             m_height = height;
         }
@@ -93,12 +94,12 @@ namespace png
             m_color_type = color_space;
         }
 
-        size_t get_bit_depth() const
+        int get_bit_depth() const
         {
             return m_bit_depth;
         }
 
-        void set_bit_depth(size_t bit_depth)
+        void set_bit_depth(int bit_depth)
         {
             m_bit_depth = bit_depth;
         }
@@ -171,16 +172,27 @@ namespace png
             m_tRNS = trns;
         }
 
+        double get_gamma() const
+        {
+            return m_gamma;
+        }
+
+        void set_gamma(double gamma)
+        {
+            m_gamma = gamma;
+        }
+
     protected:
         uint_32 m_width;
         uint_32 m_height;
-        size_t m_bit_depth;
+        int m_bit_depth;
         color_type m_color_type;
         interlace_type m_interlace_type;
         compression_type m_compression_type;
         filter_type m_filter_type;
         palette m_palette;
         tRNS m_tRNS;
+        double m_gamma;
     };
 
     /**

@@ -75,6 +75,7 @@ namespace png
                 png_get_PLTE(m_png, m_info, & colors, & count);
                 m_palette.assign(colors, colors + count);
             }
+
 #ifdef PNG_tRNS_SUPPORTED
             if (png_get_valid(m_png, m_info, chunk_tRNS) == chunk_tRNS)
             {
@@ -91,6 +92,25 @@ namespace png
                 }
             }
 #endif
+
+#ifdef PNG_gAMA_SUPPORTED
+            if (png_get_valid(m_png, m_info, chunk_gAMA) == chunk_gAMA)
+            {
+#ifdef PNG_FLOATING_POINT_SUPPORTED
+                if (png_get_gAMA(m_png, m_info, &m_gamma) != PNG_INFO_gAMA)
+                {
+                    throw error("png_get_gAMA() failed");
+                }
+#else
+                png_fixed_point gamma = 0;
+                if (png_get_gAMA_fixed(m_png, m_info, &gamma) != PNG_INFO_gAMA)
+                {
+                    throw error("png_get_gAMA_fixed() failed");
+                }
+                m_gamma = gamma / 100000.0;
+#endif
+            }
+#endif
         }
 
         void write() const
@@ -105,7 +125,7 @@ namespace png
                 {
                     png_set_PLTE(m_png, m_info,
                                  const_cast< color* >(& m_palette[0]),
-                                 m_palette.size());
+                                 (int) m_palette.size());
                 }
                 if (! m_tRNS.empty())
                 {
@@ -115,11 +135,25 @@ namespace png
                                  m_tRNS.size(),
                                  NULL);
 #else
-                    throw error("attempted to write tRNS chunk;"
-                                " recompile with PNG_tRNS_SUPPORTED");
+                    throw error("attempted to write tRNS chunk; recompile with PNG_tRNS_SUPPORTED");
 #endif
                 }
             }
+
+            if (m_gamma > 0)
+            {
+#ifdef PNG_gAMA_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
+                png_set_gAMA(m_png, m_info, m_gamma);
+#else
+                png_set_gAMA_fixed(m_png, m_info,
+                                   (png_fixed_point)(m_gamma * 100000));
+#endif
+#else
+                throw error("attempted to write gAMA chunk; recompile with PNG_gAMA_SUPPORTED");
+#endif
+            }
+
             png_write_info(m_png, m_info);
         }
 
