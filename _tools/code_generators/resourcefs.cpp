@@ -37,7 +37,7 @@
 
 using namespace std;
 using namespace boost::program_options;
-using namespace boost::filesystem;
+namespace fs = boost::filesystem;
 
 /**
  * \param an unsigned int
@@ -83,10 +83,10 @@ int main(int argc, char *argv[])
 	}
 
 	//Traverse the input directory storing path of files 
-	path inDir(vm["in"].as<string>());
-	directory_iterator end;
-	vector<path> files;
-	for(directory_iterator it(inDir);it!=end;++it)
+	fs::path inDir(vm["in"].as<string>());
+	fs::directory_iterator end;
+	vector<fs::path> files;
+	for(fs::directory_iterator it(inDir);it!=end;++it)
 	{
 		if(is_directory(it->status()))
 		{

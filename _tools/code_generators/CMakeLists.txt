@@ -40,8 +40,8 @@ target_link_libraries(resourcefs ${Boost_LIBRARIES})
 #include_directories(${FREETYPE_INCLUDE_DIRS})
 #target_link_libraries(fontrendering ${FREETYPE_LIBRARIES})
 ## Uncomment this if you want to build and use freetype 2.4.3
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/build/freetype-2.4.3/include)
-find_library(FREETYPE NAMES freetype HINTS ${CMAKE_CURRENT_SOURCE_DIR}/build/freetype-2.4.3/objs/.libs)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/freetype-2.4.3/include)
+find_library(FREETYPE NAMES freetype HINTS ${CMAKE_CURRENT_BINARY_DIR}/freetype-2.4.3/objs/.libs)
 target_link_libraries(fontrendering ${FREETYPE})
 
 find_package(ZLIB REQUIRED)
