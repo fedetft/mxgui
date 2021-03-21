@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013 by Salaorni Davide, Velati Matteo                  *
+ *   Copyright (C) 2021 by Salaorni Davide, Velati Matteo                  *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,22 +26,15 @@
  ***************************************************************************/
 
 #include "display_st7735.h"
-#include "miosix.h"
-#include <cstdarg>
+#include "font.h"
+#include "image.h"
+#include "misc_inst.h"
+#include "line.h"
 
 using namespace std;
 using namespace miosix;
 
-#ifdef _BOARD_STM32F4DISCOVERY
-
 namespace mxgui {
-    
-/**
- * Function to attach the display we are using.
- */
-void registerDisplayHook(DisplayManager& dm) {
-    dm.registerDisplay(&DisplayImpl::instance());
-}
 
 /**
  * Init sequence for the correct functioning of the ST7735 display
@@ -71,51 +64,46 @@ const unsigned char initST7735b[] = {
 };
 
 /**
- * Class DisplayImpl
+ * Class DisplayGenericST7735
  */
-DisplayImpl& DisplayImpl::instance() {
-    static DisplayImpl instance;
-    return instance;
-}
-
-void DisplayImpl::doTurnOn() {
+void DisplayGenericST7735::doTurnOn() {
     writeReg(0x29);     //ST7735_DISPON 
     delayMs(150);
 }
 
-void DisplayImpl::doTurnOff() {
+void DisplayGenericST7735::doTurnOff() {
     writeReg(0x28);     //ST7735_DISPOFF 
     delayMs(150);
 }
 
-void DisplayImpl::doSetBrightness(int brt) {
+void DisplayGenericST7735::doSetBrightness(int brt) {
     //No function to set brightness for this display
 }
 
-pair<short int, short int> DisplayImpl::doGetSize() const {
+pair<short int, short int> DisplayGenericST7735::doGetSize() const {
     return make_pair(height, width);
 }
 
-void DisplayImpl::write(Point p, const char *text) {
+void DisplayGenericST7735::write(Point p, const char *text) {
     font.draw(*this, textColor, p, text);
 }
 
-void DisplayImpl::clippedWrite(Point p, Point a,  Point b, const char *text) {
+void DisplayGenericST7735::clippedWrite(Point p, Point a,  Point b, const char *text) {
     font.clippedDraw(*this, textColor, p, a, b, text);
 }
 
-void DisplayImpl::clear(Color color) {
+void DisplayGenericST7735::clear(Color color) {
     clear(Point(0,0), Point(width-1, height-1), color);
 }
 
-void DisplayImpl::clear(Point p1, Point p2, Color color) {
+void DisplayGenericST7735::clear(Point p1, Point p2, Color color) {
     unsigned char lsb = color & 0xFF;
     unsigned char msb = (color >> 8) & 0xFF;
 
     imageWindow(p1, p2);
     int numPixels = (p2.x() - p1.x() + 1) * (p2.y() - p1.y() + 1);
 
-    SPITransaction t;
+    Transaction t(csx);
     writeRamBegin();
 
     //Send data to write on GRAM
@@ -125,22 +113,22 @@ void DisplayImpl::clear(Point p1, Point p2, Color color) {
     }
 }
 
-void DisplayImpl::beginPixel() {
+void DisplayGenericST7735::beginPixel() {
     imageWindow(Point(0,0), Point(width-1, height-1));
 }
 
-void DisplayImpl::setPixel(Point p, Color color) {
+void DisplayGenericST7735::setPixel(Point p, Color color) {
     unsigned char lsb = color & 0xFF;
     unsigned char msb = (color >> 8) & 0xFF;
 
     setCursor(p);
-    SPITransaction t;
+    Transaction t(csx);
     writeRamBegin();
     writeRam(msb);
     writeRam(lsb);
 }
 
-void DisplayImpl::line(Point a, Point b, Color color) {
+void DisplayGenericST7735::line(Point a, Point b, Color color) {
     unsigned char lsb = color & 0xFF;
     unsigned char msb = (color >> 8) & 0xFF;
 
@@ -150,7 +138,7 @@ void DisplayImpl::line(Point a, Point b, Color color) {
         imageWindow(Point(min(a.x(), b.x()), a.y()), Point(max(a.x(), b.x()), a.y()));
         int numPixels = abs(a.x() - b.x());
 
-        SPITransaction t;
+        Transaction t(csx);
         writeRamBegin();
 
         //Send data to write on GRAM
@@ -166,7 +154,7 @@ void DisplayImpl::line(Point a, Point b, Color color) {
         textWindow(Point(a.x(), min(a.y(), b.y())), Point(a.x(), max(a.y(), b.y())));
         int numPixels = abs(a.y() - b.y());
 
-        SPITransaction t;
+        Transaction t(csx);
         writeRamBegin();
 
         //Send data to write on GRAM
@@ -181,14 +169,14 @@ void DisplayImpl::line(Point a, Point b, Color color) {
     Line::draw(*this, a, b, color);
 }
 
-void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length) {
+void DisplayGenericST7735::scanLine(Point p, const Color *colors, unsigned short length) {
     unsigned char lsb = 0x00;
     unsigned char msb = 0x00;
 
     if(p.x() + length > width) { return; }
     imageWindow(p, Point(width - 1, p.y()));
 
-    SPITransaction t;
+    Transaction t(csx);
     writeRamBegin();
 
     //Send data to write on GRAM
@@ -201,16 +189,16 @@ void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length) 
     }
 }
 
-Color *DisplayImpl::getScanLineBuffer() {
+Color *DisplayGenericST7735::getScanLineBuffer() {
     if(buffer == 0) buffer = new Color[getWidth()];
     return buffer;
 }
 
-void DisplayImpl::scanLineBuffer(Point p, unsigned short length) {
+void DisplayGenericST7735::scanLineBuffer(Point p, unsigned short length) {
     scanLine(p, buffer, length);
 }
 
-void DisplayImpl::drawImage(Point p, const ImageBase& img) {
+void DisplayGenericST7735::drawImage(Point p, const ImageBase& img) {
     short int xEnd = p.x() + img.getWidth() - 1;
     short int yEnd = p.y() + img.getHeight() - 1;
     if(xEnd >= width || yEnd >= height) { return; }
@@ -225,7 +213,7 @@ void DisplayImpl::drawImage(Point p, const ImageBase& img) {
         imageWindow(p, Point(xEnd, yEnd));
         int numPixels = img.getHeight() * img.getWidth();
 
-        SPITransaction t;
+        Transaction t(csx);
         writeRamBegin();
 
         for(int i=0; i <= numPixels; i++)
@@ -239,18 +227,18 @@ void DisplayImpl::drawImage(Point p, const ImageBase& img) {
     else { img.draw(*this,p); }
 }
 
-void DisplayImpl::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img) {
+void DisplayGenericST7735::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img) {
     img.clippedDraw(*this,p,a,b);
 }
 
-void DisplayImpl::drawRectangle(Point a, Point b, Color c) {
+void DisplayGenericST7735::drawRectangle(Point a, Point b, Color c) {
     line(a,Point(b.x(), a.y()), c);
     line(Point(b.x(), a.y()), b, c);
     line(b,Point(a.x(), b.y()), c);
     line(Point(a.x(), b.y()), a, c);
 }
 
-void DisplayImpl::window(Point p1, Point p2, bool swap) {
+void DisplayGenericST7735::window(Point p1, Point p2, bool swap) {
     #ifdef MXGUI_ORIENTATION_VERTICAL
         char caset_offset = 2;
         char raset_offset = 1;
@@ -284,12 +272,12 @@ void DisplayImpl::window(Point p1, Point p2, bool swap) {
     }
 }
 
-void DisplayImpl::update() {
+void DisplayGenericST7735::update() {
     // Useless for ST7735 display
 }
 
-DisplayImpl::pixel_iterator
-DisplayImpl::begin(Point p1, Point p2, IteratorDirection d) {
+DisplayGenericST7735::pixel_iterator
+DisplayGenericST7735::begin(Point p1, Point p2, IteratorDirection d) {
         if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) {
             return pixel_iterator();
         }
@@ -303,7 +291,7 @@ DisplayImpl::begin(Point p1, Point p2, IteratorDirection d) {
         if(d == DR) { textWindow(p1, p2); }
         else { imageWindow(p1, p2); }
 
-        SPITransaction t;
+        Transaction t(csx);
         writeRamBegin();
 
         unsigned int numPixels = (p2.x() - p1.x() + 1) * (p2.y() - p1.y() + 1);
@@ -311,40 +299,24 @@ DisplayImpl::begin(Point p1, Point p2, IteratorDirection d) {
 }
 
 //Destructor
-DisplayImpl::~DisplayImpl() {
+DisplayGenericST7735::~DisplayGenericST7735() {
     if(buffer) delete[] buffer;
 }
 
 //Constructor
-DisplayImpl::DisplayImpl(): buffer(0) {
-    {
-        FastInterruptDisableLock dLock;
+DisplayGenericST7735::DisplayGenericST7735(GpioPin csx, GpioPin dcx, GpioPin resx)
+    : csx(csx), dcx(dcx), resx(resx), buffer(0) {}
 
-        RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
-        SPI2->CR1 = 0;
-        SPI2->CR1 = SPI_CR1_SSM     //Software cs
-                  | SPI_CR1_SSI     //Hardware cs internally tied high
-                  | SPI_CR1_BR_0    //clock divider: 4  ->  10,5 MHz -> 95 ns
-                  | SPI_CR1_MSTR    //Master mode
-                  | SPI_CR1_SPE;    //SPI enabled
-
-        scl::mode(Mode::ALTERNATE);     scl::alternateFunction(5);
-        sda::mode(Mode::ALTERNATE);     sda::alternateFunction(5);
-        // GPIO software controlled
-        csx::mode(Mode::OUTPUT);
-        dcx::mode(Mode::OUTPUT);
-        resx::mode(Mode::OUTPUT);
-    }
-    
-    csx::high();
-    dcx::high();
+void DisplayGenericST7735::initialize() {
+    csx.high();
+    dcx.high();
 
     // POWER ON SEQUENCE: HW RESET -> SW RESET -> SLPOUT
-    resx::high();
+    resx.high();
     delayMs(150);
-    resx::low();
+    resx.low();
     delayMs(150);
-    resx::high();
+    resx.high();
     delayMs(150);
 
     writeReg(0x01);    // ST7735_SWRESET
@@ -360,40 +332,9 @@ DisplayImpl::DisplayImpl(): buffer(0) {
 }
 
 /**
- * Write only commands with one parameter.
- */
-void DisplayImpl::writeReg(unsigned char reg, unsigned char data)
-{
-    SPITransaction t;
-    {
-        CommandTransaction c;
-        writeRam(reg);
-    }
-    writeRam(data);
-}
-
-/**
- * Write commands with more parameters.
- */
-void DisplayImpl::writeReg(unsigned char reg, const unsigned char *data, int len)
-{
-     SPITransaction t;
-    {
-        CommandTransaction c;
-        writeRam(reg);
-    }
-    if(data)
-    {
-        for(int i = 0; i < len; i++) {
-            writeRam(*data++);
-        }
-    }
-}
-
-/**
  * Send commands of 8 bits to the MCU of the display.
  */
-void DisplayImpl::sendCmds(const unsigned char *cmds) {
+void DisplayGenericST7735::sendCmds(const unsigned char *cmds) {
     while(*cmds)
     {
         unsigned char cmd = *cmds++;
@@ -405,7 +346,3 @@ void DisplayImpl::sendCmds(const unsigned char *cmds) {
 }
 
 } //mxgui
-
-#else
-#warning "This SPI driver has only been tested on an STM32F4DISCOVERY"
-#endif //_BOARD_STM32F4DISCOVERY

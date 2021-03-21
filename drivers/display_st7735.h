@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013 by Salaorni Davide, Velati Matteo                  *
+ *   Copyright (C) 2021 by Salaorni Davide, Velati Matteo                  *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,32 +25,17 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef MXGUI_LIBRARY
-#error "This is header is private, it can be used only within mxgui."
-#error "If your code depends on a private header, it IS broken."
-#endif //MXGUI_LIBRARY
-
-#ifndef DISPLAY_ST7735H
-#define DISPLAY_ST7735H
-
-#ifdef _BOARD_STM32F4DISCOVERY
+#pragma once
 
 #include <config/mxgui_settings.h>
 #include "display.h"
 #include "point.h"
 #include "color.h"
-#include "font.h"
-#include "image.h"
 #include "iterator_direction.h"
-#include "misc_inst.h"
-#include "line.h"
 #include "miosix.h"
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
-
-using namespace std;
-using namespace miosix;
 
 namespace mxgui {
 
@@ -58,37 +43,23 @@ namespace mxgui {
 #error The ST7735 driver requires a color depth 16 per pixel
 #endif
 
-//Hardware mapping
-typedef Gpio<GPIOB_BASE, 13> scl;   //PB13,  SPI1_SCK (af5)
-typedef Gpio<GPIOB_BASE, 15> sda;   //PB15,  SPI1_MOSI (af5)
-typedef Gpio<GPIOB_BASE, 4> csx;    //PB4,   free I/O pin
-typedef Gpio<GPIOC_BASE, 6> resx;   //PC6,   free I/O pin
-typedef Gpio<GPIOA_BASE, 8> dcx;    //PA8,   free I/O pin, used only in 4-line SPI
-
-//A falling edge of CSX enables the SPI transaction
-class SPITransaction
+//Used to transiently pull low either the csx or dcx pin
+class Transaction
 {
 public:
-    SPITransaction()  { csx::low();  }
-    ~SPITransaction() { csx::high(); }
+    Transaction(miosix::GpioPin pin) : pin(pin)  { pin.low();  }
+    ~Transaction() { pin.high(); }
+private:
+    miosix::GpioPin pin;
 };
 
-//A falling edge on DCX means that the transmitted byte is a command
-class CommandTransaction
+/**
+ * Generic driver for a ST7735 display. The SPI interface and mapping of the
+ * csx, dcx and resx pins is retargetable.
+ */
+class DisplayGenericST7735 : public Display
 {
 public:
-    CommandTransaction()  { dcx::low();  }
-    ~CommandTransaction() { dcx::high(); }
-};
-
-class DisplayImpl : public Display
-{
-public:
-    /**
-     * \return an instance to this class(singleton)
-     */
-    static DisplayImpl& instance();
-
     /**
      * Turn the display On after it has been turned Off.
      * Display initial state On.
@@ -252,9 +223,9 @@ public:
             unsigned char lsb = color & 0xFF;
             unsigned char msb = (color >> 8) & 0xFF;
 
-            SPITransaction t;
-            writeRam(msb);
-            writeRam(lsb);
+            Transaction t(display->csx);
+            display->writeRam(msb);
+            display->writeRam(lsb);
 
             return *this;
         }
@@ -306,8 +277,9 @@ public:
         pixel_iterator(unsigned int pixelLeft): pixelLeft(pixelLeft) {}
 
         unsigned int pixelLeft; ///< How many pixels are left to draw
+        DisplayGenericST7735 *display;
 
-        friend class DisplayImpl; //Needs access to ctor
+        friend class DisplayGenericST7735; //Needs access to ctor
     };
 
     /**
@@ -335,31 +307,43 @@ public:
     /**
      * Destructor
      */
-    ~DisplayImpl() override;
+    ~DisplayGenericST7735() override;
 
-private:
-
-    #if defined MXGUI_ORIENTATION_VERTICAL
-        static const short int width    = 128;
-        static const short int height   = 160;
-    #elif defined MXGUI_ORIENTATION_HORIZONTAL
-        static const short int width    = 160;
-        static const short int height   = 128;
-    #else
-        #error Orientation not defined
-    #endif
+protected:
 
     /**
      * Constructor.
-     * Do not instantiate objects of this type directly from application code.
+     * \param csx chip select pin
+     * \param dcx data/command pin
+     * \param resx reset pin
      */
-    DisplayImpl();
+    DisplayGenericST7735(miosix::GpioPin csx,
+                         miosix::GpioPin dcx,
+                         miosix::GpioPin resx);
+
+    void initialize();
+    
+    miosix::GpioPin csx;    ///< Chip select
+    miosix::GpioPin dcx;    ///< Data/Command
+    miosix::GpioPin resx;   ///< Reset
+    
+private:
+
+    #if defined MXGUI_ORIENTATION_VERTICAL
+    static const short int width    = 128;
+    static const short int height   = 160;
+    #elif defined MXGUI_ORIENTATION_HORIZONTAL
+    static const short int width    = 160;
+    static const short int height   = 128;
+    #else
+    #error Orientation not defined
+    #endif
 
     /**
      * Set cursor to desired location
      * \param point where to set cursor (0<=x<=127, 0<=y<=159)
      */
-    static inline void setCursor(Point p)
+    inline void setCursor(Point p)
     {
         window(p, p, false);
     }
@@ -382,7 +366,7 @@ private:
      * \param p1 upper left corner of the window
      * \param p2 lower right corner of the window
      */
-    static inline void textWindow(Point p1, Point p2)
+    inline void textWindow(Point p1, Point p2)
     {
         #ifdef MXGUI_ORIENTATION_VERTICAL
             writeReg (0x36, 0xE0);      // MADCTL:  MX + MY + MV
@@ -400,7 +384,7 @@ private:
      * \param p1 upper left corner of the window
      * \param p2 lower right corner of the window
      */
-    static inline void imageWindow(Point p1, Point p2)
+    inline void imageWindow(Point p1, Point p2)
     {
         #ifdef MXGUI_ORIENTATION_VERTICAL
             writeReg (0x36, 0xC0);      // MADCTL:  MX + MY
@@ -414,14 +398,14 @@ private:
     /**
      * Common part of all window commands
      */
-    static void window(Point p1, Point p2, bool swap);
+    void window(Point p1, Point p2, bool swap);
 
     /**
      * Sends command 0x2C to signal the start of data sending
      */
-    static void writeRamBegin()
+    void writeRamBegin()
     {
-        CommandTransaction c;
+        Transaction c(dcx);
         writeRam(0x2C);     //ST7735_RAMWR, to write the GRAM
     }
 
@@ -430,19 +414,14 @@ private:
      * The SPI chip select must be low before calling this member function
      * \param data data to write
      */
-    static unsigned char writeRam(unsigned char data)
-    {
-        SPI2->DR = data;
-        while((SPI2->SR & SPI_SR_RXNE) == 0) ;
-        return SPI2->DR; //Note: reading back SPI2->DR is necessary.
-    }
+    virtual unsigned char writeRam(unsigned char data) = 0;
 
     /**
      * Write data to a display register
      * \param reg which register?
      * \param data data to write
      */
-    static void writeReg(unsigned char reg, unsigned char data);
+    virtual void writeReg(unsigned char reg, unsigned char data) = 0;
 
     /**
      * Write data to a display register
@@ -450,19 +429,15 @@ private:
      * \param data data to write, if null only reg will be written (zero arg cmd)
      * \param len length of data, number of argument bytes
      */
-    static void writeReg(unsigned char reg, const unsigned char *data=0, int len=1);
+    virtual void writeReg(unsigned char reg, const unsigned char *data=0, int len=1) = 0;
 
     /**
      * Send multiple commands to the display MCU (we use to send init sequence)
      * \param cmds static array containing the commands
      */
-    static void sendCmds(const unsigned char *cmds);
+    void sendCmds(const unsigned char *cmds);
 
-    Color *buffer;          //< For scanLineBuffer
+    Color *buffer;          ///< For scanLineBuffer
 };
 
 } //namespace mxgui
-
-#endif //_BOARD_STM32F4DISCOVERY
-
-#endif //DISPLAY_ST7735H

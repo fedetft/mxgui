@@ -39,7 +39,8 @@ drivers/event_sony-newman.cpp          \
 drivers/display_stm32f4discovery.cpp   \
 drivers/event_stm32f4discovery.cpp     \
 drivers/display_generic_1bpp.cpp       \
-drivers/display_generic_4bpp.cpp
+drivers/display_generic_4bpp.cpp       \
+drivers/display_st7735.cpp
 
 ifeq ("$(VERBOSE)","1")
 Q := 
