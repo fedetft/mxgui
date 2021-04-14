@@ -63,6 +63,9 @@ const unsigned char initST7735b[] = {
     0x00
 };
 
+const short int DisplayGenericST7735::width;
+const short int DisplayGenericST7735::height;
+
 /**
  * Class DisplayGenericST7735
  */

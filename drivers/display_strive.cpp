@@ -140,6 +140,8 @@ void registerDisplayHook(DisplayManager& dm)
 //
 // Class DisplayImpl
 //
+const short int DisplayImpl::width;
+const short int DisplayImpl::height;
 
 DisplayImpl& DisplayImpl::instance()
 {
