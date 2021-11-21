@@ -188,6 +188,9 @@ static Point getTouchData()
         int x=static_cast<int>(tsData[0])<<4 | tsData[1]>>4;
         int y=((static_cast<int>(tsData[1]) & 0xf)<<8) | tsData[2];
         x=4095-x; //X is swapped
+        #ifdef MXGUI_TOUCH_INVERT_Y
+        y=4095-y; //On some boards Y is swapped too
+        #endif
         //Calibration values. May vary from unit to unit
         const int xMin=300;
         const int xMax=3770;

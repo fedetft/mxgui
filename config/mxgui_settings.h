@@ -85,6 +85,13 @@ static const unsigned int level2MaxNumApps=4;
 //#define MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
 
 ///
+/// Invert touch screen Y coordinate.
+/// Required on some boards as the touchscreen sensor is mounted with an
+/// inverted vertical coordinate with respect to the display's one.
+///
+//#define MXGUI_TOUCH_INVERT_Y
+
+///
 /// Select which fonts are required. Choose one or more
 ///
 #define MXGUI_FONT_DROID11
