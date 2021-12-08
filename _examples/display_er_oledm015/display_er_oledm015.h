@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2021 by Salaorni Davide, Velati Matteo                  *
+ *   Copyright (C) 2021 by Terraneo Federico                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -32,37 +32,29 @@
 #include "point.h"
 #include "color.h"
 #include "iterator_direction.h"
-#include "miosix.h"
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
 
 namespace mxgui {
 
+//This display is 16 bit per pixel, check that the color depth is properly
+//configured
 #ifndef MXGUI_COLOR_DEPTH_16_BIT
-#error The ST7735 driver requires a color depth 16 per pixel
+#error The SSD1351 driver requires a color depth of 16bit per pixel
 #endif
 
-//Used to transiently pull low either the csx or dcx pin
-class Transaction
-{
-public:
-    Transaction(miosix::GpioPin pin) : pin(pin)  { pin.low();  }
-    ~Transaction() { pin.high(); }
-private:
-    miosix::GpioPin pin;
-};
-
-/**
- * Generic driver for a ST7735 display. The SPI interface and mapping of the
- * csx, dcx and resx pins is retargetable.
- */
-class DisplayGenericST7735 : public Display
+class DisplayErOledm015 : public Display
 {
 public:
     /**
+     * Constructor.
+     */
+    DisplayErOledm015();
+    
+    /**
      * Turn the display On after it has been turned Off.
-     * Display initial state On.
+     * Display initial state is On.
      */
     void doTurnOn() override;
 
@@ -70,14 +62,14 @@ public:
      * Turn the display Off. It can be later turned back On.
      */
     void doTurnOff() override;
-
+    
     /**
      * Set display brightness. Depending on the underlying driver,
      * may do nothing.
      * \param brt from 0 to 100
      */
     void doSetBrightness(int brt) override;
-
+    
     /**
      * \return a pair with the display height and width
      */
@@ -99,7 +91,7 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param text text to write
      */
-    void clippedWrite(Point p, Point a,  Point b, const char *text) override;
+    void clippedWrite(Point p, Point a, Point b, const char *text) override;
 
     /**
      * Clear the Display. The screen will be filled with the desired color
@@ -116,18 +108,13 @@ public:
     void clear(Point p1, Point p2, Color color) override;
 
     /**
-     * This member function is used on some target displays to reset the
-     * drawing window to its default value. You have to call beginPixel() once
-     * before calling setPixel(). You can then make any number of calls to
-     * setPixel() without calling beginPixel() again, as long as you don't
-     * call any other member function in this class. If you call another
-     * member function, for example line(), you have to call beginPixel() again
-     * before calling setPixel().
+     * This backend does not require it, so it is a blank.
      */
     void beginPixel() override;
 
     /**
-     * Draw a pixel with desired color. 
+     * Draw a pixel with desired color. You have to call beginPixel() once
+     * before calling setPixel()
      * \param p point where to draw pixel
      * \param color pixel color
      */
@@ -151,13 +138,13 @@ public:
      * p.x()+length must be <= display.width()
      */
     void scanLine(Point p, const Color *colors, unsigned short length) override;
-
+    
     /**
      * \return a buffer of length equal to this->getWidth() that can be used to
      * render a scanline.
      */
     Color *getScanLineBuffer() override;
-
+    
     /**
      * Draw the content of the last getScanLineBuffer() on an horizontal line
      * on the screen.
@@ -181,24 +168,18 @@ public:
      * positive or zero coordinates
      * \param a Upper left corner of clipping rectangle
      * \param b Lower right corner of clipping rectangle
-     * \param img Image to draw
+     * \param i Image to draw
      */
     void clippedDrawImage(Point p, Point a, Point b, const ImageBase& img) override;
 
-     /**
+    /**
      * Draw a rectangle (not filled) with the desired color
      * \param a upper left corner of the rectangle
      * \param b lower right corner of the rectangle
      * \param c color of the line
      */
     void drawRectangle(Point a, Point b, Color c) override;
-
-     /**
-     * Make all changes done to the display since the last call to update()
-     * visible.
-     */
-    void update() override;
-
+    
     /**
      * Pixel iterator. A pixel iterator is an output iterator that allows to
      * define a window on the display and write to its pixels.
@@ -219,14 +200,8 @@ public:
         pixel_iterator& operator= (Color color)
         {
             pixelLeft--;
-
-            unsigned char lsb = color & 0xFF;
-            unsigned char msb = (color >> 8) & 0xFF;
-
-            Transaction t(display->csx);
-            display->writeRam(msb);
-            display->writeRam(lsb);
-
+            DisplayErOledm015::doWritePixel(color);
+            if(pixelLeft==0) DisplayErOledm015::doEndPixelWrite();
             return *this;
         }
 
@@ -256,30 +231,35 @@ public:
         /**
          * \return a reference to this. Does not increment pixel pointer.
          */
-        pixel_iterator& operator++ () { return *this; }
+        pixel_iterator& operator++ ()  { return *this; }
 
         /**
          * \return a reference to this. Does not increment pixel pointer.
          */
-        pixel_iterator& operator++ (int) { return *this; }
-
+        pixel_iterator& operator++ (int)  { return *this; }
+        
         /**
          * Must be called if not all pixels of the required window are going
          * to be written.
          */
-        void invalidate() {}
+        void invalidate()
+        {
+            DisplayErOledm015::doEndPixelWrite();
+        }
 
     private:
         /**
          * Constructor
-         * \param pixelLeft number of remaining pixels
+         * \param start Upper left corner of window
+         * \param end Lower right corner of window
+         * \param direction Iterator direction
+         * \param disp Display we're associated
          */
         pixel_iterator(unsigned int pixelLeft): pixelLeft(pixelLeft) {}
 
         unsigned int pixelLeft; ///< How many pixels are left to draw
-        DisplayGenericST7735 *display;
 
-        friend class DisplayGenericST7735; //Needs access to ctor
+        friend class DisplayErOledm015; //Needs access to ctor
     };
 
     /**
@@ -300,142 +280,24 @@ public:
      */
     pixel_iterator end() const
     {
-        // Default ctor: pixelLeft is zero
+        //Default ctor: pixelLeft is zero.
         return pixel_iterator();
     }
-
+    
     /**
      * Destructor
      */
-    ~DisplayGenericST7735() override;
+    ~DisplayErOledm015();
 
-protected:
-
-    /**
-     * Constructor.
-     * \param csx chip select pin
-     * \param dcx data/command pin
-     * \param resx reset pin
-     */
-    DisplayGenericST7735(miosix::GpioPin csx,
-                         miosix::GpioPin dcx,
-                         miosix::GpioPin resx);
-
-    void initialize();
-    
-    miosix::GpioPin csx;    ///< Chip select
-    miosix::GpioPin dcx;    ///< Data/Command
-    miosix::GpioPin resx;   ///< Reset
-    
 private:
-
-    #ifdef MXGUI_ORIENTATION_VERTICAL
-    static const short int width    = 128;
-    static const short int height   = 160;
-    #else //MXGUI_ORIENTATION_HORIZONTAL
-    static const short int width    = 160;
-    static const short int height   = 128;
-    #endif
-
-    /**
-     * Set cursor to desired location
-     * \param point where to set cursor (0<=x<=127, 0<=y<=159)
-     */
-    inline void setCursor(Point p)
-    {
-        window(p, p, false);
-    }
-
-    /**
-     *  Register 0x36: MADCTL 
-     *       bit 7------0
-     *        4: |||||+--  MH horizontal referesh (0 L-to-R, 1 R-to-L)
-     *        8: ||||+---  RGB BRG order (0 for RGB)
-     *       16: |||+----  ML vertical refesh (0 T-to-B, 1 B-to-T)
-     *       32: ||+-----  MV row column exchange (1 for X-Y exchange)
-     *       64: |+------  MX column address order (1 for mirror X axis)
-     *      128: +-------  MY row address order (1 for mirror Y axis)
-     */
-
-    /**
-     * Set a hardware window on the screen, optimized for writing text.
-     * The GRAM increment will be set to up-to-down first, then left-to-right
-     * which is the correct increment to draw fonts
-     * \param p1 upper left corner of the window
-     * \param p2 lower right corner of the window
-     */
-    inline void textWindow(Point p1, Point p2)
-    {
-        #ifdef MXGUI_ORIENTATION_VERTICAL
-            writeReg (0x36, 0xE0);      // MADCTL:  MX + MY + MV
-            window(p1, p2, true);
-        #else //MXGUI_ORIENTATION_HORIZONTAL
-            writeReg (0x36, 0x80);      // MADCTL:  MY
-            window(p1, p2, true);
-        #endif
-    }
-
-    /**
-     * Set a hardware window on the screen, optimized for drawing images.
-     * The GRAM increment will be set to left-to-right first, then up-to-down
-     * which is the correct increment to draw images
-     * \param p1 upper left corner of the window
-     * \param p2 lower right corner of the window
-     */
-    inline void imageWindow(Point p1, Point p2)
-    {
-        #ifdef MXGUI_ORIENTATION_VERTICAL
-            writeReg (0x36, 0xC0);      // MADCTL:  MX + MY
-            window(p1, p2, false);
-        #else //MXGUI_ORIENTATION_HORIZONTAL
-            writeReg (0x36, 0xA0);      // MADCTL:  MY + MV
-            window(p1, p2, false);
-        #endif
-    }
-
-    /**
-     * Common part of all window commands
-     */
-    void window(Point p1, Point p2, bool swap);
-
-    /**
-     * Sends command 0x2C to signal the start of data sending
-     */
-    void writeRamBegin()
-    {
-        Transaction c(dcx);
-        writeRam(0x2C);     //ST7735_RAMWR, to write the GRAM
-    }
-
-    /**
-     * Used to send pixel data to the display's RAM, and also to send commands.
-     * The SPI chip select must be low before calling this member function
-     * \param data data to write
-     */
-    virtual unsigned char writeRam(unsigned char data) = 0;
-
-    /**
-     * Write data to a display register
-     * \param reg which register?
-     * \param data data to write
-     */
-    virtual void writeReg(unsigned char reg, unsigned char data) = 0;
-
-    /**
-     * Write data to a display register
-     * \param reg which register?
-     * \param data data to write, if null only reg will be written (zero arg cmd)
-     * \param len length of data, number of argument bytes
-     */
-    virtual void writeReg(unsigned char reg, const unsigned char *data=0, int len=1) = 0;
-
-    /**
-     * Send multiple commands to the display MCU (we use to send init sequence)
-     * \param cmds static array containing the commands
-     */
-    void sendCmds(const unsigned char *cmds);
-
-    Color *buffer;          ///< For scanLineBuffer
+    
+    static void doBeginPixelWrite();
+    
+    static void doWritePixel(Color c);
+    
+    static void doEndPixelWrite();
+    
+    Color *buffer;             ///< For scanLineBuffer
 };
 
 } //namespace mxgui
