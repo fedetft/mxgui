@@ -38,61 +38,74 @@ using namespace miosix;
 
 //Display connection
 
-typedef Gpio<GPIOB_BASE,3> sck;
-typedef Gpio<GPIOB_BASE,4> miso; //Not used
-typedef Gpio<GPIOB_BASE,5> mosi;
-typedef Gpio<GPIOB_BASE,7> cs;
+using cs   = Gpio<GPIOB_BASE,7>; //Display pin 16
+using sck  = Gpio<GPIOB_BASE,3>; //Display pin  4, used as HW SPI
+using mosi = Gpio<GPIOB_BASE,5>; //Display pin  5, used as HW SPI
+using dc   = Gpio<GPIOB_BASE,8>; //Display pin 14
+using res = Gpio<GPIOB_BASE,15>; //Display pin 15
+//Display pin 2 is Vbat (3.3..5V), while display pins 1,7,8,9,10,11,12,13 are GND
 
-typedef Gpio<GPIOB_BASE,8> dc;
-typedef Gpio<GPIOB_BASE,15> reset;
-
-static void spiInit()
+/**
+ * Send and receive a byte, thus returning only after transmission is complete
+ * \param x byte to send
+ * \return the received byte
+ */
+static unsigned char spi3sendRecv(unsigned char x=0)
 {
-    sck::mode(Mode::ALTERNATE);
-    sck::alternateFunction(6);
-    mosi::mode(Mode::ALTERNATE);
-    mosi::alternateFunction(6);
-    cs::mode(Mode::OUTPUT);
-    cs::high();
-
-    {
-        FastInterruptDisableLock dLock;
-        RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
-        RCC_SYNC();
-    }
-    //Master mode no hardware CS pin
-    //Note: SPI3 is attached on the 42MHz APB2 bus, so the clock is set
-    //to APB2/2/2=10.5MHz. This overclocking the SSD1332 by 500KHz
-    SPI3->CR1=SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR | SPI_CR1_BR_0;
-    SPI3->CR2=0;
-    SPI3->CR1 |= SPI_CR1_SPE; //Set enable bit
-}
-
-static unsigned char spiSendRecv(unsigned char data)
-{
-    SPI3->DR=data;
+    SPI3->DR=x;
     while((SPI3->SR & SPI_SR_RXNE)==0) ;
     return SPI3->DR;
 }
 
+/**
+ * Send a byte only.
+ * NOTE: this function requires special care to use as
+ * - it returns before the byte has been transmitted, and if this is the last
+ *   byte, you have to wait with spi3waitCompletion() before deasserting cs
+ * - as the received byte is ignored, the overrun flag gets set and it must be
+ *   cleared (spi1waitCompletion() does that as well)
+ */
+static void spi3sendOnly(unsigned char x)
+{
+    //NOTE: data is sent after the function returns, watch out!
+    while((SPI3->SR & SPI_SR_TXE)==0) ;
+    SPI3->DR=x;
+}
+
+/**
+ * Must be called after using spi3sendOnly(), complete the last byte transmission
+ */
+static void spi3waitCompletion()
+{
+    while(SPI3->SR & SPI_SR_BSY) ;
+    //Reading DR and then SR clears overrun flag
+    [[gnu::unused]] volatile int unused;
+    unused=SPI3->DR;
+    unused=SPI3->SR;
+}
+
+/**
+ * Send a command to the display
+ * \param c command
+ */
 static void cmd(unsigned char c)
 {
     dc::low();
-
     cs::low();
-    delayUs(1);
-    spiSendRecv(c);
+    spi3sendRecv(c);
     cs::high();
     delayUs(1);
 }
 
+/**
+ * Send data to the display
+ * \param d data
+ */
 static void data(unsigned char d)
 {
     dc::high();
-
     cs::low();
-    delayUs(1);
-    spiSendRecv(d);
+    spi3sendRecv(d);
     cs::high();
     delayUs(1);
 }
@@ -105,15 +118,29 @@ namespace mxgui {
 
 DisplayErOledm028::DisplayErOledm028() : DisplayGeneric4BPP(256,64)
 {
-    spiInit();
-    dc::mode(Mode::OUTPUT);
-    reset::mode(Mode::OUTPUT);
+    {
+        FastInterruptDisableLock dLock;
+        cs::mode(Mode::OUTPUT);      cs::high();
+        sck::mode(Mode::ALTERNATE);  sck::alternateFunction(6);
+        mosi::mode(Mode::ALTERNATE); mosi::alternateFunction(6);
+        dc::mode(Mode::OUTPUT);
+        res::mode(Mode::OUTPUT);
+        
+        RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
+        RCC_SYNC();
+    }
 
-    reset::high();
+    SPI3->CR1=SPI_CR1_SSM  //No HW cs
+            | SPI_CR1_SSI
+            | SPI_CR1_SPE  //SPI enabled
+            | SPI_CR1_BR_1 //SPI clock 42/8=5.25MHz (Fmax=10MHz)
+            | SPI_CR1_MSTR;//Master mode
+
+    res::high();
     Thread::sleep(1);
-    reset::low();
+    res::low();
     delayUs(100);
-    reset::high();
+    res::high();
     delayUs(100);
 
     cmd(0xfd); data(0x12);             // Disable command lock
@@ -167,8 +194,8 @@ void DisplayErOledm028::update()
 
     dc::high();
     cs::low();
-    delayUs(1);
-    for(int i=0;i<fbSize;i++) spiSendRecv(backbuffer[i]);
+    for(int i=0;i<fbSize;i++) spi3sendOnly(backbuffer[i]);
+    spi3waitCompletion();
     cs::high();
     delayUs(1);
 }

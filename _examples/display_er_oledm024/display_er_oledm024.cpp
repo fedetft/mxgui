@@ -44,6 +44,11 @@ using mosi = Gpio<GPIOB_BASE,5>; //Used as HW SPI
 using dc   = Gpio<GPIOB_BASE,6>;
 using res  = Gpio<GPIOB_BASE,4>;
 
+/**
+ * Send and receive a byte, thus returning only after transmission is complete
+ * \param x byte to send
+ * \return the received byte
+ */
 static unsigned char spi1sendRecv(unsigned char x=0)
 {
     SPI1->DR=x;
@@ -51,11 +56,41 @@ static unsigned char spi1sendRecv(unsigned char x=0)
     return SPI1->DR;
 }
 
+/**
+ * Send a byte only.
+ * NOTE: this function requires special care to use as
+ * - it returns before the byte has been transmitted, and if this is the last
+ *   byte, you have to wait with spi1waitCompletion() before deasserting cs
+ * - as the received byte is ignored, the overrun flag gets set and it must be
+ *   cleared (spi1waitCompletion() does that as well)
+ */
+static void spi1sendOnly(unsigned char x)
+{
+    //NOTE: data is sent after the function returns, watch out!
+    while((SPI1->SR & SPI_SR_TXE)==0) ;
+    SPI1->DR=x;
+}
+
+/**
+ * Must be called after using spi1sendOnly(), complete the last byte transmission
+ */
+static void spi1waitCompletion()
+{
+    while(SPI1->SR & SPI_SR_BSY) ;
+    //Reading DR and then SR clears overrun flag
+    [[gnu::unused]] volatile int unused;
+    unused=SPI1->DR;
+    unused=SPI1->SR;
+}
+
+/**
+ * Send a command to the display
+ * \param c command
+ */
 static void cmd(unsigned char c)
 {
     dc::low();
     cs::low();
-    delayUs(1);
     spi1sendRecv(c);
     cs::high();
     delayUs(1);
@@ -84,7 +119,7 @@ DisplayErOledm024::DisplayErOledm024() : DisplayGeneric1BPP(128,64)
     SPI1->CR1=SPI_CR1_SSM  //No HW cs
             | SPI_CR1_SSI
             | SPI_CR1_SPE  //SPI enabled
-            | SPI_CR1_BR_1 //SPI clock 50/8=6.25 MHz
+            | SPI_CR1_BR_1 //SPI clock 50/8=6.25 MHz (Fmax=10MHz)
             | SPI_CR1_MSTR;//Master mode
 
     res::high();
@@ -138,8 +173,8 @@ void DisplayErOledm024::update()
     cmd(0x22); cmd(0); cmd(7);
     dc::high();
     cs::low();
-    delayUs(1);
-    for(int i=0;i<fbSize;i++) spi1sendRecv(backbuffer[i]);
+    for(int i=0;i<fbSize;i++) spi1sendOnly(backbuffer[i]);
+    spi1waitCompletion();
     cs::high();
     delayUs(1);
 }

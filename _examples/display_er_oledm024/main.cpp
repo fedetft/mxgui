@@ -40,5 +40,14 @@ int main()
         dc.write(Point(0,0),"Miosix OS");
         dc.write(Point(0,tahoma.getHeight()),"MXGUI graphics library");
     }
-   for(;;) Thread::sleep(100);
+    for(int i=0;;i++)
+    {
+        {
+            DrawingContext dc(display);
+            char s[16];
+            sniprintf(s,15,"%02d:%02d",i/60,i%60);
+            dc.write(Point(0,2*tahoma.getHeight()),s);
+        }
+        Thread::sleep(1000);
+    }
 }

@@ -41,5 +41,14 @@ int main()
         dc.setFont(tahoma);
         dc.write(Point(0,droid21.getHeight()),"MXGUI graphics library");
     }
-   for(;;) Thread::sleep(100);
+    for(int i=0;;i++)
+    {
+        {
+            DrawingContext dc(display);
+            char s[16];
+            sniprintf(s,15,"%02d:%02d",i/60,i%60);
+            dc.write(Point(0,droid21.getHeight()+tahoma.getHeight()),s);
+        }
+        Thread::sleep(1000);
+    }
 }
