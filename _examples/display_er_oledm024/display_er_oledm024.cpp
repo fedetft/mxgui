@@ -130,9 +130,36 @@ DisplayErOledm024::DisplayErOledm024() : DisplayGeneric1BPP(128,64)
     delayUs(100);
 
     //VCC=13.4V VCOMH=10.4V IREF~11uA SPI_fmax=10MHz
+    /*
+     * Power save mode reduces frame rate and precharge time to reduce current
+     * consumption from the VCC side. Power consumption from the VDD side is
+     * < 100uA and thus negligible.
+     * Measured current [mA] as a function of #pixel active
+     * pixel_on   default_current  power_save_current
+     *        0       0.70           0.49 (off current)
+     *      128       1.23           0.85
+     *      ...
+     *   15*128       6.88           4.98
+     * 
+     * Further tried to reduce scanlines to 16 with
+     * cmd(0xd5); cmd(0x03);     // Oscillator 0x0, /4 (75Hz)
+     * cmd(0xa8); cmd(15);       // Number of rows 16
+     * and got off current down to 0.15mA but per pixel current significantly
+     * increased and bug in cmd(0x81) set brightness did not allow to correct
+     */
+    #define POWER_SAVE //Active by default
+
+    #ifndef POWER_SAVE
+    const unsigned char oscCfg=0xa0; // 120Hz refresh rate
+    const unsigned char prcgCfg=0x25;// Precharge phase2=2 phase1=5
+    #else //POWER_SAVE
+    const unsigned char oscCfg=0x00; // 78Hz -30% off current 0.7 -> 0.48mA
+    const unsigned char prcgCfg=0x13;// 1,3  -22% on  current 3.1 -> 2.4uA/pix
+    #endif //POWER_SAVE
+    
     cmd(0xfd); cmd(0x12);     // Disable command lock
     cmd(0xae);                // Display OFF
-    cmd(0xd5); cmd(0xa0);     // Oscillator 0xa no divider
+    cmd(0xd5); cmd(oscCfg);   // Oscillator
     cmd(0xa8); cmd(height-1); // Number of rows 64
     cmd(0xd3); cmd(0x00);     // Display offset 0
     cmd(0x40);                // Display start line 0
@@ -141,7 +168,7 @@ DisplayErOledm024::DisplayErOledm024() : DisplayGeneric1BPP(128,64)
     cmd(0xc8);                // Scan direction 64 to 1
     cmd(0xda); cmd(0x12);     // Alternate COM, no COM left/right
     cmd(0x81); cmd(0x32);     // Brightness 1.1uA/pixel
-    cmd(0xd9); cmd(0x25);     // Precharge phase2=2 phase1=5
+    cmd(0xd9); cmd(prcgCfg);  // Precharge phase2=2 phase1=5
     cmd(0xdb); cmd(0x34);     // VCOMH=.78*VCC 
     cmd(0xa6);                // Normal display mode
     cmd(0xa4);                // Disable test mode
