@@ -63,7 +63,7 @@ Window::Window(QWidget *parent): QWidget(parent),
     this->setWindowTitle(tr("Mxgui simulator"));
     this->show();
     QTBackend& qb=QTBackend::instance();
-    std::memcpy(image.bits(),qb.getFrameBuffer().getData(),image.byteCount());
+    std::memcpy(image.bits(),qb.getFrameBuffer().getData(),image.sizeInBytes());
     this->update();
     qb.start(sender);
 }
@@ -71,7 +71,7 @@ Window::Window(QWidget *parent): QWidget(parent),
 void Window::updateFrameBuffer()
 {
     FrameBuffer& buffer=QTBackend::instance().getFrameBuffer();
-    std::memcpy(image.bits(),buffer.getData(),image.byteCount());
+    std::memcpy(image.bits(),buffer.getData(),image.sizeInBytes());
     this->update();
 }
 
@@ -140,7 +140,7 @@ void Window::keyPressEvent(QKeyEvent *event)
     }
     QString s=event->text();
     if(s.size()==0) return;
-    char k=s[0].toAscii();
+    char k=s[0].toLatin1();
     addEvent(Event(EventType::KeyDown,k));
 }
 
@@ -154,6 +154,6 @@ void Window::keyReleaseEvent(QKeyEvent *event)
     }
     QString s=event->text();
     if(s.size()==0) return;
-    char k=s[0].toAscii();
+    char k=s[0].toLatin1();
     addEvent(Event(EventType::KeyUp,k));
 }
