@@ -31,6 +31,9 @@
 #include "misc_inst.h"
 #include "line.h"
 
+//The ST7735 driver requires a color depth 16 per pixel
+#ifdef MXGUI_COLOR_DEPTH_16_BIT
+
 using namespace std;
 using namespace miosix;
 
@@ -349,3 +352,5 @@ void DisplayGenericST7735::sendCmds(const unsigned char *cmds) {
 }
 
 } //mxgui
+
+#endif //MXGUI_COLOR_DEPTH_16_BIT
