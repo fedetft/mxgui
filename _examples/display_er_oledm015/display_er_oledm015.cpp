@@ -27,6 +27,8 @@
 
 #include "display_er_oledm015.h"
 #include <miosix.h>
+#include <kernel/scheduler/scheduler.h>
+#include <interfaces/endianness.h>
 #include <algorithm>
 #include <line.h>
 
@@ -83,6 +85,83 @@ static void spi1waitCompletion()
     [[gnu::unused]] volatile int unused;
     unused=SPI1->DR;
     unused=SPI1->SR;
+}
+
+/**
+ * DMA TX end of transfer
+ * NOTE: conflicts with SDIO driver but this board does not have an SD card
+ */
+void __attribute__((naked)) DMA2_Stream3_IRQHandler()
+{
+    saveContext();
+    asm volatile("bl _Z20SPI1txDmaHandlerImplv");
+    restoreContext();
+}
+
+static Thread *waiting=nullptr;
+static bool error;
+
+void __attribute__((used)) SPI1txDmaHandlerImpl()
+{
+    if(DMA2->LISR & (DMA_LISR_TEIF3 | DMA_LISR_DMEIF3 | DMA_LIFCR_CFEIF3))
+        error=true;
+    DMA2->LIFCR=DMA_LIFCR_CTCIF3
+              | DMA_LIFCR_CTEIF3
+              | DMA_LIFCR_CDMEIF3
+              | DMA_LIFCR_CFEIF3;
+    waiting->IRQwakeup();
+    if(waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority())
+        Scheduler::IRQfindNextThread();
+    waiting=nullptr;
+}
+
+static void spi1SendDMA(const Color *data, int size)
+{
+    error=false;
+    unsigned short tempCr1=SPI1->CR1;
+    SPI1->CR1=0;
+    SPI1->CR2=SPI_CR2_TXDMAEN;
+    SPI1->CR1=tempCr1;
+    
+    waiting=Thread::getCurrentThread();
+    NVIC_ClearPendingIRQ(DMA2_Stream3_IRQn);
+    NVIC_SetPriority(DMA2_Stream3_IRQn,10);//Low priority for DMA
+    NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+
+    DMA2_Stream3->CR=0;
+    DMA2_Stream3->PAR=reinterpret_cast<unsigned int>(&SPI1->DR);
+    DMA2_Stream3->M0AR=reinterpret_cast<unsigned int>(data);
+    DMA2_Stream3->NDTR=2*size; //Size is at the peripheral side (8bit)
+    DMA2_Stream3->FCR=DMA_SxFCR_FEIE
+                    | DMA_SxFCR_DMDIS;
+    DMA2_Stream3->CR=DMA_SxCR_CHSEL_0 //Channel 3 SPI1
+                   | DMA_SxCR_CHSEL_1
+                   //| DMA_SxCR_MSIZE_0 //Memory size 16 bit
+                   | DMA_SxCR_MINC    //Increment memory pointer
+                   | DMA_SxCR_DIR_0   //Memory to peripheral
+                   | DMA_SxCR_TCIE    //Interrupt on transfer complete
+                   | DMA_SxCR_TEIE    //Interrupt on transfer error
+                   | DMA_SxCR_DMEIE   //Interrupt on direct mode error
+                   | DMA_SxCR_EN;     //Start DMA
+    
+    {
+        FastInterruptDisableLock dLock;
+        while(waiting!=nullptr)
+        {
+            waiting->IRQwait();
+            {
+                FastInterruptEnableLock eLock(dLock);
+                Thread::yield();
+            }
+        }
+    }
+                
+    NVIC_DisableIRQ(DMA2_Stream3_IRQn);
+    spi1waitCompletion();
+    SPI1->CR1=0;
+    SPI1->CR2=0;
+    SPI1->CR1=tempCr1;
+    //if(error) puts("SPI1 DMA tx failed"); //TODO: look into why this fails
 }
 
 /**
@@ -174,7 +253,7 @@ static inline void imageWindow(Point p1, Point p2)
 
 namespace mxgui {
 
-DisplayErOledm015::DisplayErOledm015() : buffer(nullptr)
+DisplayErOledm015::DisplayErOledm015() : buffer(nullptr), buffer2(nullptr)
 {
     {
         FastInterruptDisableLock dLock;
@@ -318,14 +397,21 @@ void DisplayErOledm015::line(Point a, Point b, Color color)
 
 void DisplayErOledm015::scanLine(Point p, const Color *colors, unsigned short length)
 {
-    imageWindow(p,Point(width-1,p.y()));
-    doBeginPixelWrite();
-    for(int i=0;i<length;i++) doWritePixel(colors[i]);
-    doEndPixelWrite();
+    if(buffer2==nullptr) buffer2=new Color[buffer2Size];
+    length=min<unsigned short>(length,width-p.x());
+    imageWindow(p,Point(length-1,p.y()));
+    cmd(0x5c);
+    dc::high();
+    cs::low();
+    for(int i=0;i<length;i++) buffer2[i]=toBigEndian16(colors[i]);
+    spi1SendDMA(buffer2,length);
+    cs::high();
+    delayUs(1);
 }
 
 Color *DisplayErOledm015::getScanLineBuffer()
 {
+    //getWidth() would be enough as size, but we reuse the buffer for DMA
     if(buffer==nullptr) buffer=new Color[getWidth()];
     return buffer;
 }
@@ -337,7 +423,32 @@ void DisplayErOledm015::scanLineBuffer(Point p, unsigned short length)
 
 void DisplayErOledm015::drawImage(Point p, const ImageBase& img)
 {
-    img.draw(*this,p);
+    const Color *imgData=img.getData();
+    if(imgData!=0)
+    {
+        if(buffer2==nullptr) buffer2=new Color[buffer2Size];
+        short int xEnd=p.x()+img.getWidth()-1;
+        short int yEnd=p.y()+img.getHeight()-1;
+        imageWindow(p,Point(xEnd,yEnd));
+        cmd(0x5c);
+        dc::high();
+        cs::low();
+        //Unfortunately the DMA requires the endianness to be swapped, the
+        //pointer we get is read-only (can be in flash), and we may not have
+        //enough memory to allocate a large enough buffer to hold the entire
+        //image, so we'll have to split it in chunks
+        int imgSize=img.getHeight()*img.getWidth();
+        while(imgSize>0)
+        {
+            int chunkSize=min(imgSize,buffer2Size);
+            for(int i=0;i<chunkSize;i++) buffer2[i]=toBigEndian16(imgData[i]);
+            spi1SendDMA(buffer2,chunkSize);
+            imgSize-=chunkSize;
+            imgData+=chunkSize;
+        }
+        cs::high();
+        delayUs(1);
+    } else img.draw(*this,p);
 }
 
 void DisplayErOledm015::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)

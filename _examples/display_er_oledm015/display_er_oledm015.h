@@ -297,7 +297,9 @@ private:
     
     static void doEndPixelWrite();
     
-    Color *buffer;             ///< For scanLineBuffer
+    Color *buffer;                    ///< For scanLineBuffer
+    Color *buffer2;                   ///< For DMA transfers
+    static const int buffer2Size=512; ///< DMA buffer size
 };
 
 } //namespace mxgui
