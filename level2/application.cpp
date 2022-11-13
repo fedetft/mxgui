@@ -67,17 +67,7 @@ Drawable::~Drawable()
 // class Window
 //
 
-Window::Window() : prefs(white,black,
-#ifdef MXGUI_FONT_DROID11
-    droid11),
-#elif defined(MXGUI_FONT_TAHOMA)
-    tahoma),
-#elif defined(MXGUI_FONT_MISCFIXED)
-    miscFixed),
-#else
-#error "Need a font"
-#endif
-    redrawNeeded(false)
+Window::Window() : prefs(white,black,defaultFont), redrawNeeded(false)
 {
     pthread_mutex_init(&mutex,NULL);
     pthread_cond_init(&cond,NULL);

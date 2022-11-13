@@ -13,8 +13,7 @@ namespace mxgui {
 // class SimplePlot
 //
 
-SimplePlot::SimplePlot(Point upperLeft, Point lowerRight) : upperLeft(upperLeft), lowerRight(lowerRight),
-    font(droid11)
+SimplePlot::SimplePlot(Point upperLeft, Point lowerRight) : upperLeft(upperLeft), lowerRight(lowerRight), font(defaultFont)
 {
     foreground=white;
     background=black;

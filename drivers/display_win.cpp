@@ -250,7 +250,6 @@ DisplayImpl::DisplayImpl():
         beginPixelCalled(false),
         backend(WinBackend::instance())
 {
-    setFont(droid11);
     setTextColor(make_pair(Color(0xffff), Color(0x0000)));
 }
 

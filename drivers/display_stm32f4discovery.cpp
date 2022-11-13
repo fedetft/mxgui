@@ -469,7 +469,6 @@ DisplayImpl::DisplayImpl()
             | 0                //no dithering
             | LTDC_GCR_LTDCEN; //Display enabled
     
-    setFont(droid11);
     setTextColor(make_pair(Color(0xffff),Color(0x0000)));
     clear(black);
 }
@@ -1317,7 +1316,6 @@ DisplayImpl::DisplayImpl()
     // Update the display
     DSI->WCR |= DSI_WCR_LTDCEN;
 
-    setFont(droid11);
     setTextColor(make_pair(Color(0xffff), Color(0x0000)));
     clear(black);
 }

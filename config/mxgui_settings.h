@@ -33,7 +33,7 @@
 #ifndef MXGUI_SETTINGS_H
 #define	MXGUI_SETTINGS_H
 
-#define MXGUI_SETTINGS_VERSION 101
+#define MXGUI_SETTINGS_VERSION 102
 
 // Before you can compile mxgui you have to configure it by editing this
 // file. After that, comment out this line to disable the reminder error.
@@ -100,6 +100,9 @@ static const unsigned int level2MaxNumApps=4;
 #define MXGUI_FONT_TAHOMA
 #define MXGUI_ENABLE_BOLD_FONTS
 
+//Default font
+#define defaultFont droid11
+
 #else //_MIOSIX
 
 // Enable or disable level 2.
@@ -150,6 +153,9 @@ static const unsigned int SIMULATOR_BGCOLOR=0;
 #define MXGUI_FONT_MISCFIXED
 #define MXGUI_FONT_TAHOMA
 #define MXGUI_ENABLE_BOLD_FONTS
+
+//Default font
+#define defaultFont droid11
 
 #endif //_MIOSIX
 

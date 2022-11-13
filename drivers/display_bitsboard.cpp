@@ -269,7 +269,6 @@ DisplayImpl::~DisplayImpl()
 
 DisplayImpl::DisplayImpl(): buffer(0), last()
 {
-    setFont(miscFixed);
     setTextColor(make_pair(Color(black),Color(white)));
     {
         FastInterruptDisableLock dLock;

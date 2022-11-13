@@ -290,7 +290,6 @@ DisplayImpl::DisplayImpl(): buffer(0), displayType(UNKNOWN)
             break;
     }
 
-    setFont(droid11);
     setTextColor(make_pair(Color(0xffff),Color(0x0000)));
     clear(black);
 }

@@ -333,7 +333,6 @@ void DisplayGenericST7735::initialize() {
     sendCmds(initST7735b);
 
     doTurnOn();
-    setFont(droid11);
     setTextColor(make_pair(white, black));
 }
 

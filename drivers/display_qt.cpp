@@ -245,7 +245,6 @@ DisplayImpl::~DisplayImpl()
 DisplayImpl::DisplayImpl(): buffer(0), last(), beginPixelCalled(false),
                             backend(QTBackend::instance())
 {
-    setFont(droid11);
     setTextColor(make_pair(Color(SIMULATOR_FGCOLOR),Color(SIMULATOR_BGCOLOR)));
 }
 

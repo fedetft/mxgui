@@ -30,6 +30,8 @@ public:
     
     void draw(DrawingContext& dc, const std::vector<Dataset>& dataset,
               bool fullRedraw=false);
+
+    void setFont(const Font& font) { this->font=font; }
     
     Point upperLeft;
     Point lowerRight;

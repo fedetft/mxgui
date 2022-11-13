@@ -291,7 +291,6 @@ DisplayImpl::DisplayImpl(): buffer(0)
     writeReg(0x004f,0);
     writeReg(0x004e,0);
     //Fill display
-    setFont(droid11);
     setTextColor(make_pair(white, black));
     clear(black);
 }

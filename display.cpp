@@ -29,7 +29,7 @@
 #include "misc_inst.h"
 #include "pthread_lock.h"
 
-#if MXGUI_SETTINGS_VERSION != 101
+#if MXGUI_SETTINGS_VERSION != 102
 #error Wrong mxgui_settings.h version. You need to upgrade it.
 #endif
 
@@ -70,7 +70,7 @@ DisplayManager::DisplayManager()
 // class Display
 //
 
-Display::Display() : isDisplayOn(true), font(miscFixed)
+Display::Display() : isDisplayOn(true), font(defaultFont)
 {
     pthread_mutexattr_t temp;
     pthread_mutexattr_init(&temp);
