@@ -100,7 +100,7 @@ namespace png
             strerror_s(buf, ERRBUF_SIZE, errnum);
             return std::string(buf);
 #else
-#if (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE
+#if ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE) || (!__GLIBC__)
             strerror_r(errnum, buf, ERRBUF_SIZE);
             return std::string(buf);
 #else

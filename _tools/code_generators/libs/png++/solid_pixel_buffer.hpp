@@ -164,7 +164,7 @@ namespace png
          */
         void put_row(size_t index, row_const_access r)
         {
-            row_access row = get_row();
+            row_access row = get_row(index);
             for (uint_32 i = 0; i < m_width; ++i)
                 *row++ = *r++;
         }
