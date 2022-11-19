@@ -201,7 +201,11 @@ static Point getTouchData()
         y=((y-yMin)*320)/(yMax-yMin);
         x=min(239,max(0,x));
         y=min(319,max(0,y));
+        #ifdef MXGUI_ORIENTATION_HORIZONTAL
+        return Point(319-y,x);
+        #else
         return Point(x,y);
+        #endif
     }
 }
 
