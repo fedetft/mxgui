@@ -37,18 +37,6 @@ namespace mxgui {
 // Class Font
 //
 
-Font::Font(unsigned char startChar, unsigned char endChar, unsigned char height,
-        unsigned char width, unsigned char dataSize, bool antialiased,
-        const void *data): startChar(startChar), endChar(endChar),
-        height(height), width(width), dataSize(dataSize),
-        antialiased(antialiased), widths(0), offset(0), data(data) {}
-
-Font::Font(unsigned char startChar, unsigned char endChar, unsigned char height,
-        unsigned char dataSize, bool antialiased, const unsigned char *widths,
-        const unsigned short *offset, const void *data): startChar(startChar),
-        endChar(endChar), height(height), width(0), dataSize(dataSize),
-        antialiased(antialiased), widths(widths), offset(offset), data(data) {}
-
 short int Font::calculateLength(const char *s) const
 {
     if(isFixedWidth())

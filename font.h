@@ -56,9 +56,11 @@ public:
      * \param data pinter to the font data. This must point to a static array
      * so that no memeory leak problems occur
      */
-    Font(unsigned char startChar, unsigned char endChar, unsigned char height,
+    constexpr Font(unsigned char startChar, unsigned char endChar, unsigned char height,
         unsigned char width, unsigned char dataSize, bool antialiased,
-        const void *data);
+        const void *data): startChar(startChar), endChar(endChar),
+        height(height), width(width), dataSize(dataSize),
+        antialiased(antialiased), widths(0), offset(0), data(data) {}
     /**
      * Creates a variable width font.
      * \param startChar the first character available, example ' ' (ASCII space)
@@ -74,9 +76,11 @@ public:
      * \param data pinter to the font data. This must point to a static array
      * so that no memeory leak problems occur
      */
-    Font(unsigned char startChar, unsigned char endChar, unsigned char height,
+    constexpr Font(unsigned char startChar, unsigned char endChar, unsigned char height,
         unsigned char dataSize, bool antialiased, const unsigned char *widths,
-        const unsigned short *offset, const void *data);
+        const unsigned short *offset, const void *data): startChar(startChar),
+        endChar(endChar), height(height), width(0), dataSize(dataSize),
+        antialiased(antialiased), widths(widths), offset(offset), data(data) {}
 
     /**
      * Draw a string on a surface.
