@@ -2,7 +2,7 @@
 ## Makefile for mxgui
 ## This makefile builds libmxgui.a
 ##
-MAKEFILE_VERSION := 1.09
+MAKEFILE_VERSION := 1.10
 GCCMAJOR := $(shell arm-miosix-eabi-gcc --version | \
                     perl -e '$$_=<>;/\(GCC\) (\d+)/;print "$$1"')
 ## KPATH and CONFPATH are forwarded by the parent Makefile
@@ -40,7 +40,8 @@ drivers/display_stm32f4discovery.cpp   \
 drivers/event_stm32f4discovery.cpp     \
 drivers/display_generic_1bpp.cpp       \
 drivers/display_generic_4bpp.cpp       \
-drivers/display_st7735.cpp
+drivers/display_st7735.cpp			   \
+drivers/display_st25dvdiscovery.cpp
 
 ifeq ("$(VERBOSE)","1")
 Q := 
