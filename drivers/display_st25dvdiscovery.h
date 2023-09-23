@@ -216,7 +216,7 @@ public:
         /**
          * Default constructor, results in an invalid iterator.
          */
-        pixel_iterator(): pixelLeft(0) {}
+        pixel_iterator(): pixelLeft(0), wr(nullptr) {}
 
         /**
          * Set a pixel and move the pointer to the next one
@@ -275,13 +275,18 @@ public:
          */
         void invalidate() {}
 
+        ~pixel_iterator()
+        {
+            if(wr) delete wr;
+        }
+
     private:
 
         /**
          * Constructor
          * \param pixelLeft number of remaining pixels
          */
-        pixel_iterator(unsigned int pixelLeft): pixelLeft(pixelLeft) 
+        pixel_iterator(unsigned int pixelLeft): pixelLeft(pixelLeft)
         {
             wr = new Transaction(0x2c);
         }
