@@ -112,12 +112,12 @@ DisplayImpl& DisplayImpl::instance()
 void DisplayImpl::doTurnOn()
 {
     sendCmd(0x29,0); //LCD_DISPLAY_ON
-};
+}
 
 void DisplayImpl::doTurnOff()
 {
     sendCmd(0x28,0); //LCD_DISPLAY_ON
-};
+}
 
 void DisplayImpl::doSetBrightness(int brt) 
 {
@@ -129,19 +129,23 @@ pair<short int, short int> DisplayImpl::doGetSize() const
     return make_pair(height,width);
 }
 
-void DisplayImpl::write(Point p, const char *text) {
+void DisplayImpl::write(Point p, const char *text)
+{
     font.draw(*this, textColor, p, text);
 }
 
-void DisplayImpl::clippedWrite(Point p, Point a,  Point b, const char *text) {
+void DisplayImpl::clippedWrite(Point p, Point a,  Point b, const char *text)
+{
     font.clippedDraw(*this, textColor, p, a, b, text);
 }
 
-void DisplayImpl::clear(Color color) {
+void DisplayImpl::clear(Color color)
+{
     clear(Point(0,0), Point(width-1,height-1), color);
 }
 
-void DisplayImpl::clear(Point p1, Point p2, Color color) {
+void DisplayImpl::clear(Point p1, Point p2, Color color)
+{
     unsigned char lsb = color & 0xFF;
     unsigned char msb = (color >> 8) & 0xFF;
 
@@ -150,7 +154,8 @@ void DisplayImpl::clear(Point p1, Point p2, Color color) {
 
     Transaction t(0x2c);
     //Send data to write on GRAM
-    for(int i=0; i < numPixels; i++) {
+    for(int i=0; i < numPixels; i++)
+    {
         t.write(msb);
         t.write(lsb);
     }
@@ -188,7 +193,8 @@ void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
     }
 }
 
-Color* DisplayImpl::getScanLineBuffer() {
+Color* DisplayImpl::getScanLineBuffer()
+{
     if(buffer == 0) buffer = new Color[getWidth()];
     return buffer;
 }
@@ -223,28 +229,34 @@ void DisplayImpl::drawImage(Point p, const ImageBase& img)
             t.write(lsb);
         }
     }
-    else { img.draw(*this,p); }
+    else img.draw(*this,p);
 }
 
-void DisplayImpl::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img) {
+void DisplayImpl::clippedDrawImage(Point p, Point a, Point b, const ImageBase& img)
+{
     img.clippedDraw(*this,p,a,b);
 }
 
-void DisplayImpl::drawRectangle(Point a, Point b, Color c) {
+void DisplayImpl::drawRectangle(Point a, Point b, Color c)
+{
     line(a,Point(b.x(), a.y()), c);
     line(Point(b.x(), a.y()), b, c);
     line(b,Point(a.x(), b.y()), c);
     line(Point(a.x(), b.y()), a, c);
 }
 
-DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2, IteratorDirection d) {
-    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) {
+DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2, IteratorDirection d)
+{
+    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0)
+    {
         return pixel_iterator();
     }
-    if(p1.x() >= width || p1.y() >= height || p2.x() >= width || p2.y() >= height) {
+    if(p1.x() >= width || p1.y() >= height || p2.x() >= width || p2.y() >= height)
+    {
         return pixel_iterator();
     }
-    if(p2.x() < p1.x() || p2.y() < p1.y()) {
+    if(p2.x() < p1.x() || p2.y() < p1.y())
+    {
         return pixel_iterator();
     }
 
@@ -318,7 +330,7 @@ DisplayImpl::DisplayImpl() : buffer(0)
 DisplayImpl::~DisplayImpl() 
 {
     if (buffer) delete[] buffer;
-};
+}
 
 }
 

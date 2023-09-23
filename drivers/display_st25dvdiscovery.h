@@ -64,6 +64,8 @@ public:
     Transaction(unsigned char cmd);
     void write(unsigned char c);
     ~Transaction();
+    Transaction(const Transaction&)=delete;
+    Transaction& operator=(const Transaction&)=delete;
 };
 
 class DisplayImpl : public Display
@@ -375,7 +377,7 @@ private:
     {
         #ifdef MXGUI_ORIENTATION_VERTICAL
         // p3 is p2 transposed relative to p1. So that the column and page addresses exchanges
-        Point p3 = Point(p1.x()+p2.y()-p1.y(),p1.y()+p2.x()-p1.x()); 
+        Point p3(p1.x()+p2.y()-p1.y(),p1.y()+p2.x()-p1.x());
         window(p1,p3);
         sendCmd(0x36,1,0x28); //LCD_MAC
         #elif defined MXGUI_ORIENTATION_HORIZONTAL
