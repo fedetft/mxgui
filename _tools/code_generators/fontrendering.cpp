@@ -21,7 +21,7 @@
  * microcontrollers, especially by the mxgui user interface library.
  *
  * The source code is vaguely organized as a compiler, with:
- * - a forntend that does parsing (for BDF filex, since they are text-based) or
+ * - a frontend that does parsing (for BDF files, since they are text-based) or
  *   rendering (for TrueType files, using FreeType)
  * - an intermediate representation consisting in a vector of Glyph classes,
  *   that is printed into a png image for debugging/validation purposes

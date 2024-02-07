@@ -68,7 +68,7 @@ public:
     void setASCII(unsigned char value);
 
     /**
-     * Set if gliph is 1 bit per pixel (not antialiased) or 2 bit per pixel
+     * Set if glyph is 1 bit per pixel (not antialiased) or 2 bit per pixel
      * \param antialiased true if antialiased
      */
     void setAntialiased(bool antialiased);
