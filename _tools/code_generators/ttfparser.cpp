@@ -18,6 +18,7 @@
 #include "libs/png++/png.hpp"
 #include "ttfparser.h"
 #include <cmath>
+#include "unicode.h"
 
 using namespace std;
 

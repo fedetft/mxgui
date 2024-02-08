@@ -7,3 +7,7 @@ _tools/qtsimulator/build/*
 
 # Vim swap file
 *.sw?
+
+# Emacs cache files
+*.cpp~
+*.h~

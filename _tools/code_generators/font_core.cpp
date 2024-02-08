@@ -116,7 +116,7 @@ shared_ptr<FontParser> FontParser::getParser(const string& filename)
 
 FontParser::FontParser(const string& filename): logStream(0),
         log(false), fonts(), startConvert(32), endConvert(126),
-        filename(filename), fixesFile(""), ttfHeight(0), ttfPadding(0) {}
+		filename(filename), fixesFile(""), unicodeBlockFile(""), ttfHeight(0), ttfPadding(0) {}
 
 void FontParser::setLogStream(std::ostream& output)
 {
@@ -150,6 +150,11 @@ void FontParser::setFixesFile(std::string file)
     this->fixesFile=file;
 }
 
+void FontParser::setUnicodeBlockFile(std::string file)
+{
+	this->unicodeBlockFile=file;
+}
+	
 FontParser::~FontParser() {}
 
 //

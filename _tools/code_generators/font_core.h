@@ -18,6 +18,7 @@
 #ifndef FONT_CORE_H
 #define	FONT_CORE_H
 
+#include "unicode_blocks.h"
 #include <bitset>
 #include <vector>
 #include <string>
@@ -181,6 +182,11 @@ public:
      */
     void setFixesFile(std::string file);
 
+	/**
+	 * Specifies a Unicode block file
+	 */
+	void setUnicodeBlockFile(std::string file);
+	
     /**
      * Pure virtual class
      */
@@ -193,9 +199,11 @@ protected:
     unsigned char startConvert, endConvert; ///< Convert characters from .. to
     const std::string filename;///< Font file
     std::string fixesFile; ///< Fixes file
+	std::string unicodeBlockFile; ///< Unicode block file
+	std::map<std::string, UnicodeBlock> blocks; ///< Unicode blocks
     unsigned int ttfHeight; ///< Rendering height (for ttf only)
     unsigned int ttfPadding; ///< Padding (for ttf only)
-
+	
 private:
     FontParser(const FontParser&);
     FontParser& operator= (const FontParser&);
