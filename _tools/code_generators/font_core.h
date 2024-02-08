@@ -181,11 +181,6 @@ public:
      * Specify a fixes file for kerning issues
      */
     void setFixesFile(std::string file);
-
-	/**
-	 * Specifies a Unicode block file
-	 */
-	void setUnicodeBlockFile(std::string file);
 	
     /**
      * Pure virtual class
@@ -199,7 +194,6 @@ protected:
     unsigned char startConvert, endConvert; ///< Convert characters from .. to
     const std::string filename;///< Font file
     std::string fixesFile; ///< Fixes file
-	std::string unicodeBlockFile; ///< Unicode block file
 	std::map<std::string, UnicodeBlock> blocks; ///< Unicode blocks
     unsigned int ttfHeight; ///< Rendering height (for ttf only)
     unsigned int ttfPadding; ///< Padding (for ttf only)

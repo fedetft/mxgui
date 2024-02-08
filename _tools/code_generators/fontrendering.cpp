@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
         ("pad", value<int>(), "Additional pixels padding (for TrueType only)")
         ("range", value<string>(), "Overrides default of converting only ASCII")
         ("fixes", value<string>(), "Fixes file for kerning issues (TTF only)")
-		("blockfile", value<string>(), "File containing Unicode blocks to include in the font")
     ;
 
     variables_map vm;
