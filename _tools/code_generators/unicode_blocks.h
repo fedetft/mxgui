@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 /**
  * \file unicode_blocks.h
@@ -11,25 +12,40 @@
  * to be included from this list
  */
 
+namespace fontcore {
+
+/**
+ * numerical IDs for the blocks
+ */
+enum UnicodeBlockId
+{
+	BASIC_LATIN,
+	LATIN1_SUPPLEMENT,
+	LATIN_EXTENDED_A,
+	LATIN_EXTENDED_B,
+	GREEK_COPTIC,
+	MATH_OPERATORS
+};
+	
 /**
  * Represents a Unicode block, i.e.,
  * a range of codepoints grouped under the same name.
  */
-class UnicodeBlock {
+class UnicodeBlock
+{
 public:
 	/**
-	   Constructor.
+	   Constructor
 	*/
-    UnicodeBlock(unsigned int startCodepoint,
-				 unsigned int endCodepoint): startCodepoint(startCodepoint), endCodepoint(endCodepoint) {}
+    UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint);
 
 	/**
-	   \return the first codepoint of the range.
+	   \return the first codepoint of the range
 	*/
 	unsigned int getStartCodepoint() const { return this->startCodepoint; }
 
 	/**
-	   \return the last codepoint of the range.
+	   \return the last codepoint of the range
 	*/
 	unsigned int getEndCodepoint() const { return this->endCodepoint; }
 private:
@@ -37,32 +53,31 @@ private:
 	const char32_t endCodepoint;
 };
 
-class UnicodeBlockManager {
+class UnicodeBlockManager
+{
 public:
 	/**
 	 * \return a known Unicode block given its name
 	 * \throws logic_error if the block is not supported by the system
 	 */
-	static const std::pair<char32_t, char32_t> getKnownBlock(std::string name);
+	static const UnicodeBlock getKnownBlock(const std::string& name);
+
+	/**
+	 * \return all the block supported by the system
+	 */
+	static const std::vector<UnicodeBlock> getAllKnownBlocks();
+	
 private:
-	enum UnicodeBlockId {
-		BASIC_LATIN,
-		LATIN1_SUPPLEMENT,
-		LATIN_EXTENDED_A,
-		LATIN_EXTENDED_B,
-		GREEK_COPTIC,
-		MATH_OPERATORS
-	};
+	/**
+	 * \return block id given its name
+	 * \throws logic_error if the block is unsupported
+	 */
+	static UnicodeBlockId unicodeBlocknameToId(const std::string& name);
 
 	///< Unicode blocks known by the system
-	const std::map<UnicodeBlockId, UnicodeBlock> knownUnicodeBlocks = {
-		{BASIC_LATIN, UnicodeBlock(0x00000000, 0x0000007F)},
-		{LATIN1_SUPPLEMENT, UnicodeBlock(0x00000080, 0x000000FF)},
-		{LATIN_EXTENDED_A, UnicodeBlock(0x00000010, 0x0000017F)},
-		{LATIN_EXTENDED_B, UnicodeBlock(0x00000180, 0x0000024F)},
-		{GREEK_COPTIC, UnicodeBlock(0x00000370, 0x000003FF)},
-		{MATH_OPERATORS, UnicodeBlock(0x00002200, 0x000022FF)}
-	};
+	static const std::map<UnicodeBlockId, UnicodeBlock> knownUnicodeBlocks;
 };
-	
+
+} //namespace fontcore
+
 #endif //UNICODEBLOCKS_H
