@@ -67,8 +67,7 @@ int main(int argc, char *argv[])
     notify(vm);
 
     if(vm.empty() || vm.count("help") || (!vm.count("font")) ||
-	   (!vm.count("image")) || (!vm.count("header")) ||
-	   (!vm.count("name")) || (!vm.count("blockfile")))
+	   (!vm.count("image")) || (!vm.count("header")) || (!vm.count("name")))
     {
         cerr<<desc<<endl;
         return 1;
@@ -108,11 +107,6 @@ int main(int argc, char *argv[])
     {
         parser->setFixesFile(vm["fixes"].as<string>());
     }
-
-	if(vm.count("blockfile"))
-	{
-		parser->setUnicodeBlockFile(vm["blockfile"].as<string>());
-	}
 
     parser->parse();
     shared_ptr<CodeGenerator> generator=CodeGenerator::getGenerator(parser);
