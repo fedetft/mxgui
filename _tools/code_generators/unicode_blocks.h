@@ -35,46 +35,60 @@ class UnicodeBlock
 {
 public:
 	/**
-	   Constructor
-	*/
-    UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint);
-
-	/**
 	   \return the first codepoint of the range
 	*/
-	unsigned int getStartCodepoint() const { return this->startCodepoint; }
-
+	unsigned int getStartCodepoint() const;
+	
 	/**
 	   \return the last codepoint of the range
 	*/
-	unsigned int getEndCodepoint() const { return this->endCodepoint; }
-private:
-	const char32_t startCodepoint;
-	const char32_t endCodepoint;
-};
+	unsigned int getEndCodepoint() const;
 
+	/**
+	 * \return the number of characters in the range
+	 */
+	unsigned int size() const;
+
+	UnicodeBlock& operator=(const UnicodeBlock& other);
+	
+protected:
+	/**
+	   Constructor
+	*/
+	UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint);
+	
+private:
+	char32_t startCodepoint;
+	char32_t endCodepoint;
+
+	/* we want to make other classes aware of
+	 * Unicode blocks, but at the same time
+	 * prohibit instantiation of any block outside of the manager*/
+	friend class UnicodeBlockManager;
+};
+	
 class UnicodeBlockManager
 {
 public:
 	/**
-	 * \return a known Unicode block given its name
-	 * \throws logic_error if the block is not supported by the system
+	 * \return all the blocks supported by the system
 	 */
-	static const UnicodeBlock getKnownBlock(const std::string& name);
+	static const std::vector<UnicodeBlock> getAvailableBlocks();
 
 	/**
-	 * \return all the block supported by the system
+	 * Checks whether a particular character is supported.
+	 * This is particularly useful for bdf font files
+	 *  \return true if the character belongs to a supported block
 	 */
-	static const std::vector<UnicodeBlock> getAllKnownBlocks();
+	static bool isCharacterSupported(char32_t codepoint);
+
+	/**
+	   \return the total number of supported characters
+	*/
+	static unsigned int numSupportedCharacters();
 	
 private:
-	/**
-	 * \return block id given its name
-	 * \throws logic_error if the block is unsupported
-	 */
-	static UnicodeBlockId unicodeBlocknameToId(const std::string& name);
-
-	///< Unicode blocks known by the system
+    ///< Unicode blocks known by the system
 	static const std::map<UnicodeBlockId, UnicodeBlock> knownUnicodeBlocks;
 };
 

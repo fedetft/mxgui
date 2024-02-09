@@ -11,7 +11,7 @@ execute_process(COMMAND ../compile_freetype.sh)
 
 ## Targets
 set(FONTCORE_SRCS bdfparser.cpp ttfparser.cpp fixed_width_generator.cpp
-                  variable_width_generator.cpp fixes_parser.cpp font_core.cpp)
+                  variable_width_generator.cpp fixes_parser.cpp font_core.cpp unicode_blocks.cpp)
 add_library(fontcore STATIC ${FONTCORE_SRCS})
 
 set(FONTRENDERING_SRCS fontrendering.cpp)

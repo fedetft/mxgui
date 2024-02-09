@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
         ("name", value<string>(), "Font name, to give a name to the tables")
         ("height", value<int>(), "Rendering height (for TrueType only)")
         ("pad", value<int>(), "Additional pixels padding (for TrueType only)")
-        ("range", value<string>(), "Overrides default of converting only ASCII")
         ("fixes", value<string>(), "Fixes file for kerning issues (TTF only)")
     ;
 
@@ -75,17 +74,6 @@ int main(int argc, char *argv[])
 
     shared_ptr<FontParser> parser=FontParser::getParser(vm["font"].as<string>());
     parser->setLogStream(cout);
-
-    if(vm.count("range"))
-    {
-        stringstream ss(vm["range"].as<string>());
-        int a,b;
-        char c;
-        ss>>a>>c>>b;
-        if(c!=',' || a<=0 || a>255 || b<=0 || b>255)
-            throw(runtime_error("Invalid range"));
-        parser->setConversionRange(a,b);
-    }
 
     if(vm.count("height"))
     {

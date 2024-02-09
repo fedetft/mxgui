@@ -20,6 +20,7 @@
 #include "bdfparser.h"
 #include "ttfparser.h"
 #include "fixed_width_generator.h"
+#include "unicode_blocks.h"
 #include "variable_width_generator.h"
 
 using namespace std;
@@ -42,7 +43,7 @@ string toUpper(const string& x)
 // Class Glyph
 //
 
-Glyph::Glyph(): width(0), data(), ASCIIValue(0), antialiased(false) {}
+Glyph::Glyph(): width(0), data(), codepoint(0), antialiased(false) {}
 
 void Glyph::setWidth(unsigned int width)
 {
@@ -54,9 +55,9 @@ void Glyph::setData(const vector<bitset<maxWidth> >& data)
     this->data=data;
 }
 
-void Glyph::setASCII(unsigned char value)
+void Glyph::setCodepoint(char32_t value)
 {
-    this->ASCIIValue=value;
+    this->codepoint=value;
 }
 
 void Glyph::setAntialiased(bool antialiased)
@@ -81,12 +82,11 @@ unsigned char Glyph::getPixelAt(int x, int y) const
     if(data.at(y).test(2*x)) result=0x1;
     if(data.at(y).test(2*x+1)) result |= 0x2;
     return result;
-
 }
 
-unsigned char Glyph::getASCII() const
+char32_t Glyph::getCodepoint() const
 {
-    return ASCIIValue;
+    return codepoint;
 }
 
 bool Glyph::isAntialiased() const
@@ -96,7 +96,7 @@ bool Glyph::isAntialiased() const
 
 bool operator< (Glyph a, Glyph b)
 {
-    return a.getASCII() < b.getASCII();
+    return a.getCodepoint() < b.getCodepoint();
 }
 
 //
@@ -115,7 +115,7 @@ shared_ptr<FontParser> FontParser::getParser(const string& filename)
 }
 
 FontParser::FontParser(const string& filename): logStream(0),
-        log(false), fonts(), startConvert(32), endConvert(126),
+		log(false), fonts(), blocks(UnicodeBlockManager::getAvailableBlocks()),
 		filename(filename), fixesFile(""), ttfHeight(0), ttfPadding(0) {}
 
 void FontParser::setLogStream(std::ostream& output)
@@ -124,10 +124,9 @@ void FontParser::setLogStream(std::ostream& output)
     this->log=true;
 }
 
-void FontParser::setConversionRange(unsigned char start, unsigned char end)
+void FontParser::setUnicodeBlocks(const std::vector<UnicodeBlock>& blocks)
 {
-    this->startConvert=start;
-    this->endConvert=end;
+	this->blocks = blocks;
 }
 
 std::vector<Glyph> FontParser::getGlyphs() const

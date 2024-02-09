@@ -59,9 +59,9 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=true;\n"<<
           "const unsigned char "<<fontName<<"StartChar="<<static_cast<int>(
-            glyphs.at(0).getASCII())<<";\n"<<
+            glyphs.at(0).getCodepoint())<<";\n"<<
           "const unsigned char "<<fontName<<"EndChar="<<static_cast<int>(
-            glyphs.at(glyphs.size()-1).getASCII())<<";\n"<<
+            glyphs.at(glyphs.size()-1).getCodepoint())<<";\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
           "const unsigned char "<<fontName<<"Width="<<width<<";\n"<<
           "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n\n";
@@ -87,8 +87,8 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     for(int i=0;i<glyphs.size();i++)
     {
         Glyph glyph=glyphs.at(i);
-        file<<" { //Ascii "<<static_cast<int>(glyph.getASCII())<<" ( "<<
-                glyph.getASCII()<<" )\n  ";
+        file<<" { //U+"<<static_cast<int>(glyph.getCodepoint())<<" ( "<<
+                glyph.getCodepoint()<<" )\n  ";
         for(int j=0;j<width;j++)
         {
             unsigned long long column=0;

@@ -64,9 +64,9 @@ public:
     void setData(const std::vector<std::bitset<maxWidth> >& data);
 
     /**
-     * \param value the ASCII value that corresponds to this glyph
+     * \param value the Unicode codepoint that corresponds to this glyph
      */
-    void setASCII(unsigned char value);
+    void setCodepoint(char32_t value);
 
     /**
      * Set if glyph is 1 bit per pixel (not antialiased) or 2 bit per pixel
@@ -93,9 +93,9 @@ public:
     unsigned char getPixelAt(int x, int y) const;
 
     /**
-     * \return the ASCII value that corresponds to this glyph
+     * \return the Unicode codepoint value that corresponds to this glyph
      */
-    unsigned char getASCII() const;
+    char32_t getCodepoint() const;
 
     /**
      * \return true if glyph is 2 bit per pixel antialiased
@@ -106,7 +106,7 @@ public:
 private:
     unsigned int width; ///Glyph width
     std::vector<std::bitset<maxWidth> > data; ///Glyph bitmap, data[y][x] format
-    unsigned char ASCIIValue;
+    char32_t codepoint; ///< Unicode codepoint value
     bool antialiased;
 };
 
@@ -117,7 +117,9 @@ bool operator< (Glyph a, Glyph b);
 
 /**
  * Parses a font file and returns a vector of fonts.
- * Only ASCII fonts are returned, some might be missing if they were not
+ * Only codepoints belonging to known blocks are returned,
+ * exluding combiner characters which are not supported.
+ * Some might be missing if they were not
  * available in the file, or if they could not fit into the desired
  * height and width
  */
@@ -147,12 +149,10 @@ public:
     void setLogStream(std::ostream& output);
 
     /**
-     * By default the parser extracts only the ASCII subset of glyphs in the
-     * file. This member function allows to change this
-     * \param start convert from this character (included)
-     * \param end convert up to this character (included)
+     * Specifies which Unicode blocks the parser must extract
+	 * from the .ttf file
      */
-    void setConversionRange(unsigned char start, unsigned char end);
+    void setUnicodeBlocks(const std::vector<UnicodeBlock>& blocks);
 
     /**
      * Parses a font file, retrieving glyphs
@@ -191,10 +191,9 @@ protected:
     std::ostream *logStream; ///< Valid only if debugFlag is true
     bool log; ///< True if debugMode has been called
     std::vector<Glyph> fonts; ///< List of fonts
-    unsigned char startConvert, endConvert; ///< Convert characters from .. to
     const std::string filename;///< Font file
     std::string fixesFile; ///< Fixes file
-	std::map<std::string, UnicodeBlock> blocks; ///< Unicode blocks
+	std::vector<UnicodeBlock> blocks; ///< Unicode blocks
     unsigned int ttfHeight; ///< Rendering height (for ttf only)
     unsigned int ttfPadding; ///< Padding (for ttf only)
 	

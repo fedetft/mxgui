@@ -50,7 +50,7 @@ private:
      * Add a glyph to the list of glyphs
      * \param face the currently rendered glyph
      */
-    void generateGlyph(const FT_Face& face, unsigned char chr);
+    void generateGlyph(const FT_Face& face, char32_t chr);
 
     int ascent; ///<Ascent of font
     int descent; ///<Descent of font

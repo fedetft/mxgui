@@ -57,9 +57,9 @@ void VariableWidthGenerator::generateCode(const std::string filename,
     file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=false;\n"<<
           "const unsigned char "<<fontName<<"StartChar="<<static_cast<int>(
-            glyphs.at(0).getASCII())<<";\n"<<
+            glyphs.at(0).getCodepoint())<<";\n"<<
           "const unsigned char "<<fontName<<"EndChar="<<static_cast<int>(
-            glyphs.at(glyphs.size()-1).getASCII())<<";\n"<<
+            glyphs.at(glyphs.size()-1).getCodepoint())<<";\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
           "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n\n";
 
@@ -142,8 +142,8 @@ void VariableWidthGenerator::generateCode(const std::string filename,
             }
             else file<<hex<<column<<dec<<(roundedHeight==64?"ull":"")<<",";
         }
-        file<<" //Ascii "<<static_cast<int>(glyph.getASCII())<<" ( "<<
-                glyph.getASCII()<<" )";
+        file<<" //U+"<<hex<<uppercase<<static_cast<int>(glyph.getCodepoint())<<" ( "
+			<<glyph.getCodepoint()<<" )";
         if(i!=glyphs.size()-1) file<<"\n";
     }
 

@@ -17,8 +17,8 @@
 
 #include "libs/png++/png.hpp"
 #include "ttfparser.h"
+#include "unicode_blocks.h"
 #include <cmath>
-#include "unicode.h"
 
 using namespace std;
 
@@ -50,22 +50,26 @@ void TTFParser::parse()
     if(error) throw(logic_error("FreeType failed opening font file"));
     error=FT_Set_Pixel_Sizes(face,0,ttfHeight);
 	if(error) throw(logic_error("Couldn't set font height"));
-
+	
     //Compute font ascent and descent as the maximum for all glyphs to render
     ascent=0;
 	descent=0;
-	for(int k=startConvert;k<=endConvert;k++)
-    {
-		error=FT_Load_Char(face,k,FT_LOAD_RENDER);
-        if(error)
-            throw(logic_error(string("Encountered an error rendering: ")+
-                    static_cast<char>(k)));
-		int topBearing=face->glyph->metrics.horiBearingY/64;
-		if(topBearing>ascent) ascent=topBearing;
-		int bottomBearing=face->glyph->metrics.height/64-
+	for(auto& block : this->blocks)
+	{
+		for(int k=block.getStartCodepoint();k<=block.getEndCodepoint();k++)
+		{
+			error=FT_Load_Char(face,k,FT_LOAD_RENDER);
+			if(error)
+				throw(logic_error(string("Encountered an error rendering: ")+
+								  static_cast<char>(k)));
+			int topBearing=face->glyph->metrics.horiBearingY/64;
+			if(topBearing>ascent) ascent=topBearing;
+			int bottomBearing=face->glyph->metrics.height/64-
 				face->glyph->metrics.horiBearingY/64;
-		if(bottomBearing>descent) descent=bottomBearing;
+			if(bottomBearing>descent) descent=bottomBearing;
+		}
 	}
+	
     //Height can be higher than the one given for rendering, since glyphs
     //are allowed to exceed their bounding boxes *sigh*
     realHeight=ascent+descent;
@@ -73,18 +77,21 @@ void TTFParser::parse()
 			" height="<<realHeight<<endl;
     if(realHeight<ttfHeight) throw(runtime_error("Unexpected"));
 
-    for(int chr=startConvert;chr<=endConvert;chr++)
-    {
-        error=FT_Load_Char(face,chr,FT_LOAD_RENDER);
-        if(error)
-            throw(logic_error(string("Encountered an error rendering: ")+
-                    static_cast<char>(chr)));
-        generateGlyph(face,chr);
-    }
+	for(auto& block : this->blocks)
+	{
+		for(int chr=block.getStartCodepoint();chr<=block.getEndCodepoint();chr++)
+		{
+			error=FT_Load_Char(face,chr,FT_LOAD_RENDER);
+			if(error)
+				throw(logic_error(string("Encountered an error rendering: ")+
+								  static_cast<char>(chr)));
+			generateGlyph(face,chr);
+		}
+	}
     FT_Done_FreeType(library);
 }
 
-void TTFParser::generateGlyph(const FT_Face& face, unsigned char chr)
+void TTFParser::generateGlyph(const FT_Face& face, char32_t chr)
 {
     /*cout<<static_cast<char>(chr);
     cout<<" h"<<face->glyph->metrics.height/64;
@@ -94,7 +101,7 @@ void TTFParser::generateGlyph(const FT_Face& face, unsigned char chr)
     cout<<" hbx"<<face->glyph->metrics.horiBearingX/64;
     cout<<" hby"<<face->glyph->metrics.horiBearingY/64<<endl;*/
 
-    if(log) *logStream<<"Rendering glyph "<<static_cast<int>(chr)<<" ("<<chr
+    if(log) *logStream<<"Rendering glyph "<<hex<<showbase<<static_cast<int>(chr)<<" ("<<chr
             <<")...";
 
     //First, extract relevant data from the FreeType glyph format
@@ -113,7 +120,7 @@ void TTFParser::generateGlyph(const FT_Face& face, unsigned char chr)
 
     //Then, make a Glyph object and set initial properties
     Glyph result;
-    result.setASCII(chr);
+    result.setCodepoint(chr);
     result.setAntialiased(true);
     result.setWidth(advance+fixes.getPad(chr)-fixes.getShift(chr));
 

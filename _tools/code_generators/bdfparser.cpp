@@ -16,6 +16,7 @@
  ***************************************************************************/
 
 #include "bdfparser.h"
+#include "unicode_blocks.h"
 #include <sstream>
 #include <cassert>
 #include <cctype>
@@ -34,7 +35,7 @@ BDFParser::BDFParser(const string& filename): FontParser(filename),
 
 void BDFParser::parse()
 {
-    //Check that no fixes file ha been specified, since it is specific to TTF
+    //Check that no fixes file has been specified, since it is specific to TTF
     if(this->fixesFile.empty()==false && log)
     {
         (*logStream)<<"Warning: ignoring fixes file since unsupported for BDF"
@@ -95,10 +96,12 @@ void BDFParser::parse()
         {
             //Eof found, sort characters and return
             sort(fonts.begin(),fonts.end());
-            if(fonts.size()<(endConvert-startConvert+1) && log)
+			unsigned int supportedCharacters =
+				UnicodeBlockManager::numSupportedCharacters();
+            if(fonts.size()<(supportedCharacters) && log)
             {
                 *logStream<<"Warning converted only "<<fonts.size()<<
-                        " characters instead of "<<endConvert-startConvert+1<<
+                        " characters instead of "<<supportedCharacters<<
                         " Some are missing from the bdf file"<<endl;
             }
             return;
@@ -128,7 +131,7 @@ vector<string> BDFParser::getNextChar(ifstream& file)
 void BDFParser::generateGlyph(vector<string> data)
 {
     Glyph result;
-
+	
     //Look for the ENCODING tag
     for(int i=0;i<data.size();i++)
     {
@@ -137,13 +140,13 @@ void BDFParser::generateGlyph(vector<string> data)
             stringstream ss(data.at(i).substr(9));
             int encoding;
             ss>>encoding;
-            if(encoding<startConvert || encoding>endConvert) return;
-            result.setASCII(static_cast<unsigned char>(encoding));
+            if(!UnicodeBlockManager::isCharacterSupported(encoding)) return;
+            result.setCodepoint(static_cast<char32_t>(encoding));
             break;
         }
     }
-    if(log) *logStream<<"Parsing glyph "<<static_cast<int>(result.getASCII())<<
-            " ("<<result.getASCII()<<")...";
+    if(log) *logStream<<"Parsing glyph "<<static_cast<int>(result.getCodepoint())<<
+            " ("<<result.getCodepoint()<<")...";
 
     //Look for the DWIDTH tag
     bool dwidthFound=false;
@@ -158,7 +161,7 @@ void BDFParser::generateGlyph(vector<string> data)
             if(dwidth<=0 || dwidth>Glyph::maxWidth)
             {
                 stringstream ss;
-                ss<<"Error: Glyph "<<result.getASCII()<<
+                ss<<"Error: Glyph "<<result.getCodepoint()<<
                         " has invalid DWIDTH ("<<dwidth<<")";
                 throw(runtime_error(ss.str()));
             }
@@ -169,7 +172,7 @@ void BDFParser::generateGlyph(vector<string> data)
     if(dwidthFound==false)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getASCII()<<" has no DWIDTH tag";
+        ss<<"Error: Glyph "<<result.getCodepoint()<<" has no DWIDTH tag";
         throw(runtime_error(ss.str()));
     }
 
@@ -189,7 +192,7 @@ void BDFParser::generateGlyph(vector<string> data)
     if(bbxFound==false)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getASCII()<<" has no BBX tag";
+        ss<<"Error: Glyph "<<result.getCodepoint()<<" has no BBX tag";
         throw(runtime_error(ss.str()));
     }
 
@@ -197,7 +200,7 @@ void BDFParser::generateGlyph(vector<string> data)
     if(bbxA<0 || bbxB<0)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getASCII()<<" has bbxA or bbxB<0";
+        ss<<"Error: Glyph "<<result.getCodepoint()<<" has bbxA or bbxB<0";
         throw(runtime_error(ss.str()));
     }
 
@@ -207,7 +210,7 @@ void BDFParser::generateGlyph(vector<string> data)
     if(fontAscent-bbxB-bbxD<0)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getASCII()<<
+        ss<<"Error: Glyph "<<result.getCodepoint()<<
             " has bad alignment. This might be caused by an insufficent "
             "fontAscent for the boundingBox of this character";
         throw(runtime_error(ss.str()));
@@ -259,7 +262,7 @@ void BDFParser::generateGlyph(vector<string> data)
     if(theBitmap.size()>getHeight())
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getASCII()<<
+        ss<<"Error: Glyph "<<result.getCodepoint()<<
             " has a bigger height ("<<theBitmap.size()<<") than the "
             "maximum allowed. This might be caused by an insufficient "
             "fontAscent or fontDescent to fit the boundingBox";
