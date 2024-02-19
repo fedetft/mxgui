@@ -25,82 +25,55 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef BUTTON_H
-#define	BUTTON_H
-
-#include 
-#include <config/mxgui_settings.h>
-
-#include "application.h"
+#include "button.h"
 #include "label.h"
-
 #ifdef MXGUI_LEVEL_2
+
+#include <utility>
+
+using namespace std;
 
 namespace mxgui {
 
-/**
- * A basic interactive Button.
- */
-class Button : public Drawable
+Button::Button(Window* w, DrawArea da, const string& text)
+    : Drawable(w,da)
 {
-public:
-    /**
-     * Constructor
-     * The object will be immediately enqueued for redraw
-     * \param w window to which this object belongs
-     * \param da area on screen occupied by this object
-     * \param text text written in the Button
-     */
-    Button(Window *w, DrawArea da, const std::string& text="");
-    
-    /**
-     * Constructor
-     * The object will be immediately enqueued for redraw
-     * \param w window to which this object belongs
-     * \param p upper left point of the button
-     * \param width width of the button
-     * \param height height of the button
-     * \param text text written in the button
-     */
-    Button(Window *w, Point p, short width, short height, const std::string& text="");
-    
-    
-    /**
-     * Change the text being displayed
-     * \param text new text to be displayed
-     */
-    void setText(const std::string& text);
-   
-    /**
-     * Set the function to be called when the button is pressed
-     * \param callback pointer to the function to be called
-     */
-    void setCallback(void (*callback)(int));
-   
+    this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
+    this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
+    this->text=new Label(w,DrawArea(innerPointTl,innerPointBr),text);
+    enqueueForRedraw();
+}
 
-    void buttonDown();
+Button::Button(Window *w, Point p, short width, short height, const string& text)
+    : Button(w,DrawArea(p,Point(p.x()+width-1,p.y()+height-1)),text)
+{
+}
 
-    
-    void buttonUp();
- 
-    
-    /**
-     * \internal
-     * Overridden this member function to draw the object.
-     * \param dc drawing context used to draw the object
-     */
-    virtual void onDraw(DrawingContextProxy& dc);
-    
-private:
-    Label *text; ///< Text of the button
-    void (*callback)(int)=NULL; ///< Pointer to the function to be called when the button is pressed
-    bool clicked=false; ///< True if the button is clicked
-    Point innerPointTl; ///< Upper left point of the inner area of the button
-    Point innerPointBr; ///< Lower right point of the inner area of the button
-};
+void Button::setText(const string& text)
+{
+    this->text->setText(text);
+    enqueueForRedraw();
+}
 
-} //namesapce mxgui
+void Button::buttonDown()
+{
+    //TODO: set the button in the "pressed" state
+    clicked=true;
+}
+void Button::buttonUp()
+{
+    //TODO: set the button in the "released" state
+    clicked=false;
+    if(callback) callback(1);
+}
+
+void Button::onDraw(DrawingContextProxy& dc)
+{
+    DrawArea da=getDrawArea();
+    //TODO: draw the button
+    
+}
+
+} //namespace mxgui
 
 #endif //MXGUI_LEVEL_2
-
-#endif //BUTTON_H
