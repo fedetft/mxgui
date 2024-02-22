@@ -32,6 +32,7 @@
 
 #include "application.h"
 #include "label.h"
+#include "input.h"
 #include "../misc_inst.h"
 #include "../display.h"
 
@@ -90,11 +91,12 @@ public:
      */
     void setCallback(void (*callback)(int));
    
-   /**
-    * Checks Event type and calls the appropriate function
-    * \param e event to be managed
-   */
-    void manageEvent(Event e);
+    /**
+     * \internal
+     * Overridden this member function to handle events.
+     * \param e event to be handled
+     */
+    virtual void onEvent(Event e);
     
     /**
      * \internal

@@ -26,10 +26,10 @@
  ***************************************************************************/
 
 
-
+#include "button.h"
 #ifdef MXGUI_LEVEL_2
 
-#include "button.h"
+
 #include <utility>
 
 using namespace std;
@@ -87,15 +87,15 @@ void Button::onDraw(DrawingContextProxy& dc)
 
 }
 
-void manageEvent(Event e)
+void Button::onEvent(Event e)
 {
     if(!checkEventArea(e))
         return;
-    if(e.type==Event::TouchDown)
+    if(e.getEvent()==EventType::TouchDown)
     {
         buttonDown();
     }
-    else if(e.type==Event::TouchUp)
+    else if(e.getEvent()==EventType::TouchUp)
     {
         buttonUp();
     }
