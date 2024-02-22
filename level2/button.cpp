@@ -25,10 +25,11 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "button.h"
-#include "label.h"
+
+
 #ifdef MXGUI_LEVEL_2
 
+#include "button.h"
 #include <utility>
 
 using namespace std;
@@ -41,6 +42,8 @@ Button::Button(Window* w, DrawArea da, const string& text)
     this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
     this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
     this->text=new Label(w,DrawArea(innerPointTl,innerPointBr),text);
+    colors=make_pair(black,lightGrey);
+
     enqueueForRedraw();
 }
 
@@ -52,18 +55,23 @@ Button::Button(Window *w, Point p, short width, short height, const string& text
 void Button::setText(const string& text)
 {
     this->text->setText(text);
-    enqueueForRedraw();
 }
 
 void Button::buttonDown()
 {
     //TODO: set the button in the "pressed" state
+    colors=make_pair(black,darkGrey);
     clicked=true;
+    text->setColors(colors);
+    enqueueForRedraw();
 }
 void Button::buttonUp()
 {
     //TODO: set the button in the "released" state
     clicked=false;
+    colors=make_pair(black,lightGrey);
+    text->setColors(colors);
+    enqueueForRedraw();
     if(callback) callback(1);
 }
 
@@ -71,9 +79,28 @@ void Button::onDraw(DrawingContextProxy& dc)
 {
     DrawArea da=getDrawArea();
     //TODO: draw the button
-    
+    dc.drawImage(da.first,tl);
+    dc.drawImage(Point(da.second.x()-2,da.first.y()),tr);
+    dc.drawImage(Point(da.first.x(),da.second.y()-2),bl);
+    dc.drawImage(innerPointBr,br);
+    dc.clear(innerPointTl,innerPointBr,colors.second);
+
 }
 
-} //namespace mxgui
+void manageEvent(Event e)
+{
+    if(!checkEventArea(e))
+        return;
+    if(e.type==Event::TouchDown)
+    {
+        buttonDown();
+    }
+    else if(e.type==Event::TouchUp)
+    {
+        buttonUp();
+    }
+
+} 
+}//namespace mxgui
 
 #endif //MXGUI_LEVEL_2
