@@ -41,16 +41,18 @@ Button::Button(Window* w, DrawArea da, const string& text)
 {
     this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
     this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
-    this->text=new Label(w,DrawArea(innerPointTl,innerPointBr),text);
+    
     colors=make_pair(black,lightGrey);
-
+    this->text=new Label(w,DrawArea(innerPointTl,innerPointBr),text);
+    this->text->setColors(colors);
+    this->text->setXAlignment(Alignment::CENTER);
+    this->text->setYAlignment(Alignment::CENTER);
     enqueueForRedraw();
 }
 
 Button::Button(Window *w, Point p, short width, short height, const string& text)
     : Button(w,DrawArea(p,Point(p.x()+width-1,p.y()+height-1)),text)
-{
-}
+{}
 
 void Button::setText(const string& text)
 {
@@ -59,31 +61,28 @@ void Button::setText(const string& text)
 
 void Button::buttonDown()
 {
-    //TODO: set the button in the "pressed" state
-    colors=make_pair(black,darkGrey);
-    clicked=true;
+    colors=make_pair(white,darkGrey);
     text->setColors(colors);
+    
     enqueueForRedraw();
 }
+
 void Button::buttonUp()
 {
-    //TODO: set the button in the "released" state
-    clicked=false;
     colors=make_pair(black,lightGrey);
     text->setColors(colors);
     enqueueForRedraw();
-    if(callback) callback(1);
+    if(callback) callback();
 }
 
 void Button::onDraw(DrawingContextProxy& dc)
 {
     DrawArea da=getDrawArea();
-    //TODO: draw the button
+    dc.clear(da.first,da.second,colors.second);
     dc.drawImage(da.first,tl);
     dc.drawImage(Point(da.second.x()-2,da.first.y()),tr);
     dc.drawImage(Point(da.first.x(),da.second.y()-2),bl);
     dc.drawImage(innerPointBr,br);
-    dc.clear(innerPointTl,innerPointBr,colors.second);
 
 }
 
@@ -101,6 +100,11 @@ void Button::onEvent(Event e)
     }
 
 } 
+
+void Button::setCallback(function<void ()> callback)
+{
+    swap(this->callback,callback);
+}
 }//namespace mxgui
 
 #endif //MXGUI_LEVEL_2

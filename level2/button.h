@@ -29,7 +29,7 @@
 #define	BUTTON_H
 
 #include <config/mxgui_settings.h>
-
+#include <functional>
 #include "application.h"
 #include "label.h"
 #include "input.h"
@@ -39,6 +39,7 @@
 #ifdef MXGUI_LEVEL_2
 
 namespace mxgui {
+
 //Corner images of the button
 static const unsigned short tlp[]={
         61276,46420,31661,48565,33741,46452,31661,46452,57050
@@ -89,7 +90,7 @@ public:
      * Set the function to be called when the button is pressed
      * \param callback pointer to the function to be called
      */
-    void setCallback(void (*callback)(int));
+    void setCallback(std::function<void ()> callback);
    
     /**
      * \internal
@@ -107,35 +108,41 @@ public:
     
 private:
     Label *text; ///< Text of the button
-    void (*callback)(int)=NULL; ///< Pointer to the function to be called when the button is pressed
-    bool clicked=false; ///< True if the button is clicked
+    std::function<void ()> callback; ///< Pointer to the function to be called when the button is pressed
     Point innerPointTl; ///< Upper left point of the inner area of the button
     Point innerPointBr; ///< Lower right point of the inner area of the button
 
     //Drawing elements
     std::pair<Color,Color> colors; ///< Colors of the button
 
-    
     const Image tl=Image(3,3,tlp); //Button top left
-
-    
     const Image tr=Image(3,3,trp); //Button top right
-
-    
     const Image bl=Image(3,3,blp); //Button bottom left
-
-    
     const Image br=Image(3,3,brp); //Button bottom right
 
+    //Private functions
+
+    /**
+     * Check if the event is within the button area
+     * \param e event to be checked
+     * \return true if the event is within the button area
+     */
     bool checkEventArea(Event e)
     {
         DrawArea da=getDrawArea();
         return within(e.getPoint(),da.first,da.second);
     }
 
+
+    /**
+     * Set the colors of the button when it is pressed
+     */
     void buttonDown();
 
-    
+    /**
+     * Set the colors of the button when it is released
+     * and call the callback function if it is set
+     */
     void buttonUp();
 };
 
