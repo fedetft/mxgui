@@ -37,7 +37,7 @@ using namespace std;
 namespace mxgui {
 
 Button::Button(Window* w, DrawArea da, const string& text)
-    : Drawable(w,da)
+    : InteractableButton(w,da)
 {
     this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
     this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
@@ -51,19 +51,14 @@ Button::Button(Window* w, DrawArea da, const string& text)
 }
 
 Button::Button(Window *w, Point p, short width, short height, const string& text)
-    : Button(w,DrawArea(p,Point(p.x()+width-1,p.y()+height-1)),text)
+    : Button(w,DrawArea(p,Point(p.x()+width,p.y()+height)),text)
 {}
 
-void Button::setText(const string& text)
-{
-    this->text->setText(text);
-}
 
 void Button::buttonDown()
 {
     colors=make_pair(white,darkGrey);
-    text->setColors(colors);
-    
+    text->setColors(colors);    
     enqueueForRedraw();
 }
 
@@ -72,7 +67,7 @@ void Button::buttonUp()
     colors=make_pair(black,lightGrey);
     text->setColors(colors);
     enqueueForRedraw();
-    if(callback) callback();
+    InteractableButton::buttonUp();
 }
 
 void Button::onDraw(DrawingContextProxy& dc)
@@ -86,25 +81,7 @@ void Button::onDraw(DrawingContextProxy& dc)
 
 }
 
-void Button::onEvent(Event e)
-{
-    if(!checkEventArea(e))
-        return;
-    if(e.getEvent()==EventType::TouchDown)
-    {
-        buttonDown();
-    }
-    else if(e.getEvent()==EventType::TouchUp)
-    {
-        buttonUp();
-    }
 
-} 
-
-void Button::setCallback(function<void ()> callback)
-{
-    swap(this->callback,callback);
-}
 }//namespace mxgui
 
 #endif //MXGUI_LEVEL_2
