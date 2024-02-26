@@ -27,36 +27,16 @@
 
 #ifndef BUTTON_H
 #define	BUTTON_H
-
-#include <config/mxgui_settings.h>
-#include <functional>
-#include "application.h"
-#include "label.h"
-#include "input.h"
-#include "../misc_inst.h"
-#include "../display.h"
+#include "interactable_button.h"
 
 #ifdef MXGUI_LEVEL_2
 
 namespace mxgui {
 
-//Corner images of the button
-static const unsigned short tlp[]={
-        61276,46420,31661,48565,33741,46452,31661,46452,57050
-    };
-static const unsigned short trp[]={
-        31661,46420,61276,57050,31628,48565,48499,42161,31661
-    };
-static const unsigned short blp[]={
-        31661,57050,48499,48565,33741,42225,61276,46420,31661
-    };
-static const unsigned short brp[]={
-        48499,42161,31661,42225,33741,48565,31661,46420,61276
-    };
 /**
  * A basic interactive Button.
  */
-class Button : public Drawable
+class Button : public InteractableButton
 {
 public:
     /**
@@ -79,26 +59,6 @@ public:
      */
     Button(Window *w, Point p, short width, short height, const std::string& text="");
     
-    
-    /**
-     * Change the text being displayed
-     * \param text new text to be displayed
-     */
-    void setText(const std::string& text);
-   
-    /**
-     * Set the function to be called when the button is pressed
-     * \param callback pointer to the function to be called
-     */
-    void setCallback(std::function<void ()> callback);
-   
-    /**
-     * \internal
-     * Overridden this member function to handle events.
-     * \param e event to be handled
-     */
-    virtual void onEvent(Event e);
-    
     /**
      * \internal
      * Overridden this member function to draw the object.
@@ -107,42 +67,18 @@ public:
     virtual void onDraw(DrawingContextProxy& dc);
     
 private:
-    Label *text; ///< Text of the button
-    std::function<void ()> callback; ///< Pointer to the function to be called when the button is pressed
-    Point innerPointTl; ///< Upper left point of the inner area of the button
-    Point innerPointBr; ///< Lower right point of the inner area of the button
 
-    //Drawing elements
-    std::pair<Color,Color> colors; ///< Colors of the button
-
-    const Image tl=Image(3,3,tlp); //Button top left
-    const Image tr=Image(3,3,trp); //Button top right
-    const Image bl=Image(3,3,blp); //Button bottom left
-    const Image br=Image(3,3,brp); //Button bottom right
 
     //Private functions
 
-    /**
-     * Check if the event is within the button area
-     * \param e event to be checked
-     * \return true if the event is within the button area
-     */
-    bool checkEventArea(Event e)
-    {
-        DrawArea da=getDrawArea();
-        return within(e.getPoint(),da.first,da.second);
-    }
-
-
-    /**
-     * Set the colors of the button when it is pressed
-     */
+    /** 
+     * Overridden this member function to set the colors of the button when it is pressed
+    */
     void buttonDown();
 
-    /**
-     * Set the colors of the button when it is released
-     * and call the callback function if it is set
-     */
+    /** 
+     * Overridden this member function to also set the colors of the button when it is released.
+    */
     void buttonUp();
 };
 
