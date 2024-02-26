@@ -93,11 +93,11 @@ public:
      */
     virtual void onEvent(Event e)
     {
-        if(!checkEventArea(e))
+        if(!this->checkEventArea(e))
             return;
         if(e.getEvent()==EventType::TouchDown)
         {
-            buttonDown();
+            this->buttonDown();
         }
         else if(e.getEvent()==EventType::TouchUp)
         {
@@ -147,8 +147,6 @@ protected:
         DrawArea da=getDrawArea();
         return within(e.getPoint(),da.first,da.second);
     }
-
-
     
     virtual void buttonDown()=0;
 
