@@ -31,7 +31,6 @@
 
 
 #include <utility>
-#include <iostream>
 
 using namespace std;
 
@@ -53,7 +52,6 @@ void RadioGroup::addRadioButton(RadioButton *rb)
 
 void RadioGroup::setChecked(RadioButton *rb)
 {
-    cout<<rb<<endl;
     for(auto it : radioButtons)
     {
         
@@ -71,7 +69,7 @@ void RadioGroup::setChecked(RadioButton *rb)
             
             if(!it->isChecked())
             {
-                cout<<it<<endl;
+
                 checked=rb;
                 it->setChecked(true);
                 it->enqueueForRedraw();
@@ -98,7 +96,6 @@ RadioButton::RadioButton(Window *w,RadioGroup *group, Point p, short dimension, 
 
 void RadioButton::check()
 {
-    cout<<"checking"<<endl;
     group->setChecked(this);
     enqueueForRedraw();
 }
@@ -123,7 +120,6 @@ void RadioButton::onDraw(DrawingContextProxy& dc)
     dc.drawRectangle(innerPointTl,innerPointBr,black);
     if(isChecked())
     {
-        cout<<"drawing"<<endl;
         dc.clear(innerPointTl,innerPointBr,black);
     }
 

@@ -65,13 +65,6 @@ public:
      * \param dc drawing context used to draw the object
      */
     virtual void onDraw(DrawingContextProxy& dc);
-
-    /**
-     * \internal
-     * Overridden this member function to handle the event and reset colors.
-     * \param e event to handle
-     */
-    virtual void onEvent(Event e);
     
 private:
 

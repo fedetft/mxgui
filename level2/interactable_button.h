@@ -34,7 +34,6 @@
 #include "label.h"
 #include "input.h"
 #include "../misc_inst.h"
-#include "../display.h"
 
 #ifdef MXGUI_LEVEL_2
 

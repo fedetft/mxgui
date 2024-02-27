@@ -31,7 +31,6 @@
 
 
 #include <utility>
-#include <iostream>
 
 using namespace std;
 
@@ -75,27 +74,14 @@ void Button::buttonUp()
 
 void Button::onDraw(DrawingContextProxy& dc)
 {
-    cout<<"Button::onDraw "<<colors.first<<", "<<colors.second<<endl;
     DrawArea da=getDrawArea();
     dc.clear(da.first,da.second,colors.second);
     dc.drawImage(da.first,tl);
     dc.drawImage(Point(da.second.x()-2,da.first.y()),tr);
     dc.drawImage(Point(da.first.x(),da.second.y()-2),bl);
     dc.drawImage(innerPointBr,br);
-
 }
 
-void Button::onEvent(Event e)
-{
-    if(!this->checkEventArea(e))
-    {
-        colors=make_pair(black,lightGrey);
-        text->setColors(colors);
-        enqueueForRedraw();
-        return;
-    }
-    InteractableButton::onEvent(e);
-}
 
 
 }//namespace mxgui
