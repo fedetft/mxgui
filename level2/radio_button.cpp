@@ -26,56 +26,93 @@
  ***************************************************************************/
 
 
-#include "checkbox.h"
+#include "radio_button.h"
 #ifdef MXGUI_LEVEL_2
 
 
 #include <utility>
+#include <iostream>
 
 using namespace std;
 
 namespace mxgui {
+//RadioGroup
 
-CheckBox::CheckBox(Window *w, Point p, short dimension, const string& text, bool checked)
-    : InteractableButton(w,DrawArea(p,Point(p.x()+dimension,p.y()+dimension)))
+RadioGroup::RadioGroup()
+{
+    radioButtons = list<RadioButton*>();
+    checked=nullptr;
+}
+
+
+void RadioGroup::addRadioButton(RadioButton *rb)
+{
+    if(std::find(radioButtons.begin(), radioButtons.end(), rb) == radioButtons.end())
+        radioButtons.push_back(rb);
+}
+
+void RadioGroup::setChecked(RadioButton *rb)
+{
+    cout<<rb<<endl;
+    for(auto it : radioButtons)
+    {
+        
+        if(it!=rb)
+        {
+            if(it->isChecked())
+            {
+                it->setChecked(false);
+                it->enqueueForRedraw();
+            }
+            
+        }
+        else
+        {
+            
+            if(!it->isChecked())
+            {
+                cout<<it<<endl;
+                checked=rb;
+                it->setChecked(true);
+                it->enqueueForRedraw();
+            }
+        }
+    }
+}
+RadioButton* RadioGroup::getChecked()
+{
+    return checked;
+}
+//RadioButton
+
+RadioButton::RadioButton(Window *w,RadioGroup *group, Point p, short dimension, const string& text)
+    : CheckBox(w,p,dimension,text,false)
+{
+    this->group=group;
+    this->group->addRadioButton(this);
+    enqueueForRedraw();
+}
+
+
+
+
+void RadioButton::check()
+{
+    cout<<"checking"<<endl;
+    group->setChecked(this);
+    enqueueForRedraw();
+}
+void RadioButton::setChecked(bool checked)
 {
     this->checked=checked;
-    this->colors=make_pair(black,lightGrey);
-    this->labelStartingPoint = Point(p.x()+dimension+4,p.y());
-    this->text=new Label(w,this->labelStartingPoint,5*text.length(),dimension,text);
-    this->text->setXAlignment(Alignment::LEFT);
-    this->text->setYAlignment(Alignment::CENTER);
-    enqueueForRedraw();
 }
 
-
-
-void CheckBox::buttonDown()
+string RadioButton::getLabel()
 {
-    colors=make_pair(white,darkGrey);
-        
-    enqueueForRedraw();
+    return text->getText();
 }
 
-void CheckBox::buttonUp()
-{
-    colors=make_pair(black,lightGrey);
-    this->check();
-    enqueueForRedraw();
-    InteractableButton::buttonUp();
-    
-}
-
-void CheckBox::check()
-{
-    checked=!checked;
-}
-
-bool CheckBox::isChecked()
-{
-    return this->checked;
-}
-void CheckBox::onDraw(DrawingContextProxy& dc)
+void RadioButton::onDraw(DrawingContextProxy& dc)
 {
     DrawArea da=getDrawArea();
     dc.clear(da.first,da.second,colors.second);
@@ -85,8 +122,8 @@ void CheckBox::onDraw(DrawingContextProxy& dc)
     dc.drawImage(innerPointBr,br);
     if(isChecked())
     {
-        dc.line(innerPointTl,innerPointBr,black);
-        dc.line(Point(innerPointTl.x(),innerPointBr.y()),Point(innerPointBr.x(),innerPointTl.y()),black);
+        cout<<"drawing"<<endl;
+        dc.clear(innerPointTl,innerPointBr,black);
     }
 
 }

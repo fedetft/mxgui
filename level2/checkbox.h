@@ -45,16 +45,16 @@ public:
      * The object will be immediately enqueued for redraw
      * \param w window to which this object belongs
      * \param p upper left point of the CheckBox
-     * \param width width of the CheckBox ( it's a square )
+     * \param dimension width and height of the CheckBox ( it's a square )
      * \param text label of the checkbox
      */
-    CheckBox(Window *w, Point p, short width=100, const std::string& text="", bool checked=false);
+    CheckBox(Window *w, Point p, short dimension=100, const std::string& text="", bool checked=false);
     
 
     /**
      * Returns true if the checkbox is checked
     */
-    bool isChecked();
+    virtual bool isChecked();
 
     /**
      * \internal
@@ -63,12 +63,11 @@ public:
      */
     virtual void onDraw(DrawingContextProxy& dc);
 
-
+protected:
+bool checked; ///< True if the checkbox is checked
     
 private:
     Point labelStartingPoint; ///< Upper left point of the label
-    bool checked; ///< True if the checkbox is checked
-
     //Private functions
 
     /** 
@@ -81,7 +80,7 @@ private:
     */
     void buttonUp();
 
-    void check();
+    virtual void check();
 
 };
 
