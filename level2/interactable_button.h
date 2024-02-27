@@ -65,7 +65,7 @@ public:
         : Drawable(w,da)
     {
         this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
-        this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
+        this->innerPointBr = Point(da.second.x()-2,da.second.y()-2);
     }
     /**
      * Change the text being displayed
@@ -94,8 +94,11 @@ public:
     virtual void onEvent(Event e)
     {
         if(!this->checkEventArea(e))
+        {
+            this->resetState();
             return;
-        if(e.getEvent()==EventType::TouchDown)
+        }
+        if(e.getEvent()==EventType::TouchDown || e.getEvent()==EventType::TouchMove)
         {
             this->buttonDown();
         }
@@ -103,7 +106,7 @@ public:
         {
             this->buttonUp();
         }
-
+    
     } 
     
     /**
@@ -147,10 +150,22 @@ protected:
         DrawArea da=getDrawArea();
         return within(e.getPoint(),da.first,da.second);
     }
-    
+
+    /**
+     * Resets the state of the button
+     */
+    virtual void resetState()
+    {
+        enqueueForRedraw();
+    }
+
+    /**
+     * Set button state to pressed
+     */
     virtual void buttonDown()=0;
 
     /**
+     * Set button state to released
      * Call the callback function if it is set
      */
     virtual void buttonUp()

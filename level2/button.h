@@ -65,6 +65,13 @@ public:
      * \param dc drawing context used to draw the object
      */
     virtual void onDraw(DrawingContextProxy& dc);
+
+    /**
+     * \internal
+     * Overridden this member function to handle the event and reset colors.
+     * \param e event to handle
+     */
+    virtual void onEvent(Event e);
     
 private:
 
@@ -76,6 +83,10 @@ private:
     */
     void buttonDown();
 
+    /**
+     * Overridden this member function to reset the colors of the button.
+    */
+    void resetState();
     /** 
      * Overridden this member function to also set the colors of the button when it is released.
     */

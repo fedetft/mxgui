@@ -31,6 +31,7 @@
 
 
 #include <utility>
+#include <iostream>
 
 using namespace std;
 
@@ -42,11 +43,10 @@ Button::Button(Window* w, DrawArea da, const string& text)
     this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
     this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
     
-    colors=make_pair(black,lightGrey);
     this->text=new Label(w,DrawArea(innerPointTl,innerPointBr),text);
-    this->text->setColors(colors);
     this->text->setXAlignment(Alignment::CENTER);
     this->text->setYAlignment(Alignment::CENTER);
+    resetState();
     enqueueForRedraw();
 }
 
@@ -54,7 +54,12 @@ Button::Button(Window *w, Point p, short width, short height, const string& text
     : Button(w,DrawArea(p,Point(p.x()+width,p.y()+height)),text)
 {}
 
-
+void Button::resetState()
+{
+    colors=make_pair(black,lightGrey);
+    text->setColors(colors);
+    InteractableButton::resetState();
+}
 void Button::buttonDown()
 {
     colors=make_pair(white,darkGrey);
@@ -64,14 +69,13 @@ void Button::buttonDown()
 
 void Button::buttonUp()
 {
-    colors=make_pair(black,lightGrey);
-    text->setColors(colors);
-    enqueueForRedraw();
+    resetState();
     InteractableButton::buttonUp();
 }
 
 void Button::onDraw(DrawingContextProxy& dc)
 {
+    cout<<"Button::onDraw "<<colors.first<<", "<<colors.second<<endl;
     DrawArea da=getDrawArea();
     dc.clear(da.first,da.second,colors.second);
     dc.drawImage(da.first,tl);
@@ -79,6 +83,18 @@ void Button::onDraw(DrawingContextProxy& dc)
     dc.drawImage(Point(da.first.x(),da.second.y()-2),bl);
     dc.drawImage(innerPointBr,br);
 
+}
+
+void Button::onEvent(Event e)
+{
+    if(!this->checkEventArea(e))
+    {
+        colors=make_pair(black,lightGrey);
+        text->setColors(colors);
+        enqueueForRedraw();
+        return;
+    }
+    InteractableButton::onEvent(e);
 }
 
 

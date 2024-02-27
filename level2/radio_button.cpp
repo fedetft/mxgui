@@ -120,6 +120,7 @@ void RadioButton::onDraw(DrawingContextProxy& dc)
     dc.drawImage(Point(da.second.x()-2,da.first.y()),tr);
     dc.drawImage(Point(da.first.x(),da.second.y()-2),bl);
     dc.drawImage(innerPointBr,br);
+    dc.drawRectangle(innerPointTl,innerPointBr,black);
     if(isChecked())
     {
         cout<<"drawing"<<endl;

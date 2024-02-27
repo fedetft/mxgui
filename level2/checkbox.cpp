@@ -49,21 +49,23 @@ CheckBox::CheckBox(Window *w, Point p, short dimension, const string& text, bool
 }
 
 
-
+void CheckBox::resetState()
+{
+    colors=make_pair(black,lightGrey);
+    enqueueForRedraw();
+    InteractableButton::resetState();
+}
 void CheckBox::buttonDown()
 {
     colors=make_pair(white,darkGrey);
-        
     enqueueForRedraw();
 }
 
 void CheckBox::buttonUp()
 {
-    colors=make_pair(black,lightGrey);
     this->check();
-    enqueueForRedraw();
+    resetState();
     InteractableButton::buttonUp();
-    
 }
 
 void CheckBox::check()

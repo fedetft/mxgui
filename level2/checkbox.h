@@ -70,6 +70,11 @@ private:
     Point labelStartingPoint; ///< Upper left point of the label
     //Private functions
 
+
+    /**
+     * Overridden this member function to reset the colors of the button.
+    */
+    void resetState();
     /** 
      * Overridden this member function to set the colors of the button when it is pressed
     */
