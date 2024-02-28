@@ -39,10 +39,11 @@ namespace mxgui {
 CheckBox::CheckBox(Window *w, Point p, short dimension, const string& text, bool checked)
     : InteractableButton(w,DrawArea(p,Point(p.x()+dimension,p.y()+dimension)))
 {
+    int textLen =w->getPreferences().font.calculateLength(text.c_str());
     this->checked=checked;
     this->colors=make_pair(black,lightGrey);
     this->labelStartingPoint = Point(p.x()+dimension+4,p.y());
-    this->text=new Label(w,this->labelStartingPoint,5*text.length(),dimension,text);
+    this->text=new Label(w,this->labelStartingPoint,textLen,dimension,text);
     this->text->setXAlignment(Alignment::LEFT);
     this->text->setYAlignment(Alignment::CENTER);
     enqueueForRedraw();
