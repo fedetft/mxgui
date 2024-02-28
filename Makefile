@@ -23,7 +23,7 @@ level2/drawing_context_proxy.cpp       \
 level2/label.cpp                       \
 level2/button.cpp                      \
 level2/checkbox.cpp                    \
-level2/radiobutton.cpp                 \
+level2/radio_button.cpp                 \
 level2/simple_plot.cpp                 \
 drivers/display_stm3210e-eval.cpp      \
 drivers/event_stm3210e-eval.cpp        \
