@@ -37,10 +37,10 @@ public:
     {
         // These are a must on all backends -- begin
         Default=0,           // This actually means 'no event'
-        WindowPartialRedraw, // At least one drawable has requested redraw
-        WindowForeground,    // Window manager moved this window to foreground
-        WindowBackground,    // Window manager moved this window to background
-        WindowQuit,          // Window manager requested the window to close
+        WindowPartialRedraw=8, // At least one drawable has requested redraw
+        WindowForeground=9,    // Window manager moved this window to foreground
+        WindowBackground=10,    // Window manager moved this window to background
+        WindowQuit=11,          // Window manager requested the window to close
         // These are a must on all backends -- end
         
         TouchDown=1,

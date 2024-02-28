@@ -58,6 +58,9 @@ set(LIB_SRCS
     ../../drivers/display_qt.cpp
     ../../drivers/event_qt.cpp
     ../../level2/input.cpp
+    ../../level2/button.cpp
+    ../../level2/checkbox.cpp
+    ../../level2/radio_button.cpp
     ../../level2/application.cpp
     ../../level2/drawing_context_proxy.cpp
     ../../level2/label.cpp
