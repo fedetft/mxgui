@@ -47,8 +47,9 @@ public:
      * \param p upper left point of the CheckBox
      * \param dimension width and height of the CheckBox ( it's a square )
      * \param text label of the checkbox
+     * \param checked initial state of the checkbox
      */
-    CheckBox(Window *w, Point p, short dimension=100, const std::string& text="", bool checked=false);
+    CheckBox(Window *w, Point p, short dimension=15, const std::string& text="", bool checked=false);
     
 
     /**
@@ -69,8 +70,6 @@ bool checked; ///< True if the checkbox is checked
 private:
     Point labelStartingPoint; ///< Upper left point of the label
     //Private functions
-
-
     /**
      * Overridden this member function to reset the colors of the button.
     */
@@ -85,6 +84,9 @@ private:
     */
     void buttonUp();
 
+    /**
+     * Function that handles the checkbox state change
+    */
     virtual void check();
 
 };

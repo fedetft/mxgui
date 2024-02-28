@@ -36,7 +36,7 @@ namespace mxgui {
 //forward decls
 class RadioGroup;
 /**
- * CheckBox Button.
+ * RadioButton.
  */
 class RadioButton : public CheckBox
 {
@@ -46,11 +46,12 @@ public:
      * Constructor
      * The object will be immediately enqueued for redraw
      * \param w window to which this object belongs
+     * \param group the group to which this radio button belongs
      * \param p upper left point of the CheckBox
      * \param dimension width of the CheckBox ( it's a square )
      * \param text label of the checkbox
      */
-    RadioButton(Window *w,RadioGroup *group, Point p, short dimension=100, const std::string& text="");
+    RadioButton(Window *w,RadioGroup *group, Point p, short dimension=15, const std::string& text="");
 
     /**
      * \internal
@@ -78,10 +79,18 @@ class RadioGroup
 {
 public:
     RadioGroup();
-    void addRadioButton(RadioButton* rb);//< Adds a radio button to the group
-    void setChecked(RadioButton* rb);//< Sets the checked radio button if present
+    /**
+     * Adds a radio button to the group
+     * \param rb the radio button to add
+     */
+    void addRadioButton(RadioButton* rb);
+    /**
+     * Sets the checked radio button
+     * \param rb the radio button to check
+     */
+    void setChecked(RadioButton* rb);
     RadioButton* getChecked();//< Returns the checked radio button or nullptr if none is checked
-    std::list<RadioButton*> radioButtons;//< The list of radio buttons
+    std::list<RadioButton*> radioButtons;//< The list of radio buttons which belong to this group
 
 private:
     RadioButton* checked;//< The checked radio button

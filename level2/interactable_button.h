@@ -60,6 +60,11 @@ class InteractableButton : public Drawable
 {
 public:
 
+    /**
+     * Constructor
+     * \param w pointer to the window containing the button
+     * \param da draw area of the button
+     */
     InteractableButton(Window* w, DrawArea da)
         : Drawable(w,da)
     {
@@ -78,7 +83,7 @@ public:
    
     /**
      * Set the function to be called when the button is pressed
-     * \param callback pointer to the function to be called
+     * \param callback wrapper to the function to be called
      */
     void setCallback(std::function<void ()> callback)
     {
@@ -123,7 +128,7 @@ public:
     
 private:
     
-    std::function<void ()> callback; ///< Pointer to the function to be called when the button is pressed
+    std::function<void ()> callback; ///< Wrapper to the function to be called when the button is pressed
     
 
 protected:
