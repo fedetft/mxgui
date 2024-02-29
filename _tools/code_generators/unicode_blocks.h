@@ -1,7 +1,6 @@
 #ifndef UNICODEBLOCKS_H
 #define UNICODEBLOCKS_H
 
-#include <map>
 #include <string>
 #include <vector>
 
@@ -13,19 +12,6 @@
  */
 
 namespace fontcore {
-
-/**
- * numerical IDs for the blocks
- */
-enum UnicodeBlockId
-{
-	BASIC_LATIN,
-	LATIN1_SUPPLEMENT,
-	LATIN_EXTENDED_A,
-	LATIN_EXTENDED_B,
-	GREEK_COPTIC,
-	MATH_OPERATORS
-};
 	
 /**
  * Represents a Unicode block, i.e.,
@@ -89,7 +75,7 @@ public:
 	
 private:
     ///< Unicode blocks known by the system
-	static const std::map<UnicodeBlockId, UnicodeBlock> knownUnicodeBlocks;
+	static const std::vector<UnicodeBlock> knownUnicodeBlocks;
 };
 
 } //namespace fontcore

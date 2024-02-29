@@ -56,9 +56,9 @@ void VariableWidthGenerator::generateCode(const std::string filename,
     //Write font info data
     file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=false;\n"<<
-          "const unsigned char "<<fontName<<"StartChar="<<static_cast<int>(
+          "const char32_t "<<fontName<<"StartChar="<<static_cast<int>(
             glyphs.at(0).getCodepoint())<<";\n"<<
-          "const unsigned char "<<fontName<<"EndChar="<<static_cast<int>(
+          "const char32_t "<<fontName<<"EndChar="<<static_cast<int>(
             glyphs.at(glyphs.size()-1).getCodepoint())<<";\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
           "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n\n";

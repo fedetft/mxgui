@@ -147,7 +147,7 @@ public:
      * fixed width, otherwise see getWidths()
      */
     unsigned char getWidth() const { return width; }
-
+	
     /**
      * \return the size in bits of the data's data type.
      * Can be 8,16,32. For example if it is 16, data can be cast from

@@ -1,7 +1,4 @@
 #include "unicode_blocks.h"
-#include <stdexcept>
-#include <utility>
-#include <exception>
 #include <vector>
 
 using namespace std;
@@ -43,33 +40,28 @@ UnicodeBlock& UnicodeBlock::operator=(const UnicodeBlock& other)
 // class UnicodeBlockManager
 //
 
-const std::map<UnicodeBlockId, UnicodeBlock> UnicodeBlockManager::knownUnicodeBlocks =
+const std::vector<UnicodeBlock> UnicodeBlockManager::knownUnicodeBlocks =
 {
-	{BASIC_LATIN, UnicodeBlock(0x00000000, 0x0000007F)},
-	{LATIN1_SUPPLEMENT, UnicodeBlock(0x00000080, 0x000000FF)},
-	{LATIN_EXTENDED_A, UnicodeBlock(0x00000100, 0x0000017F)},
-	{LATIN_EXTENDED_B, UnicodeBlock(0x00000180, 0x0000024F)},
-	{GREEK_COPTIC, UnicodeBlock(0x00000370, 0x000003FF)},
-	{MATH_OPERATORS, UnicodeBlock(0x00002200, 0x000022FF)}
+	UnicodeBlock(0x00000020, 0x0000007F),
+	UnicodeBlock(0x000000A0, 0x00000017E),
+	UnicodeBlock(0x00000391, 0x000003A1),
+	UnicodeBlock(0x00000180, 0x0000024F),
+	UnicodeBlock(0x000003A3, 0x000003E1),
 };
 
 const std::vector<UnicodeBlock> UnicodeBlockManager::getAvailableBlocks()
 {
-	std::vector<UnicodeBlock> res;
-
-	for(auto &block : knownUnicodeBlocks)
-		res.push_back(block.second);
+	std::vector<UnicodeBlock> res = knownUnicodeBlocks;
 
 	return res;
 }
 
 bool UnicodeBlockManager::isCharacterSupported(char32_t codepoint)
 {
-	for(auto& blockId : knownUnicodeBlocks)
+	for(auto& block : knownUnicodeBlocks)
 	{
-		UnicodeBlock range = blockId.second;
-		if(codepoint < range.getStartCodepoint() &&
-		   codepoint > range.getEndCodepoint())
+		if(codepoint < block.getStartCodepoint() &&
+		   codepoint > block.getEndCodepoint())
 			return false;
 	}
 
@@ -80,11 +72,8 @@ unsigned int UnicodeBlockManager::numSupportedCharacters()
 {
 	unsigned int res = 0;
 
-	for(auto& blockId : knownUnicodeBlocks)
-	{
-		UnicodeBlock range = blockId.second;
-		res += range.size();
-	}
+	for(auto& block : knownUnicodeBlocks)
+		res += block.size();
 
 	return res;
 }
