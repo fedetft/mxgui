@@ -30,9 +30,9 @@ ENTRY()
         l2.setText(s);
     });
 
-    c2.setCallback([&l5,&c1](){
+    c2.setCallback([&l5,&c2](){
         string s="false";
-        if(c1.isChecked())
+        if(c2.isChecked())
             s="true";
         l5.setText(s);
     });
