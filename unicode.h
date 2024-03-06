@@ -37,7 +37,7 @@ typedef uint16_t char16_t;
 typedef uint32_t char32_t;
 #endif // !c++11
 
-namespace miosix {
+namespace mxgui {
 
 /**
  * Result codes for unicode related conversion stuff
@@ -192,7 +192,7 @@ char32_t Unicode::nextUtf8(Iter& it, Iter end, bool checkEnd)
     return c;
 }
 
-} //namespace miosix
+} //namespace mxgui
 
 #endif //UNICODE_H
 

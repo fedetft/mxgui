@@ -37,6 +37,27 @@ namespace mxgui {
 // Class Font
 //
 
+unsigned int Font::computeVirtualCodepoint(char32_t codepoint) const
+{	
+	// traverse the ranges until the right one is found
+	int i=1;
+	// codepoint of the character as if we had one big contiguous range
+	unsigned int virtualCodepoint=0;
+	while(i<numBlocks && blocks[i]<=codepoint)
+	{
+		virtualCodepoint+=blocks[i-1];
+    	i+=2;
+	}
+
+	// we end up in the first range after our character,
+	// so need to go back
+	char32_t rangeBase=blocks[i-2];
+	unsigned short charOffset=codepoint-rangeBase;
+	virtualCodepoint+=charOffset;
+	
+	return virtualCodepoint;
+}
+	
 short int Font::calculateLength(const char *s) const
 {
     if(isFixedWidth())
@@ -44,12 +65,13 @@ short int Font::calculateLength(const char *s) const
         return strlen(s)*width;
     } else {
         short int result=0;
-        while(*s!='\0')
+		char32_t c;
+		while((c=mxgui::Unicode::nextUtf8(s))!='\0')
         {
-            const char c=*s;
-            if(c<startChar || c>endChar) result+=widths[0];//Width of startchar
-            else result+=widths[c-startChar];
-            s++;
+			unsigned int vc = computeVirtualCodepoint(c);
+			//if(c<startChar || c>endChar) result+=widths[0];//Width of startchar
+            //else result+=widths[vc];
+			result+=widths[vc];
         }
         return result;
     }

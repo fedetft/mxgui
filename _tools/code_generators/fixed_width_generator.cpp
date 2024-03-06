@@ -58,14 +58,24 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     //Write font info data
     file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=true;\n"<<
-          "const unsigned char "<<fontName<<"StartChar="<<static_cast<int>(
-            glyphs.at(0).getCodepoint())<<";\n"<<
-          "const unsigned char "<<fontName<<"EndChar="<<static_cast<int>(
-            glyphs.at(glyphs.size()-1).getCodepoint())<<";\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
           "const unsigned char "<<fontName<<"Width="<<width<<";\n"<<
           "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n\n";
 
+	//Write range array
+	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
+	file<<"const unsigned char "<<fontName<<"""NumBlocks="<<blocks.size()<<";\n";
+	file<<"// The start of range i is blocks[2*i], its size is at blocks[2*i+1]\n";
+	file<<"const unsigned int "<<fontName<<"Blocks[]{\n";
+	for(int i=0;i<blocks.size();i++)
+	{
+		UnicodeBlock block = blocks[i];
+		file<<hex<<block.getStartCodepoint()<<","<<block.getEndCodepoint();
+		if(i != blocks.size()-1)
+			file<<",\n";
+	}
+	file<<"\n};\n\n"<<dec;
+	
     //Write font look up table
     switch(roundedHeight)
     {

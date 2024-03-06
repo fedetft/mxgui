@@ -32,6 +32,8 @@
 #include "point.h"
 #include "iterator_direction.h"
 #include <algorithm>
+#include <iostream>
+#include "unicode.h"
 
 namespace mxgui {
 
@@ -47,8 +49,7 @@ class Font
 public:
     /**
      * Creates a fixed width font.
-     * \param startChar the first character available, example ' ' (ASCII space)
-     * \param endChar the last character available (including)
+     * \param blocks list of unicode blocks the font makes use of, in (base, size) pairs
      * \param height the height of the glyphs
      * \param width the width of the glyphs (fixed width font)
      * \param dataSize can be 8,16 or 32, it is the size of one element of data
@@ -56,15 +57,15 @@ public:
      * \param data pinter to the font data. This must point to a static array
      * so that no memeory leak problems occur
      */
-    constexpr Font(unsigned char startChar, unsigned char endChar, unsigned char height,
+    constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
         unsigned char width, unsigned char dataSize, bool antialiased,
-        const void *data): startChar(startChar), endChar(endChar),
+		const void *data): numBlocks(numBlocks),blocks(blocks),
         height(height), width(width), dataSize(dataSize),
         antialiased(antialiased), widths(0), offset(0), data(data) {}
+	
     /**
      * Creates a variable width font.
-     * \param startChar the first character available, example ' ' (ASCII space)
-     * \param endChar the last character available (including)
+     * \param blocks list of unicode blocks the font makes use of, (base, size) pairs
      * \param height the height of the glyphs
      * \param dataSize can be 8,16 or 32, it is the size of one element of data
      * \param antialiased true if font is antialiased
@@ -76,11 +77,11 @@ public:
      * \param data pinter to the font data. This must point to a static array
      * so that no memeory leak problems occur
      */
-    constexpr Font(unsigned char startChar, unsigned char endChar, unsigned char height,
-        unsigned char dataSize, bool antialiased, const unsigned char *widths,
-        const unsigned short *offset, const void *data): startChar(startChar),
-        endChar(endChar), height(height), width(0), dataSize(dataSize),
-        antialiased(antialiased), widths(widths), offset(offset), data(data) {}
+    constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
+	    unsigned char dataSize, bool antialiased, const unsigned char *widths,
+		const unsigned short *offset, const void *data): numBlocks(numBlocks),blocks(blocks),
+	    height(height), width(0), dataSize(dataSize), antialiased(antialiased), widths(widths),
+	    offset(offset), data(data) {}
 
     /**
      * Draw a string on a surface.
@@ -126,16 +127,6 @@ public:
      * \return true if the Font is antialiased
      */
     bool isAntialiased() const { return antialiased; }
-
-    /**
-     * \return the Font's first character available in its table
-     */
-    unsigned char getStartChar() const { return startChar; }
-
-    /**
-     * \return the Font's last character available in its table
-     */
-    unsigned char getEndChar() const { return endChar; }
 
     /**
      * \return the Font's height
@@ -192,6 +183,13 @@ public:
     //nor to return a non-const pointer to them
 private:
 
+	/**
+	 * Translate a real codepoint in a virtual, 0-based index
+	 * to access the font data table.
+	 * \param codepoint the character codepoint
+	 */
+	unsigned int computeVirtualCodepoint(char32_t codepoint) const;
+	
     /*
      * This is one nifty use of C++ templates. For size optimization purposes,
      * the elements in the font tables can either be 8, 16 or 32 bytes. This
@@ -208,7 +206,23 @@ private:
      * it allows to write only six functions and let template instantiation
      * do the boring job.
      */
-
+	
+	/**
+	 * Look up variable width glyph data.
+	 * \param virtualCodepoint the character virtual codepoint
+	 * \param col the glyph pixel column 
+	 */
+	template<typename U>
+	U lookupVariableWidthGlyph(unsigned int virtualCodepoint, unsigned char col) const;
+	
+	/**
+	 * Look up a fixed width glyph by its codepoint.
+	 * \param virualCodepoint the character virtual codepoint
+	 * \param col the glyph pixel column
+	 */
+	template<typename U>
+	U lookupFixedWidthGlyph(unsigned int virtualCodepoint, unsigned char col) const;
+		
     /**
      * Deal with fixed width (monospace) fonts.
      * \param first piexl iterator to begin of drawing window
@@ -290,12 +304,12 @@ private:
     void variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
             Point b, Color colors[4], const char *s) const;
 
-    unsigned char startChar;
-    unsigned char endChar;
     unsigned char height;
     unsigned char width;// set to zero if variable width font
     unsigned char dataSize;
     bool antialiased;
+	unsigned char numBlocks;
+	const unsigned int *blocks; // Codepoint ranges of the font
     const unsigned char *widths;// set to zero (NULL) if fixed width
     const unsigned short *offset;// set to zero (NULL) if fixed width
     const void *data;
@@ -400,6 +414,24 @@ void Font::clippedDraw(T& surface, Color colors[4],
     }
 }
 
+template<typename U>
+U Font::lookupFixedWidthGlyph(unsigned int virtualCodepoint, unsigned char col) const
+{
+	// unsigned int virtualCodepoint=computeVirtualCodepoint(codepoint);
+	const U *fontData=reinterpret_cast<const U *>(getData());
+	
+	return fontData[virtualCodepoint+col];
+}
+
+template<typename U>
+U Font::lookupVariableWidthGlyph(unsigned int virtualCodepoint, unsigned char col) const
+{
+	// unsigned int virtualCodepoint=computeVirtualCodepoint(codepoint);
+	const U *fontData=reinterpret_cast<const U *>(getData());
+	
+	return fontData[offset[virtualCodepoint]+col];
+}
+
 template<typename T, typename U>
 void Font::fixedWidthDrawingEngine(typename T::pixel_iterator first,
             short x, short xEnd, Color fgcolor, Color bgcolor,
@@ -408,14 +440,13 @@ void Font::fixedWidthDrawingEngine(typename T::pixel_iterator first,
     const U *fontData=reinterpret_cast<const U *>(getData());
     for(;;)
     {
-        unsigned char c=*s;
-        if(*s=='\0') break;
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
+		char32_t c = mxgui::Unicode::nextUtf8(s);
+        if(c=='\0') break;
+		unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=0;i<width;i++)
         {
             if(x++==xEnd) return;
-            U row=fontData[c*width+i];
+            U row=lookupFixedWidthGlyph<U>(vc, i);
             for(int j=0;j<height;j++)
             {
                 if(row & 0x1) *first=fgcolor;
@@ -424,7 +455,6 @@ void Font::fixedWidthDrawingEngine(typename T::pixel_iterator first,
                 first++;
             }      
         }
-        s++;
     }
 }
 
@@ -436,14 +466,13 @@ void Font::variableWidthDrawingEngine(typename T::pixel_iterator first,
     const U *fontData=reinterpret_cast<const U *>(getData());
     for(;;)
     {
-        unsigned char c=*s;
-        if(*s=='\0') break;
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
-        for(unsigned int i=0;i<widths[c];i++)
+        char32_t c = mxgui::Unicode::nextUtf8(s);
+        if(c=='\0') break;
+		unsigned int vc=computeVirtualCodepoint(c);
+        for(unsigned int i=0;i<widths[vc];i++)
         {
             if(x++==xEnd) return;
-            U row=fontData[offset[c]+i];
+            U row=lookupVariableWidthGlyph<U>(vc, i);
             for(int j=0;j<height;j++)
             {
                 if(row & 0x1) *first=fgcolor;
@@ -452,7 +481,6 @@ void Font::variableWidthDrawingEngine(typename T::pixel_iterator first,
                 first++;
             }
         }
-        s++;
     }
 }
 
@@ -463,14 +491,13 @@ void Font::variableWidthAADrawingEngine(typename T::pixel_iterator first,
     const U *fontData=reinterpret_cast<const U *>(getData());
     for(;;)
     {
-        unsigned char c=*s;
-        if(*s=='\0') break;
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
-        for(unsigned int i=0;i<widths[c];i++)
+        char32_t c = mxgui::Unicode::nextUtf8(s);
+        if(c=='\0') break;
+		unsigned int vc=computeVirtualCodepoint(c);
+        for(unsigned int i=0;i<widths[vc];i++)
         {
             if(x++==xEnd) return;
-            U row=fontData[offset[c]+i];
+            U row=lookupVariableWidthGlyph<U>(vc, i);
             for(int j=0;j<height;j++)
             {
                 *first=colors[row & 0x3];
@@ -478,7 +505,6 @@ void Font::variableWidthAADrawingEngine(typename T::pixel_iterator first,
                 first++;
             }
         }
-        s++;
     }
 }
 
@@ -493,7 +519,8 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
     short x=p.x();
     while(x<a.x())
     {
-        if(*s=='\0') return; //String ends before draw area begins
+		char32_t c = mxgui::Unicode::nextUtf8(s);
+        if(c=='\0') return; //String ends before draw area begins
         if(x+getWidth()>a.x())
         {
             //The current char is partially visible
@@ -501,7 +528,6 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
             break; //Don't go past this char, since it has to be drawn
         }
         x+=getWidth();
-        s++;
     }
     x=a.x();
     
@@ -513,14 +539,13 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
     //Draw the first partially visible char, if it exists
     if(partial>0)
     {
-        unsigned char c=*s;
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
+        char32_t c = mxgui::Unicode::nextUtf8(s);
+		unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=partial;i<width;i++)
         {
             if(x>b.x()) return;
             x++;
-            U row=fontData[c*width+i];
+            U row=lookupFixedWidthGlyph<U>(vc, i);
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
             {
@@ -529,21 +554,19 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
                 row>>=1;
             }
         }
-        s++;
     }
 
     //Draw the rest of the string
     for(;;)
     {
-        unsigned char c=*s;
-        if(*s=='\0') break;
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
+        char32_t c = mxgui::Unicode::nextUtf8(s);
+        if(c=='\0') break;
+		unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=0;i<width;i++)
         {
             if(x>b.x()) return;
             x++;
-            U row=fontData[c*width+i];
+            U row=lookupFixedWidthGlyph<U>(vc, i);
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
             {
@@ -552,7 +575,6 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
                 row>>=1;
             }
         }
-        s++;
     }
     it.invalidate(); //May not fill the requested window
 }
@@ -568,18 +590,16 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
     short x=p.x();
     while(x<a.x())
     {
-        unsigned char c=*s;
+        char32_t c = mxgui::Unicode::nextUtf8(s);
         if(c=='\0') return; //String ends before draw area begins
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
-        if(x+widths[c]>a.x())
+		unsigned int vc=computeVirtualCodepoint(c);
+        if(x+widths[vc]>a.x())
         {
             //The current char is partially visible
             partial=a.x()-x;
             break; //Don't go past this char, since it has to be drawn
         }
-        x+=widths[c];
-        s++;
+        x+=widths[vc];
     }
     x=a.x();
 
@@ -591,14 +611,13 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
     //Draw the first partially visible char, if it exists
     if(partial>0)
     {
-        unsigned char c=*s;
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
-        for(unsigned int i=partial;i<widths[c];i++)
+        char32_t c = mxgui::Unicode::nextUtf8(s);
+        unsigned int vc=computeVirtualCodepoint(c);
+        for(unsigned int i=partial;i<widths[vc];i++)
         {
             if(x>b.x()) return;
             x++;
-            U row=fontData[offset[c]+i];
+            U row=lookupVariableWidthGlyph<U>(vc, i);
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
             {
@@ -607,21 +626,19 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
                 row>>=1;
             }
         }
-        s++;
     }
 
     //Draw the rest of the string
     for(;;)
     {
-        unsigned char c=*s;
-        if(*s=='\0') break;
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
-        for(unsigned int i=0;i<widths[c];i++)
+        char32_t c = mxgui::Unicode::nextUtf8(s);
+        if(c=='\0') break;
+        unsigned int vc=computeVirtualCodepoint(c);
+        for(unsigned int i=0;i<widths[vc];i++)
         {
             if(x>b.x()) return;
             x++;
-            U row=fontData[offset[c]+i];
+            U row=lookupVariableWidthGlyph<U>(vc, i);
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
             {
@@ -630,7 +647,6 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
                 row>>=1;
             }
         }
-        s++;
     }
     it.invalidate(); //May not fill the requested window
 }
@@ -646,18 +662,16 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
     short x=p.x();
     while(x<a.x())
     {
-        unsigned char c=*s;
+        char32_t c = mxgui::Unicode::nextUtf8(s);
         if(c=='\0') return; //String ends before draw area begins
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
-        if(x+widths[c]>a.x())
+        unsigned int vc=computeVirtualCodepoint(c);
+        if(x+widths[vc]>a.x())
         {
             //The current char is partially visible
             partial=a.x()-x;
             break; //Don't go past this char, since it has to be drawn
         }
-        x+=widths[c];
-        s++;
+        x+=widths[vc];
     }
     x=a.x();
 
@@ -669,14 +683,13 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
     //Draw the first partially visible char, if it exists
     if(partial>0)
     {
-        unsigned char c=*s;
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
-        for(unsigned int i=partial;i<widths[c];i++)
+        char32_t c = mxgui::Unicode::nextUtf8(s);
+        unsigned int vc=computeVirtualCodepoint(c);
+        for(unsigned int i=partial;i<widths[vc];i++)
         {
             if(x>b.x()) return;
             x++;
-            U row=fontData[offset[c]+i];
+            U row=lookupVariableWidthGlyph<U>(vc, i);
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
             {
@@ -684,21 +697,19 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
                 row>>=2;
             }
         }
-        s++;
     }
 
     //Draw the rest of the string
     for(;;)
     {
-        unsigned char c=*s;
-        if(*s=='\0') break;
-        if(c<startChar || c>endChar) c=0;
-        else c-=startChar;
-        for(unsigned int i=0;i<widths[c];i++)
+        char32_t c = mxgui::Unicode::nextUtf8(s);
+        if(c=='\0') break;
+		unsigned int vc=computeVirtualCodepoint(c);
+        for(unsigned int i=0;i<widths[vc];i++)
         {
             if(x>b.x()) return;
             x++;
-            U row=fontData[offset[c]+i];
+            U row=lookupVariableWidthGlyph<U>(vc, i);
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
             {
@@ -706,7 +717,6 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
                 row>>=2;
             }
         }
-        s++;
     }
     it.invalidate(); //May not fill the requested window
 }

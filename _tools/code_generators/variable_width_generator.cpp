@@ -16,6 +16,7 @@
  ***************************************************************************/
 
 #include "variable_width_generator.h"
+#include "unicode_blocks.h"
 
 using namespace std;
 
@@ -53,16 +54,29 @@ void VariableWidthGenerator::generateCode(const std::string filename,
     else throw(runtime_error("Character is too high for code generation."
                 " Maximum allowed is 32pixels"));
     if(aa) roundedHeight*=2;
+	
     //Write font info data
     file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=false;\n"<<
-          "const char32_t "<<fontName<<"StartChar="<<static_cast<int>(
-            glyphs.at(0).getCodepoint())<<";\n"<<
-          "const char32_t "<<fontName<<"EndChar="<<static_cast<int>(
-            glyphs.at(glyphs.size()-1).getCodepoint())<<";\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
           "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n\n";
 
+	//Write range array
+	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
+	file<<"const unsigned char "<<fontName<<"""NumBlocks="<<blocks.size()<<";\n";
+	file<<"// The start of range i is blocks[2*i], its size is at blocks[2*i+1]\n";
+	file<<"const unsigned int "<<fontName<<"Blocks[]{\n";
+	for(int i=0;i<blocks.size();i++)
+	{
+		UnicodeBlock block = blocks[i];
+		unsigned int rangeLen = block.getEndCodepoint()-block.getStartCodepoint()+1;
+		file<<" ";
+		file<<hex<<block.getStartCodepoint()<<","<<rangeLen;
+		if(i != blocks.size()-1)
+			file<<",\n";
+	}
+	file<<"\n};\n\n"<<dec;
+	
     //Write width look up table
     file<<"//The width of character i is "<<fontName<<"Width[i]\n";
     file<<"const unsigned char "<<fontName<<"Width[]={\n ";

@@ -43,10 +43,8 @@ UnicodeBlock& UnicodeBlock::operator=(const UnicodeBlock& other)
 const std::vector<UnicodeBlock> UnicodeBlockManager::knownUnicodeBlocks =
 {
 	UnicodeBlock(0x00000020, 0x0000007F),
-	UnicodeBlock(0x000000A0, 0x00000017E),
+	UnicodeBlock(0x000000A0, 0x0000017F),
 	UnicodeBlock(0x00000391, 0x000003A1),
-	UnicodeBlock(0x00000180, 0x0000024F),
-	UnicodeBlock(0x000003A3, 0x000003E1),
 };
 
 const std::vector<UnicodeBlock> UnicodeBlockManager::getAvailableBlocks()
@@ -60,12 +58,12 @@ bool UnicodeBlockManager::isCharacterSupported(char32_t codepoint)
 {
 	for(auto& block : knownUnicodeBlocks)
 	{
-		if(codepoint < block.getStartCodepoint() &&
-		   codepoint > block.getEndCodepoint())
-			return false;
+		if(codepoint >= block.getStartCodepoint() &&
+		   codepoint <= block.getEndCodepoint())
+			return true;
 	}
 
-	return true;
+	return false;
 }
 
 unsigned int UnicodeBlockManager::numSupportedCharacters()

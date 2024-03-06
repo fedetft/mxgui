@@ -26,51 +26,51 @@
  ***************************************************************************/
 
 #include "misc_inst.h"
-#include "fonts/miscfixed.h"
-#include "fonts/miscfixed_bold.h"
 #include "fonts/tahoma.h"
 #include "fonts/droid11.h"
 #include "fonts/droid11b.h"
 #include "fonts/droid21.h"
 #include "fonts/droid21b.h"
+#include "fonts/miscfixed.h"
+#include "fonts/miscfixed_bold.h"
 
 namespace mxgui {
 
 #ifdef MXGUI_FONT_MISCFIXED
-const Font miscFixed(miscfixedStartChar,miscfixedEndChar,miscfixedHeight,
+const Font miscFixed(miscfixedNumBlocks,miscfixedBlocks,miscfixedHeight,
          miscfixedWidth,miscfixedDataSize,miscfixedIsAntialiased,miscfixedData);
 #ifdef MXGUI_ENABLE_BOLD_FONTS
-const Font miscFixedBold(miscfixedBoldStartChar,miscfixedBoldEndChar,
+const Font miscFixedBold(miscfixedBoldNumBlocks,miscfixedBoldBlocks,
          miscfixedBoldHeight,miscfixedBoldWidth,miscfixedBoldDataSize,
          miscfixedBoldIsAntialiased,miscfixedBoldData);
 #endif //MXGUI_ENABLE_BOLD_FONTS
 #endif //MXGUI_FONT_MISCFIXED
 
 #ifdef MXGUI_FONT_DROID11
-const Font droid11(droid11StartChar,droid11EndChar,droid11Height,
+const Font droid11(droid11NumBlocks,droid11Blocks,droid11Height,
         droid11DataSize,droid11IsAntialiased,droid11Width,droid11Offset,
         droid11Data);
 #ifdef MXGUI_ENABLE_BOLD_FONTS
-const Font droid11b(droid11bStartChar,droid11bEndChar,droid11bHeight,
+const Font droid11b(droid11bNumBlocks,droid11bBlocks,droid11bHeight,
          droid11bDataSize,droid11bIsAntialiased,droid11bWidth,droid11bOffset,
          droid11bData);
 #endif //MXGUI_ENABLE_BOLD_FONTS
 #endif //MXGUI_FONT_MISCFIXED
 
 #ifdef MXGUI_FONT_DROID21
-const Font droid21(droid21StartChar,droid21EndChar,droid21Height,
+const Font droid21(droid21NumBlocks,droid21Blocks,droid21Height,
         droid21DataSize,droid21IsAntialiased,droid21Width,droid21Offset,
         droid21Data);
 #ifdef MXGUI_ENABLE_BOLD_FONTS
-const Font droid21b(droid21bStartChar,droid21bEndChar,droid21bHeight,
+const Font droid21b(droid21NumBlocks,droid21bBlocks,droid21bHeight,
          droid21bDataSize,droid21bIsAntialiased,droid21bWidth,droid21bOffset,
          droid21bData);
 #endif //MXGUI_ENABLE_BOLD_FONTS
 #endif //MXGUI_FONT_DROID21
 
-#ifdef MXGUI_FONT_TAHOMA
-const Font tahoma(tahomaStartChar,tahomaEndChar,tahomaHeight,tahomaDataSize,
-         tahomaIsAntialiased,tahomaWidth,tahomaOffset,tahomaData);
-#endif //MXGUI_FONT_TAHOMA
+// #ifdef MXGUI_FONT_TAHOMA
+// const Font tahoma(tahomaStartChar,tahomaEndChar,tahomaHeight,tahomaDataSize,
+// 				  tahomaIsAntialiased,tahomaWidth,tahomaOffset,tahomaData);
+// #endif //MXGUI_FONT_TAHOMA
 
 } // namespace mxgui

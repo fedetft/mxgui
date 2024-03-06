@@ -35,7 +35,7 @@ using namespace std;
     *dst++=x; length++; \
 } while(0)
 
-namespace miosix {
+namespace mxgui {
 
 pair<Unicode::error,int> Unicode::putUtf8(char *dst, char32_t c, int dstSize)
 {
@@ -141,41 +141,3 @@ pair<bool,int> Unicode::validateUtf8(const char* str)
 }
 
 } //namespace miosix
-
-/*
-#include <iostream>
-#include <fstream>
-#include <cassert>
-
-using namespace std;
-using namespace miosix;
-
-int main(int argc, char *argv[])
-{
-    ifstream in(argv[1]);
-    in.seekg(0,ios::end);
-    const int size=in.tellg();
-    in.seekg(0,ios::beg);
-    ofstream out(argv[2]);
-    if(argv[3][0]=='u')
-    {
-        char *c=new char[size+1];
-        in.read(c,size);
-        c[size]='\0';
-        char16_t *cc=new char16_t[512];
-        pair<Unicode::error,int> result=Unicode::utf8toutf16(cc,512,c);
-        assert(result.first==Unicode::OK);
-        cout<<"Target string len "<<result.second<<endl;
-        out.write((char*)cc,result.second*2);
-    } else {
-        char16_t *c=new char16_t[size/2+1];
-        in.read((char*)c,size);
-        c[size/2]=0;
-        char *cc=new char[1024];
-        pair<Unicode::error,int> result=Unicode::utf16toutf8(cc,1024,c);
-        assert(result.first==Unicode::OK);
-        cout<<"Target string len "<<result.second<<endl;
-        out.write(cc,result.second);
-    }
-} 
-*/

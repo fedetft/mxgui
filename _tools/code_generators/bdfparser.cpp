@@ -145,7 +145,7 @@ void BDFParser::generateGlyph(vector<string> data)
             break;
         }
     }
-    if(log) *logStream<<"Parsing glyph "<<static_cast<int>(result.getCodepoint())<<
+    if(log) *logStream<<showbase<<hex<<"Parsing glyph "<<static_cast<int>(result.getCodepoint())<<
             " ("<<result.getCodepoint()<<")...";
 
     //Look for the DWIDTH tag
@@ -162,7 +162,7 @@ void BDFParser::generateGlyph(vector<string> data)
             {
                 stringstream ss;
                 ss<<"Error: Glyph "<<result.getCodepoint()<<
-                        " has invalid DWIDTH ("<<dwidth<<")";
+					" has invalid DWIDTH ("<<dec<<dwidth<<")";
                 throw(runtime_error(ss.str()));
             }
             result.setWidth(dwidth);
@@ -172,7 +172,7 @@ void BDFParser::generateGlyph(vector<string> data)
     if(dwidthFound==false)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getCodepoint()<<" has no DWIDTH tag";
+        ss<<"Error: Glyph "<<hex<<result.getCodepoint()<<" has no DWIDTH tag";
         throw(runtime_error(ss.str()));
     }
 
@@ -210,7 +210,7 @@ void BDFParser::generateGlyph(vector<string> data)
     if(fontAscent-bbxB-bbxD<0)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getCodepoint()<<
+        ss<<"Error: Glyph "<<showbase<<hex<<result.getCodepoint()<<
             " has bad alignment. This might be caused by an insufficent "
             "fontAscent for the boundingBox of this character";
         throw(runtime_error(ss.str()));
@@ -263,7 +263,7 @@ void BDFParser::generateGlyph(vector<string> data)
     {
         stringstream ss;
         ss<<"Error: Glyph "<<result.getCodepoint()<<
-            " has a bigger height ("<<theBitmap.size()<<") than the "
+            " has a bigger height ("<<dec<<theBitmap.size()<<") than the "
             "maximum allowed. This might be caused by an insufficient "
             "fontAscent or fontDescent to fit the boundingBox";
         throw(runtime_error(ss.str()));
