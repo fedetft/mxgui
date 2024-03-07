@@ -132,7 +132,7 @@ static const int level2MaxNumApps=4;
 #define MXGUI_COLOR_DEPTH_16_BIT
 
 static const unsigned int SIMULATOR_DISP_HEIGHT=320;
-static const unsigned int SIMULATOR_DISP_WIDTH=240;
+static const unsigned int SIMULATOR_DISP_WIDTH=640;
 static const unsigned int SIMULATOR_FGCOLOR=0xffff;
 static const unsigned int SIMULATOR_BGCOLOR=0;
 

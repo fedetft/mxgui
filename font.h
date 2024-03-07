@@ -32,7 +32,6 @@
 #include "point.h"
 #include "iterator_direction.h"
 #include <algorithm>
-#include <iostream>
 #include "unicode.h"
 
 namespace mxgui {
@@ -417,7 +416,6 @@ void Font::clippedDraw(T& surface, Color colors[4],
 template<typename U>
 U Font::lookupFixedWidthGlyph(unsigned int virtualCodepoint, unsigned char col) const
 {
-	// unsigned int virtualCodepoint=computeVirtualCodepoint(codepoint);
 	const U *fontData=reinterpret_cast<const U *>(getData());
 	
 	return fontData[virtualCodepoint+col];
@@ -426,9 +424,7 @@ U Font::lookupFixedWidthGlyph(unsigned int virtualCodepoint, unsigned char col) 
 template<typename U>
 U Font::lookupVariableWidthGlyph(unsigned int virtualCodepoint, unsigned char col) const
 {
-	// unsigned int virtualCodepoint=computeVirtualCodepoint(codepoint);
 	const U *fontData=reinterpret_cast<const U *>(getData());
-	
 	return fontData[offset[virtualCodepoint]+col];
 }
 

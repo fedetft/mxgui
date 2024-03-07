@@ -40,10 +40,10 @@ namespace mxgui {
 unsigned int Font::computeVirtualCodepoint(char32_t codepoint) const
 {	
 	// traverse the ranges until the right one is found
-	int i=1;
+	int i=2;
 	// codepoint of the character as if we had one big contiguous range
 	unsigned int virtualCodepoint=0;
-	while(i<numBlocks && blocks[i]<=codepoint)
+	while(i<2*numBlocks && blocks[i]<=codepoint)
 	{
 		virtualCodepoint+=blocks[i-1];
     	i+=2;

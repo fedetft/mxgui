@@ -145,8 +145,9 @@ void BDFParser::generateGlyph(vector<string> data)
             break;
         }
     }
+
     if(log) *logStream<<showbase<<hex<<"Parsing glyph "<<static_cast<int>(result.getCodepoint())<<
-            " ("<<result.getCodepoint()<<")...";
+			" ("<<dec<<result.getCodepoint()<<")...";
 
     //Look for the DWIDTH tag
     bool dwidthFound=false;
