@@ -56,7 +56,7 @@ void TTFParser::parse()
 	descent=0;
 	for(auto& block : this->blocks)
 	{
-		for(int k=block.getStartCodepoint();k<=block.getEndCodepoint();k++)
+		for(unsigned int k=block.getStartCodepoint();k<=block.getEndCodepoint();k++)
 		{
 			error=FT_Load_Char(face,k,FT_LOAD_RENDER);
 			if(error)
@@ -79,7 +79,7 @@ void TTFParser::parse()
 
 	for(auto& block : this->blocks)
 	{
-		for(int chr=block.getStartCodepoint();chr<=block.getEndCodepoint();chr++)
+		for(unsigned int chr=block.getStartCodepoint();chr<=block.getEndCodepoint();chr++)
 		{
 			error=FT_Load_Char(face,chr,FT_LOAD_RENDER);
 			if(error)
