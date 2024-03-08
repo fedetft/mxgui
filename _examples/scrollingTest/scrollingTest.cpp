@@ -12,7 +12,7 @@ ENTRY()
     
     ScrollingList sl=ScrollingList(w.get(),Point(10,10),10,100);
     Label l1 = Label(w.get(),Point(10,170),100,20,"Select a number");
-    for( int i=0;i<20;i++)
+    for( int i=0;i<50;i++)
     {
          sl.addItem(to_string(i));
     }

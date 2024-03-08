@@ -154,8 +154,71 @@ namespace mxgui {
                 }
             }
             return;
+        }else if(this->checkArea(e,scroll->readDrawArea()))
+        {
+            int mindiff=(scrollButtonBRPoint.y()-scrollButtonTLPoint.y())/items.size();
+            if(e.getEvent()==EventType::TouchDown)
+            {
+                startY=e.getPoint().y();
+            }
+            else if(e.getEvent()==EventType::TouchMove)
+            {
+                if(e.getPoint().y()-startY>=mindiff)
+                {
+                    startY=e.getPoint().y();
+                    downOne();
+                }
+                else if(e.getPoint().y()-startY<=-mindiff)
+                {
+                    startY=e.getPoint().y();
+                    upOne();
+                }
+            }
+            
+            return;
+        }
+        else if(this->checkArea(e,DrawArea(Point(up->readDrawArea().first.x(),up->readDrawArea().second.y()),Point(scroll->readDrawArea().second.x(),scroll->readDrawArea().first.y()))))
+        {
+            if(e.getEvent()==EventType::TouchUp)
+            {
+                cout<<"Page up"<<endl;
+                pageUp();
+            }
+            return;
+        }
+        else if(this->checkArea(e,DrawArea(Point(scroll->readDrawArea().first.x(),scroll->readDrawArea().second.y()),Point(down->readDrawArea().second.x(),down->readDrawArea().first.y()))))
+        {
+            if(e.getEvent()==EventType::TouchUp)
+            {
+                cout<<"Page down"<<endl;
+                pageDown();
+            }
+            return;
         }
         
+        
+        
+    }
+
+    void ScrollingList::pageDown()
+    {
+        int temp=firstVisibleIndex+visibleItems.size();
+        if(temp>items.size()-visibleItems.size())
+            temp=items.size()-visibleItems.size();
+            
+        firstVisibleIndex=temp;
+        updateScrollButton();
+        enqueueForRedraw();
+    }
+
+    void ScrollingList::pageUp()
+    {
+        int temp=firstVisibleIndex-visibleItems.size();
+        if(temp<0)
+            temp=0;
+        firstVisibleIndex=temp;
+        updateScrollButton();
+        enqueueForRedraw();
     }
     string ScrollingList::getSelected()
     {

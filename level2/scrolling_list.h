@@ -144,11 +144,8 @@ class ScrollingList : public Drawable
         
         
         void addItem(const std::string& item);
-        void upOne();
-        void downOne();
 
         virtual void onDraw(DrawingContextProxy& dc);
-        //TODO add events for scrollbar
         virtual void onEvent(Event e);
         void setCallback(std::function<void ()> callback);
     
@@ -165,11 +162,16 @@ class ScrollingList : public Drawable
         std::vector<std::string> items;
         std::string selected;
         int firstVisibleIndex;
+        int startY;
         std::function<void ()> callback;
 
         void selectItem(const std::string& item);
         bool checkArea(Event e,DrawArea da);
 
+        void upOne();
+        void downOne();
+        void pageDown();
+        void pageUp();
         void updateScrollButton();
 };
 
