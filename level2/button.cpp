@@ -41,10 +41,12 @@ Button::Button(Window* w, DrawArea da, const string& text)
 {
     this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
     this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
-    
-    this->text=new Label(w,DrawArea(innerPointTl,innerPointBr),text);
-    this->text->setXAlignment(Alignment::CENTER);
-    this->text->setYAlignment(Alignment::CENTER);
+    if(text!="")
+    {
+        this->text=new Label(w,DrawArea(innerPointTl,innerPointBr),text);
+        this->text->setXAlignment(Alignment::CENTER);
+        this->text->setYAlignment(Alignment::CENTER);
+    }
     resetState();
     enqueueForRedraw();
 }
@@ -56,13 +58,15 @@ Button::Button(Window *w, Point p, short width, short height, const string& text
 void Button::resetState()
 {
     colors=make_pair(black,lightGrey);
-    text->setColors(colors);
+    if(text)
+        text->setColors(colors);
     InteractableButton::resetState();
 }
 void Button::buttonDown()
 {
     colors=make_pair(white,darkGrey);
-    text->setColors(colors);    
+    if(text)
+        text->setColors(colors);    
     enqueueForRedraw();
 }
 

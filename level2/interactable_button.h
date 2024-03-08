@@ -176,6 +176,16 @@ protected:
     {
         if(callback) callback();
     }
+
+    /**
+     * Allows subclasses to modify Button drawArea without exposing it
+     * \return the draw area of the button
+     * 
+     */
+    virtual DrawArea getDrawArea() const
+    {
+        return Drawable::getDrawArea();
+    }
 };
 
 } //namesapce mxgui
