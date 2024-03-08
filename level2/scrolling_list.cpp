@@ -31,6 +31,7 @@
 
 
 #include <utility>
+#include <iostream>
 
 using namespace std;
 
@@ -39,49 +40,156 @@ namespace mxgui {
     ScrollingList::ScrollingList(Window* w,Point start, int nItems,int width) : Drawable(w,start,width,nItems*ITEM_HEIGHT)
     {
         DrawArea da = getDrawArea();
-        Point upButtonPoint=Point(da.second.x()-BUTTON_HEIGHT,da.first.y());
-        Point downButtonPoint=Point(da.second.x()-BUTTON_HEIGHT,da.second.y()-BUTTON_HEIGHT);
-        Point scrollButtonTLPoint=Point(da.second.x()-BUTTON_HEIGHT,da.first.y()+BUTTON_HEIGHT);
-        Point scrollButtonBRPoint=Point(da.second.x(),da.second.y()-BUTTON_HEIGHT);
-
+        listArea = DrawArea(da.first,Point(da.second.x()-BUTTON_HEIGHT-1,da.second.y()));
+        Point upButtonPoint=Point(listArea.second.x(),listArea.first.y());
+        Point downButtonPoint=Point(listArea.second.x(),listArea.second.y()-BUTTON_HEIGHT);
+        scrollButtonTLPoint=Point(listArea.second.x(),listArea.first.y()+BUTTON_HEIGHT);
+        scrollButtonBRPoint=Point(listArea.second.x()+BUTTON_HEIGHT,listArea.second.y()-BUTTON_HEIGHT);
+        
         up = new ScrollButton(w,upButtonPoint,ScrollButtonType::UP);
+        up->setCallback([this](){
+            this->upOne();
+        });
         scroll = new ScrollButton(w,DrawArea(scrollButtonTLPoint,scrollButtonBRPoint),ScrollButtonType::SCROLL);
         down = new ScrollButton(w,downButtonPoint,ScrollButtonType::DOWN);
+        down->setCallback([this](){
+            this->downOne();
+        });
         items = vector<string>();
-        visibleItems=vector<Label>();
+        visibleItems=vector<ListItem*>();
         for(int i=0;i<nItems;i++)
         {
-            Label l = Label(w,Point(da.first.x(),da.first.y()+i*ITEM_HEIGHT),width,ITEM_HEIGHT,to_string(i));
-            l.setXAlignment(Alignment::LEFT);
-            l.setYAlignment(Alignment::CENTER);
+            ListItem *l = new ListItem(w,Point(listArea.first.x(),da.first.y()+i*ITEM_HEIGHT),listArea.second.x()-listArea.first.x()-1);
+            l->setXAlignment(Alignment::LEFT);
+            l->setYAlignment(Alignment::CENTER);
             visibleItems.push_back(l);
         }
         
-        selected = nullptr;
-        firstVisibleIndex=INT32_MAX;
+        selected = "";
+        firstVisibleIndex=0;
+        enqueueForRedraw();
 
+    }
+
+    void ScrollingList::upOne()
+    {
+        if(firstVisibleIndex>0)
+        {
+            firstVisibleIndex--;
+            updateScrollButton();
+            enqueueForRedraw();
+        }
+    }
+
+    void ScrollingList::downOne()
+    {
+        if(firstVisibleIndex+visibleItems.size()<items.size())
+        {
+            firstVisibleIndex++;
+            updateScrollButton();
+            enqueueForRedraw();
+        }
     }
 
     void ScrollingList::addItem(const string& text)
     {
-        //addItem to list
+        items.push_back(text);
+        updateScrollButton();
         enqueueForRedraw();
     }
 
     void ScrollingList::onDraw(DrawingContextProxy& dc)
     {
         DrawArea da = getDrawArea();
-        dc.clear(da.first,da.second,white);
-        for(int index=firstVisibleIndex;index<items.size();index++)
+        dc.clear(da.first,da.second,grey);
+        for(int index=0;index<visibleItems.size() ;index++)
         {
-            string item = items.at(index);
-            //highlight selected item
-            //draw visible items
+            string item; 
+            Label* curr = visibleItems.at(index);
+            if(index+firstVisibleIndex<items.size())
+            {
+                item = items.at(firstVisibleIndex+index);
+            }
+            else
+            {
+                item = "";
+            }
+            curr->setText(item);
+            
+            if(item==selected && selected!="")
+            {
+                curr->setColors(pair<Color,Color>(white,blue));
+            }
+            else
+            {
+                curr->setColors(pair<Color,Color>(black,white));
+            }
         }
+        
         up->enqueueForRedraw();
         scroll->enqueueForRedraw();
         down->enqueueForRedraw();
+        
     }
+
+    bool ScrollingList::checkArea(Event e,DrawArea da)
+    {
+        
+        return within(e.getPoint(),da.first,da.second);
+    }
+
+    void ScrollingList::onEvent(Event e)
+    {
+        if(this->checkArea(e,listArea))
+        {
+            if(e.getEvent()==EventType::TouchUp)
+            {
+                for(ListItem* l : visibleItems)
+                {
+                    if(checkArea(e,l->readDrawArea()))
+                    {
+                        cout<<"Selected: "<<l->getText()<<endl;
+                        selectItem(l->getText());
+                    }
+                }
+            }
+            return;
+        }
+        
+    }
+    string ScrollingList::getSelected()
+    {
+        return selected;
+    }
+
+    void ScrollingList::selectItem(const string& item)
+    {
+        if(item!="")
+        {
+            selected = item;
+            enqueueForRedraw();
+            if(callback) callback();
+        }
+    }
+
+    void ScrollingList::setCallback(function<void()> callback)
+    {
+        swap(this->callback,callback);
+    }
+
+    void ScrollingList::updateScrollButton()
+    {
+        if(items.size()>visibleItems.size())
+        {
+            int scrollHeight = (scrollButtonBRPoint.y()-scrollButtonTLPoint.y())*visibleItems.size()/items.size();
+            int scrollY = (scrollButtonBRPoint.y()-scrollButtonTLPoint.y())*firstVisibleIndex/items.size();
+            
+            scroll->setDrawArea(DrawArea(Point(scrollButtonTLPoint.x(),scrollButtonTLPoint.y()+scrollY),Point(scrollButtonBRPoint.x(),scrollButtonTLPoint.y()+scrollY+scrollHeight)));
+            scroll->enqueueForRedraw();
+            
+        }
+    }
+    
 
 
 }//namespace mxgui

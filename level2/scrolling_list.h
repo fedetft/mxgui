@@ -28,6 +28,7 @@
 #ifndef SCROLLINGLIST_H
 #define	SCROLLINGLIST_H
 #include "button.h"
+#include <iostream>
 
 #ifdef MXGUI_LEVEL_2
 #define BUTTON_HEIGHT 20
@@ -46,6 +47,8 @@ public:
     ScrollButton(Window *w, DrawArea da, ScrollButtonType type) : Button(w,da)
     {
         this->type=type;
+        mutableDrawArea = da;
+        updateInnerPoints();
         enqueueForRedraw();
     }
 
@@ -61,23 +64,78 @@ public:
     virtual void onDraw(DrawingContextProxy& dc)
     {
         Button::onDraw(dc);
-        if(type==ScrollButtonType::UP)
+        DrawArea da = getDrawArea();
+        switch(type)
         {
-            //draw up
-        }
-        else if(type==ScrollButtonType::DOWN)
-        {
-            //draw down
-        }
-        else if(type==ScrollButtonType::SCROLL)
-        {
-            //draw line
+            case ScrollButtonType::UP:
+                dc.line(innerPointBl,middleTop,colors.first);
+                dc.line(middleTop,innerPointBr,colors.first);
+                break;
+            case ScrollButtonType::DOWN:
+                dc.line(innerPointTl,middleBottom,colors.first);
+                dc.line(middleBottom,innerPointTr,colors.first);
+                break;
+            case ScrollButtonType::SCROLL:
+                dc.line(middleRight,middleLeft,colors.first);
+                break;
         }
     }
+    void setDrawArea(DrawArea da)
+    {
+        mutableDrawArea = da;
+        updateInnerPoints();
+        enqueueForRedraw();
+    }
+    DrawArea readDrawArea()
+    {
+        return getDrawArea();
+    }
+
+protected:
+    Point innerPointTr; 
+    Point innerPointBl; 
+    Point middleTop; 
+    Point middleBottom; 
+    Point middleLeft; 
+    Point middleRight; 
+    DrawArea mutableDrawArea;
+    DrawArea getDrawArea() const
+    {   
+        return mutableDrawArea;
+    }
+    
 private:
     ScrollButtonType type;
     
+    void updateInnerPoints()
+    {
+        DrawArea da = getDrawArea();
+        this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
+        this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
+        this->innerPointTr = Point(innerPointBr.x(),innerPointTl.y());
+        this->innerPointBl = Point(innerPointTl.x(),innerPointBr.y());
+        this->middleTop = Point(innerPointTl.x()+(innerPointTr.x()-innerPointTl.x())/2,innerPointTl.y());
+        this->middleBottom = Point(innerPointBl.x()+(innerPointBr.x()-innerPointBl.x())/2,innerPointBl.y());
+        this->middleLeft = Point(innerPointTl.x(),innerPointTl.y()+(innerPointBl.y()-innerPointTl.y())/2);
+        this->middleRight = Point(innerPointTr.x(),innerPointTr.y()+(innerPointBr.y()-innerPointTr.y())/2);
+    }
+    
 };
+
+class ListItem : public Label
+{
+public:
+    ListItem(Window* w,Point start,int width) : Label(w,DrawArea(start,Point(start.x()+width,start.y()+ITEM_HEIGHT)),"")
+    {
+    }
+
+    DrawArea readDrawArea()
+    {
+        return getDrawArea();
+    }
+};
+
+
 
 class ScrollingList : public Drawable
 {
@@ -86,20 +144,33 @@ class ScrollingList : public Drawable
         
         
         void addItem(const std::string& item);
+        void upOne();
+        void downOne();
 
         virtual void onDraw(DrawingContextProxy& dc);
-        virtual void onEvent(const Event& ev);
-        string getSelected();
+        //TODO add events for scrollbar
+        virtual void onEvent(Event e);
+        void setCallback(std::function<void ()> callback);
+    
+        std::string getSelected();
     private:
         ScrollButton *up;
         ScrollButton *down;
         ScrollButton *scroll;
-        std::vector<Label> visibleItems;
+
+        Point scrollButtonTLPoint;
+        Point scrollButtonBRPoint;
+        DrawArea listArea;
+        std::vector<ListItem*> visibleItems;
         std::vector<std::string> items;
-        string selected;
+        std::string selected;
         int firstVisibleIndex;
+        std::function<void ()> callback;
 
         void selectItem(const std::string& item);
+        bool checkArea(Event e,DrawArea da);
+
+        void updateScrollButton();
 };
 
 } //namesapce mxgui
