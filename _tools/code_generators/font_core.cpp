@@ -126,7 +126,7 @@ void FontParser::setLogStream(std::ostream& output)
 
 void FontParser::setUnicodeBlocks(const std::vector<UnicodeBlock>& blocks)
 {
-	this->blocks = blocks;
+	this->blocks=blocks;
 }
 
 std::vector<Glyph> FontParser::getGlyphs() const

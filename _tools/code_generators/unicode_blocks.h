@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 
 /**
  * \file unicode_blocks.h
@@ -52,15 +53,29 @@ private:
 	 * prohibit instantiation of any block outside of the manager*/
 	friend class UnicodeBlockManager;
 };
-	
+
+/**
+ * \ingroup pub_iface
+ * Manager of all the character ranges to be converted.
+ * The user specifies a certain number of Unicode blocks
+ * to include in the output header file, otherwise
+ * a default character table is used
+ */
 class UnicodeBlockManager
 {
-public:
+public:	
 	/**
 	 * \return all the blocks supported by the system
 	 */
 	static const std::vector<UnicodeBlock> getAvailableBlocks();
 
+	/**
+	 * Overwrites the previous list of Unicode blocks with a new one.
+	 * NOTE: the input list is assumed to be sorted by increasing
+	 * start codepoint
+	 */
+	static void updateBlocks(std::vector<std::pair<char32_t,char32_t>> blocks);
+	
 	/**
 	 * Checks whether a particular character is supported.
 	 * This is particularly useful for bdf font files
@@ -75,7 +90,7 @@ public:
 	
 private:
     ///< Unicode blocks known by the system
-	static const std::vector<UnicodeBlock> knownUnicodeBlocks;
+	static std::vector<UnicodeBlock> knownUnicodeBlocks;
 };
 
 } //namespace fontcore
