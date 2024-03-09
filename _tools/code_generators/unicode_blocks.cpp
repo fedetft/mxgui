@@ -1,5 +1,9 @@
 #include "unicode_blocks.h"
 #include <vector>
+#include <clocale>
+#include <climits>
+#include <cuchar>
+#include <cstring>
 
 using namespace std;
 using namespace fontcore;
@@ -83,4 +87,16 @@ unsigned int UnicodeBlockManager::numSupportedCharacters()
 		res += block.size();
 
 	return res;
+}
+
+std::string UnicodeBlockManager::codepointToString(char32_t codepoint)
+{
+	char unistr[MB_LEN_MAX+1]={0};
+	mbstate_t ps;
+	
+	setlocale(LC_ALL, "en_GB.UTF-8");
+	memset(&ps,0,sizeof(ps));
+	c32rtomb(unistr,codepoint,&ps);
+	
+	return unistr;
 }

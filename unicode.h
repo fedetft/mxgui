@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 #include <utility>
+#include <string>
 
 #ifndef UNICODE_H
 #define UNICODE_H
@@ -126,7 +127,7 @@ public:
      * string length in bytes, not code points
      */
     static std::pair<bool,int> validateUtf8(const char *str);
-
+	
 private:
     /**
      * Common implementation of nextUtf8

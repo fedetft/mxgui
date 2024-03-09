@@ -100,9 +100,9 @@ void TTFParser::generateGlyph(const FT_Face& face, char32_t chr)
     cout<<" va"<<face->glyph->metrics.vertAdvance/64;
     cout<<" hbx"<<face->glyph->metrics.horiBearingX/64;
     cout<<" hby"<<face->glyph->metrics.horiBearingY/64<<endl;*/
-	
+
     if(log) *logStream<<"Rendering glyph "<<showbase<<hex<<static_cast<int>(chr)<<" ("
-			<<dec<<chr<<")...";
+			<<dec<<UnicodeBlockManager::codepointToString(chr)<<")...";
 
     //First, extract relevant data from the FreeType glyph format
     const unsigned char *buffer=face->glyph->bitmap.buffer;

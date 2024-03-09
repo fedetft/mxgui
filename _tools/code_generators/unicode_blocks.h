@@ -53,7 +53,7 @@ private:
 	 * prohibit instantiation of any block outside of the manager*/
 	friend class UnicodeBlockManager;
 };
-
+	
 /**
  * \ingroup pub_iface
  * Manager of all the character ranges to be converted.
@@ -63,8 +63,8 @@ private:
  */
 class UnicodeBlockManager
 {
-public:	
-	/**
+public:
+    /**
 	 * \return all the blocks supported by the system
 	 */
 	static const std::vector<UnicodeBlock> getAvailableBlocks();
@@ -87,6 +87,12 @@ public:
 	   \return the total number of supported characters
 	*/
 	static unsigned int numSupportedCharacters();
+
+	/**
+	 * Converts a fixed-width UTF-32 codepoint in a
+	 * multibyte-encoded string, to be able to print it
+	 */
+	static std::string codepointToString(char32_t codepoint);
 	
 private:
     ///< Unicode blocks known by the system
