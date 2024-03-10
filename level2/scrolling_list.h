@@ -122,10 +122,10 @@ private:
     
 };
 
-class ListItem : public Label
+class ItemLabel : public Label
 {
 public:
-    ListItem(Window* w,Point start,int width) : Label(w,DrawArea(start,Point(start.x()+width,start.y()+ITEM_HEIGHT)),"")
+    ItemLabel(Window* w,Point start,int width) : Label(w,DrawArea(start,Point(start.x()+width,start.y()+ITEM_HEIGHT)),"")
     {
     }
 
@@ -134,7 +134,6 @@ public:
         return getDrawArea();
     }
 };
-
 
 
 class ScrollingList : public Drawable
@@ -158,7 +157,7 @@ class ScrollingList : public Drawable
         Point scrollButtonTLPoint;
         Point scrollButtonBRPoint;
         DrawArea listArea;
-        std::vector<ListItem*> visibleItems;
+        std::vector<ItemLabel*> visibleItems;
         std::vector<std::string> items;
         std::string selected;
         int firstVisibleIndex;

@@ -31,7 +31,6 @@
 
 
 #include <utility>
-#include <iostream>
 
 using namespace std;
 
@@ -56,10 +55,10 @@ namespace mxgui {
             this->downOne();
         });
         items = vector<string>();
-        visibleItems=vector<ListItem*>();
+        visibleItems=vector<ItemLabel*>();
         for(int i=0;i<nItems;i++)
         {
-            ListItem *l = new ListItem(w,Point(listArea.first.x(),da.first.y()+i*ITEM_HEIGHT),listArea.second.x()-listArea.first.x()-1);
+            ItemLabel *l = new ItemLabel(w,Point(listArea.first.x(),da.first.y()+i*ITEM_HEIGHT),listArea.second.x()-listArea.first.x()-1);
             l->setXAlignment(Alignment::LEFT);
             l->setYAlignment(Alignment::CENTER);
             visibleItems.push_back(l);
@@ -144,7 +143,7 @@ namespace mxgui {
         {
             if(e.getEvent()==EventType::TouchUp)
             {
-                for(ListItem* l : visibleItems)
+                for(ItemLabel* l : visibleItems)
                 {
                     if(checkArea(e,l->readDrawArea()))
                     {
@@ -252,6 +251,7 @@ namespace mxgui {
             
         }
     }
+
     
 
 
