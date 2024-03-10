@@ -28,11 +28,10 @@
 #ifndef SCROLLINGLIST_H
 #define	SCROLLINGLIST_H
 #include "button.h"
-#include <iostream>
 
 #ifdef MXGUI_LEVEL_2
-#define BUTTON_HEIGHT 20
-#define ITEM_HEIGHT 15
+#define BUTTON_HEIGHT 10
+#define ITEM_HEIGHT BUTTON_HEIGHT*2
 namespace mxgui {
 /**
  * Types of ScrollButton

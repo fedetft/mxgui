@@ -147,7 +147,6 @@ namespace mxgui {
                 {
                     if(checkArea(e,l->readDrawArea()))
                     {
-                        cout<<"Selected: "<<l->getText()<<endl;
                         selectItem(l->getText());
                     }
                 }
@@ -180,7 +179,6 @@ namespace mxgui {
         {
             if(e.getEvent()==EventType::TouchUp)
             {
-                cout<<"Page up"<<endl;
                 pageUp();
             }
             return;
@@ -189,7 +187,6 @@ namespace mxgui {
         {
             if(e.getEvent()==EventType::TouchUp)
             {
-                cout<<"Page down"<<endl;
                 pageDown();
             }
             return;
