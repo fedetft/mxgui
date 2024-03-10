@@ -42,14 +42,14 @@ namespace mxgui {
         listArea = DrawArea(da.first,Point(da.second.x()-BUTTON_HEIGHT-1,da.second.y()));
         Point upButtonPoint=Point(listArea.second.x(),listArea.first.y());
         Point downButtonPoint=Point(listArea.second.x(),listArea.second.y()-BUTTON_HEIGHT);
-        scrollButtonTLPoint=Point(listArea.second.x(),listArea.first.y()+BUTTON_HEIGHT);
-        scrollButtonBRPoint=Point(listArea.second.x()+BUTTON_HEIGHT,listArea.second.y()-BUTTON_HEIGHT);
+        scrollAreaTLPoint=Point(listArea.second.x(),listArea.first.y()+BUTTON_HEIGHT);
+        scrollAreaBRPoint=Point(listArea.second.x()+BUTTON_HEIGHT,listArea.second.y()-BUTTON_HEIGHT);
         
         up = new ScrollButton(w,upButtonPoint,ScrollButtonType::UP);
         up->setCallback([this](){
             this->upOne();
         });
-        scroll = new ScrollButton(w,DrawArea(scrollButtonTLPoint,scrollButtonBRPoint),ScrollButtonType::SCROLL);
+        scroll = new ScrollButton(w,DrawArea(scrollAreaTLPoint,scrollAreaBRPoint),ScrollButtonType::SCROLL);
         down = new ScrollButton(w,downButtonPoint,ScrollButtonType::DOWN);
         down->setCallback([this](){
             this->downOne();
@@ -155,7 +155,7 @@ namespace mxgui {
             return;
         }else if(this->checkArea(e,scroll->readDrawArea()))
         {
-            int mindiff=(scrollButtonBRPoint.y()-scrollButtonTLPoint.y())/items.size();
+            int mindiff=(scrollAreaBRPoint.y()-scrollAreaTLPoint.y())/items.size();
             if(e.getEvent()==EventType::TouchDown)
             {
                 startY=e.getPoint().y();
@@ -243,10 +243,10 @@ namespace mxgui {
     {
         if(items.size()>visibleItems.size())
         {
-            int scrollHeight = (scrollButtonBRPoint.y()-scrollButtonTLPoint.y())*visibleItems.size()/items.size();
-            int scrollY = (scrollButtonBRPoint.y()-scrollButtonTLPoint.y())*firstVisibleIndex/items.size();
+            int scrollHeight = (scrollAreaBRPoint.y()-scrollAreaTLPoint.y())*visibleItems.size()/items.size();
+            int scrollY = (scrollAreaBRPoint.y()-scrollAreaTLPoint.y())*firstVisibleIndex/items.size();
             
-            scroll->setDrawArea(DrawArea(Point(scrollButtonTLPoint.x(),scrollButtonTLPoint.y()+scrollY),Point(scrollButtonBRPoint.x(),scrollButtonTLPoint.y()+scrollY+scrollHeight)));
+            scroll->setDrawArea(DrawArea(Point(scrollAreaTLPoint.x(),scrollAreaTLPoint.y()+scrollY),Point(scrollAreaBRPoint.x(),scrollAreaTLPoint.y()+scrollY+scrollHeight)));
             scroll->enqueueForRedraw();
             
         }
