@@ -29,36 +29,47 @@
 #include "scrolling_list.h"
 #ifdef MXGUI_LEVEL_2
 
-
+#define scrollAreaTLPoint Point(listArea.second.x(),listArea.first.y()+buttonHeight)
+#define scrollAreaBRPoint Point(listArea.second.x()+buttonHeight,listArea.second.y()-buttonHeight)
 #include <utility>
+#include <chrono>
+#include <thread>
+
+
+
+
 
 using namespace std;
 
 namespace mxgui {
 
-    ScrollingList::ScrollingList(Window* w,Point start, int nItems,int width) : Drawable(w,start,width,nItems*ITEM_HEIGHT)
+    ScrollingList::ScrollingList(Window* w,Point start, int nItems,int width,int buttonHeight,int itemHeight) : Drawable(w,start,width,nItems*itemHeight)
     {
+        this->buttonHeight=buttonHeight;
+        this->itemHeight=itemHeight;
+        scrolling=false;
         DrawArea da = getDrawArea();
-        listArea = DrawArea(da.first,Point(da.second.x()-BUTTON_HEIGHT-1,da.second.y()));
+        listArea = DrawArea(da.first,Point(da.second.x()-buttonHeight-1,da.second.y()));
         Point upButtonPoint=Point(listArea.second.x(),listArea.first.y());
-        Point downButtonPoint=Point(listArea.second.x(),listArea.second.y()-BUTTON_HEIGHT);
-        scrollAreaTLPoint=Point(listArea.second.x(),listArea.first.y()+BUTTON_HEIGHT);
-        scrollAreaBRPoint=Point(listArea.second.x()+BUTTON_HEIGHT,listArea.second.y()-BUTTON_HEIGHT);
+        Point downButtonPoint=Point(listArea.second.x(),listArea.second.y()-buttonHeight);
         
-        up = new ScrollButton(w,upButtonPoint,ScrollButtonType::UP);
-        up->setCallback([this](){
+        
+        up = new ScrollButton(w,upButtonPoint,ScrollButtonType::UP,buttonHeight);
+        up->setDownCallback([this](){
             this->upOne();
+            thread{ &ScrollingList::keepScrollingUp, this}.detach();
         });
         scroll = new ScrollButton(w,DrawArea(scrollAreaTLPoint,scrollAreaBRPoint),ScrollButtonType::SCROLL);
-        down = new ScrollButton(w,downButtonPoint,ScrollButtonType::DOWN);
-        down->setCallback([this](){
+        down = new ScrollButton(w,downButtonPoint,ScrollButtonType::DOWN,buttonHeight);
+        down->setDownCallback([this](){
             this->downOne();
+            thread{ &ScrollingList::keepScrollingDown, this}.detach();  
         });
         items = vector<string>();
         visibleItems=vector<ItemLabel*>();
         for(int i=0;i<nItems;i++)
         {
-            ItemLabel *l = new ItemLabel(w,Point(listArea.first.x(),da.first.y()+i*ITEM_HEIGHT),listArea.second.x()-listArea.first.x()-1);
+            ItemLabel *l = new ItemLabel(w,Point(listArea.first.x(),da.first.y()+i*itemHeight),listArea.second.x()-listArea.first.x()-1,itemHeight);
             l->setXAlignment(Alignment::LEFT);
             l->setYAlignment(Alignment::CENTER);
             visibleItems.push_back(l);
@@ -79,7 +90,25 @@ namespace mxgui {
             enqueueForRedraw();
         }
     }
+    void ScrollingList::keepScrollingUp()
+    {
+        this_thread::sleep_for(chrono::milliseconds(500));
+        while(up->isPressed())
+        {
+            upOne();
+            this_thread::sleep_for(chrono::milliseconds(100));
+        }
+    }
 
+    void ScrollingList::keepScrollingDown()
+    {
+        this_thread::sleep_for(chrono::milliseconds(500));
+        while(down->isPressed())
+        {
+            downOne();
+            this_thread::sleep_for(chrono::milliseconds(100));
+        }
+    }
     void ScrollingList::downOne()
     {
         if(firstVisibleIndex+visibleItems.size()<items.size())
@@ -139,7 +168,28 @@ namespace mxgui {
 
     void ScrollingList::onEvent(Event e)
     {
-        if(this->checkArea(e,listArea))
+        if(scrolling)
+        {
+            if(e.getEvent()==EventType::TouchUp)
+            {
+                scrolling=false;
+            }
+            else if(e.getEvent()==EventType::TouchMove)
+            {
+                int mindiff=(scrollAreaBRPoint.y()-scrollAreaTLPoint.y())/items.size();
+                if(e.getPoint().y()-startY>=mindiff)
+                {
+                    startY=e.getPoint().y();
+                    downOne();
+                }
+                else if(e.getPoint().y()-startY<=-mindiff)
+                {
+                    startY=e.getPoint().y();
+                    upOne();
+                }
+            }
+        }
+        else if(this->checkArea(e,listArea))
         {
             if(e.getEvent()==EventType::TouchUp)
             {
@@ -154,23 +204,11 @@ namespace mxgui {
             return;
         }else if(this->checkArea(e,scroll->readDrawArea()))
         {
-            int mindiff=(scrollAreaBRPoint.y()-scrollAreaTLPoint.y())/items.size();
+            
             if(e.getEvent()==EventType::TouchDown)
             {
                 startY=e.getPoint().y();
-            }
-            else if(e.getEvent()==EventType::TouchMove)
-            {
-                if(e.getPoint().y()-startY>=mindiff)
-                {
-                    startY=e.getPoint().y();
-                    downOne();
-                }
-                else if(e.getPoint().y()-startY<=-mindiff)
-                {
-                    startY=e.getPoint().y();
-                    upOne();
-                }
+                scrolling=true;
             }
             
             return;

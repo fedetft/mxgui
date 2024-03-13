@@ -66,24 +66,24 @@ public:
      */
     virtual void onDraw(DrawingContextProxy& dc);
     
-private:
+protected:
 
 
-    //Private functions
+    
 
     /** 
      * Overridden this member function to set the colors of the button when it is pressed
     */
-    void buttonDown();
+    virtual void buttonDown();
 
     /**
      * Overridden this member function to reset the colors of the button.
     */
-    void resetState();
+    virtual void resetState();
     /** 
      * Overridden this member function to also set the colors of the button when it is released.
     */
-    void buttonUp();
+    virtual void buttonUp();
 };
 
 } //namesapce mxgui

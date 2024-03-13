@@ -28,10 +28,15 @@
 #ifndef SCROLLINGLIST_H
 #define	SCROLLINGLIST_H
 #include "button.h"
+#define innerPointTr Point(innerPointBr.x(),innerPointTl.y())
+#define innerPointBl Point(innerPointTl.x(),innerPointBr.y())
+#define middleTop Point(innerPointTl.x()+(innerPointTr.x()-innerPointTl.x())/2,innerPointTl.y())
+#define middleBottom Point(innerPointBl.x()+(innerPointBr.x()-innerPointBl.x())/2,innerPointBl.y())
+#define middleLeft Point(innerPointTl.x(),innerPointTl.y()+(innerPointBl.y()-innerPointTl.y())/2)
+#define middleRight Point(innerPointTr.x(),innerPointTr.y()+(innerPointBr.y()-innerPointTr.y())/2)
 
 #ifdef MXGUI_LEVEL_2
-#define BUTTON_HEIGHT 10
-#define ITEM_HEIGHT BUTTON_HEIGHT*2
+
 namespace mxgui {
 /**
  * Types of ScrollButton
@@ -79,12 +84,12 @@ public:
 
    /**
     * Constructor
-    * Width can be omitted, in this case the button will be square using BUTTON_HEIGHT as width
+    * Width can be omitted, in this case the button will be square using buttonHeight as width
     * \param w window to which this object belongs
     * \param start upper left point of the button
     * \param type type of the button
    */
-    ScrollButton(Window *w,Point start,ScrollButtonType type) : ScrollButton(w,start,BUTTON_HEIGHT,BUTTON_HEIGHT,type)
+    ScrollButton(Window *w,Point start,ScrollButtonType type,int buttonHeight) : ScrollButton(w,start,buttonHeight,buttonHeight,type)
     {
     }
 
@@ -112,6 +117,23 @@ public:
                 break;
         }
     }
+    virtual void buttonDown()
+    {
+        Button::buttonDown();
+        pressed=true;
+        if(downCallback)
+            downCallback();
+        
+    }
+    virtual void buttonUp()
+    {
+        Button::buttonUp();
+        pressed=false;
+    }
+    void setDownCallback(std::function<void ()> callback)
+    {
+        swap(this->downCallback,callback);
+    }
     /**
      * Used to set the DrawArea of the button to allow it to be moved
     */
@@ -129,13 +151,13 @@ public:
         return getDrawArea();
     }
 
+    bool isPressed()
+    {
+        return pressed;
+    }
+
 protected:
-    Point innerPointTr; ///< Top right point of the inner rectangle
-    Point innerPointBl; ///< Bottom left point of the inner rectangle
-    Point middleTop; ///< Middle point of the top line
-    Point middleBottom; ///< Middle point of the bottom line
-    Point middleLeft; ///< Middle point of the left line
-    Point middleRight; ///< Middle point of the right line
+    bool pressed=false;///< True if the button is pressed
     DrawArea mutableDrawArea;///< DrawArea of the button that can be changed
     /**
      * Used inside the class to properly draw the button
@@ -147,7 +169,9 @@ protected:
     }
     
 private:
+    
     ScrollButtonType type;///< Type of the button
+    std::function<void ()> downCallback; ///< Callback to be called on touchDown
     /**
      * Used to update the inner points of the button
     */
@@ -156,12 +180,7 @@ private:
         DrawArea da = getDrawArea();
         this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
         this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
-        this->innerPointTr = Point(innerPointBr.x(),innerPointTl.y());
-        this->innerPointBl = Point(innerPointTl.x(),innerPointBr.y());
-        this->middleTop = Point(innerPointTl.x()+(innerPointTr.x()-innerPointTl.x())/2,innerPointTl.y());
-        this->middleBottom = Point(innerPointBl.x()+(innerPointBr.x()-innerPointBl.x())/2,innerPointBl.y());
-        this->middleLeft = Point(innerPointTl.x(),innerPointTl.y()+(innerPointBl.y()-innerPointTl.y())/2);
-        this->middleRight = Point(innerPointTr.x(),innerPointTr.y()+(innerPointBr.y()-innerPointTr.y())/2);
+        
     }
     
 };
@@ -177,8 +196,9 @@ public:
      * \param w window to which this object belongs
      * \param da area on screen occupied by this object
      * \param text text written in the Label
+     * \param itemHeight height of the item
      */
-    ItemLabel(Window* w,Point start,int width) : Label(w,DrawArea(start,Point(start.x()+width,start.y()+ITEM_HEIGHT)),"")
+    ItemLabel(Window* w,Point start,int width,int itemHeight) : Label(w,DrawArea(start,Point(start.x()+width,start.y()+itemHeight)),"")
     {
     }
 
@@ -207,8 +227,10 @@ class ScrollingList : public Drawable
          * \param start upper left point of the list
          * \param nItems number of items to be displayed
          * \param width width of the list
+         * \param buttonHeight height of the buttons
+         * \param itemHeight height of the items
          */
-        ScrollingList(Window* w,Point start, int nItems,int width);
+        ScrollingList(Window* w,Point start, int nItems,int width,int buttonHeight=10,int itemHeight=20);
         
         /**
          * Add an item to the list
@@ -241,9 +263,10 @@ class ScrollingList : public Drawable
         ScrollButton *up;///< Button to scroll up
         ScrollButton *down;///< Button to scroll down
         ScrollButton *scroll;///< Button to scroll
+        int buttonHeight;///< Height of the buttons
+        int itemHeight;///< Height of the items
+        bool scrolling;///< True if the scroll button is being dragged
 
-        Point scrollAreaTLPoint;///< Top left point of the scroll area
-        Point scrollAreaBRPoint;///< Bottom right point of the scroll area
         DrawArea listArea; ///< Area of the list
         std::vector<ItemLabel*> visibleItems; ///< Labels of the visible items
         std::vector<std::string> items; ///< Items of the list
@@ -266,6 +289,8 @@ class ScrollingList : public Drawable
         bool checkArea(Event e,DrawArea da);
 
         void upOne(); ///< Scroll up one item
+        void keepScrollingUp(); ///< Keep scrolling up
+        void keepScrollingDown(); ///< Keep scrolling down
         void downOne(); ///< Scroll down one item
         void pageDown(); ///< Scroll down a page
         void pageUp(); ///< Scroll up a page
