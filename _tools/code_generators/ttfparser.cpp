@@ -61,7 +61,7 @@ void TTFParser::parse()
 			error=FT_Load_Char(face,k,FT_LOAD_RENDER);
 			if(error)
 				throw(logic_error(string("Encountered an error rendering: ")+
-								  static_cast<char>(k)));
+								  UnicodeBlockManager::codepointToString(static_cast<char32_t>(k))));
 			int topBearing=face->glyph->metrics.horiBearingY/64;
 			if(topBearing>ascent) ascent=topBearing;
 			int bottomBearing=face->glyph->metrics.height/64-
@@ -84,7 +84,7 @@ void TTFParser::parse()
 			error=FT_Load_Char(face,chr,FT_LOAD_RENDER);
 			if(error)
 				throw(logic_error(string("Encountered an error rendering: ")+
-								  static_cast<char>(chr)));
+						  UnicodeBlockManager::codepointToString(static_cast<char32_t>(chr))));
 			generateGlyph(face,chr);
 		}
 	}
