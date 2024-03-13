@@ -1,7 +1,7 @@
 #include <entry.h>
 #include <memory>
 #include <level2/scrolling_list.h>
-//#include <iostream>
+#include <iostream>
 using namespace std;
 using namespace mxgui;
 
@@ -21,7 +21,7 @@ ENTRY()
         l1.setText("Selected: "+sl.getSelected());
     });
 
-    ScrollingList sl2=ScrollingList(w.get(),Point(120,30),1,50);
+    ScrollingList sl2=ScrollingList(w.get(),Point(120,30),1,60,20,40);
     Label l2 = Label(w.get(),Point(120,5),100,20,"Select your Beatle");
 
     sl2.addItem("John");
@@ -37,7 +37,7 @@ ENTRY()
     
     InputHandler::instance().registerEventCallback([w](){
         Event e = InputHandler::instance().popEvent();
-        //cout<<"Event: "<<e.getEvent()<<endl;
+    //cout<<"Event: "<<e.getEvent()<<endl;
         w.get()->postEvent(e);
     });
     WindowManager::instance().start(w);
