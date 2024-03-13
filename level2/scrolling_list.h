@@ -28,6 +28,7 @@
 #ifndef SCROLLINGLIST_H
 #define	SCROLLINGLIST_H
 #include "button.h"
+#include <thread>
 #define innerPointTr Point(innerPointBr.x(),innerPointTl.y())
 #define innerPointBl Point(innerPointTl.x(),innerPointBr.y())
 #define middleTop Point(innerPointTl.x()+(innerPointTr.x()-innerPointTl.x())/2,innerPointTl.y())
@@ -127,8 +128,9 @@ public:
     }
     virtual void buttonUp()
     {
-        Button::buttonUp();
         pressed=false;
+        Button::buttonUp();
+        
     }
     void setDownCallback(std::function<void ()> callback)
     {
@@ -266,7 +268,7 @@ class ScrollingList : public Drawable
         int buttonHeight;///< Height of the buttons
         int itemHeight;///< Height of the items
         bool scrolling;///< True if the scroll button is being dragged
-
+        std::thread *scrollingThread;///< Thread to keep scrolling
         DrawArea listArea; ///< Area of the list
         std::vector<ItemLabel*> visibleItems; ///< Labels of the visible items
         std::vector<std::string> items; ///< Items of the list

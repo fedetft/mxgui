@@ -33,7 +33,6 @@
 #define scrollAreaBRPoint Point(listArea.second.x()+buttonHeight,listArea.second.y()-buttonHeight)
 #include <utility>
 #include <chrono>
-#include <thread>
 
 
 
@@ -57,7 +56,15 @@ namespace mxgui {
         up = new ScrollButton(w,upButtonPoint,ScrollButtonType::UP,buttonHeight);
         up->setDownCallback([this](){
             this->upOne();
-            thread{ &ScrollingList::keepScrollingUp, this}.detach();
+            scrollingThread = new thread( &ScrollingList::keepScrollingUp, this);
+        });
+        up->setCallback([this](){
+            if(this->scrollingThread!=nullptr)
+            {
+                this->scrollingThread->join();
+                delete this->scrollingThread;
+                this->scrollingThread=nullptr;
+            }
         });
         scroll = new ScrollButton(w,DrawArea(scrollAreaTLPoint,scrollAreaBRPoint),ScrollButtonType::SCROLL);
         down = new ScrollButton(w,downButtonPoint,ScrollButtonType::DOWN,buttonHeight);
@@ -92,21 +99,63 @@ namespace mxgui {
     }
     void ScrollingList::keepScrollingUp()
     {
-        this_thread::sleep_for(chrono::milliseconds(500));
+        int i;
+        while(i<500)
+        {
+            if(!up->isPressed())
+            {
+                return;
+            }
+            i++;
+            this_thread::sleep_for(chrono::milliseconds(1));
+        }
+        
+        
         while(up->isPressed())
         {
             upOne();
-            this_thread::sleep_for(chrono::milliseconds(100));
+            i=0;
+            while(i<100)
+            {
+                if(!up->isPressed())
+                {
+                    return;
+                }
+                i++;
+                this_thread::sleep_for(chrono::milliseconds(1));
+            }
+            
         }
     }
 
     void ScrollingList::keepScrollingDown()
     {
-        this_thread::sleep_for(chrono::milliseconds(500));
+        int i;
+        while(i<500)
+        {
+            if(!down->isPressed())
+            {
+                return;
+            }
+            i++;
+            this_thread::sleep_for(chrono::milliseconds(1));
+        }
+        
+        
         while(down->isPressed())
         {
             downOne();
-            this_thread::sleep_for(chrono::milliseconds(100));
+            i=0;
+            while(i<100)
+            {
+                if(!down->isPressed())
+                {
+                    return;
+                }
+                i++;
+                this_thread::sleep_for(chrono::milliseconds(1));
+            }
+            
         }
     }
     void ScrollingList::downOne()
