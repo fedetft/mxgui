@@ -4,6 +4,8 @@
 _doc/html/*
 _tools/code_generators/build/*
 _tools/qtsimulator/build/*
+fonts/*.png
+fonts/*.h
 
 # Vim swap file
 *.sw?
@@ -11,3 +13,4 @@ _tools/qtsimulator/build/*
 # Emacs cache files
 *.cpp~
 *.h~
+

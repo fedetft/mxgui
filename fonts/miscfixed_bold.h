@@ -13,7 +13,7 @@ const unsigned char miscfixedBoldDataSize=16;
 const unsigned char miscfixedBoldNumBlocks=5;
 // The start of range i is blocks[2*i], its size is at blocks[2*i+1]
 const unsigned int miscfixedBoldBlocks[]{
-0,0x7f,
+0x20,0x7f,
 0xa0,0x17f,
 0x391,0x3e1,
 0x400,0x479,
@@ -21,9 +21,6 @@ const unsigned int miscfixedBoldBlocks[]{
 };
 
 const unsigned short miscfixedBoldData[][8]={
- { //U+0 ( 0 )
-  0x1b6c,0,0x180c,0,0x180c,0,0x1b6c,0
- },
  { //U+32 ( 32 )
   0,0,0,0,0,0,0,0
  },

@@ -32,7 +32,7 @@
 #include "point.h"
 #include "iterator_direction.h"
 #include <algorithm>
-#include "unicode.h"
+#include "../miosix-kernel/miosix/util/unicode.h"
 
 namespace mxgui {
 
@@ -436,7 +436,7 @@ void Font::fixedWidthDrawingEngine(typename T::pixel_iterator first,
     const U *fontData=reinterpret_cast<const U *>(getData());
     for(;;)
     {
-		char32_t c = mxgui::Unicode::nextUtf8(s);
+		char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') break;
 		unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=0;i<width;i++)
@@ -462,7 +462,7 @@ void Font::variableWidthDrawingEngine(typename T::pixel_iterator first,
     const U *fontData=reinterpret_cast<const U *>(getData());
     for(;;)
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') break;
 		unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=0;i<widths[vc];i++)
@@ -487,7 +487,7 @@ void Font::variableWidthAADrawingEngine(typename T::pixel_iterator first,
     const U *fontData=reinterpret_cast<const U *>(getData());
     for(;;)
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') break;
 		unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=0;i<widths[vc];i++)
@@ -515,7 +515,7 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
     short x=p.x();
     while(x<a.x())
     {
-		char32_t c = mxgui::Unicode::nextUtf8(s);
+		char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') return; //String ends before draw area begins
         if(x+getWidth()>a.x())
         {
@@ -535,7 +535,7 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
     //Draw the first partially visible char, if it exists
     if(partial>0)
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
 		unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=partial;i<width;i++)
         {
@@ -555,7 +555,7 @@ void Font::fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
     //Draw the rest of the string
     for(;;)
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') break;
 		unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=0;i<width;i++)
@@ -586,7 +586,7 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
     short x=p.x();
     while(x<a.x())
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') return; //String ends before draw area begins
 		unsigned int vc=computeVirtualCodepoint(c);
         if(x+widths[vc]>a.x())
@@ -607,7 +607,7 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
     //Draw the first partially visible char, if it exists
     if(partial>0)
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
         unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=partial;i<widths[vc];i++)
         {
@@ -627,7 +627,7 @@ void Font::variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
     //Draw the rest of the string
     for(;;)
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') break;
         unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=0;i<widths[vc];i++)
@@ -658,7 +658,7 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
     short x=p.x();
     while(x<a.x())
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') return; //String ends before draw area begins
         unsigned int vc=computeVirtualCodepoint(c);
         if(x+widths[vc]>a.x())
@@ -679,7 +679,7 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
     //Draw the first partially visible char, if it exists
     if(partial>0)
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
         unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=partial;i<widths[vc];i++)
         {
@@ -698,7 +698,7 @@ void Font::variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
     //Draw the rest of the string
     for(;;)
     {
-        char32_t c = mxgui::Unicode::nextUtf8(s);
+        char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') break;
 		unsigned int vc=computeVirtualCodepoint(c);
         for(unsigned int i=0;i<widths[vc];i++)

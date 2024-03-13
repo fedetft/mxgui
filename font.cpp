@@ -66,7 +66,7 @@ short int Font::calculateLength(const char *s) const
     } else {
         short int result=0;
 		char32_t c;
-		while((c=mxgui::Unicode::nextUtf8(s))!='\0')
+		while((c=miosix::Unicode::nextUtf8(s))!='\0')
         {
 			unsigned int vc = computeVirtualCodepoint(c);
 			//if(c<startChar || c>endChar) result+=widths[0];//Width of startchar
