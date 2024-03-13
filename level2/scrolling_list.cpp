@@ -72,6 +72,14 @@ namespace mxgui {
             this->downOne();
             thread{ &ScrollingList::keepScrollingDown, this}.detach();  
         });
+        down->setCallback([this](){
+            if(this->scrollingThread!=nullptr)
+            {
+                this->scrollingThread->join();
+                delete this->scrollingThread;
+                this->scrollingThread=nullptr;
+            }
+        });
         items = vector<string>();
         visibleItems=vector<ItemLabel*>();
         for(int i=0;i<nItems;i++)
