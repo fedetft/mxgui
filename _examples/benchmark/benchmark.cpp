@@ -47,7 +47,7 @@ using namespace miosix;
 BenchmarkResult::BenchmarkResult(const char name[20], unsigned int time)
         : time(time)
 {
-    strncpy(this->name,name,20);
+    strncpy(this->name,name,19);
     this->name[19]='\0';
 }
 
