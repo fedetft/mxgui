@@ -54,6 +54,7 @@ set(LIB_SRCS
     ../../resourcefs.cpp
     ../../resource_image.cpp
     ../../tga_image.cpp
+    ../../textbox.cpp
     ../../drivers/display_qt.cpp
     ../../drivers/event_qt.cpp
     ../../level2/input.cpp
