@@ -73,7 +73,8 @@ public:
     //Uses default copy constructor and operator=
 private:
     unsigned short fpsCap, cnt, cpu, fps;
-    unsigned int cpuAvg, fpsAvg;
+    //Note that fpsAvgAccum is actually measured in tenths of FPS
+    unsigned int cpuAvgAccum, fpsAvgAccum;
     long long prev, next;
     static const int updatePeriod=20;
 };

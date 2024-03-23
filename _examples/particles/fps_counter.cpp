@@ -36,44 +36,44 @@ using namespace miosix;
 #endif //_MIOSIX
 
 FpsCounter::FpsCounter() : fpsCap(0), cnt(0), cpu(0), fps(0),
-        cpuAvg(0), fpsAvg(0), prev(0), next(0) {}
+        cpuAvgAccum(0), fpsAvgAccum(0), prev(0), next(0) {}
 
 void FpsCounter::setFpsCap(unsigned short cap)
 {
     fpsCap=std::min<int>(cap,100);
-    cnt=cpuAvg=fpsAvg=0;
+    cnt=cpuAvgAccum=fpsAvgAccum=0;
     if(fpsCap==0) cpu=100; //In this case CPU% is assumed to be 100%
 }
 
 void FpsCounter::sleepBetweenFrames()
 {
-    #ifdef _MIOSIX
-    const long long now=getTick();
+    #if _MIOSIX
+    const long long now=getTime();
 
-    const int deltaT=static_cast<int>(now-prev);
+    const long long deltaT=now-prev;
     prev=now;
-    fpsAvg+=deltaT==0 ? 9990 : (10*miosix::TICK_FREQ)/deltaT;
+    fpsAvgAccum+=deltaT==0 ? 9990 : static_cast<int>(10000000000LL/deltaT);
     
     if(fpsCap!=0)
     {
-        const int period=miosix::TICK_FREQ/fpsCap;
-        if(now>=next) //"deadlene miss"
+        const long long period=1000000000LL/fpsCap;
+        if(now>=next) //"deadline miss"
         {
             next=now+period;
-            cpuAvg+=100;
+            cpuAvgAccum+=100;
         } else {
-            const int sleepT=std::min(period,static_cast<int>(next-now));
-            cpuAvg+=(100*(period-sleepT))/period;
-            miosix::Thread::sleepUntil(next);
+            const long long sleepT=std::min(period,static_cast<long long>(next-now));
+            cpuAvgAccum+=static_cast<unsigned int>((100*(period-sleepT))/period);
+            miosix::Thread::nanoSleepUntil(next);
             next+=period;
         }
     }
 
     if(++cnt>=updatePeriod)
     {
-        fps=fpsAvg/(10*updatePeriod);
-        if(fpsCap!=0) cpu=cpuAvg/updatePeriod;
-        cnt=cpuAvg=fpsAvg=0;
+        fps=((fpsAvgAccum/updatePeriod)+5)/10; // +5 to round up
+        if(fpsCap!=0) cpu=cpuAvgAccum/updatePeriod;
+        cnt=cpuAvgAccum=fpsAvgAccum=0;
     }
     #else //_MIOSIX
     if(fpsCap>0) usleep(1000000/fpsCap);
