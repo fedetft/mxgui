@@ -38,6 +38,8 @@ using namespace mxgui;
 ENTRY()
 {
     Display& display=DisplayManager::instance().getDisplay();
+    unsigned short maxX = display.getWidth()-1;
+    unsigned short maxY = display.getHeight()-1;
     InputHandler& backend=InputHandler::instance();
     short oldX=0,oldY=0;
     for(;;)
@@ -53,14 +55,14 @@ ENTRY()
             case EventType::TouchMove:
             {
                 DrawingContext dc(display);
-                dc.line(Point(0,oldY),Point(239,oldY),black);
-                dc.line(Point(oldX,0),Point(oldX,319),black);
+                dc.line(Point(0,oldY),Point(maxX,oldY),black);
+                dc.line(Point(oldX,0),Point(oldX,maxY),black);
                 oldX=e.getPoint().x();
                 oldY=e.getPoint().y();
-                dc.line(Point(0,oldY),Point(239,oldY),white);
-                dc.line(Point(oldX,0),Point(oldX,319),white);
+                dc.line(Point(0,oldY),Point(maxX,oldY),white);
+                dc.line(Point(oldX,0),Point(oldX,maxY),white);
                 char line[128];
-                sprintf(line,"(%d, %d)          ",oldX,oldY);
+                siprintf(line,"(%d, %d)          ",oldX,oldY);
                 dc.write(Point(0,0),line);
                 break;
             }
