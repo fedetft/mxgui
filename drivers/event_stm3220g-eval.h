@@ -1,5 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2014 by Terraneo Federico                               *
+ *   Copyright (C) 2024 by Daniele Cattaneo                                *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,52 +26,55 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "input.h"
+#ifndef MXGUI_LIBRARY
+#error "This is header is private, it can be used only within mxgui."
+#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
 
-#ifdef MXGUI_LEVEL_2
+#include <functional>
+#include "level2/input.h"
 
-#include "drivers/event_qt.h"
-#include "drivers/event_win.h"
-#include "drivers/event_mp3v2.h"
-#include "drivers/event_strive.h"
-#include "drivers/event_stm3210e-eval.h"
-#include "drivers/event_redbull_v2.h"
-#include "drivers/event_sony-newman.h"
-#include "drivers/event_stm32f4discovery.h"
-#include "drivers/event_stm3220g-eval.h"
+#ifndef EVENT_STM3220G_EVAL_H
+#define	EVENT_STM3220G_EVAL_H
 
-using namespace std;
+#ifdef _BOARD_STM3220G_EVAL
 
 namespace mxgui {
 
-//
-// class InputHandler
-//
-
-InputHandler& InputHandler::instance()
+/**
+ * Implementation class to handle events in the Mp3v2 backend
+ */
+class InputHandlerImpl
 {
-    static InputHandlerImpl implementation;
-    static InputHandler singleton(&implementation);
-    return singleton;
-}
+public:
+    InputHandlerImpl();
 
-Event InputHandler::getEvent()
-{
-    return pImpl->getEvent();
-}
+    /**
+     * \return an event, blocking
+     */
+    Event getEvent();
 
-Event InputHandler::popEvent()
-{
-    return pImpl->popEvent();
-}
-
-function<void ()> InputHandler::registerEventCallback(function<void ()> cb)
-{
-    return pImpl->registerEventCallback(cb);
-}
-
-InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
+    /**
+     * \return an event, nonblocking. A default constructed event is returned
+     * if there are no events.
+     */
+    Event popEvent();
+    
+    /**
+     * Register a callback that will be called every time an event is geenrated
+     * 
+     * Note: the thread calling the callback has a very small stack.
+     *
+     * Note: concurrent access to this memebr function causes undefined behaviour
+     * 
+     * \param cb new callback to register
+     * \return the previous callback
+     */
+    std::function<void ()> registerEventCallback(std::function<void ()> cb);
+};
 
 } //namespace mxgui
 
-#endif //MXGUI_LEVEL_2
+#endif //_BOARD_STM3220G_EVAL
+
+#endif //EVENT_STM3220G_EVAL_H

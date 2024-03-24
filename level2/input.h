@@ -36,6 +36,7 @@
 #include "drivers/event_types_redbull_v2.h"
 #include "drivers/event_types_sony-newman.h"
 #include "drivers/event_types_stm32f4discovery.h"
+#include "drivers/event_types_stm3220g-eval.h"
 
 #ifdef MXGUI_LEVEL_2
 
@@ -48,7 +49,7 @@ class EventDirection
 {
 public:
     /**
-     * Event direction is used to distringuish butoon events being pressed or
+     * Event direction is used to distinguish button events being pressed or
      * released
      */
     enum D

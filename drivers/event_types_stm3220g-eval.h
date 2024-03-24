@@ -1,5 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2014 by Terraneo Federico                               *
+ *   Copyright (C) 2024 by Daniele Cattaneo                                *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,52 +26,40 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "input.h"
+#ifndef EVENT_TYPES_STM3220G_EVAL_H
+#define	EVENT_TYPES_STM3220G_EVAL_H
 
-#ifdef MXGUI_LEVEL_2
+#ifdef _BOARD_STM3220G_EVAL
 
-#include "drivers/event_qt.h"
-#include "drivers/event_win.h"
-#include "drivers/event_mp3v2.h"
-#include "drivers/event_strive.h"
-#include "drivers/event_stm3210e-eval.h"
-#include "drivers/event_redbull_v2.h"
-#include "drivers/event_sony-newman.h"
-#include "drivers/event_stm32f4discovery.h"
-#include "drivers/event_stm3220g-eval.h"
-
-using namespace std;
-
-namespace mxgui {
-
-//
-// class InputHandler
-//
-
-InputHandler& InputHandler::instance()
+class EventType
 {
-    static InputHandlerImpl implementation;
-    static InputHandler singleton(&implementation);
-    return singleton;
-}
+public:
+    enum E
+    {
+        // These are a must on all backends -- begin
+        Default=0,           // This actually means 'no event'
+        WindowPartialRedraw, // At least one drawable has requested redraw
+        WindowForeground,    // Window manager moved this window to foreground
+        WindowBackground,    // Window manager moved this window to background
+        WindowQuit,          // Window manager requested the window to close
+        // These are a must on all backends -- end
+        
+        TouchDown=1,
+        TouchUp=2,
+        TouchMove=3,
+        ButtonA=4,      // The "Key" or "User" button
+        ButtonB=5,      // The "Tamper" button
+        ButtonC=6,      // The "Wakeup" button
+        ButtonJoy=7,    // Center button on the joystick
+        ButtonUp=8,     // Up button on the joystick
+        ButtonDown=9,   // Down button on the joystick
+        ButtonLeft=10,  // Left button on the joystick
+        ButtonRight=11  // Right button on the joystick
+    };
+private:
+    EventType();
+};
 
-Event InputHandler::getEvent()
-{
-    return pImpl->getEvent();
-}
+#endif //_BOARD_STM3220G_EVAL
 
-Event InputHandler::popEvent()
-{
-    return pImpl->popEvent();
-}
-
-function<void ()> InputHandler::registerEventCallback(function<void ()> cb)
-{
-    return pImpl->registerEventCallback(cb);
-}
-
-InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
-
-} //namespace mxgui
-
-#endif //MXGUI_LEVEL_2
+#endif //EVENT_TYPES_STM3220G_EVAL_H
