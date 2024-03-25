@@ -77,7 +77,8 @@ public:
      */
     void setText(const std::string& text)
     {
-        this->text->setText(text);
+        if(this->text)
+            this->text->setText(text);
     }
 
    
@@ -133,7 +134,7 @@ private:
 
 protected:
 
-    Label *text; ///< Text of the button
+    Label *text = nullptr; ///< Text of the button
     Point innerPointTl; ///< Upper left point of the inner area of the button
     Point innerPointBr; ///< Lower right point of the inner area of the button
     //Drawing elements
