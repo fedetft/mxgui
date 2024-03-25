@@ -126,11 +126,32 @@ public:
             downCallback();
         
     }
-    virtual void buttonUp()
+    
+    virtual void onEvent(Event e)
+    {
+        if(!this->checkEventArea(e))
+        {
+            if(e.getEvent()==EventType::TouchUp && isPressed())
+            {
+                this->buttonUp();
+            }
+            return;
+        }
+        if(e.getEvent()==EventType::TouchDown )
+        {
+            this->buttonDown();
+        } else if(e.getEvent()==EventType::TouchUp)
+        {
+            this->buttonUp();
+        }
+        
+    
+    } 
+
+    virtual void resetState()
     {
         pressed=false;
-        Button::buttonUp();
-        
+        Button::resetState();
     }
     void setDownCallback(std::function<void ()> callback)
     {

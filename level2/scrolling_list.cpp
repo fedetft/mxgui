@@ -33,6 +33,7 @@
 #define scrollAreaBRPoint Point(listArea.second.x()+buttonHeight,listArea.second.y()-buttonHeight)
 #include <utility>
 #include <chrono>
+#include <iostream>
 
 
 
@@ -46,6 +47,7 @@ namespace mxgui {
     {
         this->buttonHeight=buttonHeight;
         this->itemHeight=itemHeight;
+        this->scrollingThread=nullptr;
         scrolling=false;
         DrawArea da = getDrawArea();
         listArea = DrawArea(da.first,Point(da.second.x()-buttonHeight-1,da.second.y()));
@@ -56,9 +58,18 @@ namespace mxgui {
         up = new ScrollButton(w,upButtonPoint,ScrollButtonType::UP,buttonHeight);
         up->setDownCallback([this](){
             this->upOne();
+            if(this->scrollingThread!=nullptr)
+            {
+                this->scrollingThread->join();
+                delete this->scrollingThread;
+                this->scrollingThread=nullptr;
+            }
             scrollingThread = new thread( &ScrollingList::keepScrollingUp, this);
+            
+            
         });
         up->setCallback([this](){
+            
             if(this->scrollingThread!=nullptr)
             {
                 this->scrollingThread->join();
@@ -70,9 +81,17 @@ namespace mxgui {
         down = new ScrollButton(w,downButtonPoint,ScrollButtonType::DOWN,buttonHeight);
         down->setDownCallback([this](){
             this->downOne();
-            thread{ &ScrollingList::keepScrollingDown, this}.detach();  
+            if(this->scrollingThread!=nullptr)
+            {
+                this->scrollingThread->join();
+                delete this->scrollingThread;
+                this->scrollingThread=nullptr;
+            }
+            scrollingThread = new thread( &ScrollingList::keepScrollingDown, this);
+            
         });
         down->setCallback([this](){
+            
             if(this->scrollingThread!=nullptr)
             {
                 this->scrollingThread->join();
@@ -186,7 +205,7 @@ namespace mxgui {
     void ScrollingList::onDraw(DrawingContextProxy& dc)
     {
         DrawArea da = getDrawArea();
-        dc.clear(da.first,da.second,grey);
+        dc.clear(scrollAreaTLPoint,scrollAreaBRPoint,grey);
         for(int index=0;index<visibleItems.size() ;index++)
         {
             string item; 
