@@ -74,8 +74,7 @@ void TTFParser::parse()
     //are allowed to exceed their bounding boxes *sigh*
     realHeight=ascent+descent;
 	cout<<"ascent="<<ascent<<" descent="<<descent<<
-			" height="<<realHeight<<endl;
-    if(realHeight<ttfHeight) throw(runtime_error("Unexpected"));
+		  " height="<<realHeight<<endl;
 
 	for(auto& block : this->blocks)
 	{
