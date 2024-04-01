@@ -107,7 +107,6 @@ int main(int argc, char *argv[])
 		
 	    for(string s : rangeList)
 		{
-			cout<<s<<endl;
 			try {
 				start=stoi(s.substr(0,s.find(",")));
 				end=stoi(s.substr(s.find(",")+1,s.size()));
