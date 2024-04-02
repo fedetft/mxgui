@@ -10,14 +10,16 @@ const unsigned char miscfixedHeight=16;
 const unsigned char miscfixedWidth=8;
 const unsigned char miscfixedDataSize=16;
 
-const unsigned char miscfixedNumBlocks=5;
+const unsigned int miscfixedNumGlyphs=646;
+const unsigned char miscfixedNumBlocks=6;
 // The start of range i is blocks[2*i], its size is at blocks[2*i+1]
 const unsigned int miscfixedBlocks[]{
 0x20,0x7f,
 0xa0,0x17f,
 0x391,0x3e1,
 0x400,0x479,
-0x48a,0x52f
+0x48a,0x52f,
+0xfffd,0xfffd
 };
 
 const unsigned short miscfixedData[][8]={
@@ -1955,6 +1957,9 @@ const unsigned short miscfixedData[][8]={
  },
  { //U+1295 ( 1295 )
   0x20,0x20,0x20,0x7e0,0x820,0x620,0x20,0
+ },
+ { //U+65533 ( 65533 )
+  0x7f8,0xfec,0xff4,0xa74,0xfb4,0xfcc,0x7f8,0
  }
 };
 

@@ -43,7 +43,7 @@ unsigned int Font::computeVirtualCodepoint(char32_t codepoint) const
 	int i=2;
 	// codepoint of the character as if we had one big contiguous range
 	unsigned int virtualCodepoint=0;
-	while(i<2*numBlocks && blocks[i]<=codepoint)
+	while(i<2*(numBlocks-1) && blocks[i]<=codepoint)
 	{
 		virtualCodepoint+=blocks[i-1];
     	i+=2;
@@ -53,7 +53,10 @@ unsigned int Font::computeVirtualCodepoint(char32_t codepoint) const
 	// so need to go back
 	char32_t rangeBase=blocks[i-2];
 	unsigned short charOffset=codepoint-rangeBase;
-	virtualCodepoint+=charOffset;
+	if(rangeBase + charOffset <= blocks[i-2]+blocks[i-1])
+		virtualCodepoint+=charOffset;
+	else
+	    virtualCodepoint=numGlyphs-1;
 	
 	return virtualCodepoint;
 }

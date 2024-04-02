@@ -38,33 +38,34 @@ namespace mxgui {
 
 #ifdef MXGUI_FONT_MISCFIXED
 const Font miscFixed(miscfixedNumBlocks,miscfixedBlocks,miscfixedHeight,
-         miscfixedWidth,miscfixedDataSize,miscfixedIsAntialiased,miscfixedData);
+         miscfixedWidth,miscfixedDataSize,miscfixedIsAntialiased,
+         miscfixedData,miscfixedNumGlyphs);
 #ifdef MXGUI_ENABLE_BOLD_FONTS
 const Font miscFixedBold(miscfixedBoldNumBlocks,miscfixedBoldBlocks,
          miscfixedBoldHeight,miscfixedBoldWidth,miscfixedBoldDataSize,
-         miscfixedBoldIsAntialiased,miscfixedBoldData);
+         miscfixedBoldIsAntialiased,miscfixedBoldData,miscfixedNumGlyphs);
 #endif //MXGUI_ENABLE_BOLD_FONTS
 #endif //MXGUI_FONT_MISCFIXED
 
 #ifdef MXGUI_FONT_DROID11
 const Font droid11(droid11NumBlocks,droid11Blocks,droid11Height,
         droid11DataSize,droid11IsAntialiased,droid11Width,droid11Offset,
-        droid11Data);
+        droid11Data,droid11NumGlyphs);
 #ifdef MXGUI_ENABLE_BOLD_FONTS
 const Font droid11b(droid11bNumBlocks,droid11bBlocks,droid11bHeight,
-         droid11bDataSize,droid11bIsAntialiased,droid11bWidth,droid11bOffset,
-         droid11bData);
+        droid11bDataSize,droid11bIsAntialiased,droid11bWidth,droid11bOffset,
+        droid11bData,droid11bNumGlyphs);
 #endif //MXGUI_ENABLE_BOLD_FONTS
 #endif //MXGUI_FONT_MISCFIXED
 
 #ifdef MXGUI_FONT_DROID21
 const Font droid21(droid21NumBlocks,droid21Blocks,droid21Height,
         droid21DataSize,droid21IsAntialiased,droid21Width,droid21Offset,
-        droid21Data);
+        droid21Data,droid21NumGlyphs);
 #ifdef MXGUI_ENABLE_BOLD_FONTS
 const Font droid21b(droid21NumBlocks,droid21bBlocks,droid21bHeight,
-         droid21bDataSize,droid21bIsAntialiased,droid21bWidth,droid21bOffset,
-         droid21bData);
+        droid21bDataSize,droid21bIsAntialiased,droid21bWidth,droid21bOffset,
+        droid21bData,droid21bNumGlyphs);
 #endif //MXGUI_ENABLE_BOLD_FONTS
 #endif //MXGUI_FONT_DROID21
 

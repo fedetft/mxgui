@@ -61,6 +61,7 @@ void VariableWidthGenerator::generateCode(const std::string filename,
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
           "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n\n";
 
+	file<<"const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n";
 	//Write range array
 	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
 	file<<"const unsigned char "<<fontName<<"""NumBlocks="<<blocks.size()<<";\n";

@@ -69,7 +69,7 @@ void TTFParser::parse()
 			if(bottomBearing>descent) descent=bottomBearing;
 		}
 	}
-	
+
     //Height can be higher than the one given for rendering, since glyphs
     //are allowed to exceed their bounding boxes *sigh*
     realHeight=ascent+descent;
@@ -87,6 +87,7 @@ void TTFParser::parse()
 			generateGlyph(face,chr);
 		}
 	}
+
     FT_Done_FreeType(library);
 }
 

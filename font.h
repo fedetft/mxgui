@@ -58,9 +58,9 @@ public:
      */
     constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
         unsigned char width, unsigned char dataSize, bool antialiased,
-		const void *data): numBlocks(numBlocks),blocks(blocks),
-        height(height), width(width), dataSize(dataSize),
-        antialiased(antialiased), widths(0), offset(0), data(data) {}
+		const void *data, unsigned short numGlyphs): numBlocks(numBlocks), blocks(blocks),
+        height(height), width(width), dataSize(dataSize), antialiased(antialiased),
+		widths(0), offset(0), data(data), numGlyphs(numGlyphs) {}
 	
     /**
      * Creates a variable width font.
@@ -78,9 +78,9 @@ public:
      */
     constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
 	    unsigned char dataSize, bool antialiased, const unsigned char *widths,
-		const unsigned short *offset, const void *data): numBlocks(numBlocks),blocks(blocks),
-	    height(height), width(0), dataSize(dataSize), antialiased(antialiased), widths(widths),
-	    offset(offset), data(data) {}
+	    const unsigned short *offset, const void *data, unsigned short numGlyphs): numBlocks(numBlocks),
+		blocks(blocks), height(height), width(0), dataSize(dataSize), antialiased(antialiased),
+	    widths(widths), offset(offset), data(data), numGlyphs(numGlyphs) {}
 
     /**
      * Draw a string on a surface.
@@ -307,6 +307,7 @@ private:
     unsigned char width;// set to zero if variable width font
     unsigned char dataSize;
     bool antialiased;
+	unsigned short numGlyphs;
 	unsigned char numBlocks;
 	const unsigned int *blocks; // Codepoint ranges of the font
     const unsigned char *widths;// set to zero (NULL) if fixed width

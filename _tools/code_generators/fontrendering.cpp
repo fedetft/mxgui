@@ -39,6 +39,7 @@
 
 #include "font_core.h"
 #include "unicode_blocks.h"
+#include <algorithm>
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <stdexcept>
@@ -121,6 +122,13 @@ int main(int argc, char *argv[])
 			ranges.push_back({start,end});
 		}
 
+		// it's important for the ranges to be sorted!
+		sort(ranges.begin(),ranges.end());
+		
+		// add the replacement character (it's always the last range,
+		// regardless of the ordering)
+		ranges.push_back({0xFFFD,0xFFFD});
+		
 		UnicodeBlockManager::updateBlocks(ranges);
 		parser->setUnicodeBlocks(UnicodeBlockManager::getAvailableBlocks());
 	}

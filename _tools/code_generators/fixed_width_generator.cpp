@@ -62,6 +62,7 @@ void FixedWidthGenerator::generateCode(const std::string filename,
           "const unsigned char "<<fontName<<"Width="<<width<<";\n"<<
           "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n\n";
 
+	file<<"const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n";
 	//Write range array
 	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
 	file<<"const unsigned char "<<fontName<<"""NumBlocks="<<blocks.size()<<";\n";
