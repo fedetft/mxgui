@@ -57,17 +57,24 @@ Button::Button(Window *w, Point p, short width, short height, const string& text
 
 void Button::resetState()
 {
-    colors=make_pair(black,lightGrey);
-    if(text)
-        text->setColors(colors);
-    InteractableButton::resetState();
+    if(colors!=make_pair(black,lightGrey))
+    {
+        colors=make_pair(black,lightGrey);
+        if(text)
+            text->setColors(colors);
+        InteractableButton::resetState();
+    }
 }
 void Button::buttonDown()
 {
-    colors=make_pair(white,darkGrey);
-    if(text)
-        text->setColors(colors);    
-    enqueueForRedraw();
+    if(colors!=make_pair(white,darkGrey))
+    {
+        colors=make_pair(white,darkGrey);
+        if(text)
+            text->setColors(colors);    
+        enqueueForRedraw();
+    } 
+    
 }
 
 void Button::buttonUp()

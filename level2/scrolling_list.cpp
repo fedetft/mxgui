@@ -126,7 +126,7 @@ namespace mxgui {
     }
     void ScrollingList::keepScrollingUp()
     {
-        int i;
+        int i=0;
         while(i<500)
         {
             if(!up->isPressed())
@@ -157,7 +157,7 @@ namespace mxgui {
 
     void ScrollingList::keepScrollingDown()
     {
-        int i;
+        int i=0;
         while(i<500)
         {
             if(!down->isPressed())
@@ -204,7 +204,6 @@ namespace mxgui {
 
     void ScrollingList::onDraw(DrawingContextProxy& dc)
     {
-        DrawArea da = getDrawArea();
         dc.clear(scrollAreaTLPoint,scrollAreaBRPoint,grey);
         for(int index=0;index<visibleItems.size() ;index++)
         {
@@ -229,11 +228,11 @@ namespace mxgui {
                 curr->setColors(pair<Color,Color>(black,white));
             }
         }
-        
+        /*
         up->enqueueForRedraw();
         scroll->enqueueForRedraw();
         down->enqueueForRedraw();
-        
+        */
     }
 
     bool ScrollingList::checkArea(Event e,DrawArea da)

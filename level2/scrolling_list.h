@@ -102,7 +102,6 @@ public:
     virtual void onDraw(DrawingContextProxy& dc)
     {
         Button::onDraw(dc);
-        DrawArea da = getDrawArea();
         switch(type)
         {
             case ScrollButtonType::UP:
