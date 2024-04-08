@@ -65,13 +65,14 @@ void FixedWidthGenerator::generateCode(const std::string filename,
 	file<<"const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n";
 	//Write range array
 	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
-	file<<"const unsigned char "<<fontName<<"""NumBlocks="<<blocks.size()<<";\n";
+	file<<"const unsigned char "<<fontName<<"NumBlocks="<<blocks.size()<<";\n";
 	file<<"// The start of range i is blocks[2*i], its size is at blocks[2*i+1]\n";
 	file<<"const unsigned int "<<fontName<<"Blocks[]{\n";
 	for(int i=0;i<blocks.size();i++)
 	{
 		UnicodeBlock block = blocks[i];
-		file<<hex<<block.getStartCodepoint()<<","<<block.getEndCodepoint();
+		unsigned int rangeLen = block.getEndCodepoint()-block.getStartCodepoint()+1;
+		file<<hex<<block.getStartCodepoint()<<","<<rangeLen;
 		if(i != blocks.size()-1)
 			file<<",\n";
 	}

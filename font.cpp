@@ -53,11 +53,11 @@ unsigned int Font::computeVirtualCodepoint(char32_t codepoint) const
 	// so need to go back
 	char32_t rangeBase=blocks[i-2];
 	unsigned short charOffset=codepoint-rangeBase;
-	if(rangeBase + charOffset <= blocks[i-2]+blocks[i-1])
+	if((rangeBase+charOffset) <= (rangeBase+blocks[i-1]))
 		virtualCodepoint+=charOffset;
 	else
 	    virtualCodepoint=numGlyphs-1;
-	
+
 	return virtualCodepoint;
 }
 	
