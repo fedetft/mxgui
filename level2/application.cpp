@@ -28,6 +28,7 @@
 #include "application.h"
 #include "pthread_lock.h"
 #include "misc_inst.h"
+#include <iostream>
 
 #ifdef MXGUI_LEVEL_2
 
@@ -106,6 +107,7 @@ void Window::eventLoop()
 {
     for(;;)
     {
+        //this_thread::sleep_for(chrono::milliseconds(10));
         Event e=getEvent();
         
         if(e.getEvent()==EventType::WindowQuit) return;
@@ -116,18 +118,20 @@ void Window::eventLoop()
             for(list<Drawable*>::iterator it=drawables.begin();
                 it!=drawables.end();++it)
             {
+                
                 if((*it)->needsRedraw()==false) continue;
+                //cout<<"Redrawing "<<*it<<endl;
                 (*it)->onDraw(dc);
                 (*it)->redrawDone();
             }
             //Filter out this event
             continue;
         }
-        if(e.getEvent()==EventType::WindowForeground)
+        /*if(e.getEvent()==EventType::WindowForeground)
         {
             FullScreenDrawingContextProxy dc(DisplayManager::instance().getDisplay());//FIXME: get it fron the window manager
             dc.setTextColor(make_pair(prefs.foreground,prefs.background));
-            dc.clear(prefs.background);
+            //dc.clear(prefs.background);
             for(list<Drawable*>::iterator it=drawables.begin();
                 it!=drawables.end();++it)
             {
@@ -135,7 +139,7 @@ void Window::eventLoop()
                 (*it)->redrawDone();
             }
             //Do not filter this out
-        }
+        }*/
         //Forward event. For now we do not yet have a way for a Drawable to
         //register only for a certain class of events, such as touch events only
         //in their draw area, but we simply forward each event to all Drawables,
@@ -160,6 +164,7 @@ Event Window::getEvent()
         if(events.empty()==false)
         {
             Event result=events.front();
+            cout<<"Event: "<<result.getEvent()<<" "<<result.getPoint().x()<<","<<result.getPoint().y()<<endl;
             events.pop_front();
             //Filter out WindowPartialRedraw that is done through redrawNeeded
             if(result.getEvent()==EventType::WindowPartialRedraw) continue;

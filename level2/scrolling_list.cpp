@@ -228,9 +228,10 @@ namespace mxgui {
                 curr->setColors(pair<Color,Color>(black,white));
             }
         }
+        scroll->enqueueForRedraw();
         /*
         up->enqueueForRedraw();
-        scroll->enqueueForRedraw();
+        
         down->enqueueForRedraw();
         */
     }

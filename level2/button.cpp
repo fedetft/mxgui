@@ -48,7 +48,7 @@ Button::Button(Window* w, DrawArea da, const string& text)
         this->text->setYAlignment(Alignment::CENTER);
     }
     resetState();
-    enqueueForRedraw();
+    
 }
 
 Button::Button(Window *w, Point p, short width, short height, const string& text)
