@@ -107,7 +107,6 @@ void Window::eventLoop()
 {
     for(;;)
     {
-        //this_thread::sleep_for(chrono::milliseconds(10));
         Event e=getEvent();
         
         if(e.getEvent()==EventType::WindowQuit) return;
@@ -120,7 +119,6 @@ void Window::eventLoop()
             {
                 
                 if((*it)->needsRedraw()==false) continue;
-                //cout<<"Redrawing "<<*it<<endl;
                 (*it)->onDraw(dc);
                 (*it)->redrawDone();
             }
@@ -164,7 +162,6 @@ Event Window::getEvent()
         if(events.empty()==false)
         {
             Event result=events.front();
-            cout<<"Event: "<<result.getEvent()<<" "<<result.getPoint().x()<<","<<result.getPoint().y()<<endl;
             events.pop_front();
             //Filter out WindowPartialRedraw that is done through redrawNeeded
             if(result.getEvent()==EventType::WindowPartialRedraw) continue;
