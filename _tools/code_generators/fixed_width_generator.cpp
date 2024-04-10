@@ -120,8 +120,8 @@ void FixedWidthGenerator::generateCode(const std::string filename,
                 }
             }
             if(j!=width-1)
-                file<<hex<<column<<dec<<(roundedHeight==64?"ull":"")<<",";
-            else file<<hex<<column<<dec<<(roundedHeight==64?"ull":"");
+                file<<showbase<<hex<<column<<dec<<(roundedHeight==64?"ull":"")<<",";
+            else file<<showbase<<hex<<column<<dec<<(roundedHeight==64?"ull":"");
         }
         if(i!=glyphs.size()-1) file<<"\n },\n"; else file<<"\n }\n";
     }
