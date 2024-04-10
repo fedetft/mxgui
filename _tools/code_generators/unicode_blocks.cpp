@@ -45,7 +45,7 @@ UnicodeBlock& UnicodeBlock::operator=(const UnicodeBlock& other)
 
 std::vector<UnicodeBlock> UnicodeBlockManager::knownUnicodeBlocks =
 {
-	UnicodeBlock(0x00000020, 0x0000007F),
+	UnicodeBlock(0x00000020, 0x0000007E),
 	UnicodeBlock(0x0000FFFD, 0x0000FFFD)
 };
 

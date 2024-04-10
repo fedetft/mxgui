@@ -8,12 +8,12 @@ const bool droid11bIsAntialiased=true;
 const bool droid11bIsFixedWidth=false;
 const unsigned char droid11bHeight=12;
 const unsigned char droid11bDataSize=32;
-const unsigned int droid11bNumGlyphs=97;
+const unsigned int droid11bNumGlyphs=96;
 const unsigned char droid11bNumBlocks=2;
 
 // The start of range i is blocks[2*i], its size is at blocks[2*i+1]
 const unsigned int droid11bBlocks[]{
- 0x20,0x60,
+ 0x20,0x5f,
  0xfffd,0x1
 };
 
@@ -30,8 +30,7 @@ const unsigned char droid11bWidth[]={
  7,6,7,6,7,6,5,6,
  7,2,3,7,3,11,7,7,
  7,7,5,5,5,7,6,10,
- 7,6,6,4,7,4,7,7,
- 12
+ 7,6,6,4,7,4,7,12
 };
 
 //The first byte of character i is droid11bData[droid11bOffset[i]]
@@ -47,8 +46,7 @@ const unsigned short droid11bOffset[]={
  438,445,451,458,464,471,477,482,
  488,495,497,500,507,510,521,528,
  535,542,549,554,559,564,571,577,
- 587,594,600,606,610,617,621,628,
- 635
+ 587,594,600,606,610,617,621,628
 };
 
 const unsigned int droid11bData[]={
@@ -147,7 +145,6 @@ const unsigned int droid11bData[]={
  0,0,FFFFFF,555555,0,0,0, //U+7C ( | )
  340007,3D415F,1FFBFC,2C00, //U+7D ( } )
  0,380,1C0,740,D00,B00,0, //U+7E ( ~ )
- 0,3AAAB,20002,20002,20002,3AAAB,0, //U+7F (  )
  800,3F00,FFC0,3FFF0,FFF9C,3DC7CF,FE14C,3FC10,FFC0,3F00,C00,0 //U+FFFD ( � )
 };
 

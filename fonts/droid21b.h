@@ -8,12 +8,12 @@ const bool droid21bIsAntialiased=true;
 const bool droid21bIsFixedWidth=false;
 const unsigned char droid21bHeight=22;
 const unsigned char droid21bDataSize=64;
-const unsigned int droid21bNumGlyphs=97;
+const unsigned int droid21bNumGlyphs=96;
 const unsigned char droid21bNumBlocks=2;
 
 // The start of range i is blocks[2*i], its size is at blocks[2*i+1]
 const unsigned int droid21bBlocks[]{
- 0x20,0x60,
+ 0x20,0x5f,
  0xfffd,0x1
 };
 
@@ -30,8 +30,7 @@ const unsigned char droid21bWidth[]={
  12,12,13,10,13,13,8,12,
  13,6,5,12,6,20,13,13,
  13,13,9,11,9,13,11,17,
- 12,11,9,8,12,8,12,13,
- 21
+ 12,11,9,8,12,8,12,21
 };
 
 //The first byte of character i is droid21bData[droid21bOffset[i]]
@@ -47,8 +46,7 @@ const unsigned short droid21bOffset[]={
  743,755,767,780,790,803,816,824,
  836,849,855,860,872,878,898,911,
  924,937,950,959,970,979,992,1003,
- 1020,1032,1043,1052,1060,1072,1080,1092,
- 1105
+ 1020,1032,1043,1052,1060,1072,1080,1092
 };
 
 const unsigned long long droid21bData[]={
@@ -147,7 +145,6 @@ const unsigned long long droid21bData[]={
  0ull,0ull,0ull,0ull,0ull,FFFFFFFFFFCull,FFFFFFFFFFCull,55555555554ull,0ull,0ull,0ull,0ull, //U+7C ( | )
  0ull,F4000001F0ull,FEAA06ABF0ull,BFFFCFFFE0ull,2FFFFFFFC0ull,1FD0000ull,FC0000ull,BC0000ull, //U+7D ( } )
  0ull,1F0000ull,B8000ull,7C000ull,7C000ull,F8000ull,2F0000ull,3D0000ull,3D0000ull,2E0000ull,F4000ull,0ull, //U+7E ( ~ )
- 0ull,0ull,3FFFFFFF0ull,300000030ull,300000030ull,300000030ull,300000030ull,300000030ull,300000030ull,300000030ull,3FFFFFFF0ull,0ull,0ull, //U+7F (  )
  0ull,300000ull,FC0000ull,3FF0000ull,FFFC000ull,3FFFF000ull,FFFFFC00ull,3FFFF8F00ull,FFFFF47C0ull,3D2C3FC3F0ull,FC0C0FC3FCull,3E2F4243F0ull,FFFD00BC0ull,3FFF41F00ull,FFFFFC00ull,3FFFF000ull,FFFC000ull,3FF0000ull,FC0000ull,300000ull,0ull //U+FFFD ( � )
 };
 
