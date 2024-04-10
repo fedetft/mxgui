@@ -70,11 +70,17 @@ public:
 	static const std::vector<UnicodeBlock> getAvailableBlocks();
 
 	/**
-	 * Overwrites the previous list of Unicode blocks with a new one.
+	 * Overwrite the previous list of Unicode blocks with a new one.
 	 * NOTE: the input list is assumed to be sorted by increasing
 	 * start codepoint
 	 */
 	static void updateBlocks(std::vector<std::pair<char32_t,char32_t>> blocks);
+
+	/**
+	 * Change the replacement character, which is stored in the last,
+	 * out-of-order range
+	 */
+	static void updateReplacementCharacter(char32_t replacementCodepoint);
 	
 	/**
 	 * Checks whether a particular character is supported.
@@ -89,7 +95,7 @@ public:
 	static unsigned int numSupportedCharacters();
 
 	/**
-	 * Converts a fixed-width UTF-32 codepoint in a
+	 * Convert a fixed-width UTF-32 codepoint in a
 	 * multibyte-encoded string, to be able to print it
 	 */
 	static std::string codepointToString(char32_t codepoint);

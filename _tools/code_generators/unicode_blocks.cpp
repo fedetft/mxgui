@@ -56,6 +56,11 @@ void UnicodeBlockManager::updateBlocks(std::vector<std::pair<char32_t,char32_t>>
 		knownUnicodeBlocks.push_back(UnicodeBlock(blk.first,blk.second));
 }
 
+void UnicodeBlockManager::updateReplacementCharacter(char32_t replacementCodepoint)
+{
+	knownUnicodeBlocks[knownUnicodeBlocks.size()-1]={replacementCodepoint,replacementCodepoint};
+}
+
 const std::vector<UnicodeBlock> UnicodeBlockManager::getAvailableBlocks()
 {
 	std::vector<UnicodeBlock> res = knownUnicodeBlocks;

@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
         ("help", "Prints this.")
         ("font", value<string>(), "A BDF or TTF font file. Must exist")
 		("add-range", value<vector<string>>(), "Add a range of Unicode codepoints")
+		("replacement-char", value<string>(), "Specify a replacement character different from '�'")
         ("image", value<string>(), "Filename of image to be generated")
         ("header", value<string>(), "Filename of .h file to be generated")
         ("name", value<string>(), "Font name, to give a name to the tables")
@@ -113,7 +114,7 @@ int main(int argc, char *argv[])
 				end=stoi(s.substr(s.find(",")+1,s.size()));
 			} catch(invalid_argument& e)
 			{
-				throw(runtime_error("wrongly formatted ranges! Expected \"<start>,<end>\""));
+				throw(runtime_error("Wrongly formatted ranges! Expected \"<start>,<end>\""));
 			}
 			
 			if(start>end)
@@ -130,6 +131,17 @@ int main(int argc, char *argv[])
 		ranges.push_back({0xFFFD,0xFFFD});
 		
 		UnicodeBlockManager::updateBlocks(ranges);
+		parser->setUnicodeBlocks(UnicodeBlockManager::getAvailableBlocks());
+	}
+
+	if(vm.count("replacement-char"))
+	{
+		string s=vm["replacement-char"].as<string>();
+		if(s.size()>1)
+			throw(runtime_error("The replacement character should not be a string"));
+
+		char32_t replacementCodepoint=static_cast<char32_t>(s[0]);
+		UnicodeBlockManager::updateReplacementCharacter(replacementCodepoint);
 		parser->setUnicodeBlocks(UnicodeBlockManager::getAvailableBlocks());
 	}
 	
