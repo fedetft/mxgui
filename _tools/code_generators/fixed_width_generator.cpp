@@ -16,6 +16,7 @@
  ***************************************************************************/
 
 #include "fixed_width_generator.h"
+#include "unicode_blocks.h"
 
 using namespace std;
 
@@ -56,16 +57,16 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     if(aa) roundedHeight*=2;
     
     //Write font info data
+	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
     file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=true;\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
           "const unsigned char "<<fontName<<"Width="<<width<<";\n"<<
-          "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n\n";
+		  "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n"<<
+		  "const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n"<<
+		  "const unsigned char "<<fontName<<"NumBlocks="<<blocks.size()<<";\n\n";
 
-	file<<"const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n";
 	//Write range array
-	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
-	file<<"const unsigned char "<<fontName<<"NumBlocks="<<blocks.size()<<";\n";
 	file<<"// The start of range i is blocks[2*i], its size is at blocks[2*i+1]\n";
 	file<<"const unsigned int "<<fontName<<"Blocks[]{\n";
 	for(int i=0;i<blocks.size();i++)
@@ -99,8 +100,8 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     for(int i=0;i<glyphs.size();i++)
     {
         Glyph glyph=glyphs.at(i);
-        file<<" { //U+"<<static_cast<int>(glyph.getCodepoint())<<" ( "<<
-                glyph.getCodepoint()<<" )\n  ";
+        file<<" { //U+"<<noshowbase<<hex<<uppercase<<static_cast<int>(glyph.getCodepoint())<<" ( "<<
+			UnicodeBlockManager::codepointToString(glyph.getCodepoint())<<" )\n  ";
         for(int j=0;j<width;j++)
         {
             unsigned long long column=0;

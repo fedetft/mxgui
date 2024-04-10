@@ -56,15 +56,15 @@ void VariableWidthGenerator::generateCode(const std::string filename,
     if(aa) roundedHeight*=2;
 	
     //Write font info data
+	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
     file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=false;\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
-          "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n\n";
+ 		  "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n"<<
+		  "const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n"<<
+		  "const unsigned char "<<fontName<<"""NumBlocks="<<blocks.size()<<";\n\n";
 
-	file<<"const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n";
 	//Write range array
-	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
-	file<<"const unsigned char "<<fontName<<"""NumBlocks="<<blocks.size()<<";\n";
 	file<<"// The start of range i is blocks[2*i], its size is at blocks[2*i+1]\n";
 	file<<"const unsigned int "<<fontName<<"Blocks[]{\n";
 	for(int i=0;i<blocks.size();i++)
@@ -157,8 +157,8 @@ void VariableWidthGenerator::generateCode(const std::string filename,
             }
             else file<<hex<<column<<dec<<(roundedHeight==64?"ull":"")<<",";
         }
-        file<<" //U+"<<hex<<uppercase<<static_cast<int>(glyph.getCodepoint())<<" ( "
-			<<glyph.getCodepoint()<<" )";
+        file<<" //U+"<<noshowbase<<hex<<uppercase<<static_cast<int>(glyph.getCodepoint())<<" ( "
+			<<UnicodeBlockManager::codepointToString(glyph.getCodepoint())<<" )";
         if(i!=glyphs.size()-1) file<<"\n";
     }
 
