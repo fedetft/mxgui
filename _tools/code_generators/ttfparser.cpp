@@ -76,7 +76,7 @@ void TTFParser::parse()
 	cout<<"ascent="<<ascent<<" descent="<<descent<<
 		  " height="<<realHeight<<endl;
 
-	for(auto& block : this->blocks)
+	for(auto &block : this->blocks)
 	{
 		for(unsigned int chr=block.getStartCodepoint();chr<=block.getEndCodepoint();chr++)
 		{
