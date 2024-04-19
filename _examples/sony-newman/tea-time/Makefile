@@ -1,7 +1,7 @@
 ##
 ## Makefile for Miosix embedded OS
 ##
-MAKEFILE_VERSION := 1.04
+MAKEFILE_VERSION := 1.10
 ## Path to kernel directory (edited by init_project_out_of_git_repo.pl)
 KPATH := miosix
 ## Path to config directory (edited by init_project_out_of_git_repo.pl)
@@ -67,6 +67,14 @@ INCLUDE_DIRS := -Imxgui
 ## You should not need to modify anything below                             ##
 ##############################################################################
 
+ifeq ("$(VERBOSE)","1")
+Q :=
+ECHO := @true
+else
+Q := @
+ECHO := @echo
+endif
+
 ## Replaces both "foo.cpp"-->"foo.o" and "foo.c"-->"foo.o"
 OBJ := $(addsuffix .o, $(basename $(SRC)))
 
@@ -82,8 +90,9 @@ AFLAGS   := $(AFLAGS_BASE)
 LFLAGS   := $(LFLAGS_BASE)
 DFLAGS   := -MMD -MP
 
-LINK_LIBS := $(LIBS) -L$(KPATH) -Wl,--start-group -lmiosix -lstdc++ -lc \
-             -lm -lgcc -Wl,--end-group
+## libmiosix.a is among stdlibs because needs to be within start/end group
+STDLIBS  := -lmiosix -lstdc++ -lc -lm -lgcc -latomic
+LINK_LIBS := $(LIBS) -L$(KPATH) -Wl,--start-group $(STDLIBS) -Wl,--end-group
 
 all: all-recursive main
 
@@ -108,22 +117,27 @@ clean-topdir:
 	-rm -f $(OBJ) main.elf main.hex main.bin main.map $(OBJ:.o=.d)
 
 main: main.elf
-	$(CP) -O ihex   main.elf main.hex
-	$(CP) -O binary main.elf main.bin
-	$(SZ) main.elf
+	$(ECHO) "[CP  ] main.hex"
+	$(Q)$(CP) -O ihex   main.elf main.hex
+	$(ECHO) "[CP  ] main.bin"
+	$(Q)$(CP) -O binary main.elf main.bin
+	$(Q)$(SZ) main.elf
 
 main.elf: $(OBJ) all-recursive
-	@ echo "linking"
-	$(CXX) $(LFLAGS) -o main.elf $(OBJ) $(KPATH)/$(BOOT_FILE) $(LINK_LIBS)
+	$(ECHO) "[LD  ] main.elf"
+	$(Q)$(CXX) $(LFLAGS) -o main.elf $(OBJ) $(KPATH)/$(BOOT_FILE) $(LINK_LIBS)
 
 %.o: %.s
-	$(AS)  $(AFLAGS) $< -o $@
+	$(ECHO) "[AS  ] $<"
+	$(Q)$(AS)  $(AFLAGS) $< -o $@
 
 %.o : %.c
-	$(CC)  $(DFLAGS) $(CFLAGS) $< -o $@
+	$(ECHO) "[CC  ] $<"
+	$(Q)$(CC)  $(DFLAGS) $(CFLAGS) $< -o $@
 
 %.o : %.cpp
-	$(CXX) $(DFLAGS) $(CXXFLAGS) $< -o $@
+	$(ECHO) "[CXX ] $<"
+	$(Q)$(CXX) $(DFLAGS) $(CXXFLAGS) $< -o $@
 
 #pull in dependecy info for existing .o files
 -include $(OBJ:.o=.d)
