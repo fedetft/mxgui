@@ -151,6 +151,15 @@ public:
     }
 
     /**
+     * Clear the stmpe811 fifo
+     */
+    void touchFifoClear()
+    {
+        writeReg(FIFO_STA,0x01); //RESET FIFO
+        writeReg(FIFO_STA,0x00); //RESET FIFO
+    }
+
+    /**
      * Configure the chip as a resistive touchscreen controller.
      */
     void initTouch()
@@ -159,8 +168,7 @@ public:
         //TDD*2+SETTLING*3+AVE*17.2us*3= ~ 17.5ms
         writeReg(TSC_CFG,0xe4); //TSC_CFG= AVE=8, TDD=1ms, SETTLING=5ms
         writeReg(FIFO_TH,0x01); //FIFO_TH= 1
-        writeReg(FIFO_STA,0x01); //RESET FIFO
-        writeReg(FIFO_STA,0x00); //RESET FIFO
+        touchFifoClear();
         
         //This may allow the chip to go out of hibernate once touch detected
         writeReg(INT_CTRL,0x01);
@@ -173,15 +181,6 @@ public:
         // 0     bit 7     TSC status (read only)
         writeReg(TSC_CTRL,0b0'011'001'1);
         writeReg(FIFO_TH,0x01);
-    }
-
-    /**
-     * Clear the stmpe811 fifo
-     */
-    void touchFifoClear()
-    {
-        writeReg(FIFO_STA,0x01); //RESET FIFO
-        writeReg(FIFO_STA,0x00); //RESET FIFO
     }
 
     /**
@@ -206,8 +205,7 @@ public:
         {
             unsigned char tsData[3];
             readReg(TSC_DATA,3,tsData);
-            writeReg(FIFO_STA,0x01); //RESET FIFO
-            writeReg(FIFO_STA,0x00); //RESET FIFO
+            touchFifoClear();
             int x=static_cast<int>(tsData[0])<<4 | tsData[1]>>4;
             int y=((static_cast<int>(tsData[1]) & 0xf)<<8) | tsData[2];
             y=4095-y; //Y is swapped
