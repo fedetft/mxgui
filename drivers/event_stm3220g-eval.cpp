@@ -92,7 +92,7 @@ enum stmpe811regs
     TSC_CFG=0x41,
     FIFO_TH=0x4a,
     FIFO_STA=0x4b,
-    TSC_DATA=0xd7,
+    TSC_DATA_XYZ=0xd7,
     FIFO_SIZE=0x4C
 };
 
@@ -188,49 +188,58 @@ public:
      */
     Point getTouchData()
     {
-        static int flag=0;
         unsigned char ctrl;
+        // Check if touch detected by polling the CTRL register
         readReg(TSC_CTRL,1,&ctrl);
         if((ctrl & 0x80)==0)
         {
-            flag=0;
-            return Point(-1,-1);
-        }
-        if(flag==0)
-        {
-            flag=1;
-            return Point(-1,-1);
-        }
-        else
-        {
+            // No touch
+            lastTouchPoint = Point(-1,-1);
+            return lastTouchPoint;
+        } else {
+            // Touch detected, check if there are samples in FIFO.
+            // Even if a touch is detected, the FIFO may be empty if:
+            // - the first/next sample is not yet ready (for example because of
+            //   settling time)
+            // - the pen is standing still and window tracking has discarded
+            //   some samples
+            // In this case, reading from TSC_DATA_XYZ will return all zeros.
+            // To avoid returning incorrect event coordinates we check the FIFO
+            // level, and if it is zero we simply return the last point again.
+            unsigned char fifoFillLevel;
+            readReg(FIFO_SIZE,1,&fifoFillLevel);
+            if(fifoFillLevel==0) return lastTouchPoint;
+
+            // Read the new sample
             unsigned char tsData[3];
-            readReg(TSC_DATA,3,tsData);
+            readReg(TSC_DATA_XYZ,3,tsData);
             touchFifoClear();
             int x=static_cast<int>(tsData[0])<<4 | tsData[1]>>4;
             int y=((static_cast<int>(tsData[1]) & 0xf)<<8) | tsData[2];
             y=4095-y; //Y is swapped
-            //Calibration values. May vary from unit to unit
+
+            // Apply calibration. Values may vary from unit to unit
             const int xMin=220;
             const int xMax=3900;
             const int yMin=160;
             const int yMax=3950;
-        
             x=((x-xMin)*240)/(xMax-xMin);
             y=((y-yMin)*320)/(yMax-yMin);
             x=min(239,max(0,x));
             y=min(319,max(0,y));
             
             #if defined(MXGUI_ORIENTATION_VERTICAL)
-            return Point(x,y);
+            lastTouchPoint=Point(x,y);
             #elif defined(MXGUI_ORIENTATION_HORIZONTAL)
-            return Point(319-y,x);
+            lastTouchPoint=Point(319-y,x);
             #elif defined(MXGUI_ORIENTATION_VERTICAL_MIRRORED)
-            return Point(239-x,319-y);
+            lastTouchPoint=Point(239-x,319-y);
             #elif defined(MXGUI_ORIENTATION_HORIZONTAL_MIRRORED)
-            return Point(y,239-x);
+            lastTouchPoint=Point(y,239-x);
             #else
             #error unknown orientation
             #endif
+            return lastTouchPoint;
         }
     }
 
@@ -263,6 +272,9 @@ public:
         readReg(GPIO_MP_STA, 1, &res);
         return res;
     }
+
+private:
+    Point lastTouchPoint = Point(-1,-1);
 };
 
 static STMPE811<ioExtI2C, 0x82> touchCtrl;
