@@ -143,8 +143,7 @@ ENTRY()
                 if (prev != Point(-1, -1))
                 {
                     OutCoord(dc, p);
-                    if ( (p.y() <= LEGEND_H) || (p.y() >= (display.getHeight()- 1)) ||
-                         (p.x() >= (display.getWidth() - 1)) )
+                    if ( p.y() <= LEGEND_H )
                         break;
                     dc.line(prev, p, color);
                     dc.line(Point(prev.x()+1, prev.y()), Point(p.x()+1, p.y()), color);
