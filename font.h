@@ -331,7 +331,7 @@ private:
 	
     /**
      * Deal with fixed width (monospace) fonts.
-     * \param first piexl iterator to begin of drawing window
+     * \param first pixel iterator to begin of drawing window
      * \param x start x coord
      * \param xEnd end x coord
      * \param fgcolor foreground color
@@ -345,7 +345,7 @@ private:
 
     /**
      * Deal with variable width fonts.
-     * \param first piexl iterator to begin of drawing window
+     * \param first pixel iterator to begin of drawing window
      * \param x start x coord
      * \param xEnd end x coord
      * \param fgcolor foreground color
@@ -359,7 +359,7 @@ private:
 
     /**
      * Deal with variable antialiased width fonts.
-     * \param first piexl iterator to begin of drawing window
+     * \param first pixel iterator to begin of drawing window
      * \param x start x coord
      * \param xEnd end x coord
      * \param colors palette for antialiased drawing
