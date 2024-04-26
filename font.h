@@ -128,6 +128,18 @@ public:
      */
     bool isAntialiased() const { return antialiased; }
 
+	/**
+	   \return true if the codepoint is included in the Font
+	*/
+	bool isInRange(char32_t c) const;
+
+	/**
+	 * Translate a real codepoint in a virtual, 0-based index
+	 * to access Font data tables
+	 * \param codepoint the character codepoint
+	 */
+	unsigned int getVirtualCodepoint(char32_t codepoint) const;
+	
     /**
      * \return the Font's height
      */
@@ -145,7 +157,7 @@ public:
      * void* to unsigned short*
      */
     unsigned char getDataSize() const { return dataSize; }
-
+	
     /**
      * \return the widths of the characters, only if it is a variable width
      * Font. If you want to know the with of character c when
@@ -182,14 +194,6 @@ public:
     //without problems since there is no member function to modify them
     //nor to return a non-const pointer to them
 private:
-
-	/**
-	 * Translate a real codepoint in a virtual, 0-based index
-	 * to access the font data table.
-	 * \param codepoint the character codepoint
-	 */
-	unsigned int computeVirtualCodepoint(char32_t codepoint) const;
-
 	class GlyphDrawer
 	{
 	public:
@@ -540,7 +544,7 @@ void Font::drawingEngine(typename T::pixel_iterator first,
     {
         char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') break;
-		unsigned int vc=computeVirtualCodepoint(c);
+		unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<W::getWidth(this,vc);i++)
         {
             if(x++==xEnd) return;
@@ -567,7 +571,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     {
         char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') return; //String ends before draw area begins
-        unsigned int vc=computeVirtualCodepoint(c);
+        unsigned int vc=getVirtualCodepoint(c);
         if(x+W::getWidth(this,vc)>a.x())
         {
             //The current char is partially visible
@@ -587,7 +591,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     if(partial>0)
     {
         char32_t c = miosix::Unicode::nextUtf8(s);
-        unsigned int vc=computeVirtualCodepoint(c);
+        unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=partial;i<W::getWidth(this,vc);i++)
         {
             if(x>b.x()) return;
@@ -606,7 +610,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     {
         char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') break;
-		unsigned int vc=computeVirtualCodepoint(c);
+		unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<widths[vc];i++)
         {
             if(x>b.x()) return;

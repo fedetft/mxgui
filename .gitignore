@@ -12,3 +12,5 @@ _tools/qtsimulator/build/*
 *.cpp~
 *.h~
 
+# vscode 
+.vscode

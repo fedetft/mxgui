@@ -29,29 +29,31 @@
 #include "misc_inst.h"
 #include <utility>
 #include <cctype>
+#include "../miosix-kernel/miosix/util/unicode.h"
 
 using namespace mxgui;
 
-typedef short (*GlyphWidthFP)(const Font& f, char c);
+typedef short (*GlyphWidthFP)(const Font& f, char32_t c);
 
-static short getFWFGlyphWidth(const Font& f, char c)
+static short getFWFGlyphWidth(const Font& f, char32_t c)
 {
     return f.getWidth();
 }
 
-static short getVWFGlyphWidth(const Font& f, char c)
+static short getVWFGlyphWidth(const Font& f, char32_t c)
 {
-    if(c<f.getStartChar() || c>f.getEndChar()) c=' ';
-    return f.getWidths()[c-f.getStartChar()];
+    if(f.isInRange(c)) c=' ';
+    return f.getWidths()[f.getVirtualCodepoint(c)];
 }
 
 static inline std::pair<int, short> computeLineEnd_charWrap(const Font& font, GlyphWidthFP getGlyphWidth, const char *p, short maxWidth)
 {
     short lineWidth=0;
     int i;
-    for(i=0; p[i]!='\0'; i++)
+	char32_t c;
+    for(i=0; (c=miosix::Unicode::nextUtf8(p))!='\0'; i++)
     {
-        if(p[i]=='\n') { i++; break; }
+        if(c=='\n') { i++; break; }
         short width=getGlyphWidth(font, p[i]);
         if (lineWidth+width>maxWidth) break;
         lineWidth+=width;
@@ -66,6 +68,7 @@ static inline std::pair<int, short> computeLineEnd_wordWrap(const Font& font, Gl
     int i=0;
     bool firstWord=true;
     short lastTrailingSpaceWidth=0;
+	char32_t c;
     while(p[i]!='\0')
     {
         if(p[i]=='\n') { i++; break; }

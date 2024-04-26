@@ -37,7 +37,15 @@ namespace mxgui {
 // Class Font
 //
 
-unsigned int Font::computeVirtualCodepoint(char32_t codepoint) const
+bool Font::isInRange(char32_t c) const
+{
+    for(int i=0;i<numBlocks;i+=2)
+		if(c >= blocks[i] && c < blocks[i]+blocks[i+1])
+			return true;
+	return false;
+}
+
+unsigned int Font::getVirtualCodepoint(char32_t codepoint) const
 {	
 	// traverse the ranges until the right one is found
 	int i=2;
@@ -71,7 +79,7 @@ short int Font::calculateLength(const char *s) const
 		char32_t c;
 		while((c=miosix::Unicode::nextUtf8(s))!='\0')
         {
-			unsigned int vc = computeVirtualCodepoint(c);
+			unsigned int vc = getVirtualCodepoint(c);
 			//if(c<startChar || c>endChar) result+=widths[0];//Width of startchar
             //else result+=widths[vc];
 			result+=widths[vc];
