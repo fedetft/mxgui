@@ -49,13 +49,13 @@ class Font
 public:
     /**
      * Creates a fixed width font.
-     * \param blocks list of unicode blocks the font makes use of, in (base, size) pairs
+     * \param blocks list of unicode blocks included in the font, in (base, size) pairs
      * \param height the height of the glyphs
      * \param width the width of the glyphs (fixed width font)
      * \param dataSize can be 8,16 or 32, it is the size of one element of data
      * \param antialiased true if font is antialiased
      * \param data pinter to the font data. This must point to a static array
-     * so that no memeory leak problems occur
+     * so that no memory leak problems occur
      */
     constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
         unsigned char width, unsigned char dataSize, bool antialiased,
@@ -65,17 +65,17 @@ public:
 	
     /**
      * Creates a variable width font.
-     * \param blocks list of unicode blocks the font makes use of, (base, size) pairs
+     * \param blocks list of unicode blocks included in the font, (base, size) pairs
      * \param height the height of the glyphs
      * \param dataSize can be 8,16 or 32, it is the size of one element of data
      * \param antialiased true if font is antialiased
      * \param widths pointer to a table that contains the widths of each glyph.
-     * This must point to a static arra so that no memeory leak problems occur
+     * This must point to a static arra so that no memory leak problems occur
      * \param offset pointer to a table that contains where in data each glyph
-     * begins ( data[offset[c]])
-     * This must point to a static arra so that no memeory leak problems occur
+     * begins (data[offset[c]])
+     * This must point to a static arra so that no memory leak problems occur
      * \param data pinter to the font data. This must point to a static array
-     * so that no memeory leak problems occur
+     * so that no memory leak problems occur
      */
     constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
 	    unsigned char dataSize, bool antialiased, const unsigned char *widths,
@@ -160,18 +160,18 @@ public:
 	
     /**
      * \return the widths of the characters, only if it is a variable width
-     * Font. If you want to know the with of character c when
+     * Font. If you want to know the width of character c when
      * using font f, use:
-     * \code if(c>=f.getStartChar() && f<=f.getEndChar())
-     * result=f.getWidths()[c-f.getStartChar()] \endcode
+     * \code if(f.isInRange(c))
+     * result=f.getWidths()[f.getVirtualCodepoint(c)] \endcode
      */
     const unsigned char *getWidths() const { return widths; }
 
     /**
      * \return a table with the offset within data where a character starts
      * For example, character c in font f starts at:
-     * \code if(c>=f.getStartChar() && f<=f.getEndChar())
-     * result=f.getOffset()[c-f.getStartChar()] \endcode
+     * \code if(f.isInRange(c))
+     * result=f.getOffset()[f.getVirtualCodepoint(c)] \endcode
      */
     const unsigned short *getOffset() const { return offset; }
 
@@ -182,7 +182,7 @@ public:
     const void *getData() const { return data; }
 
     /**
-     * Genearte a 4 grayscale levels from foreground and background colors
+     * Generate 4 grayscale levels from foreground and background colors
      * for use with antialiased text drawing
      * \param out 
      * \param fgcolor
