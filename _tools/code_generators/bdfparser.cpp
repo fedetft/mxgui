@@ -288,10 +288,14 @@ Glyph BDFParser::generateFallbackGlyph(char32_t codepoint, unsigned int height)
 	Glyph result;
 	vector<bitset<Glyph::maxWidth>> theBitmap;
 
-	theBitmap.push_back(bitset<Glyph::maxWidth>(126));
+    // pixel columns defining vertical and horizontal edges of the box glyph
+    unsigned long long vertEdge = (1<<(dWidth-1))-2;
+    unsigned long long horEdge = (1<<(dWidth-2))+2;
+
+	theBitmap.push_back(bitset<Glyph::maxWidth>(vertEdge));
 	for(unsigned int i=1;i<height-1;i++)
-		theBitmap.push_back(bitset<Glyph::maxWidth>(66));
-	theBitmap.push_back(bitset<Glyph::maxWidth>(126));
+		theBitmap.push_back(bitset<Glyph::maxWidth>(horEdge));
+	theBitmap.push_back(bitset<Glyph::maxWidth>(vertEdge));
 	
 	result.setCodepoint(codepoint);
 	result.setWidth(dWidth);

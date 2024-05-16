@@ -80,7 +80,7 @@ short int Font::calculateLength(const char *s) const
 		while((c=miosix::Unicode::nextUtf8(s))!='\0')
         {
 			unsigned int vc = getVirtualCodepoint(c);
-			if(!isInRange(c)) result+=widths[numGlyphs-1];//Width of startchar
+		    if(!isInRange(c)) result+=widths[numGlyphs-1];//Width of startchar
             else result+=widths[vc];
         }
         return result;
