@@ -283,7 +283,7 @@ void BDFParser::generateGlyph(vector<string> data)
     if(log) *logStream<<"Done"<<endl;
 }
 
-	Glyph BDFParser::generateFallbackGlyph(char32_t codepoint, unsigned int height)
+Glyph BDFParser::generateFallbackGlyph(char32_t codepoint, unsigned int height)
 {
 	Glyph result;
 	vector<bitset<Glyph::maxWidth>> theBitmap;
