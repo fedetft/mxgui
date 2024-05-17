@@ -7,16 +7,17 @@
 
 /**
  * \file unicode_blocks.h
- * This file contains definitions for supported Unicode blocks.
- * When converting a font with this tool, user must specify blocks
- * to be included from this list
+ * This file contains definitions for Unicode blocks.
+ * When converting a font with this tool, user must specify a
+ * range of characters to be included 
  */
 
 namespace fontcore {
 	
 /**
+ * \ingroup pub_iface
  * Represents a Unicode block, i.e.,
- * a range of codepoints grouped under the same name.
+ * a range of codepoints.
  */
 class UnicodeBlock
 {
@@ -40,8 +41,8 @@ public:
 	
 protected:
 	/**
-	   Constructor
-	*/
+	 * Constructor
+	 */
 	UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint);
 	
 private:
@@ -50,7 +51,8 @@ private:
 
 	/* we want to make other classes aware of
 	 * Unicode blocks, but at the same time
-	 * prohibit instantiation of any block outside of the manager*/
+	 * prohibit instantiation of any block outside of the manager
+	 */
 	friend class UnicodeBlockManager;
 };
 	
@@ -85,13 +87,13 @@ public:
 	/**
 	 * Checks whether a particular character is supported.
 	 * This is particularly useful for bdf font files
-	 *  \return true if the character belongs to a supported block
+	 * \return true if the character belongs to a supported block
 	 */
 	static bool isCharacterSupported(char32_t codepoint);
 
 	/**
-	   \return the total number of supported characters
-	*/
+	 * \return the total number of supported characters
+	 */
 	static unsigned int numSupportedCharacters();
 
 	/**

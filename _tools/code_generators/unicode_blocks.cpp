@@ -26,16 +26,16 @@ unsigned int UnicodeBlock::getEndCodepoint() const
 
 unsigned int UnicodeBlock::size() const
 {
-	return this->endCodepoint - this->startCodepoint + 1;
+	return this->endCodepoint-this->startCodepoint+1;
 }
 
 UnicodeBlock& UnicodeBlock::operator=(const UnicodeBlock& other)
 {
-	if(this == &other)
+	if(this==&other)
 		return *this;
 
-	this->startCodepoint = other.startCodepoint;
-	this->endCodepoint = other.endCodepoint;
+	this->startCodepoint=other.startCodepoint;
+	this->endCodepoint=other.endCodepoint;
 	return *this;
 }
 
@@ -45,8 +45,8 @@ UnicodeBlock& UnicodeBlock::operator=(const UnicodeBlock& other)
 
 std::vector<UnicodeBlock> UnicodeBlockManager::knownUnicodeBlocks =
 {
-	UnicodeBlock(0x00000020, 0x0000007E),
-	UnicodeBlock(0x0000FFFD, 0x0000FFFD)
+	UnicodeBlock(0x00000020,0x0000007E),
+	UnicodeBlock(0x0000FFFD,0x0000FFFD)
 };
 
 void UnicodeBlockManager::updateBlocks(std::vector<std::pair<char32_t,char32_t>> blocks)
@@ -63,8 +63,7 @@ void UnicodeBlockManager::updateReplacementCharacter(char32_t replacementCodepoi
 
 const std::vector<UnicodeBlock> UnicodeBlockManager::getAvailableBlocks()
 {
-	std::vector<UnicodeBlock> res = knownUnicodeBlocks;
-
+	std::vector<UnicodeBlock> res=knownUnicodeBlocks;
 	return res;
 }
 
@@ -72,8 +71,8 @@ bool UnicodeBlockManager::isCharacterSupported(char32_t codepoint)
 {
 	for(auto& block : knownUnicodeBlocks)
 	{
-		if(codepoint >= block.getStartCodepoint() &&
-		   codepoint <= block.getEndCodepoint())
+		if(codepoint>=block.getStartCodepoint() &&
+		   codepoint<=block.getEndCodepoint())
 			return true;
 	}
 
@@ -82,10 +81,10 @@ bool UnicodeBlockManager::isCharacterSupported(char32_t codepoint)
 
 unsigned int UnicodeBlockManager::numSupportedCharacters()
 {
-	unsigned int res = 0;
+	unsigned int res=0;
 
 	for(auto& block : knownUnicodeBlocks)
-		res += block.size();
+		res+=block.size();
 
 	return res;
 }
@@ -95,7 +94,7 @@ std::string UnicodeBlockManager::codepointToString(char32_t codepoint)
 	char unistr[MB_LEN_MAX+1]={0};
 	mbstate_t ps;
 	
-	setlocale(LC_ALL, "en_GB.UTF-8");
+	setlocale(LC_ALL,"en_GB.UTF-8");
 	memset(&ps,0,sizeof(ps));
 	c32rtomb(unistr,codepoint,&ps);
 	
