@@ -60,9 +60,9 @@ unsigned int Font::getVirtualCodepoint(char32_t codepoint) const
 	// we end up in the first range after our character,
 	// so need to go back
 	char32_t rangeBase=blocks[i-2];
-	unsigned short charOffset=codepoint-rangeBase;
-	if((rangeBase+charOffset) <= (rangeBase+blocks[i-1]))
-		virtualCodepoint+=charOffset;
+	unsigned short rangeOffset=codepoint-rangeBase;
+	if(codepoint <= (rangeBase+blocks[i-1]))
+		virtualCodepoint+=rangeOffset;
 	else
 	    virtualCodepoint=numGlyphs-1;
 
