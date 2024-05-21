@@ -68,7 +68,6 @@ static inline std::pair<int, short> computeLineEnd_wordWrap(const Font& font, Gl
     int i=0;
     bool firstWord=true;
     short lastTrailingSpaceWidth=0;
-	char32_t c;
     while(p[i]!='\0')
     {
         if(p[i]=='\n') { i++; break; }
