@@ -25,24 +25,24 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-
 #include "radio_button.h"
 #ifdef MXGUI_LEVEL_2
-
 
 #include <utility>
 
 using namespace std;
 
 namespace mxgui {
-//RadioGroup
+
+//
+// class RadioGroup
+//
 
 RadioGroup::RadioGroup()
 {
     radioButtons = list<RadioButton*>();
     checked=nullptr;
 }
-
 
 void RadioGroup::addRadioButton(RadioButton *rb)
 {
@@ -54,7 +54,6 @@ void RadioGroup::setChecked(RadioButton *rb)
 {
     for(auto it : radioButtons)
     {
-        
         if(it!=rb)
         {
             if(it->isChecked())
@@ -62,14 +61,9 @@ void RadioGroup::setChecked(RadioButton *rb)
                 it->setChecked(false);
                 it->enqueueForRedraw();
             }
-            
-        }
-        else
-        {
-            
+        } else {
             if(!it->isChecked())
             {
-
                 checked=rb;
                 it->setChecked(true);
                 it->enqueueForRedraw();
@@ -77,11 +71,15 @@ void RadioGroup::setChecked(RadioButton *rb)
         }
     }
 }
+
 RadioButton* RadioGroup::getChecked()
 {
     return checked;
 }
-//RadioButton
+
+//
+// class RadioButton
+//
 
 RadioButton::RadioButton(Window *w,RadioGroup *group, Point p, short dimension, const string& text)
     : CheckBox(w,p,dimension,text,false)
@@ -91,14 +89,12 @@ RadioButton::RadioButton(Window *w,RadioGroup *group, Point p, short dimension, 
     enqueueForRedraw();
 }
 
-
-
-
 void RadioButton::check()
 {
     group->setChecked(this);
     enqueueForRedraw();
 }
+
 void RadioButton::setChecked(bool checked)
 {
     this->checked=checked;
@@ -122,10 +118,7 @@ void RadioButton::onDraw(DrawingContextProxy& dc)
     {
         dc.clear(innerPointTl,innerPointBr,black);
     }
-
 }
-
-
 
 }//namespace mxgui
 

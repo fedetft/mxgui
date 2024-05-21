@@ -67,10 +67,6 @@ public:
     virtual void onDraw(DrawingContextProxy& dc);
     
 protected:
-
-
-    
-
     /** 
      * Overridden this member function to set the colors of the button when it is pressed
     */

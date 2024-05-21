@@ -27,8 +27,10 @@
 
 #ifndef SCROLLINGLIST_H
 #define	SCROLLINGLIST_H
+
 #include "button.h"
 #include <thread>
+
 #define innerPointTr Point(innerPointBr.x(),innerPointTl.y())
 #define innerPointBl Point(innerPointTl.x(),innerPointBr.y())
 #define middleTop Point(innerPointTl.x()+(innerPointTr.x()-innerPointTl.x())/2,innerPointTl.y())
@@ -39,6 +41,7 @@
 #ifdef MXGUI_LEVEL_2
 
 namespace mxgui {
+
 /**
  * Types of ScrollButton
  */
@@ -48,13 +51,13 @@ enum class ScrollButtonType
     DOWN,
     SCROLL
 };
+
 /**
  * Class for the buttons of the scrollbar of the ScrollingList
 */
 class ScrollButton : public Button
 {
 public:
-
     /**
      * Constructor
      * mutableDrawArea used to allow the button to be moved
@@ -117,6 +120,7 @@ public:
                 break;
         }
     }
+
     virtual void buttonDown()
     {
         Button::buttonDown();
@@ -143,8 +147,6 @@ public:
         {
             this->buttonUp();
         }
-        
-    
     } 
 
     virtual void resetState()
@@ -152,22 +154,25 @@ public:
         pressed=false;
         Button::resetState();
     }
+
     void setDownCallback(std::function<void ()> callback)
     {
         swap(this->downCallback,callback);
     }
+
     /**
      * Used to set the DrawArea of the button to allow it to be moved
-    */
+     */
     void setDrawArea(DrawArea da)
     {
         mutableDrawArea = da;
         updateInnerPoints();
         enqueueForRedraw();
     }
+
     /**
      * Used to read the DrawArea of the button from outside the class
-    */
+     */
     DrawArea readDrawArea()
     {
         return getDrawArea();
@@ -181,35 +186,34 @@ public:
 protected:
     bool pressed=false;///< True if the button is pressed
     DrawArea mutableDrawArea;///< DrawArea of the button that can be changed
+
     /**
      * Used inside the class to properly draw the button
      * \return the mutableDrawArea of the button
-    */
+     */
     DrawArea getDrawArea() const
     {   
         return mutableDrawArea;
     }
     
 private:
-    
     ScrollButtonType type;///< Type of the button
     std::function<void ()> downCallback; ///< Callback to be called on touchDown
+
     /**
      * Used to update the inner points of the button
-    */
+     */
     void updateInnerPoints()
     {
         DrawArea da = getDrawArea();
         this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
         this->innerPointBr = Point(da.second.x()-3,da.second.y()-3);
-        
     }
-    
 };
 
 /**
  * Class for the ScrollingList Item Label
-*/
+ */
 class ItemLabel : public Label
 {
 public:
@@ -226,97 +230,98 @@ public:
 
     /**
      * Used to read the draw area of the label from outside the class
-    */
+     */
     DrawArea readDrawArea()
     {
         return getDrawArea();
     }
 };
 
-
 /**
  * Class for the ScrollingList
-*/
+ */
 class ScrollingList : public Drawable
 {
-    public:
-        /**
-         * Constructor
-         * sets the draw area of the list and creates the buttons
-         * sets the button callbacks and the labels
-         * The object will be immediately enqueued for redraw
-         * \param w window to which this object belongs
-         * \param start upper left point of the list
-         * \param nItems number of items to be displayed
-         * \param width width of the list
-         * \param buttonHeight height of the buttons
-         * \param itemHeight height of the items
-         */
-        ScrollingList(Window* w,Point start, int nItems,int width,int buttonHeight=10,int itemHeight=20);
-        
-        /**
-         * Add an item to the list
-        */
-        void addItem(const std::string& item);
+public:
+    /**
+     * Constructor
+     * sets the draw area of the list and creates the buttons
+     * sets the button callbacks and the labels
+     * The object will be immediately enqueued for redraw
+     * \param w window to which this object belongs
+     * \param start upper left point of the list
+     * \param nItems number of items to be displayed
+     * \param width width of the list
+     * \param buttonHeight height of the buttons
+     * \param itemHeight height of the items
+     */
+    ScrollingList(Window* w,Point start, int nItems,int width,int buttonHeight=10,int itemHeight=20);
 
-        /**
-         * \internal
-         * Overridden this member function to draw the object.
-         * \param dc drawing context used to draw the object
-         */
-        virtual void onDraw(DrawingContextProxy& dc);
+    /**
+     * Add an item to the list
+     */
+    void addItem(const std::string& item);
 
-        /**
-         * \internal
-         * Overridden this member function to handle the events.
-         * \param e event to be handled
-         */
-        virtual void onEvent(Event e);
-        /**
-         * Set the callback to be called when an item is selected
-        */
-        void setCallback(std::function<void ()> callback);
-    
-        /**
-         * \return the selected item
-        */
-        std::string getSelected();
-    private:
-        ScrollButton *up;///< Button to scroll up
-        ScrollButton *down;///< Button to scroll down
-        ScrollButton *scroll;///< Button to scroll
-        int buttonHeight;///< Height of the buttons
-        int itemHeight;///< Height of the items
-        bool scrolling;///< True if the scroll button is being dragged
-        std::thread *scrollingThread;///< Thread to keep scrolling
-        DrawArea listArea; ///< Area of the list
-        std::vector<ItemLabel*> visibleItems; ///< Labels of the visible items
-        std::vector<std::string> items; ///< Items of the list
-        std::string selected; ///< Selected item
-        int firstVisibleIndex; ///< Index of the first visible item
-        int startY; ///< Y coordinate of the start of the touchDown/move event
-        std::function<void ()> callback; ///< Callback to be called when an item is selected
+    /**
+     * \internal
+     * Overridden this member function to draw the object.
+     * \param dc drawing context used to draw the object
+     */
+    virtual void onDraw(DrawingContextProxy& dc);
 
-        /**
-         * Selects an item
-         * \param item item to be selected
-        */
-        void selectItem(const std::string& item);
-        
-        /**
-         * Checks if the event is inside the draw area
-         * \param e event to be checked
-         * \param da draw area to be checked
-        */
-        bool checkArea(Event e,DrawArea da);
+    /**
+     * \internal
+     * Overridden this member function to handle the events.
+     * \param e event to be handled
+     */
+    virtual void onEvent(Event e);
 
-        void upOne(); ///< Scroll up one item
-        void keepScrollingUp(); ///< Keep scrolling up
-        void keepScrollingDown(); ///< Keep scrolling down
-        void downOne(); ///< Scroll down one item
-        void pageDown(); ///< Scroll down a page
-        void pageUp(); ///< Scroll up a page
-        void updateScrollButton(); ///< Update the scroll button
+    /**
+     * Set the callback to be called when an item is selected
+     */
+    void setCallback(std::function<void ()> callback);
+
+    /**
+     * \return the selected item
+     */
+    std::string getSelected();
+
+private:
+    /**
+     * Selects an item
+     * \param item item to be selected
+     */
+    void selectItem(const std::string& item);
+
+    /**
+     * Checks if the event is inside the draw area
+     * \param e event to be checked
+     * \param da draw area to be checked
+     */
+    bool checkArea(Event e,DrawArea da);
+
+    void upOne(); ///< Scroll up one item
+    void keepScrollingUp(); ///< Keep scrolling up
+    void keepScrollingDown(); ///< Keep scrolling down
+    void downOne(); ///< Scroll down one item
+    void pageDown(); ///< Scroll down a page
+    void pageUp(); ///< Scroll up a page
+    void updateScrollButton(); ///< Update the scroll button
+
+    ScrollButton *up;///< Button to scroll up
+    ScrollButton *down;///< Button to scroll down
+    ScrollButton *scroll;///< Button to scroll
+    int buttonHeight;///< Height of the buttons
+    int itemHeight;///< Height of the items
+    bool scrolling;///< True if the scroll button is being dragged
+    std::thread *scrollingThread;///< Thread to keep scrolling
+    DrawArea listArea; ///< Area of the list
+    std::vector<ItemLabel*> visibleItems; ///< Labels of the visible items
+    std::vector<std::string> items; ///< Items of the list
+    std::string selected; ///< Selected item
+    int firstVisibleIndex; ///< Index of the first visible item
+    int startY; ///< Y coordinate of the start of the touchDown/move event
+    std::function<void ()> callback; ///< Callback to be called when an item is selected
 };
 
 } //namesapce mxgui

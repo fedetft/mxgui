@@ -40,18 +40,22 @@
 namespace mxgui {
 
 //Corner images of the button
-static const unsigned short tlp[]={
-        61276,46420,31661,48565,33741,46452,31661,46452,57050
-    };
-static const unsigned short trp[]={
-        31661,46420,61276,57050,31628,48565,48499,42161,31661
-    };
-static const unsigned short blp[]={
-        31661,57050,48499,48565,33741,42225,61276,46420,31661
-    };
-static const unsigned short brp[]={
-        48499,42161,31661,42225,33741,48565,31661,46420,61276
-    };
+static const unsigned short tlp[]=
+{
+    61276,46420,31661,48565,33741,46452,31661,46452,57050
+};
+static const unsigned short trp[]=
+{
+    31661,46420,61276,57050,31628,48565,48499,42161,31661
+};
+static const unsigned short blp[]=
+{
+    31661,57050,48499,48565,33741,42225,61276,46420,31661
+};
+static const unsigned short brp[]=
+{
+    48499,42161,31661,42225,33741,48565,31661,46420,61276
+};
 
 /**
  * Abstract base class for buttons.
@@ -59,7 +63,6 @@ static const unsigned short brp[]={
 class InteractableButton : public Drawable
 {
 public:
-
     /**
      * Constructor
      * \param w pointer to the window containing the button
@@ -71,6 +74,7 @@ public:
         this->innerPointTl = Point(da.first.x()+3,da.first.y()+3);
         this->innerPointBr = Point(da.second.x()-2,da.second.y()-2);
     }
+
     /**
      * Change the text being displayed
      * \param text new text to be displayed
@@ -81,7 +85,6 @@ public:
             this->text->setText(text);
     }
 
-   
     /**
      * Set the function to be called when the button is pressed
      * \param callback wrapper to the function to be called
@@ -125,15 +128,11 @@ public:
      * Destructor
      */
     ~InteractableButton() = default;
-
     
 private:
-    
     std::function<void ()> callback; ///< Wrapper to the function to be called when the button is pressed
     
-
 protected:
-
     Label *text = nullptr; ///< Text of the button
     Point innerPointTl; ///< Upper left point of the inner area of the button
     Point innerPointBr; ///< Lower right point of the inner area of the button

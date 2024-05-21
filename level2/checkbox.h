@@ -27,6 +27,7 @@
 
 #ifndef CHECKBOX_H
 #define	CHECKBOX_H
+
 #include "interactable_button.h"
 
 #ifdef MXGUI_LEVEL_2
@@ -39,7 +40,6 @@ namespace mxgui {
 class CheckBox : public InteractableButton
 {
 public:
-    
     /**
      * Constructor
      * The object will be immediately enqueued for redraw
@@ -51,7 +51,6 @@ public:
      */
     CheckBox(Window *w, Point p, short dimension=15, const std::string& text="", bool checked=false);
     
-
     /**
      * Returns true if the checkbox is checked
     */
@@ -65,7 +64,7 @@ public:
     virtual void onDraw(DrawingContextProxy& dc);
 
 protected:
-bool checked; ///< True if the checkbox is checked
+    bool checked; ///< True if the checkbox is checked
     
 private:
     Point labelStartingPoint; ///< Upper left point of the label
@@ -88,7 +87,6 @@ private:
      * Function that handles the checkbox state change
     */
     virtual void check();
-
 };
 
 } //namesapce mxgui

@@ -25,10 +25,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-
 #include "checkbox.h"
 #ifdef MXGUI_LEVEL_2
-
 
 #include <utility>
 
@@ -49,7 +47,6 @@ CheckBox::CheckBox(Window *w, Point p, short dimension, const string& text, bool
     enqueueForRedraw();
 }
 
-
 void CheckBox::resetState()
 {
     if(colors!=make_pair(black,lightGrey))
@@ -59,6 +56,7 @@ void CheckBox::resetState()
     }
     
 }
+
 void CheckBox::buttonDown()
 {
     if(colors!=make_pair(white,darkGrey))
@@ -84,6 +82,7 @@ bool CheckBox::isChecked()
 {
     return this->checked;
 }
+
 void CheckBox::onDraw(DrawingContextProxy& dc)
 {
     DrawArea da=getDrawArea();
@@ -97,11 +96,8 @@ void CheckBox::onDraw(DrawingContextProxy& dc)
         dc.line(innerPointTl,innerPointBr,black);
         dc.line(Point(innerPointTl.x(),innerPointBr.y()),Point(innerPointBr.x(),innerPointTl.y()),black);
     }
-
 }
 
-
-
-}//namespace mxgui
+} //namespace mxgui
 
 #endif //MXGUI_LEVEL_2

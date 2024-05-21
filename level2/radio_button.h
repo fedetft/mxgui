@@ -27,6 +27,7 @@
 
 #ifndef RADIOBUTTON_H
 #define	RADIOBUTTON_H
+
 #include "checkbox.h"
 
 #ifdef MXGUI_LEVEL_2
@@ -35,13 +36,13 @@ namespace mxgui {
 
 //forward decls
 class RadioGroup;
+
 /**
  * RadioButton.
  */
 class RadioButton : public CheckBox
 {
 public:
-    
     /**
      * Constructor
      * The object will be immediately enqueued for redraw

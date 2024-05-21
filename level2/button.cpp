@@ -65,6 +65,7 @@ void Button::resetState()
         InteractableButton::resetState();
     }
 }
+
 void Button::buttonDown()
 {
     if(colors!=make_pair(white,darkGrey))
@@ -92,8 +93,6 @@ void Button::onDraw(DrawingContextProxy& dc)
     dc.drawImage(Point(da.first.x(),da.second.y()-2),bl);
     dc.drawImage(innerPointBr,br);
 }
-
-
 
 }//namespace mxgui
 
