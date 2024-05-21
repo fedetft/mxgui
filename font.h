@@ -310,10 +310,12 @@ private:
      * and antialiased fonts, and their clipped versions.
      * Instead of writing each of these algorithms three times, it is written
      * only once using the U template parameter to specialize the code.
-     * In the end, on code size it does nothing worse since the alternative
-     * would have been to write 18 functions by hand, but on code compactness
-     * it allows to write only six functions and let template instantiation
-     * do the boring job.
+     * Thanks to the W, L and D template parameters, it's possible to furtherly
+     * specialize the algorithm, minimizing duplication and writing just 2 
+     * functions: one for standard drawing and one for clipped. In the end, 
+     * on code size it does nothing worse since the alternative would have been 
+     * to write 18 functions by hand, but on code compactness it allows to 
+     * write only two functions and let template instantiation do the boring job.
      */
 
 	/**
