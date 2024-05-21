@@ -20,9 +20,6 @@ add_executable(fontrendering ${FONTRENDERING_SRCS})
 set(PNGCONV_SRCS pngconverter.cpp)
 add_executable(pngconverter ${PNGCONV_SRCS})
 
-set(RESFS_SRCS resourcefs.cpp)
-add_executable(resourcefs ${RESFS_SRCS})
-
 ## Link libraries
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
@@ -33,7 +30,6 @@ set(BOOST_LIBS program_options filesystem system)
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 target_link_libraries(fontrendering ${Boost_LIBRARIES})
 target_link_libraries(pngconverter ${Boost_LIBRARIES})
-target_link_libraries(resourcefs ${Boost_LIBRARIES})
 
 ## Uncomment this if you want to use the system's freetype library
 #find_package(Freetype REQUIRED)
