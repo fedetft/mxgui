@@ -69,9 +69,9 @@ const Font droid21b(droid21NumBlocks,droid21bBlocks,droid21bHeight,
 #endif //MXGUI_ENABLE_BOLD_FONTS
 #endif //MXGUI_FONT_DROID21
 
-// #ifdef MXGUI_FONT_TAHOMA
-// const Font tahoma(tahomaStartChar,tahomaEndChar,tahomaHeight,tahomaDataSize,
-// 				  tahomaIsAntialiased,tahomaWidth,tahomaOffset,tahomaData);
-// #endif //MXGUI_FONT_TAHOMA
+#ifdef MXGUI_FONT_TAHOMA
+const Font tahoma(tahomaNumBlocks,tahomaBlocks,tahomaHeight,tahomaDataSize,
+        tahomaIsAntialiased,tahomaWidth,tahomaOffset,tahomaData,tahomaNumGlyphs);
+#endif //MXGUI_FONT_TAHOMA
 
 } // namespace mxgui

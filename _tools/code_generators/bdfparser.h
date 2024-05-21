@@ -76,7 +76,9 @@ private:
 	 */
 	std::vector<char32_t> computeFailedCodepoints(std::vector<Glyph> fonts);
 
-	unsigned int dWidth;///< width of the currently-being-parsed glyph, useful to set the width of the fallback glyphs which are generated after the conversion process
+    bool isReplacementNormal;///< tells whether the replacement character is also included in normal ranges
+	Glyph replacementGlyph;///< used only in case the repl. character is also normal
+    unsigned int dWidth;///< width of the currently-being-parsed glyph, useful to set the width of the fallback glyphs which are generated after the conversion process
     int fontAscent, fontDescent; ///< See description of bdf format on wikipedia
 };
 

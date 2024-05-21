@@ -58,6 +58,7 @@ void BDFParser::parse()
     }
     try {
         bool ascentFound=false, descentFound=false;
+        isReplacementNormal=UnicodeBlockManager::isReplacementNormal();
         for(;;)
         {
             string line;
@@ -109,10 +110,21 @@ void BDFParser::parse()
 				UnicodeBlockManager::numSupportedCharacters();
             if(fonts.size()<(supportedCharacters) && log)
             {
+                short delta=supportedCharacters-fonts.size();
                 *logStream<<"Warning converted only "<<fonts.size()<<
-                        " characters instead of "<<supportedCharacters<<
-                        " Some are missing from the bdf file"<<endl;
+                    " characters instead of "<<supportedCharacters;
+                if(!isReplacementNormal)
+                    *logStream<<" Some are missing from the bdf file"<<endl;
+                else if(delta == 1)
+                    *logStream<<" because of duplicated replacement character"<<endl;
+                else
+                    *logStream<<" Some are missing from the bdf file (+ duplicated replacement char.)"<<endl;
             }
+
+            // duplicate replacement character if needed
+            if(isReplacementNormal)
+                fonts.push_back(replacementGlyph);
+
             return;
         }
     }
@@ -280,6 +292,8 @@ void BDFParser::generateGlyph(vector<string> data)
     }
     result.setData(theBitmap);
     fonts.push_back(result);
+    if(isReplacementNormal && result.getCodepoint()==UnicodeBlockManager::getReplacementCharacter())
+        replacementGlyph=result;
     if(log) *logStream<<"Done"<<endl;
 }
 

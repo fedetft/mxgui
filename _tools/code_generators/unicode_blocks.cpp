@@ -61,6 +61,11 @@ void UnicodeBlockManager::updateReplacementCharacter(char32_t replacementCodepoi
 	knownUnicodeBlocks[knownUnicodeBlocks.size()-1]={replacementCodepoint,replacementCodepoint};
 }
 
+char32_t UnicodeBlockManager::getReplacementCharacter()
+{
+	return knownUnicodeBlocks[knownUnicodeBlocks.size()-1].getStartCodepoint();
+}
+
 const std::vector<UnicodeBlock> UnicodeBlockManager::getAvailableBlocks()
 {
 	std::vector<UnicodeBlock> res=knownUnicodeBlocks;
@@ -73,6 +78,20 @@ bool UnicodeBlockManager::isCharacterSupported(char32_t codepoint)
 	{
 		if(codepoint>=block.getStartCodepoint() &&
 		   codepoint<=block.getEndCodepoint())
+			return true;
+	}
+
+	return false;
+}
+
+bool UnicodeBlockManager::isReplacementNormal()
+{
+	char32_t repl = getReplacementCharacter();
+	for(int i=0;i<knownUnicodeBlocks.size()-1;i++)
+	{
+		UnicodeBlock block=knownUnicodeBlocks[i];
+		if(repl>=block.getStartCodepoint() &&
+		   repl<=block.getEndCodepoint())
 			return true;
 	}
 

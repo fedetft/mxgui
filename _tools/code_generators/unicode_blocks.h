@@ -85,11 +85,23 @@ public:
 	static void updateReplacementCharacter(char32_t replacementCodepoint);
 	
 	/**
+	 * \return the replacement character (usually '�' or '?')
+	*/
+	static char32_t getReplacementCharacter();
+
+	/**
 	 * Checks whether a particular character is supported.
 	 * This is particularly useful for bdf font files
 	 * \return true if the character belongs to a supported block
 	 */
 	static bool isCharacterSupported(char32_t codepoint);
+
+	/**
+	 * Checks whether the replacement character is also
+	 * included in another range for normal use
+	 * \return true if the character is normal
+	*/
+	static bool isReplacementNormal();
 
 	/**
 	 * \return the total number of supported characters
