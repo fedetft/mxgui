@@ -16,7 +16,6 @@ tga_image.cpp                          \
 resourcefs.cpp                         \
 resource_image.cpp                     \
 textbox.cpp                            \
-_examples/hello/hello_world.cpp        \
 level2/input.cpp                       \
 level2/application.cpp                 \
 level2/drawing_context_proxy.cpp       \
