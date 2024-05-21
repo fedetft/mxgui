@@ -470,7 +470,6 @@ template<typename T,typename U, typename W, typename L, typename D>
 void Font::drawingEngine(typename T::pixel_iterator first,
 			short x, short xEnd, Color colors[], const char *s) const
 {
-	const U *fontData=reinterpret_cast<const U *>(getData());
     for(;;)
     {
         char32_t c = miosix::Unicode::nextUtf8(s);
@@ -493,8 +492,6 @@ template<typename T,typename U, typename W, typename L, typename D>
 void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
             Color colors[], const char *s) const
 {
-	const U *fontData=reinterpret_cast<const U *>(getData());
-
     //Walk the string till the first at least partially visible char
     int partial=0;
     short x=p.x();
