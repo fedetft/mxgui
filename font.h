@@ -317,98 +317,29 @@ private:
      */
 
 	/**
-	 * Base algorithm for rendering a non-clipped font
+	 * Base algorithm for rendering a non-clipped font.
+     * \param first pixel iterator to begin of drawing window
+     * \param x start x coord
+     * \param xEnd end x coord
+     * \param colors background/foregound color pair
+     * \param s string to write
 	 */
 	template<typename T,typename U, typename W, typename L, typename D>
 	void drawingEngine(typename T::pixel_iterator first,
 			short x, short xEnd, Color colors[], const char *s) const;
 
-	/** Base algorithm for rendering a clipped font
+	/** 
+     * Base algorithm for rendering a clipped font.
+     * \param surface surface object providing pixel iterators
+     * \param p point of the upper left corner where the string will be drawn
+     * \param a upper left corner of non empty intersection
+     * \param b lower right corner of non empty intersection
+     * \param colors palette for antialiased drawing
+     * \param s string to write
 	 */
 	template<typename T,typename U, typename W, typename L, typename D>
 	void drawingEngineClipped(T& surface, Point p, Point a, Point b,
             Color colors[], const char *s) const;
-	
-    /**
-     * Deal with fixed width (monospace) fonts.
-     * \param first pixel iterator to begin of drawing window
-     * \param x start x coord
-     * \param xEnd end x coord
-     * \param fgcolor foreground color
-     * \param bgcolor background color
-     * \param s string to write
-     */
-    template<typename T, typename U>
-    void fixedWidthDrawingEngine(typename T::pixel_iterator first,
-            short x, short xEnd, Color fgcolor, Color bgcolor,
-            const char *s) const;
-
-    /**
-     * Deal with variable width fonts.
-     * \param first pixel iterator to begin of drawing window
-     * \param x start x coord
-     * \param xEnd end x coord
-     * \param fgcolor foreground color
-     * \param bgcolor background color
-     * \param s string to write
-     */
-    template<typename T, typename U>
-    void variableWidthDrawingEngine(typename T::pixel_iterator first,
-            short x, short xEnd, Color fgcolor, Color bgcolor,
-            const char *s) const;
-
-    /**
-     * Deal with variable antialiased width fonts.
-     * \param first pixel iterator to begin of drawing window
-     * \param x start x coord
-     * \param xEnd end x coord
-     * \param colors palette for antialiased drawing
-     * \param s string to write
-     */
-    template<typename T, typename U>
-    void variableWidthAADrawingEngine(typename T::pixel_iterator first,
-            short x, short xEnd, Color colors[4], const char *s) const;
-
-    /**
-     * Deal with fixed width (monospace) fonts and clipped drawing.
-     * \param surface surface object providing pixel iterators.
-     * \param p point of the upper left corner where the string will be drawn
-     * \param a upper left corner of non empty intersection
-     * \param b lower right corner of non empty intersection
-     * \param fgcolor foreground color
-     * \param bgcolor background color
-     * \param s string to write
-     */
-    template<typename T, typename U>
-    void fixedWidthClippedDrawingEngine(T& surface, Point p, Point a, Point b,
-            Color fgcolor, Color bgcolor, const char *s) const;
-
-    /**
-     * Deal with variable width fonts and clipped drawing.
-     * \param surface surface object providing pixel iterators.
-     * \param p point of the upper left corner where the string will be drawn
-     * \param a upper left corner of non empty intersection
-     * \param b lower right corner of non empty intersection
-     * \param fgcolor foreground color
-     * \param bgcolor background color
-     * \param s string to write
-     */
-    template<typename T, typename U>
-    void variableWidthClippedDrawingEngine(T& surface, Point p, Point a,
-            Point b, Color fgcolor, Color bgcolor, const char *s) const;
-
-    /**
-     * Deal with variable antialiased width fonts and clipped drawing.
-     * \param surface surface object providing pixel iterators.
-     * \param p point of the upper left corner where the string will be drawn
-     * \param a upper left corner of non empty intersection
-     * \param b lower right corner of non empty intersection
-     * \param colors palette for antialiased drawing
-     * \param s string to write
-     */
-    template<typename T, typename U>
-    void variableWidthClippedAADrawingEngine(T& surface, Point p, Point a,
-            Point b, Color colors[4], const char *s) const;
 
     unsigned char height;
     unsigned char width;// set to zero if variable width font
