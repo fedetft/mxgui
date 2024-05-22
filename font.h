@@ -70,10 +70,10 @@ public:
      * \param dataSize can be 8,16 or 32, it is the size of one element of data
      * \param antialiased true if font is antialiased
      * \param widths pointer to a table that contains the widths of each glyph.
-     * This must point to a static arra so that no memory leak problems occur
+     * This must point to a static array so that no memory leak problems occur
      * \param offset pointer to a table that contains where in data each glyph
      * begins (data[offset[c]])
-     * This must point to a static arra so that no memory leak problems occur
+     * This must point to a static array so that no memory leak problems occur
      * \param data pinter to the font data. This must point to a static array
      * so that no memory leak problems occur
      */
