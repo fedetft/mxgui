@@ -150,7 +150,12 @@ public:
      * fixed width, otherwise see getWidths()
      */
     unsigned char getWidth() const { return width; }
-	
+    
+    /**
+     * \return number of glyphs
+    */
+    int getNumGlyphs() const { return numGlyphs; }
+
     /**
      * \return the size in bits of the data's data type.
      * Can be 8,16,32. For example if it is 16, data can be cast from
@@ -539,7 +544,6 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     for(;;)
     {
         char32_t c = miosix::Unicode::nextUtf8(s);
-        if(c=='\0') break;
 		unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<widths[vc];i++)
         {

@@ -42,8 +42,11 @@ static short getFWFGlyphWidth(const Font& f, char32_t c)
 
 static short getVWFGlyphWidth(const Font& f, char32_t c)
 {
-    if(f.isInRange(c)) c=' ';
-    return f.getWidths()[f.getVirtualCodepoint(c)];
+    if(f.isInRange(c))
+        return f.getWidths()[f.getVirtualCodepoint(c)];
+    
+    // width of fallback glyph
+    return f.getWidths()[f.getNumGlyphs()-1];
 }
 
 static inline std::pair<int, short> computeLineEnd_charWrap(const Font& font, GlyphWidthFP getGlyphWidth, const char *p, short maxWidth)
@@ -54,7 +57,7 @@ static inline std::pair<int, short> computeLineEnd_charWrap(const Font& font, Gl
     for(i=0; (c=miosix::Unicode::nextUtf8(p))!='\0'; i++)
     {
         if(c=='\n') { i++; break; }
-        short width=getGlyphWidth(font, p[i]);
+        short width=getGlyphWidth(font, c);
         if (lineWidth+width>maxWidth) break;
         lineWidth+=width;
     }
@@ -65,30 +68,44 @@ static inline std::pair<int, short> computeLineEnd_wordWrap(const Font& font, Gl
 {
     const short spaceWidth=getGlyphWidth(font, ' ');
     short lineWidth=0;
-    int i=0;
+    int i=0,j;
     bool firstWord=true;
     short lastTrailingSpaceWidth=0;
-    while(p[i]!='\0')
+    const char *prv=p;
+    char32_t c;
+    while((c=miosix::Unicode::nextUtf8(p))!='\0')
     {
-        if(p[i]=='\n') { i++; break; }
+        if(c=='\n') { i++; break; }
+
         short wordWidth=0;
-        int j;
-        for(j=i; p[j]!='\0' && p[j]!=' ' && p[j]!='\n'; j++)
+        j=i;
+        while(c!='\0' && c!=' ' && c!='\n')
         {
-            wordWidth+=getGlyphWidth(font, p[j]);
+            wordWidth+=getGlyphWidth(font, c);
+            prv=p;
+            c=miosix::Unicode::nextUtf8(p);
+            j++;
         }
+        p=prv;
         if(lineWidth+lastTrailingSpaceWidth+wordWidth>maxWidth) break;
+        
         firstWord=false;
-        i=j;
         lineWidth+=wordWidth+lastTrailingSpaceWidth;
         lastTrailingSpaceWidth=0;
-        while(p[i]==' ')
+        i=j;
+        while(miosix::Unicode::nextUtf8(p)==' ')
         {
             lastTrailingSpaceWidth+=spaceWidth;
             i++;
+            // with nextUtf8 we actually exit the loop with
+            // the iterator positioned one postion after the
+            // necessary, so save previous iterator
+            prv=p;
         }
+        p=prv;
         if(lineWidth+lastTrailingSpaceWidth>maxWidth) break;
     }
+
     if(firstWord && i==0) return computeLineEnd_charWrap(font, getGlyphWidth, p, maxWidth);
     return std::make_pair(i, lineWidth);
 }
@@ -129,15 +146,17 @@ int TextBox::draw(DrawingContext& dc, Point p0, Point p1,
 
     int lineTop=top-scrollY;
     if (withBG && lineTop>top) dc.clear(Point(left,top), Point(right,std::min(lineTop-1,btm)), bgColor);
-    const char *p=str;
+    const char *p=str, *prv=p;
+    char32_t c=miosix::Unicode::nextUtf8(p);
+    p=prv;
     int stopY = withClip ? btm : btm-lineHeight;
-    while(*p!='\0' && lineTop<=stopY)
+    while(c!=0 && lineTop<=stopY)
     {
         std::pair<int, short> end;
         if ((options&WrapMask)==WordWrap) end=computeLineEnd_wordWrap(font, getGlyphWidth, p, right-left+1);
         else end = computeLineEnd_charWrap(font, getGlyphWidth, p, right-left+1);
-        //printf("nchar=%d lineWidth=%d\n", end.first, end.second);
-
+        // printf("nchar=%d lineWidth=%d\n", end.first, end.second);
+        
         const int lineBottom=std::min(lineTop+lineHeight, btm+1);
         if(!withClip && lineTop<top && lineBottom>top)
         {
@@ -169,8 +188,17 @@ int TextBox::draw(DrawingContext& dc, Point p0, Point p1,
             }
         }
         lineTop=lineBottom;
-        p+=end.first;
+        for(int i=0; i<end.first+1; i++)
+        {
+            prv=p;
+            c=miosix::Unicode::nextUtf8(p);
+        }
+        p=prv;
     }
     if (withBG && lineTop<=btm) dc.clear(Point(left,std::max(top,lineTop)), Point(right,btm), bgColor);
-    return p-str;
+    // compute offset inside str
+    int offset=0;
+    char32_t c2;
+    while((c2=miosix::Unicode::nextUtf8(str))==c) offset++;
+    return offset;
 }
