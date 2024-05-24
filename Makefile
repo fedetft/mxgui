@@ -14,7 +14,6 @@ display.cpp                            \
 font.cpp                               \
 misc_inst.cpp                          \
 tga_image.cpp                          \
-resourcefs.cpp                         \
 resource_image.cpp                     \
 textbox.cpp                            \
 level2/input.cpp                       \

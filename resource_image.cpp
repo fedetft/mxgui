@@ -25,6 +25,9 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#if 0
+//TODO: integrate with Miosix RomFs
+
 #include "resource_image.h"
 #include "resourcefs.h"
 
@@ -106,3 +109,5 @@ bool ResourceImage::getScanLine(mxgui::Point p, mxgui::Color colors[],
 } // namespace mxgui
 
 #endif //MXGUI_ENABLE_RESOURCEFS
+
+#endif

@@ -25,6 +25,9 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#if 0
+//TODO: integrate with Miosix RomFs
+
 #include "image.h"
 #include <config/mxgui_settings.h>
 
@@ -114,3 +117,5 @@ private:
 #endif //MXGUI_ENABLE_RESOURCEFS
 
 #endif //RESOURCE_IMAGE_H
+
+#endif
