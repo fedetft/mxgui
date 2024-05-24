@@ -28,7 +28,6 @@
 #include "application.h"
 #include "pthread_lock.h"
 #include "misc_inst.h"
-#include <iostream>
 
 #ifdef MXGUI_LEVEL_2
 

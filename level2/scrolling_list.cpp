@@ -30,7 +30,6 @@
 #include "scrolling_list.h"
 #include <utility>
 #include <chrono>
-#include <iostream>
 
 #define scrollAreaTLPoint Point(listArea.second.x(),listArea.first.y()+buttonHeight)
 #define scrollAreaBRPoint Point(listArea.second.x()+buttonHeight,listArea.second.y()-buttonHeight)
