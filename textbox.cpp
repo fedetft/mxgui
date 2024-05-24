@@ -42,11 +42,7 @@ static short getFWFGlyphWidth(const Font& f, char32_t c)
 
 static short getVWFGlyphWidth(const Font& f, char32_t c)
 {
-    if(f.isInRange(c))
-        return f.getWidths()[f.getVirtualCodepoint(c)];
-    
-    // width of fallback glyph
-    return f.getWidths()[f.getNumGlyphs()-1];
+    return f.getWidths()[f.getVirtualCodepoint(c)];
 }
 
 static inline std::pair<int, short> computeLineEnd_charWrap(const Font& font, GlyphWidthFP getGlyphWidth, const char *p, short maxWidth)
