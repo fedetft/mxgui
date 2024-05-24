@@ -33,7 +33,11 @@
 #include "iterator_direction.h"
 #include <algorithm>
 #include <functional>
-#include "../miosix-kernel/miosix/util/unicode.h"
+#ifdef _MIOSIX
+#include <util/unicode.h>
+#else //_MIOSIX
+#include "_tools/qtsimulator/from_miosix/unicode.h"
+#endif //_MIOSIX
 
 namespace mxgui {
 

@@ -29,7 +29,6 @@
 #include "misc_inst.h"
 #include <utility>
 #include <cctype>
-#include "../miosix-kernel/miosix/util/unicode.h"
 
 using namespace mxgui;
 

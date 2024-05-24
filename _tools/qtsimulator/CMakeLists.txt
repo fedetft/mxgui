@@ -65,6 +65,7 @@ set(LIB_SRCS
     ../../level2/drawing_context_proxy.cpp
     ../../level2/label.cpp
     ../../level2/simple_plot.cpp
+    from_miosix/unicode.cpp
     qtbackend.cpp
     window.cpp
     qtsimulator.cpp)
