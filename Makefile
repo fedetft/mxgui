@@ -2,6 +2,7 @@
 ## Makefile for mxgui
 ## This makefile builds libmxgui.a
 ##
+
 ## KPATH and CONFPATH are forwarded by the parent Makefile
 MAKEFILE_VERSION := 1.13
 include $(KPATH)/Makefile.kcommon

@@ -54,30 +54,30 @@ void VariableWidthGenerator::generateCode(const std::string filename,
     else throw(runtime_error("Character is too high for code generation."
                 " Maximum allowed is 32pixels"));
     if(aa) roundedHeight*=2;
-	
+
     //Write font info data
-	std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
+    std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
     file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=false;\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
- 		  "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n"<<
-		  "const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n"<<
-		  "const unsigned char "<<fontName<<"""NumBlocks="<<blocks.size()<<";\n\n";
+           "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n"<<
+          "const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n"<<
+          "const unsigned char "<<fontName<<"""NumBlocks="<<blocks.size()<<";\n\n";
 
-	//Write range array
-	file<<"// The start of range i is blocks[2*i], its size is at blocks[2*i+1]\n";
-	file<<"const unsigned int "<<fontName<<"Blocks[]{\n";
-	for(int i=0;i<blocks.size();i++)
-	{
-		UnicodeBlock block = blocks[i];
-		unsigned int rangeLen = block.getEndCodepoint()-block.getStartCodepoint()+1;
-		file<<" ";
-		file<<hex<<block.getStartCodepoint()<<","<<rangeLen;
-		if(i != blocks.size()-1)
-			file<<",\n";
-	}
-	file<<"\n};\n\n"<<dec;
-	
+    //Write range array
+    file<<"// The start of range i is blocks[2*i], its size is at blocks[2*i+1]\n";
+    file<<"const unsigned int "<<fontName<<"Blocks[]{\n";
+    for(int i=0;i<blocks.size();i++)
+    {
+        UnicodeBlock block = blocks[i];
+        unsigned int rangeLen = block.getEndCodepoint()-block.getStartCodepoint()+1;
+        file<<" ";
+        file<<hex<<block.getStartCodepoint()<<","<<rangeLen;
+        if(i != blocks.size()-1)
+            file<<",\n";
+    }
+    file<<"\n};\n\n"<<dec;
+
     //Write width look up table
     file<<"//The width of character i is "<<fontName<<"Width[i]\n";
     file<<"const unsigned char "<<fontName<<"Width[]={\n ";
@@ -158,7 +158,7 @@ void VariableWidthGenerator::generateCode(const std::string filename,
             else file<<showbase<<hex<<column<<dec<<(roundedHeight==64?"ull":"")<<",";
         }
         file<<" //U+"<<noshowbase<<hex<<uppercase<<static_cast<int>(glyph.getCodepoint())<<" ( "
-			<<UnicodeBlockManager::codepointToString(glyph.getCodepoint())<<" )";
+            <<UnicodeBlockManager::codepointToString(glyph.getCodepoint())<<" )";
         if(i!=glyphs.size()-1) file<<"\n";
     }
 

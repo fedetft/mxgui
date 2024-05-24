@@ -16,7 +16,7 @@
  ***************************************************************************/
 
 #ifndef FONT_CORE_H
-#define	FONT_CORE_H
+#define    FONT_CORE_H
 
 #include "unicode_blocks.h"
 #include <bitset>
@@ -150,7 +150,7 @@ public:
 
     /**
      * Specifies which Unicode blocks the parser must extract
-	 * from the .ttf file
+     * from the .ttf file
      */
     void setUnicodeBlocks(const std::vector<UnicodeBlock>& blocks);
 
@@ -181,7 +181,7 @@ public:
      * Specify a fixes file for kerning issues
      */
     void setFixesFile(std::string file);
-	
+
     /**
      * Pure virtual class
      */
@@ -193,10 +193,10 @@ protected:
     std::vector<Glyph> fonts; ///< List of fonts
     const std::string filename;///< Font file
     std::string fixesFile; ///< Fixes file
-	std::vector<UnicodeBlock> blocks; ///< Unicode blocks
+    std::vector<UnicodeBlock> blocks; ///< Unicode blocks
     unsigned int ttfHeight; ///< Rendering height (for ttf only)
     unsigned int ttfPadding; ///< Padding (for ttf only)
-	
+
 private:
     FontParser(const FontParser&);
     FontParser& operator= (const FontParser&);

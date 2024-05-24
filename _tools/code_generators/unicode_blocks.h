@@ -13,7 +13,7 @@
  */
 
 namespace fontcore {
-	
+
 /**
  * \ingroup pub_iface
  * Represents a Unicode block, i.e.,
@@ -22,40 +22,40 @@ namespace fontcore {
 class UnicodeBlock
 {
 public:
-	/**
-	   \return the first codepoint of the range
-	*/
-	unsigned int getStartCodepoint() const;
-	
-	/**
-	   \return the last codepoint of the range
-	*/
-	unsigned int getEndCodepoint() const;
+    /**
+     * \return the first codepoint of the range
+     */
+    unsigned int getStartCodepoint() const;
 
-	/**
-	 * \return the number of characters in the range
-	 */
-	unsigned int size() const;
+    /**
+     * \return the last codepoint of the range
+     */
+    unsigned int getEndCodepoint() const;
 
-	UnicodeBlock& operator=(const UnicodeBlock& other);
-	
+    /**
+     * \return the number of characters in the range
+     */
+    unsigned int size() const;
+
+    UnicodeBlock& operator=(const UnicodeBlock& other);
+
 protected:
-	/**
-	 * Constructor
-	 */
-	UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint);
-	
-private:
-	char32_t startCodepoint;
-	char32_t endCodepoint;
+    /**
+     * Constructor
+     */
+    UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint);
 
-	/* we want to make other classes aware of
-	 * Unicode blocks, but at the same time
-	 * prohibit instantiation of any block outside of the manager
-	 */
-	friend class UnicodeBlockManager;
+private:
+    char32_t startCodepoint;
+    char32_t endCodepoint;
+
+    /* we want to make other classes aware of
+     * Unicode blocks, but at the same time
+     * prohibit instantiation of any block outside of the manager
+     */
+    friend class UnicodeBlockManager;
 };
-	
+
 /**
  * \ingroup pub_iface
  * Manager of all the character ranges to be converted.
@@ -67,56 +67,56 @@ class UnicodeBlockManager
 {
 public:
     /**
-	 * \return all the blocks supported by the system
-	 */
-	static const std::vector<UnicodeBlock> getAvailableBlocks();
+     * \return all the blocks supported by the system
+     */
+    static const std::vector<UnicodeBlock> getAvailableBlocks();
 
-	/**
-	 * Overwrite the previous list of Unicode blocks with a new one.
-	 * NOTE: the input list is assumed to be sorted by increasing
-	 * start codepoint
-	 */
-	static void updateBlocks(std::vector<std::pair<char32_t,char32_t>> blocks);
+    /**
+     * Overwrite the previous list of Unicode blocks with a new one.
+     * NOTE: the input list is assumed to be sorted by increasing
+     * start codepoint
+     */
+    static void updateBlocks(std::vector<std::pair<char32_t,char32_t>> blocks);
 
-	/**
-	 * Change the replacement character, which is stored in the last,
-	 * out-of-order range
-	 */
-	static void updateReplacementCharacter(char32_t replacementCodepoint);
-	
-	/**
-	 * \return the replacement character (usually '�' or '?')
-	*/
-	static char32_t getReplacementCharacter();
+    /**
+     * Change the replacement character, which is stored in the last,
+     * out-of-order range
+     */
+    static void updateReplacementCharacter(char32_t replacementCodepoint);
 
-	/**
-	 * Checks whether a particular character is supported.
-	 * This is particularly useful for bdf font files
-	 * \return true if the character belongs to a supported block
-	 */
-	static bool isCharacterSupported(char32_t codepoint);
+    /**
+     * \return the replacement character (usually '�' or '?')
+     */
+    static char32_t getReplacementCharacter();
 
-	/**
-	 * Checks whether the replacement character is also
-	 * included in another range for normal use
-	 * \return true if the character is normal
-	*/
-	static bool isReplacementNormal();
+    /**
+     * Checks whether a particular character is supported.
+     * This is particularly useful for bdf font files
+     * \return true if the character belongs to a supported block
+     */
+    static bool isCharacterSupported(char32_t codepoint);
 
-	/**
-	 * \return the total number of supported characters
-	 */
-	static unsigned int numSupportedCharacters();
+    /**
+     * Checks whether the replacement character is also
+     * included in another range for normal use
+     * \return true if the character is normal
+     */
+    static bool isReplacementNormal();
 
-	/**
-	 * Convert a fixed-width UTF-32 codepoint in a
-	 * multibyte-encoded string, to be able to print it
-	 */
-	static std::string codepointToString(char32_t codepoint);
-	
+    /**
+     * \return the total number of supported characters
+     */
+    static unsigned int numSupportedCharacters();
+
+    /**
+     * Convert a fixed-width UTF-32 codepoint in a
+     * multibyte-encoded string, to be able to print it
+     */
+    static std::string codepointToString(char32_t codepoint);
+
 private:
     ///< Unicode blocks known by the system
-	static std::vector<UnicodeBlock> knownUnicodeBlocks;
+    static std::vector<UnicodeBlock> knownUnicodeBlocks;
 };
 
 } //namespace fontcore

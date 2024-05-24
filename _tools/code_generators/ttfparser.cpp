@@ -46,47 +46,47 @@ void TTFParser::parse()
     if(FT_Init_FreeType(&library))
         throw(logic_error("Failed initializing FreeType"));
     FT_Face face;
-	int error=FT_New_Face(library,filename.c_str(),0,&face);
+    int error=FT_New_Face(library,filename.c_str(),0,&face);
     if(error) throw(logic_error("FreeType failed opening font file"));
     error=FT_Set_Pixel_Sizes(face,0,ttfHeight);
-	if(error) throw(logic_error("Couldn't set font height"));
-	
+    if(error) throw(logic_error("Couldn't set font height"));
+
     //Compute font ascent and descent as the maximum for all glyphs to render
     ascent=0;
-	descent=0;
-	for(auto& block : this->blocks)
-	{
-		for(unsigned int k=block.getStartCodepoint();k<=block.getEndCodepoint();k++)
-		{
-			error=FT_Load_Char(face,k,FT_LOAD_RENDER);
-			if(error)
-				throw(logic_error(string("Encountered an error rendering: ")+
-								  UnicodeBlockManager::codepointToString(static_cast<char32_t>(k))));
-			int topBearing=face->glyph->metrics.horiBearingY/64;
-			if(topBearing>ascent) ascent=topBearing;
-			int bottomBearing=face->glyph->metrics.height/64-
-				face->glyph->metrics.horiBearingY/64;
-			if(bottomBearing>descent) descent=bottomBearing;
-		}
-	}
+    descent=0;
+    for(auto& block : this->blocks)
+    {
+        for(unsigned int k=block.getStartCodepoint();k<=block.getEndCodepoint();k++)
+        {
+            error=FT_Load_Char(face,k,FT_LOAD_RENDER);
+            if(error)
+                throw(logic_error(string("Encountered an error rendering: ")+
+                                  UnicodeBlockManager::codepointToString(static_cast<char32_t>(k))));
+            int topBearing=face->glyph->metrics.horiBearingY/64;
+            if(topBearing>ascent) ascent=topBearing;
+            int bottomBearing=face->glyph->metrics.height/64-
+                face->glyph->metrics.horiBearingY/64;
+            if(bottomBearing>descent) descent=bottomBearing;
+        }
+    }
 
     //Height can be higher than the one given for rendering, since glyphs
     //are allowed to exceed their bounding boxes *sigh*
     realHeight=ascent+descent;
-	cout<<"ascent="<<ascent<<" descent="<<descent<<
-		  " height="<<realHeight<<endl;
+    cout<<"ascent="<<ascent<<" descent="<<descent<<
+          " height="<<realHeight<<endl;
 
-	for(auto &block : this->blocks)
-	{
-		for(unsigned int chr=block.getStartCodepoint();chr<=block.getEndCodepoint();chr++)
-		{
-			error=FT_Load_Char(face,chr,FT_LOAD_RENDER);
-			if(error)
-				throw(logic_error(string("Encountered an error rendering: ")+
-						  UnicodeBlockManager::codepointToString(static_cast<char32_t>(chr))));
-			generateGlyph(face,chr);
-		}
-	}
+    for(auto &block : this->blocks)
+    {
+        for(unsigned int chr=block.getStartCodepoint();chr<=block.getEndCodepoint();chr++)
+        {
+            error=FT_Load_Char(face,chr,FT_LOAD_RENDER);
+            if(error)
+                throw(logic_error(string("Encountered an error rendering: ")+
+                          UnicodeBlockManager::codepointToString(static_cast<char32_t>(chr))));
+            generateGlyph(face,chr);
+        }
+    }
 
     FT_Done_FreeType(library);
 }
@@ -102,18 +102,18 @@ void TTFParser::generateGlyph(const FT_Face& face, char32_t chr)
     cout<<" hby"<<face->glyph->metrics.horiBearingY/64<<endl;*/
 
     if(log) *logStream<<"Rendering glyph "<<showbase<<hex<<static_cast<int>(chr)<<" ("
-			<<dec<<UnicodeBlockManager::codepointToString(chr)<<")...";
+            <<dec<<UnicodeBlockManager::codepointToString(chr)<<")...";
 
     //First, extract relevant data from the FreeType glyph format
     const unsigned char *buffer=face->glyph->bitmap.buffer;
     const int x=face->glyph->metrics.width/64;
     const int y=face->glyph->metrics.height/64;
     const int currentAscent=face->glyph->metrics.horiBearingY/64;
-	const int xBearing=face->glyph->metrics.horiBearingX/64;
+    const int xBearing=face->glyph->metrics.horiBearingX/64;
     int advance=face->glyph->metrics.horiAdvance/64;
 
     if(x>advance) advance=x; //FIX for something weird
-	if(xBearing<0) advance+=xBearing;
+    if(xBearing<0) advance+=xBearing;
     if(advance>Glyph::maxWidth/2)
         throw(runtime_error("Glyphs with width larger than 16 pixels not"
                 " supported"));
@@ -136,10 +136,10 @@ void TTFParser::generateGlyph(const FT_Face& face, char32_t chr)
         for(int j=0;j<x;j++)
         {
             unsigned char color=buffer[j+x*i];
-			float contrast=fixes.getContrast(chr);
-			if(contrast!=1.0f)
-			    color=255*pow(static_cast<float>(color)/255.0f,contrast);
-			if(j+xBearing<0) continue;
+            float contrast=fixes.getContrast(chr);
+            if(contrast!=1.0f)
+                color=255*pow(static_cast<float>(color)/255.0f,contrast);
+            if(j+xBearing<0) continue;
             line[2*(j+xBearing)]=(color & 0x40) ? 1 : 0;
             line[2*(j+xBearing)+1]=(color & 0x80) ? 1 : 0;
         }

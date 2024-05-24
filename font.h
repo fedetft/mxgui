@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #ifndef FONT_H
-#define	FONT_H
+#define    FONT_H
 
 #include "color.h"
 #include "point.h"
@@ -59,10 +59,10 @@ public:
      */
     constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
         unsigned char width, unsigned char dataSize, bool antialiased,
-		const void *data, unsigned short numGlyphs): height(height), width(width),
+        const void *data, unsigned short numGlyphs): height(height), width(width),
         dataSize(dataSize), antialiased(antialiased), numGlyphs(numGlyphs),
-		numBlocks(numBlocks), blocks(blocks), widths(0), offset(0), data(data) {}
-	
+        numBlocks(numBlocks), blocks(blocks), widths(0), offset(0), data(data) {}
+
     /**
      * Creates a variable width font.
      * \param blocks list of unicode blocks included in the font, (base, size) pairs
@@ -78,10 +78,10 @@ public:
      * so that no memory leak problems occur
      */
     constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
-	    unsigned char dataSize, bool antialiased, const unsigned char *widths,
-	    const unsigned short *offset, const void *data, unsigned short numGlyphs): height(height),
-		width(0), dataSize(dataSize), antialiased(antialiased), numGlyphs(numGlyphs),
-	    numBlocks(numBlocks), blocks(blocks), widths(widths), offset(offset), data(data) {}
+        unsigned char dataSize, bool antialiased, const unsigned char *widths,
+        const unsigned short *offset, const void *data, unsigned short numGlyphs): height(height),
+        width(0), dataSize(dataSize), antialiased(antialiased), numGlyphs(numGlyphs),
+        numBlocks(numBlocks), blocks(blocks), widths(widths), offset(offset), data(data) {}
 
     /**
      * Draw a string on a surface.
@@ -128,18 +128,18 @@ public:
      */
     bool isAntialiased() const { return antialiased; }
 
-	/**
-	   \return true if the codepoint is included in the Font
-	*/
-	bool isInRange(char32_t c) const;
+    /**
+       \return true if the codepoint is included in the Font
+    */
+    bool isInRange(char32_t c) const;
 
-	/**
-	 * Translate a real codepoint in a virtual, 0-based index
-	 * to access Font data tables
-	 * \param codepoint the character codepoint
-	 */
-	unsigned int getVirtualCodepoint(char32_t codepoint) const;
-	
+    /**
+     * Translate a real codepoint in a virtual, 0-based index
+     * to access Font data tables
+     * \param codepoint the character codepoint
+     */
+    unsigned int getVirtualCodepoint(char32_t codepoint) const;
+
     /**
      * \return the Font's height
      */
@@ -162,7 +162,7 @@ public:
      * void* to unsigned short*
      */
     unsigned char getDataSize() const { return dataSize; }
-	
+
     /**
      * \return the widths of the characters, only if it is a variable width
      * Font. If you want to know the width of character c when
@@ -199,110 +199,110 @@ public:
     //without problems since there is no member function to modify them
     //nor to return a non-const pointer to them
 private:
-	class GlyphDrawer
-	{
-	public:
-		/**
-		 * Draw a pixel column of a non-antialiased glyph
-		 * \param it pixel iterator to the current on-screen position
-		 * \param colors foreground & background colors
-		 * \param col column of glyph pixels
-		 */
-		template<typename T, typename U>
-		static inline void drawGlyphPixel(typename T::pixel_iterator& it, Color colors[2], U& col)
-		{
-			if(col & 0x1) *it=colors[0];
-			else *it=colors[1];
-			col>>=1;
-		}
-		
-		/**
-		 * Compute the amount of vertical pixels to skip
-		 * when drawing the glyph. To be used ONLY in the case of
-		 * clipped drawing
-		 */
-		static inline const short computeySkip(Point a, Point b)
-		{
-			return a.y()-b.y();
-		}
-	};
-		
-	class GlyphDrawerAA
-	{
-	public:
-		/**
-		 * Draw a pixel column of an antialiased glyph
-		 * \param it pixel iterator to the current on-screen position
-		 * \param colors palette for antialiased drawing
-		 * \param col column of glyph pixels
-		 */
-		template<typename T, typename U>
-		static inline void drawGlyphPixel(typename T::pixel_iterator& it, Color colors[4], U& col)
-		{
-			*it=colors[col & 0x3];
-			col>>=2;
-		}
+    class GlyphDrawer
+    {
+    public:
+        /**
+         * Draw a pixel column of a non-antialiased glyph
+         * \param it pixel iterator to the current on-screen position
+         * \param colors foreground & background colors
+         * \param col column of glyph pixels
+         */
+        template<typename T, typename U>
+        static inline void drawGlyphPixel(typename T::pixel_iterator& it, Color colors[2], U& col)
+        {
+            if(col & 0x1) *it=colors[0];
+            else *it=colors[1];
+            col>>=1;
+        }
 
-		/**
-		 * Compute the amount of vertical pixels to skip
-		 * when drawing the glyph. To be used ONLY in the case of
-		 * clipped drawing
-		 */
-		static inline const short computeySkip(Point a, Point b)
-		{
-			return (a.y()-b.y())*2;
-		}
-	};
-	
-	class FixedWidthGlyphLookup
-	{
-	public:
-		/**
-		 * Look up a fixed width glyph by its codepoint.
-		 * \param virualCodepoint the character virtual codepoint
-		 * \param col the glyph pixel column
-		 */
-		template<typename U>
-		static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned char col)
-		{
-			const U *fontData=reinterpret_cast<const U *>(ref->getData());
-			return fontData[(virtualCodepoint*ref->width)+col];
-		}
-	};
+        /**
+         * Compute the amount of vertical pixels to skip
+         * when drawing the glyph. To be used ONLY in the case of
+         * clipped drawing
+         */
+        static inline const short computeySkip(Point a, Point b)
+        {
+            return a.y()-b.y();
+        }
+    };
 
-	class VariableWidthGlyphLookup
-	{
-	public:
-		/**
-		 * Look up variable width glyph data.
-		 * \param virtualCodepoint the character virtual codepoint
-		 * \param col the glyph pixel column 
-		 */
-		template<typename U>
-		static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned char col)
-		{
-			const U *fontData=reinterpret_cast<const U *>(ref->getData());
-			return fontData[ref->offset[virtualCodepoint]+col];
-		}
-	};
+    class GlyphDrawerAA
+    {
+    public:
+        /**
+         * Draw a pixel column of an antialiased glyph
+         * \param it pixel iterator to the current on-screen position
+         * \param colors palette for antialiased drawing
+         * \param col column of glyph pixels
+         */
+        template<typename T, typename U>
+        static inline void drawGlyphPixel(typename T::pixel_iterator& it, Color colors[4], U& col)
+        {
+            *it=colors[col & 0x3];
+            col>>=2;
+        }
 
-	class FixedWidth
-	{
-	public:
-		static inline unsigned char getWidth(const Font *ref, unsigned int virtualCodepoint)
-		{
-			return ref->width;
-		}
-	};
+        /**
+         * Compute the amount of vertical pixels to skip
+         * when drawing the glyph. To be used ONLY in the case of
+         * clipped drawing
+         */
+        static inline const short computeySkip(Point a, Point b)
+        {
+            return (a.y()-b.y())*2;
+        }
+    };
 
-	class VariableWidth
-	{
-	public:
-		static inline unsigned char getWidth(const Font *ref, unsigned int virtualCodepoint)
-		{
-			return ref->widths[virtualCodepoint];
-		}
-	};
+    class FixedWidthGlyphLookup
+    {
+    public:
+        /**
+         * Look up a fixed width glyph by its codepoint.
+         * \param virualCodepoint the character virtual codepoint
+         * \param col the glyph pixel column
+         */
+        template<typename U>
+        static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned char col)
+        {
+            const U *fontData=reinterpret_cast<const U *>(ref->getData());
+            return fontData[(virtualCodepoint*ref->width)+col];
+        }
+    };
+
+    class VariableWidthGlyphLookup
+    {
+    public:
+        /**
+         * Look up variable width glyph data.
+         * \param virtualCodepoint the character virtual codepoint
+         * \param col the glyph pixel column
+         */
+        template<typename U>
+        static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned char col)
+        {
+            const U *fontData=reinterpret_cast<const U *>(ref->getData());
+            return fontData[ref->offset[virtualCodepoint]+col];
+        }
+    };
+
+    class FixedWidth
+    {
+    public:
+        static inline unsigned char getWidth(const Font *ref, unsigned int virtualCodepoint)
+        {
+            return ref->width;
+        }
+    };
+
+    class VariableWidth
+    {
+    public:
+        static inline unsigned char getWidth(const Font *ref, unsigned int virtualCodepoint)
+        {
+            return ref->widths[virtualCodepoint];
+        }
+    };
   
     /*
      * This is one nifty use of C++ templates. For size optimization purposes,
@@ -323,19 +323,19 @@ private:
      * write only two functions and let template instantiation do the boring job.
      */
 
-	/**
-	 * Base algorithm for rendering a non-clipped font.
+    /**
+     * Base algorithm for rendering a non-clipped font.
      * \param first pixel iterator to begin of drawing window
      * \param x start x coord
      * \param xEnd end x coord
      * \param colors background/foregound color pair
      * \param s string to write
-	 */
-	template<typename T,typename U, typename W, typename L, typename D>
-	void drawingEngine(typename T::pixel_iterator first,
-			short x, short xEnd, Color colors[], const char *s) const;
+     */
+    template<typename T,typename U, typename W, typename L, typename D>
+    void drawingEngine(typename T::pixel_iterator first,
+            short x, short xEnd, Color colors[], const char *s) const;
 
-	/** 
+    /**
      * Base algorithm for rendering a clipped font.
      * \param surface surface object providing pixel iterators
      * \param p point of the upper left corner where the string will be drawn
@@ -343,18 +343,18 @@ private:
      * \param b lower right corner of non empty intersection
      * \param colors palette for antialiased drawing
      * \param s string to write
-	 */
-	template<typename T,typename U, typename W, typename L, typename D>
-	void drawingEngineClipped(T& surface, Point p, Point a, Point b,
+     */
+    template<typename T,typename U, typename W, typename L, typename D>
+    void drawingEngineClipped(T& surface, Point p, Point a, Point b,
             Color colors[], const char *s) const;
 
     unsigned char height;
     unsigned char width;// set to zero if variable width font
     unsigned char dataSize;
     bool antialiased;
-	unsigned short numGlyphs;
-	unsigned char numBlocks;
-	const unsigned int *blocks; // Codepoint ranges of the font
+    unsigned short numGlyphs;
+    unsigned char numBlocks;
+    const unsigned int *blocks; // Codepoint ranges of the font
     const unsigned char *widths;// set to zero (NULL) if fixed width
     const unsigned short *offset;// set to zero (NULL) if fixed width
     const void *data;
@@ -374,41 +374,41 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
     // 16 bit : fixedWidth, variableWidth
     // 32 bit : fixedWidth, variableWidth, variableWidthAntialiased
     // 64 bit : variableWidthAntialiased
-	Color fgBgColors[2]={colors[3],colors[0]};
+    Color fgBgColors[2]={colors[3],colors[0]};
     switch(dataSize)
     {
         case 16:
             if(isAntialiased()) return;
             if(isFixedWidth())
                 drawingEngine<T,unsigned short,FixedWidth,
-						FixedWidthGlyphLookup,GlyphDrawer>(it,
-						p.x(),surface.getWidth(),fgBgColors,s);
+                        FixedWidthGlyphLookup,GlyphDrawer>(it,
+                        p.x(),surface.getWidth(),fgBgColors,s);
             else drawingEngine<T,unsigned short,VariableWidth,
-						VariableWidthGlyphLookup,GlyphDrawer>(it,
-						p.x(),surface.getWidth(),fgBgColors,s);
+                        VariableWidthGlyphLookup,GlyphDrawer>(it,
+                        p.x(),surface.getWidth(),fgBgColors,s);
             break;
         case 32:
             if(isAntialiased())
             {
                 if(isFixedWidth()) return;
                 drawingEngine<T,unsigned int,VariableWidth,
-						VariableWidthGlyphLookup,GlyphDrawerAA>(it,
-						p.x(),surface.getWidth(),colors,s);
+                        VariableWidthGlyphLookup,GlyphDrawerAA>(it,
+                        p.x(),surface.getWidth(),colors,s);
             } else {
                 if(isFixedWidth())
                     drawingEngine<T,unsigned int,FixedWidth,
-						FixedWidthGlyphLookup,GlyphDrawer>(it,p.x(),
-						surface.getWidth(),fgBgColors,s);
+                        FixedWidthGlyphLookup,GlyphDrawer>(it,p.x(),
+                        surface.getWidth(),fgBgColors,s);
                 else drawingEngine<T,unsigned int,VariableWidth,
-						VariableWidthGlyphLookup,GlyphDrawer>(it,
-						p.x(),surface.getWidth(),fgBgColors,s);
+                        VariableWidthGlyphLookup,GlyphDrawer>(it,
+                        p.x(),surface.getWidth(),fgBgColors,s);
             }
             break;
         case 64:
             if(isAntialiased()==false || isFixedWidth()) return;
             drawingEngine<T,unsigned long long,VariableWidth,
-						VariableWidthGlyphLookup,GlyphDrawerAA>(it,
-						p.x(),surface.getWidth(),colors,s);
+                        VariableWidthGlyphLookup,GlyphDrawerAA>(it,
+                        p.x(),surface.getWidth(),colors,s);
             break;
     }
     it.invalidate(); //May not fill the requested window
@@ -434,61 +434,61 @@ void Font::clippedDraw(T& surface, Color colors[4],
     // 16 bit : fixedWidth, variableWidth
     // 32 bit : fixedWidth, variableWidth, variableWidthAntialiased
     // 64 bit : variableWidthAntialiased
-	Color fgBgColors[2]={colors[3],colors[0]};
+    Color fgBgColors[2]={colors[3],colors[0]};
     switch(dataSize)
     {
         case 16:
             if(isAntialiased()) return;
             if(isFixedWidth())
-				drawingEngineClipped<T,unsigned short,FixedWidth,
-					   FixedWidthGlyphLookup,GlyphDrawer>(surface,p,
-					   Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
+                drawingEngineClipped<T,unsigned short,FixedWidth,
+                       FixedWidthGlyphLookup,GlyphDrawer>(surface,p,
+                       Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
             else drawingEngineClipped<T,unsigned short,VariableWidth,
-					   VariableWidthGlyphLookup,GlyphDrawer>(surface,p,
-					   Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
+                       VariableWidthGlyphLookup,GlyphDrawer>(surface,p,
+                       Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
             break;
         case 32:
             if(isAntialiased())
             {
                 if(isFixedWidth()) return;
                 drawingEngineClipped<T,unsigned int,VariableWidth,
-					   VariableWidthGlyphLookup,GlyphDrawerAA>(surface,p,
-					   Point(xa,ya),Point(b.x(),yb),colors,s);
+                       VariableWidthGlyphLookup,GlyphDrawerAA>(surface,p,
+                       Point(xa,ya),Point(b.x(),yb),colors,s);
             } else {
                 if(isFixedWidth())
                     drawingEngineClipped<T,unsigned int,FixedWidth,
-					   FixedWidthGlyphLookup,GlyphDrawer>(surface,p,
-					   Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
+                       FixedWidthGlyphLookup,GlyphDrawer>(surface,p,
+                       Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
                 else drawingEngineClipped<T,unsigned int,VariableWidth,
-					   VariableWidthGlyphLookup,GlyphDrawer>(surface,p,
-					   Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
+                       VariableWidthGlyphLookup,GlyphDrawer>(surface,p,
+                       Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
             }
             break;
         case 64:
             if(isAntialiased()==false || isFixedWidth()) return;
             drawingEngineClipped<T,unsigned long long,VariableWidth,
-					   VariableWidthGlyphLookup,GlyphDrawerAA>(surface,p,
-					   Point(xa,ya),Point(b.x(),yb),colors,s);
+                       VariableWidthGlyphLookup,GlyphDrawerAA>(surface,p,
+                       Point(xa,ya),Point(b.x(),yb),colors,s);
             break;
     }
 }
 
 template<typename T,typename U, typename W, typename L, typename D>
 void Font::drawingEngine(typename T::pixel_iterator first,
-			short x, short xEnd, Color colors[], const char *s) const
+            short x, short xEnd, Color colors[], const char *s) const
 {
     for(;;)
     {
         char32_t c = miosix::Unicode::nextUtf8(s);
         if(c=='\0') break;
-		unsigned int vc=getVirtualCodepoint(c);
+        unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<W::getWidth(this,vc);i++)
         {
             if(x++==xEnd) return;
             U row=L::template lookupGlyph<U>(this,vc,i);
             for(int j=0;j<height;j++)
             {
-				D::template drawGlyphPixel<T,U>(first,colors,row);
+                D::template drawGlyphPixel<T,U>(first,colors,row);
                 first++;
             }
         }
@@ -535,7 +535,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
             {
-				D::template drawGlyphPixel<T,U>(it,colors,row);
+                D::template drawGlyphPixel<T,U>(it,colors,row);
             }
         }
     }
@@ -544,7 +544,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     for(;;)
     {
         char32_t c = miosix::Unicode::nextUtf8(s);
-		unsigned int vc=getVirtualCodepoint(c);
+        unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<widths[vc];i++)
         {
             if(x>b.x()) return;

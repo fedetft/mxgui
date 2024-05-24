@@ -64,20 +64,20 @@ private:
      */
     void generateGlyph(std::vector<std::string> data);
 
-	/**
-	 * Create a fallback glyph in the case is not
-	 * present in the .bdf file
-	 */
-	Glyph generateFallbackGlyph(char32_t codepoint, unsigned int height);
+    /**
+     * Create a fallback glyph in the case is not
+     * present in the .bdf file
+     */
+    Glyph generateFallbackGlyph(char32_t codepoint, unsigned int height);
 
-	/**
-	 * \return a list of codepoints which were absent from the
-	 * .bdf file, and thus need a fallback glyph
-	 */
-	std::vector<char32_t> computeFailedCodepoints(std::vector<Glyph> fonts);
+    /**
+     * \return a list of codepoints which were absent from the
+     * .bdf file, and thus need a fallback glyph
+     */
+    std::vector<char32_t> computeFailedCodepoints(std::vector<Glyph> fonts);
 
     bool isReplacementNormal;///< tells whether the replacement character is also included in normal ranges
-	Glyph replacementGlyph;///< used only in case the repl. character is also normal
+    Glyph replacementGlyph;///< used only in case the repl. character is also normal
     unsigned int dWidth;///< width of the currently-being-parsed glyph, useful to set the width of the fallback glyphs which are generated after the conversion process
     int fontAscent, fontDescent; ///< See description of bdf format on wikipedia
 };

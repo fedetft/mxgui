@@ -101,7 +101,7 @@ static const unsigned int level2MaxNumApps=4;
 #define MXGUI_ENABLE_BOLD_FONTS
 
 //Default font
-#define defaultFont droid21
+#define defaultFont droid11
 
 #else //_MIOSIX
 

@@ -96,18 +96,18 @@ void BDFParser::parse()
             generateGlyph(result);
         } catch(ifstream::failure& e)
         {
-			vector<char32_t> failedCodepoints=computeFailedCodepoints(fonts);
-			// add fallback character for absent glyphs
-			for(char32_t cp : failedCodepoints)
-			{
-			    Glyph g=generateFallbackGlyph(cp, getHeight());
-				fonts.push_back(g);
-			}
+            vector<char32_t> failedCodepoints=computeFailedCodepoints(fonts);
+            // add fallback character for absent glyphs
+            for(char32_t cp : failedCodepoints)
+            {
+                Glyph g=generateFallbackGlyph(cp, getHeight());
+                fonts.push_back(g);
+            }
 
-			//Eof found, sort characters and return
+            //Eof found, sort characters and return
             sort(fonts.begin(),fonts.end());
-			unsigned int supportedCharacters =
-				UnicodeBlockManager::numSupportedCharacters();
+            unsigned int supportedCharacters =
+                UnicodeBlockManager::numSupportedCharacters();
             if(fonts.size()<(supportedCharacters) && log)
             {
                 short delta=supportedCharacters-fonts.size();
@@ -152,7 +152,7 @@ vector<string> BDFParser::getNextChar(ifstream& file)
 void BDFParser::generateGlyph(vector<string> data)
 {
     Glyph result;
-	
+
     //Look for the ENCODING tag
     for(int i=0;i<data.size();i++)
     {
@@ -166,10 +166,10 @@ void BDFParser::generateGlyph(vector<string> data)
             break;
         }
     }
-	
-	char32_t chr=result.getCodepoint();
-	if(log) *logStream<<showbase<<hex<<"Parsing glyph "<<static_cast<int>(result.getCodepoint())<<
-			" ("<<dec<<UnicodeBlockManager::codepointToString(chr)<<")...";
+
+    char32_t chr=result.getCodepoint();
+    if(log) *logStream<<showbase<<hex<<"Parsing glyph "<<static_cast<int>(result.getCodepoint())<<
+            " ("<<dec<<UnicodeBlockManager::codepointToString(chr)<<")...";
 
     //Look for the DWIDTH tag
     bool dwidthFound=false;
@@ -184,7 +184,7 @@ void BDFParser::generateGlyph(vector<string> data)
             {
                 stringstream ss;
                 ss<<"Error: Glyph "<<result.getCodepoint()<<
-					" has invalid DWIDTH ("<<dec<<dWidth<<")";
+                    " has invalid DWIDTH ("<<dec<<dWidth<<")";
                 throw(runtime_error(ss.str()));
             }
             result.setWidth(dWidth);
@@ -299,46 +299,46 @@ void BDFParser::generateGlyph(vector<string> data)
 
 Glyph BDFParser::generateFallbackGlyph(char32_t codepoint, unsigned int height)
 {
-	Glyph result;
-	vector<bitset<Glyph::maxWidth>> theBitmap;
+    Glyph result;
+    vector<bitset<Glyph::maxWidth>> theBitmap;
 
     // pixel columns defining vertical and horizontal edges of the box glyph
     unsigned long long vertEdge = (1<<(dWidth-1))-2;
     unsigned long long horEdge = (1<<(dWidth-2))+2;
 
-	theBitmap.push_back(bitset<Glyph::maxWidth>(vertEdge));
-	for(unsigned int i=1;i<height-1;i++)
-		theBitmap.push_back(bitset<Glyph::maxWidth>(horEdge));
-	theBitmap.push_back(bitset<Glyph::maxWidth>(vertEdge));
-	
-	result.setCodepoint(codepoint);
-	result.setWidth(dWidth);
-	result.setData(theBitmap);
+    theBitmap.push_back(bitset<Glyph::maxWidth>(vertEdge));
+    for(unsigned int i=1;i<height-1;i++)
+        theBitmap.push_back(bitset<Glyph::maxWidth>(horEdge));
+    theBitmap.push_back(bitset<Glyph::maxWidth>(vertEdge));
 
-	return result;
+    result.setCodepoint(codepoint);
+    result.setWidth(dWidth);
+    result.setData(theBitmap);
+
+    return result;
 }
 
 vector<char32_t> BDFParser::computeFailedCodepoints(vector<Glyph> fonts)
 {
-	vector<char32_t> result;
-	
-	// quadratic complexity can be acceptable given the
-	// limited number of characters and the fact that the tool
-	// will be statically called once, before compiling the library
-	for(UnicodeBlock &block : blocks)
-	{
-		for(unsigned int c=block.getStartCodepoint();c<=block.getEndCodepoint();c++)
-		{
-			bool found=false;
-			for(Glyph &g : fonts)
-				if(g.getCodepoint() == c)
-					found=true;
-			if(!found)
-				result.push_back(c);
-		}
-	}
+    vector<char32_t> result;
 
-	return result;
+    // quadratic complexity can be acceptable given the
+    // limited number of characters and the fact that the tool
+    // will be statically called once, before compiling the library
+    for(UnicodeBlock &block : blocks)
+    {
+        for(unsigned int c=block.getStartCodepoint();c<=block.getEndCodepoint();c++)
+        {
+            bool found=false;
+            for(Glyph &g : fonts)
+                if(g.getCodepoint() == c)
+                    found=true;
+            if(!found)
+                result.push_back(c);
+        }
+    }
+
+    return result;
 }
 
 }//namespace bdfcore

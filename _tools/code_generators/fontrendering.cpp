@@ -55,8 +55,8 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("help", "Prints this.")
         ("font", value<string>(), "A BDF or TTF font file. Must exist")
-		("add-range", value<vector<string>>(), "Add a range of Unicode codepoints")
-		("replacement-char", value<string>(), "Specify a replacement character different from '�'")
+        ("add-range", value<vector<string>>(), "Add a range of Unicode codepoints")
+        ("replacement-char", value<string>(), "Specify a replacement character different from '�'")
         ("image", value<string>(), "Filename of image to be generated")
         ("header", value<string>(), "Filename of .h file to be generated")
         ("name", value<string>(), "Font name, to give a name to the tables")
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     notify(vm);
 
     if(vm.empty() || vm.count("help") || (!vm.count("font")) ||
-	   (!vm.count("image")) || (!vm.count("header")) || (!vm.count("name")))
+       (!vm.count("image")) || (!vm.count("header")) || (!vm.count("name")))
     {
         cerr<<desc<<endl;
         return 1;
@@ -100,51 +100,51 @@ int main(int argc, char *argv[])
         parser->setFixesFile(vm["fixes"].as<string>());
     }
 
-	if(vm.count("add-range"))
-	{
-		// convert the list into a an array of pairs and give it to the Manager
-		vector<string> rangeList=vm["add-range"].as<vector<string>>();
-		vector<pair<char32_t,char32_t>> ranges;
-		unsigned int start,end;
-		
-	    for(string s : rangeList)
-		{
-			try {
-				start=stoi(s.substr(0,s.find(",")));
-				end=stoi(s.substr(s.find(",")+1,s.size()));
-			} catch(invalid_argument& e)
-			{
-				throw(runtime_error("Wrongly formatted ranges! Expected \"<start>,<end>\""));
-			}
-			
-			if(start>end)
-				throw(runtime_error("Start of range is greater than end of range"));
+    if(vm.count("add-range"))
+    {
+        // convert the list into a an array of pairs and give it to the Manager
+        vector<string> rangeList=vm["add-range"].as<vector<string>>();
+        vector<pair<char32_t,char32_t>> ranges;
+        unsigned int start,end;
 
-			ranges.push_back({start,end});
-		}
+        for(string s : rangeList)
+        {
+            try {
+                start=stoi(s.substr(0,s.find(",")));
+                end=stoi(s.substr(s.find(",")+1,s.size()));
+            } catch(invalid_argument& e)
+            {
+                throw(runtime_error("Wrongly formatted ranges! Expected \"<start>,<end>\""));
+            }
 
-		// it's important for the ranges to be sorted!
-		sort(ranges.begin(),ranges.end());
-		
-		// add the replacement character (it's always the last range,
-		// regardless of the ordering)
-		ranges.push_back({0xFFFD,0xFFFD});
-		
-		UnicodeBlockManager::updateBlocks(ranges);
-		parser->setUnicodeBlocks(UnicodeBlockManager::getAvailableBlocks());
-	}
+            if(start>end)
+                throw(runtime_error("Start of range is greater than end of range"));
 
-	if(vm.count("replacement-char"))
-	{
-		string s=vm["replacement-char"].as<string>();
-		if(s.size()>1)
-			throw(runtime_error("The replacement character should not be a string"));
+            ranges.push_back({start,end});
+        }
 
-		char32_t replacementCodepoint=static_cast<char32_t>(s[0]);
-		UnicodeBlockManager::updateReplacementCharacter(replacementCodepoint);
-		parser->setUnicodeBlocks(UnicodeBlockManager::getAvailableBlocks());
-	}
-	
+        // it's important for the ranges to be sorted!
+        sort(ranges.begin(),ranges.end());
+
+        // add the replacement character (it's always the last range,
+        // regardless of the ordering)
+        ranges.push_back({0xFFFD,0xFFFD});
+
+        UnicodeBlockManager::updateBlocks(ranges);
+        parser->setUnicodeBlocks(UnicodeBlockManager::getAvailableBlocks());
+    }
+
+    if(vm.count("replacement-char"))
+    {
+        string s=vm["replacement-char"].as<string>();
+        if(s.size()>1)
+            throw(runtime_error("The replacement character should not be a string"));
+
+        char32_t replacementCodepoint=static_cast<char32_t>(s[0]);
+        UnicodeBlockManager::updateReplacementCharacter(replacementCodepoint);
+        parser->setUnicodeBlocks(UnicodeBlockManager::getAvailableBlocks());
+    }
+
     parser->parse();
     shared_ptr<CodeGenerator> generator=CodeGenerator::getGenerator(parser);
     generator->setLogStream(cout);

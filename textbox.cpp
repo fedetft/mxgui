@@ -53,7 +53,7 @@ static inline std::pair<int, short> computeLineEnd_charWrap(const Font& font, Gl
 {
     short lineWidth=0;
     int i;
-	char32_t c;
+    char32_t c;
     for(i=0; (c=miosix::Unicode::nextUtf8(p))!='\0'; i++)
     {
         if(c=='\n') { i++; break; }

@@ -115,8 +115,8 @@ shared_ptr<FontParser> FontParser::getParser(const string& filename)
 }
 
 FontParser::FontParser(const string& filename): logStream(0),
-		log(false), fonts(), blocks(UnicodeBlockManager::getAvailableBlocks()),
-		filename(filename), fixesFile(""), ttfHeight(0), ttfPadding(0) {}
+        log(false), fonts(), blocks(UnicodeBlockManager::getAvailableBlocks()),
+        filename(filename), fixesFile(""), ttfHeight(0), ttfPadding(0) {}
 
 void FontParser::setLogStream(std::ostream& output)
 {
@@ -126,7 +126,7 @@ void FontParser::setLogStream(std::ostream& output)
 
 void FontParser::setUnicodeBlocks(const std::vector<UnicodeBlock>& blocks)
 {
-	this->blocks=blocks;
+    this->blocks=blocks;
 }
 
 std::vector<Glyph> FontParser::getGlyphs() const
@@ -148,7 +148,7 @@ void FontParser::setFixesFile(std::string file)
 {
     this->fixesFile=file;
 }
-	
+
 FontParser::~FontParser() {}
 
 //

@@ -40,35 +40,35 @@ namespace mxgui {
 bool Font::isInRange(char32_t c) const
 {
     for(int i=0;i<numBlocks;i+=2)
-		if(c >= blocks[i] && c < blocks[i]+blocks[i+1])
-			return true;
-	return false;
+        if(c >= blocks[i] && c < blocks[i]+blocks[i+1])
+            return true;
+    return false;
 }
 
 unsigned int Font::getVirtualCodepoint(char32_t codepoint) const
-{	
-	// traverse the ranges until the right one is found
-	int i=2;
-	// codepoint of the character as if we had one big contiguous range
-	unsigned int virtualCodepoint=0;
-	while(i<2*(numBlocks-1) && blocks[i]<=codepoint)
-	{
-		virtualCodepoint+=blocks[i-1];
-    	i+=2;
-	}
+{
+    // traverse the ranges until the right one is found
+    int i=2;
+    // codepoint of the character as if we had one big contiguous range
+    unsigned int virtualCodepoint=0;
+    while(i<2*(numBlocks-1) && blocks[i]<=codepoint)
+    {
+        virtualCodepoint+=blocks[i-1];
+        i+=2;
+    }
 
-	// we end up in the first range after our character,
-	// so need to go back
-	char32_t rangeBase=blocks[i-2];
-	unsigned short rangeOffset=codepoint-rangeBase;
-	if(codepoint <= (rangeBase+blocks[i-1]))
-		virtualCodepoint+=rangeOffset;
-	else
-	    virtualCodepoint=numGlyphs-1;
+    // we end up in the first range after our character,
+    // so need to go back
+    char32_t rangeBase=blocks[i-2];
+    unsigned short rangeOffset=codepoint-rangeBase;
+    if(codepoint <= (rangeBase+blocks[i-1]))
+        virtualCodepoint+=rangeOffset;
+    else
+        virtualCodepoint=numGlyphs-1;
 
-	return virtualCodepoint;
+    return virtualCodepoint;
 }
-	
+
 short int Font::calculateLength(const char *s) const
 {
     if(isFixedWidth())
@@ -76,11 +76,11 @@ short int Font::calculateLength(const char *s) const
         return strlen(s)*width;
     } else {
         short int result=0;
-		char32_t c;
-		while((c=miosix::Unicode::nextUtf8(s))!='\0')
+        char32_t c;
+        while((c=miosix::Unicode::nextUtf8(s))!='\0')
         {
-			unsigned int vc = getVirtualCodepoint(c);
-		    if(!isInRange(c)) result+=widths[numGlyphs-1];//Width of startchar
+            unsigned int vc = getVirtualCodepoint(c);
+            if(!isInRange(c)) result+=widths[numGlyphs-1];//Width of startchar
             else result+=widths[vc];
         }
         return result;
