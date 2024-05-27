@@ -154,11 +154,6 @@ public:
      * fixed width, otherwise see getWidths()
      */
     unsigned char getWidth() const { return width; }
-    
-    /**
-     * \return number of glyphs
-    */
-    int getNumGlyphs() const { return numGlyphs; }
 
     /**
      * \return the size in bits of the data's data type.
