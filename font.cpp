@@ -71,18 +71,11 @@ unsigned int Font::getVirtualCodepoint(char32_t codepoint) const
 
 short int Font::calculateLength(const char *s) const
 {
-    if(isFixedWidth())
-    {
-        return strlen(s)*width;
-    } else {
+    if(isFixedWidth()) return miosix::Unicode::countCodePoints(s)*width;
+    else {
         short int result=0;
-        char32_t c;
-        while((c=miosix::Unicode::nextUtf8(s))!='\0')
-        {
-            unsigned int vc = getVirtualCodepoint(c);
-            if(!isInRange(c)) result+=widths[numGlyphs-1];//Width of startchar
-            else result+=widths[vc];
-        }
+        while(char32_t c=miosix::Unicode::nextUtf8(s))
+            result+=widths[getVirtualCodepoint(c)];
         return result;
     }
 }
