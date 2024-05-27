@@ -64,7 +64,7 @@ private:
      * \param data the lines found in a bdf file enclosed in a STARTCHAR..ENDCHAR
      * block.
      */
-    void generateGlyph(std::vector<std::string> data);
+    void generateGlyph(const std::vector<std::string>& data);
 
     /**
      * Create a fallback glyph in the case is not
@@ -76,7 +76,7 @@ private:
      * \return a list of codepoints which were absent from the
      * .bdf file, and thus need a fallback glyph
      */
-    std::vector<char32_t> computeFailedCodepoints(std::vector<Glyph> glyphs);
+    std::vector<char32_t> computeFailedCodepoints();
 
     bool isReplacementNormal;///< tells whether the replacement character is also included in normal ranges
     Glyph replacementGlyph;///< used only in case the repl. character is also normal

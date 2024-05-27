@@ -97,7 +97,7 @@ void BDFParser::parse()
             generateGlyph(result);
         } catch(ifstream::failure& e)
         {
-            vector<char32_t> failedCodepoints=computeFailedCodepoints(glyphs);
+            vector<char32_t> failedCodepoints=computeFailedCodepoints();
             // add fallback character for absent glyphs
             for(char32_t cp : failedCodepoints)
             {
@@ -109,7 +109,7 @@ void BDFParser::parse()
             sort(glyphs.begin(),glyphs.end());
             unsigned int supportedCharacters =
                 UnicodeBlockManager::numSupportedCharacters();
-            if(glyphs.size()<(supportedCharacters) && log)
+            if(glyphs.size()<supportedCharacters && log)
             {
                 short delta=supportedCharacters-glyphs.size();
                 *logStream<<"Warning converted only "<<glyphs.size()<<
@@ -150,7 +150,7 @@ vector<string> BDFParser::getNextChar(ifstream& file)
     }
 }
 
-void BDFParser::generateGlyph(vector<string> data)
+void BDFParser::generateGlyph(const vector<string>& data)
 {
     Glyph result;
 
@@ -160,7 +160,7 @@ void BDFParser::generateGlyph(vector<string> data)
         if(data.at(i).substr(0,8)=="ENCODING")
         {
             stringstream ss(data.at(i).substr(9));
-            int encoding;
+            unsigned int encoding;
             ss>>encoding;
             if(!UnicodeBlockManager::isCharacterSupported(encoding)) return;
             result.setCodepoint(static_cast<char32_t>(encoding));
@@ -195,7 +195,7 @@ void BDFParser::generateGlyph(vector<string> data)
     if(dwidthFound==false)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<hex<<result.getCodepoint()<<" has no DWIDTH tag";
+        ss<<"Error: Glyph "<<showbase<<hex<<result.getCodepoint()<<" has no DWIDTH tag";
         throw(runtime_error(ss.str()));
     }
 
@@ -319,23 +319,20 @@ Glyph BDFParser::generateFallbackGlyph(char32_t codepoint, unsigned int height)
     return result;
 }
 
-vector<char32_t> BDFParser::computeFailedCodepoints(vector<Glyph> glyphs)
+vector<char32_t> BDFParser::computeFailedCodepoints()
 {
     vector<char32_t> result;
 
     // quadratic complexity can be acceptable given the
     // limited number of characters and the fact that the tool
     // will be statically called once, before compiling the library
-    for(UnicodeBlock &block : blocks)
+    for(auto& block : blocks)
     {
         for(unsigned int c=block.getStartCodepoint();c<=block.getEndCodepoint();c++)
         {
             bool found=false;
-            for(Glyph &g : glyphs)
-                if(g.getCodepoint() == c)
-                    found=true;
-            if(!found)
-                result.push_back(c);
+            for(auto& g : glyphs) if(g.getCodepoint()==c) found=true;
+            if(!found) result.push_back(c);
         }
     }
 
