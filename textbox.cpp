@@ -32,19 +32,7 @@
 
 using namespace mxgui;
 
-typedef short (*GlyphWidthFP)(const Font& f, char32_t c);
-
-static short getFWFGlyphWidth(const Font& f, char32_t c)
-{
-    return f.getWidth();
-}
-
-static short getVWFGlyphWidth(const Font& f, char32_t c)
-{
-    return f.getWidths()[f.getVirtualCodepoint(c)];
-}
-
-static inline std::pair<int, short> computeLineEnd_charWrap(const Font& font, GlyphWidthFP getGlyphWidth, const char *p, short maxWidth)
+static inline std::pair<int, short> computeLineEnd_charWrap(const Font& font, const char *p, short maxWidth)
 {
     short lineWidth=0;
     int i;
@@ -52,16 +40,16 @@ static inline std::pair<int, short> computeLineEnd_charWrap(const Font& font, Gl
     for(i=0; (c=miosix::Unicode::nextUtf8(p))!='\0'; i++)
     {
         if(c=='\n') { i++; break; }
-        short width=getGlyphWidth(font, c);
+        short width=font.calculateLength(c);
         if (lineWidth+width>maxWidth) break;
         lineWidth+=width;
     }
     return std::make_pair(i, lineWidth);
 }
 
-static inline std::pair<int, short> computeLineEnd_wordWrap(const Font& font, GlyphWidthFP getGlyphWidth, const char *p, short maxWidth)
+static inline std::pair<int, short> computeLineEnd_wordWrap(const Font& font, const char *p, short maxWidth)
 {
-    const short spaceWidth=getGlyphWidth(font, ' ');
+    const short spaceWidth=font.calculateLength(' ');
     short lineWidth=0;
     int i=0,j;
     bool firstWord=true;
@@ -76,7 +64,7 @@ static inline std::pair<int, short> computeLineEnd_wordWrap(const Font& font, Gl
         j=i;
         while(c!='\0' && c!=' ' && c!='\n')
         {
-            wordWidth+=getGlyphWidth(font, c);
+            wordWidth+=font.calculateLength(c);
             prv=p;
             c=miosix::Unicode::nextUtf8(p);
             j++;
@@ -101,7 +89,7 @@ static inline std::pair<int, short> computeLineEnd_wordWrap(const Font& font, Gl
         if(lineWidth+lastTrailingSpaceWidth>maxWidth) break;
     }
 
-    if(firstWord && i==0) return computeLineEnd_charWrap(font, getGlyphWidth, p, maxWidth);
+    if(firstWord && i==0) return computeLineEnd_charWrap(font, p, maxWidth);
     return std::make_pair(i, lineWidth);
 }
 
@@ -135,10 +123,6 @@ int TextBox::draw(DrawingContext& dc, Point p0, Point p1,
     const bool withBG = (options & BackgroundMask)==BoxBackground;
     const bool withClip = (options & PartialLinesMask)==ClipPartialLines;
 
-    GlyphWidthFP getGlyphWidth;
-    if (font.isFixedWidth()) getGlyphWidth=getFWFGlyphWidth;
-    else getGlyphWidth=getVWFGlyphWidth;
-
     int lineTop=top-scrollY;
     if (withBG && lineTop>top) dc.clear(Point(left,top), Point(right,std::min(lineTop-1,btm)), bgColor);
     const char *p=str, *prv=p;
@@ -148,8 +132,8 @@ int TextBox::draw(DrawingContext& dc, Point p0, Point p1,
     while(c!=0 && lineTop<=stopY)
     {
         std::pair<int, short> end;
-        if ((options&WrapMask)==WordWrap) end=computeLineEnd_wordWrap(font, getGlyphWidth, p, right-left+1);
-        else end = computeLineEnd_charWrap(font, getGlyphWidth, p, right-left+1);
+        if ((options&WrapMask)==WordWrap) end=computeLineEnd_wordWrap(font, p, right-left+1);
+        else end = computeLineEnd_charWrap(font, p, right-left+1);
         // printf("nchar=%d lineWidth=%d\n", end.first, end.second);
         
         const int lineBottom=std::min(lineTop+lineHeight, btm+1);

@@ -114,13 +114,21 @@ public:
 
     /**
      * Given a string, determine the length in pixels required to draw it.
-     * If the string contains characters not between getStartChar and getEndChar
-     * their width is supposed to be the length of the character returned by
-     * getStartChar.
-     * \param s a null terminated string
+     * \param s a nul terminated string
      * \return the length in pixels
      */
     short int calculateLength(const char *s) const;
+
+    /**
+     * Given an unicode code point, determine the length in pixels required to
+     * draw it.
+     * \param s an unicode code point
+     * \return the length in pixels
+     */
+    short int calculateLength(char32_t c) const
+    {
+        return width ? width : widths[getVirtualCodepoint(c)];
+    }
 
     /**
      * \return true if the Font is fixed width
