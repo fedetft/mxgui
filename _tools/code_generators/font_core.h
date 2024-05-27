@@ -116,7 +116,7 @@ private:
 bool operator< (Glyph a, Glyph b);
 
 /**
- * Parses a font file and returns a vector of fonts.
+ * Parses a font file and returns a vector of glyphs.
  * Only codepoints belonging to known blocks are returned,
  * exluding combiner characters which are not supported.
  * Some might be missing if they were not
@@ -190,7 +190,7 @@ public:
 protected:
     std::ostream *logStream; ///< Valid only if debugFlag is true
     bool log; ///< True if debugMode has been called
-    std::vector<Glyph> fonts; ///< List of fonts
+    std::vector<Glyph> glyphs; ///< List of glyphs
     const std::string filename;///< Font file
     std::string fixesFile; ///< Fixes file
     std::vector<UnicodeBlock> blocks; ///< Unicode blocks
@@ -254,7 +254,7 @@ public:
 protected:
     std::ostream *logStream; ///< Valid only if debugFlag is true
     bool log; ///< True if debugMode has been called
-    std::vector<Glyph> glyphs; ///< List of fonts
+    std::vector<Glyph> glyphs; ///< List of glyphs
     std::ofstream file; ///< File where to write look up tables
 
 private:

@@ -115,7 +115,7 @@ shared_ptr<FontParser> FontParser::getParser(const string& filename)
 }
 
 FontParser::FontParser(const string& filename): logStream(0),
-        log(false), fonts(), blocks(UnicodeBlockManager::getAvailableBlocks()),
+        log(false), glyphs(), blocks(UnicodeBlockManager::getAvailableBlocks()),
         filename(filename), fixesFile(""), ttfHeight(0), ttfPadding(0) {}
 
 void FontParser::setLogStream(std::ostream& output)
@@ -131,7 +131,7 @@ void FontParser::setUnicodeBlocks(const std::vector<UnicodeBlock>& blocks)
 
 std::vector<Glyph> FontParser::getGlyphs() const
 {
-    return fonts;
+    return glyphs;
 }
 
 void FontParser::setTTFHeight(unsigned int height)

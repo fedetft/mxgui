@@ -45,7 +45,7 @@ void BDFParser::parse()
                 <<endl;
     }
     //Clear results of a previous parse
-    fonts.clear();
+    glyphs.clear();
     //Start a new one
     ifstream file;
     file.exceptions(ifstream::eofbit | ifstream::failbit | ifstream::badbit);
@@ -97,22 +97,22 @@ void BDFParser::parse()
             generateGlyph(result);
         } catch(ifstream::failure& e)
         {
-            vector<char32_t> failedCodepoints=computeFailedCodepoints(fonts);
+            vector<char32_t> failedCodepoints=computeFailedCodepoints(glyphs);
             // add fallback character for absent glyphs
             for(char32_t cp : failedCodepoints)
             {
                 Glyph g=generateFallbackGlyph(cp, getHeight());
-                fonts.push_back(g);
+                glyphs.push_back(g);
             }
 
             //Eof found, sort characters and return
-            sort(fonts.begin(),fonts.end());
+            sort(glyphs.begin(),glyphs.end());
             unsigned int supportedCharacters =
                 UnicodeBlockManager::numSupportedCharacters();
-            if(fonts.size()<(supportedCharacters) && log)
+            if(glyphs.size()<(supportedCharacters) && log)
             {
-                short delta=supportedCharacters-fonts.size();
-                *logStream<<"Warning converted only "<<fonts.size()<<
+                short delta=supportedCharacters-glyphs.size();
+                *logStream<<"Warning converted only "<<glyphs.size()<<
                     " characters instead of "<<supportedCharacters;
                 if(!isReplacementNormal)
                     *logStream<<" Some are missing from the bdf file"<<endl;
@@ -124,7 +124,7 @@ void BDFParser::parse()
 
             // duplicate replacement character if needed
             if(isReplacementNormal)
-                fonts.push_back(replacementGlyph);
+                glyphs.push_back(replacementGlyph);
 
             return;
         }
@@ -292,7 +292,7 @@ void BDFParser::generateGlyph(vector<string> data)
         throw(runtime_error(ss.str()));
     }
     result.setData(theBitmap);
-    fonts.push_back(result);
+    glyphs.push_back(result);
     if(isReplacementNormal && result.getCodepoint()==UnicodeBlockManager::getReplacementCharacter())
         replacementGlyph=result;
     if(log) *logStream<<"Done"<<endl;
@@ -319,7 +319,7 @@ Glyph BDFParser::generateFallbackGlyph(char32_t codepoint, unsigned int height)
     return result;
 }
 
-vector<char32_t> BDFParser::computeFailedCodepoints(vector<Glyph> fonts)
+vector<char32_t> BDFParser::computeFailedCodepoints(vector<Glyph> glyphs)
 {
     vector<char32_t> result;
 
@@ -331,7 +331,7 @@ vector<char32_t> BDFParser::computeFailedCodepoints(vector<Glyph> fonts)
         for(unsigned int c=block.getStartCodepoint();c<=block.getEndCodepoint();c++)
         {
             bool found=false;
-            for(Glyph &g : fonts)
+            for(Glyph &g : glyphs)
                 if(g.getCodepoint() == c)
                     found=true;
             if(!found)

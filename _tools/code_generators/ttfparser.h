@@ -26,9 +26,11 @@
 namespace fontcore {
 
 /**
- * Parses a truetype file and renders a vector of fonts.
- * Only ASCII fonts are returned, some might be missing if they were not
- * available in the ttf file, or if they could not fit into the desired
+ * Parses a font file and returns a vector of glyphs.
+ * Only codepoints belonging to known blocks are returned,
+ * exluding combiner characters which are not supported.
+ * Some might be missing if they were not
+ * available in the file, or if they could not fit into the desired
  * height and width
  */
 class TTFParser: public FontParser

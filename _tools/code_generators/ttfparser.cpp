@@ -38,7 +38,7 @@ void TTFParser::parse()
         fixes.parse(this->fixesFile);
     }
     //Clear results of a previous parse
-    fonts.clear();
+    glyphs.clear();
     //Start a new one
     if(ttfHeight<4 || ttfHeight>24)
         throw(runtime_error("Invalid rendering height"));
@@ -159,7 +159,7 @@ void TTFParser::generateGlyph(const FT_Face& face, char32_t chr)
         theBitmap.push_back(bitset<Glyph::maxWidth>(0));
 
     result.setData(theBitmap);
-    fonts.push_back(result);
+    glyphs.push_back(result);
     if(log) *logStream<<"Done"<<endl;
 }
 

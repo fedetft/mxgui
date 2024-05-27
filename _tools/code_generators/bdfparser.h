@@ -23,9 +23,11 @@
 namespace fontcore {
 
 /**
- * Parses a bdf file and returns a vector of fonts.
- * Only ASCII fonts are returned, some might be missing if they were not
- * available in the bdf file, or if they could not fit into the desired
+ * Parses a font file and returns a vector of glyphs.
+ * Only codepoints belonging to known blocks are returned,
+ * exluding combiner characters which are not supported.
+ * Some might be missing if they were not
+ * available in the file, or if they could not fit into the desired
  * height and width
  */
 class BDFParser: public FontParser
@@ -58,8 +60,8 @@ private:
 
     /**
      * Generate a glyph from the data between STARTCHAR..ENDCHAR found in
-     * a bdf file, and adds it to the fonts (only if it is an ASCII glyph).
-     * \param data the lines found in a bdf file encosed in a STARTCHAR..ENDCHAR
+     * a bdf file, and adds it to the glyphs.
+     * \param data the lines found in a bdf file enclosed in a STARTCHAR..ENDCHAR
      * block.
      */
     void generateGlyph(std::vector<std::string> data);
@@ -74,7 +76,7 @@ private:
      * \return a list of codepoints which were absent from the
      * .bdf file, and thus need a fallback glyph
      */
-    std::vector<char32_t> computeFailedCodepoints(std::vector<Glyph> fonts);
+    std::vector<char32_t> computeFailedCodepoints(std::vector<Glyph> glyphs);
 
     bool isReplacementNormal;///< tells whether the replacement character is also included in normal ranges
     Glyph replacementGlyph;///< used only in case the repl. character is also normal
