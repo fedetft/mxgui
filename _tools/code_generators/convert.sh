@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Designed to be called from the build directory
-if [ ! `pwd | grep build` ]; then
+if [[ ! `pwd | grep build` ]]; then
 	echo "Error, script must be run from the build directory"
 	exit
 fi
@@ -10,7 +10,7 @@ fi
 export BIN=./fontrendering
 
 # Output directory, to store processed fonts
-export OUT=../../fonts
+export OUT=../../../fonts
 
 # Input directory, where TTF/BDF fonts are stored
 export B=../../font_collection
