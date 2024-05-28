@@ -39,9 +39,9 @@ namespace mxgui {
 
 bool Font::isInRange(char32_t c) const
 {
-    for(int i=0;i<numBlocks;i+=2)
-        if(c >= blocks[i] && c < blocks[i]+blocks[i+1])
-            return true;
+    const int lastBlock=2*(numBlocks-1);
+    for(int block=0;block<lastBlock;block+=2)
+        if(c>=blocks[block] && c<blocks[block]+blocks[block+1]) return true;
     return false;
 }
 
