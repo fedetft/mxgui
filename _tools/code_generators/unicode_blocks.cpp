@@ -20,6 +20,7 @@
 #include <climits>
 #include <cuchar>
 #include <cstring>
+#include <cassert>
 
 using namespace std;
 using namespace fontcore;
@@ -52,8 +53,7 @@ UnicodeBlock::UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint)
 
 const std::vector<UnicodeBlock> UnicodeBlockManager::getAvailableBlocks()
 {
-    std::vector<UnicodeBlock> res=knownUnicodeBlocks;
-    return res;
+    return knownUnicodeBlocks;
 }
 
 void UnicodeBlockManager::updateBlocks(std::vector<std::pair<char32_t,char32_t>> blocks)
@@ -65,11 +65,13 @@ void UnicodeBlockManager::updateBlocks(std::vector<std::pair<char32_t,char32_t>>
 
 void UnicodeBlockManager::updateReplacementCharacter(char32_t replacementCodepoint)
 {
+    assert(knownUnicodeBlocks.empty()==false);
     knownUnicodeBlocks[knownUnicodeBlocks.size()-1]={replacementCodepoint,replacementCodepoint};
 }
 
 char32_t UnicodeBlockManager::getReplacementCharacter()
 {
+    assert(knownUnicodeBlocks.empty()==false);
     return knownUnicodeBlocks[knownUnicodeBlocks.size()-1].getStartCodepoint();
 }
 
