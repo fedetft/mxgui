@@ -28,9 +28,6 @@ using namespace fontcore;
 // class UnicodeBlock
 //
 
-UnicodeBlock::UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint)
-    : startCodepoint(startCodepoint), endCodepoint(endCodepoint) {}
-
 unsigned int UnicodeBlock::getStartCodepoint() const
 {
     return this->startCodepoint;
@@ -46,15 +43,18 @@ unsigned int UnicodeBlock::size() const
     return this->endCodepoint-this->startCodepoint+1;
 }
 
+UnicodeBlock::UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint)
+    : startCodepoint(startCodepoint), endCodepoint(endCodepoint) {}
+
 //
 // class UnicodeBlockManager
 //
 
-std::vector<UnicodeBlock> UnicodeBlockManager::knownUnicodeBlocks =
+const std::vector<UnicodeBlock> UnicodeBlockManager::getAvailableBlocks()
 {
-    UnicodeBlock(0x00000020,0x0000007E),
-    UnicodeBlock(0x0000FFFD,0x0000FFFD)
-};
+    std::vector<UnicodeBlock> res=knownUnicodeBlocks;
+    return res;
+}
 
 void UnicodeBlockManager::updateBlocks(std::vector<std::pair<char32_t,char32_t>> blocks)
 {
@@ -71,12 +71,6 @@ void UnicodeBlockManager::updateReplacementCharacter(char32_t replacementCodepoi
 char32_t UnicodeBlockManager::getReplacementCharacter()
 {
     return knownUnicodeBlocks[knownUnicodeBlocks.size()-1].getStartCodepoint();
-}
-
-const std::vector<UnicodeBlock> UnicodeBlockManager::getAvailableBlocks()
-{
-    std::vector<UnicodeBlock> res=knownUnicodeBlocks;
-    return res;
 }
 
 bool UnicodeBlockManager::isCharacterSupported(char32_t codepoint)
@@ -126,3 +120,9 @@ std::string UnicodeBlockManager::codepointToString(char32_t codepoint)
 
     return unistr;
 }
+
+std::vector<UnicodeBlock> UnicodeBlockManager::knownUnicodeBlocks =
+{
+    UnicodeBlock(0x00000020,0x0000007E),
+    UnicodeBlock(0x0000FFFD,0x0000FFFD)
+};
