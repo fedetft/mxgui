@@ -54,19 +54,17 @@ public:
      */
     unsigned int size() const;
 
-    UnicodeBlock& operator=(const UnicodeBlock& other);
-
-protected:
+private:
     /**
      * Constructor
      */
     UnicodeBlock(char32_t startCodepoint, char32_t endCodepoint);
 
-private:
     char32_t startCodepoint;
     char32_t endCodepoint;
 
-    /* we want to make other classes aware of
+    /*
+     * we want to make other classes aware of
      * Unicode blocks, but at the same time
      * prohibit instantiation of any block outside of the manager
      */

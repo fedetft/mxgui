@@ -46,16 +46,6 @@ unsigned int UnicodeBlock::size() const
     return this->endCodepoint-this->startCodepoint+1;
 }
 
-UnicodeBlock& UnicodeBlock::operator=(const UnicodeBlock& other)
-{
-    if(this==&other)
-        return *this;
-
-    this->startCodepoint=other.startCodepoint;
-    this->endCodepoint=other.endCodepoint;
-    return *this;
-}
-
 //
 // class UnicodeBlockManager
 //
