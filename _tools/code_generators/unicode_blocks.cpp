@@ -20,7 +20,6 @@
 #include <climits>
 #include <cuchar>
 #include <cstring>
-#include <cassert>
 
 using namespace std;
 using namespace fontcore;
@@ -65,14 +64,12 @@ void UnicodeBlockManager::updateBlocks(std::vector<std::pair<char32_t,char32_t>>
 
 void UnicodeBlockManager::updateReplacementCharacter(char32_t replacementCodepoint)
 {
-    assert(knownUnicodeBlocks.empty()==false);
-    knownUnicodeBlocks[knownUnicodeBlocks.size()-1]={replacementCodepoint,replacementCodepoint};
+    knownUnicodeBlocks.at(knownUnicodeBlocks.size()-1)={replacementCodepoint,replacementCodepoint};
 }
 
 char32_t UnicodeBlockManager::getReplacementCharacter()
 {
-    assert(knownUnicodeBlocks.empty()==false);
-    return knownUnicodeBlocks[knownUnicodeBlocks.size()-1].getStartCodepoint();
+    return knownUnicodeBlocks.at(knownUnicodeBlocks.size()-1).getStartCodepoint();
 }
 
 bool UnicodeBlockManager::isCharacterSupported(char32_t codepoint)

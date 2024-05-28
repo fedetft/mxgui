@@ -21,7 +21,6 @@
 #include "unicode_blocks.h"
 #include <bitset>
 #include <sstream>
-#include <cassert>
 #include <cctype>
 #include <algorithm>
 
