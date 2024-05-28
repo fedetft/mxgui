@@ -33,7 +33,7 @@
 #ifndef DISPLAY_SONY_NEWMAN_H
 #define	DISPLAY_SONY_NEWMAN_H
 
-#ifdef _BOARD_SONY_NEWMAN
+#ifdef _BOARD_STM32F205RG_SONY_NEWMAN
 
 #include <config/mxgui_settings.h>
 #include "display.h"
@@ -463,6 +463,6 @@ private:
 
 } //namespace mxgui
 
-#endif //_BOARD_SONY_NEWMAN
+#endif //_BOARD_STM32F205RG_SONY_NEWMAN
 
 #endif //DISPLAY_SONY_NEWMAN_H

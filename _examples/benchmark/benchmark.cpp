@@ -104,13 +104,13 @@ void Benchmark::start()
     #endif //MXGUI_ENABLE_RESOURCEFS
 
     //Last print results
-    #ifndef _BOARD_BITSBOARD
+    #ifndef _BOARD_STM32F407VG_BITSBOARD
     const Color fg=white;
     const Color bg=black;
-    #else //_BOARD_BITSBOARD
+    #else //_BOARD_STM32F407VG_BITSBOARD
     const Color fg=black;
     const Color bg=white;
-    #endif //_BOARD_BITSBOARD
+    #endif //_BOARD_STM32F407VG_BITSBOARD
     {
         DrawingContext dc(display);
         dc.clear(bg);
@@ -126,11 +126,11 @@ void Benchmark::start()
         {
              if(j+12>=dc.getHeight())
              {
-                 #ifdef _BOARD_SONY_NEWMAN
+                 #ifdef _BOARD_STM32F205RG_SONY_NEWMAN
                  while(POWER_BTN_PRESS_Pin::value()==0) Thread::sleep(100);
-                 #else //_BOARD_SONY_NEWMAN
+                 #else //_BOARD_STM32F205RG_SONY_NEWMAN
                  Thread::sleep(5000);
-                 #endif //_BOARD_SONY_NEWMAN
+                 #endif //_BOARD_STM32F205RG_SONY_NEWMAN
                  dc.clear(bg);
                  j=13;
              }

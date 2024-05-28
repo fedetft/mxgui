@@ -40,15 +40,15 @@ int main()
     Benchmark benchmark(display);
     benchmark.start();
 
-    #ifdef _BOARD_MP3V2
+    #ifdef _BOARD_STM32F103VE_MP3V2
     while(button1::value()) Thread::sleep(100);
     display.turnOff();
-    #elif defined(_BOARD_SONY_NEWMAN)
+    #elif defined(_BOARD_STM32F205RG_SONY_NEWMAN)
     while(POWER_BTN_PRESS_Pin::value()==0) Thread::sleep(100);
     display.turnOff();
-    #else //_BOARD_MP3V2
+    #else //_BOARD_STM32F103VE_MP3V2
     for(;;) Thread::sleep(100);
-    #endif //_BOARD_MP3V2
+    #endif //_BOARD_STM32F103VE_MP3V2
 }
 
 #endif //_MIOSIX

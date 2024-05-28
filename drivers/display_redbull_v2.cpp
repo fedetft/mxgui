@@ -31,7 +31,7 @@
 using namespace std;
 using namespace miosix;
 
-#ifdef _BOARD_REDBULL_V2
+#ifdef _BOARD_STM32F103ZE_REDBULL_V2
 
 //Helper to set gamma register values
 #define GREGVAL(byte1, byte2) (uint16_t)(((byte1) << 8) | ((byte2) & 0xFF))
@@ -376,4 +376,4 @@ DisplayImpl::DisplayMemLayout *const DisplayImpl::DISPLAY=
 
 } //namespace mxgui
 
-#endif //_BOARD_REDBULL_V2
+#endif //_BOARD_STM32F103ZE_REDBULL_V2

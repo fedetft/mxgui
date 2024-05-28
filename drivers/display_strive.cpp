@@ -31,7 +31,7 @@
 using namespace std;
 using namespace miosix;
 
-#ifdef _BOARD_STRIVE_MINI
+#ifdef _BOARD_STM32F103VE_STRIVE_MINI
 
 //Helper to set gamma register values
 #define GREGVAL(byte1, byte2) (uint16_t)(((byte1) << 8) | ((byte2) & 0xFF))
@@ -488,4 +488,4 @@ DisplayImpl::DisplayMemLayout *const DisplayImpl::DISPLAY=
 
 } //namespace mxgui
 
-#endif //_BOARD_STRIVE_MINI
+#endif //_BOARD_STM32F103VE_STRIVE_MINI

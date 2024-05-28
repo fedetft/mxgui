@@ -33,7 +33,7 @@
 #ifndef DISPLAY_STM32F4DISCOVERY_H
 #define	DISPLAY_STM32F4DISCOVERY_H
 
-#ifdef _BOARD_STM32F429ZI_STM32F4DISCOVERY
+#ifdef _BOARD_STM32F429ZI_DISCOVERY
 
 #include <config/mxgui_settings.h>
 #include "display.h"
@@ -359,9 +359,9 @@ private:
 
 } //namespace mxgui
 
-#endif //_BOARD_STM32F429ZI_STM32F4DISCOVERY
+#endif //_BOARD_STM32F429ZI_DISCOVERY
 
-#ifdef _BOARD_STM32F469NI_STM32F469I_DISCO
+#ifdef _BOARD_STM32F469NI_DISCOVERY
 
 #include <config/mxgui_settings.h>
 #include "display.h"
@@ -695,6 +695,6 @@ private:
 
 } //namespace mxgui
 
-#endif //_BOARD_STM32F469NI_STM32F469I_DISCO
+#endif //_BOARD_STM32F469NI_DISCOVERY
 
 #endif //DISPLAY_STM32F4DISCOVERY_H

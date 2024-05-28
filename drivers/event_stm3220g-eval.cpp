@@ -30,7 +30,7 @@
 
 #include <config/mxgui_settings.h>
 
-#if defined(_BOARD_STM3220G_EVAL) && defined(MXGUI_LEVEL_2)
+#if defined(_BOARD_STM32F207IG_EVALUATION) && defined(MXGUI_LEVEL_2)
 
 #include "event_stm3220g-eval.h"
 #include "miosix.h"
@@ -436,4 +436,4 @@ function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
 
 } //namespace mxgui
 
-#endif //_BOARD_STM3220G_EVAL
+#endif //_BOARD_STM32F207IG_EVALUATION

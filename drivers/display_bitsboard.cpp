@@ -25,7 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifdef _BOARD_BITSBOARD
+#ifdef _BOARD_STM32F407VG_BITSBOARD
 
 #include <cstring>
 #include <miosix.h>
@@ -325,4 +325,4 @@ DisplayImpl::DisplayImpl(): buffer(0), last()
 
 } //namespace mxgui
 
-#endif //_BOARD_BITSBOARD
+#endif //_BOARD_STM32F407VG_BITSBOARD

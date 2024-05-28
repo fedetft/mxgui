@@ -33,7 +33,7 @@
 using namespace std;
 using namespace miosix;
 
-#ifdef _BOARD_MP3V2
+#ifdef _BOARD_STM32F103VE_MP3V2
 
 namespace resfs {
 
@@ -165,4 +165,4 @@ void backendRead(char *buf, int addr, int len)
 
 } //namespace resfs
 
-#endif //_BOARD_MP3V2
+#endif //_BOARD_STM32F103VE_MP3V2

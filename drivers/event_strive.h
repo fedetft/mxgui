@@ -36,7 +36,7 @@
 #ifndef EVENT_STIVE_H
 #define	EVENT_STRIVE_H
 
-#ifdef _BOARD_STRIVE_MINI
+#ifdef _BOARD_STM32F103VE_STRIVE_MINI
 
 namespace mxgui {
 
@@ -74,6 +74,6 @@ public:
 
 } //namespace mxgui
 
-#endif //_BOARD_STRIVE_MINI
+#endif //_BOARD_STM32F103VE_STRIVE_MINI
 
 #endif //EVENT_STRIVE_H

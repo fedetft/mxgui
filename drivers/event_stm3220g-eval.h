@@ -37,7 +37,7 @@
 #ifndef EVENT_STM3220G_EVAL_H
 #define	EVENT_STM3220G_EVAL_H
 
-#ifdef _BOARD_STM3220G_EVAL
+#ifdef _BOARD_STM32F207IG_EVALUATION
 
 namespace mxgui {
 
@@ -75,6 +75,6 @@ public:
 
 } //namespace mxgui
 
-#endif //_BOARD_STM3220G_EVAL
+#endif //_BOARD_STM32F207IG_EVALUATION
 
 #endif //EVENT_STM3220G_EVAL_H

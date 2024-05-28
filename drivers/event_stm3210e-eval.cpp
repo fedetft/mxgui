@@ -28,7 +28,7 @@
 #include <config/mxgui_settings.h>
 #include "interfaces-impl/gpio_impl.h"
 
-#if defined(_BOARD_STM3210E_EVAL) && defined(MXGUI_LEVEL_2)
+#if defined(_BOARD_STM32F103ZE_EVALUATION) && defined(MXGUI_LEVEL_2)
 
 #include "event_stm3210e-eval.h"
 #include "miosix.h"
@@ -115,4 +115,4 @@ Event InputHandlerImpl::popEvent()
 
 } //namespace mxgui
 
-#endif //_BOARD_STM3210E_EVAL
+#endif //_BOARD_STM32F103ZE_EVALUATION

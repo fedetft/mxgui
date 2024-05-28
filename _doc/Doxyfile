@@ -1262,7 +1262,7 @@ INCLUDE_FILE_PATTERNS  =
 # instead of the = operator.
 
 PREDEFINED             = MXGUI_LIBRARY MXGUI_ENABLE_RESOURCEFS \
-                         _MIOSIX _BOARD_MP3V2 _BOARD_STM3210E_EVAL
+                         _MIOSIX _BOARD_STM32F103VE_MP3V2 _BOARD_STM32F103ZE_EVALUATION
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

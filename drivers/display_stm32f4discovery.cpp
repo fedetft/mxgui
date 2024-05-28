@@ -32,7 +32,7 @@
 using namespace std;
 using namespace miosix;
 
-#ifdef _BOARD_STM32F429ZI_STM32F4DISCOVERY
+#ifdef _BOARD_STM32F429ZI_DISCOVERY
 
 namespace mxgui {
 
@@ -477,9 +477,9 @@ Color DisplayImpl::pixel_iterator::dummy;
 
 } //namespace mxgui
 
-#endif //_BOARD_STM32F429ZI_STM32F4DISCOVERY
+#endif //_BOARD_STM32F429ZI_DISCOVERY
 
-#ifdef _BOARD_STM32F469NI_STM32F469I_DISCO
+#ifdef _BOARD_STM32F469NI_DISCOVERY
 
 namespace mxgui {
 
@@ -1324,4 +1324,4 @@ Color DisplayImpl::pixel_iterator::dummy;
 
 } //namespace mxgui
 
-#endif //_BOARD_STM32F469NI_STM32F469I_DISCO
+#endif //_BOARD_STM32F469NI_DISCOVERY
