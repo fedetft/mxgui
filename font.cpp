@@ -47,25 +47,15 @@ bool Font::isInRange(char32_t c) const
 
 unsigned int Font::getVirtualCodepoint(char32_t codepoint) const
 {
-    // traverse the ranges until the right one is found
-    int i=2;
-    // codepoint of the character as if we had one big contiguous range
     unsigned int virtualCodepoint=0;
-    while(i<2*(numBlocks-1) && blocks[i]<=codepoint)
+    const int lastBlock=2*(numBlocks-1);
+    for(int block=0;block<lastBlock;block+=2)
     {
-        virtualCodepoint+=blocks[i-1];
-        i+=2;
+        if(codepoint>=blocks[block] && codepoint<(blocks[block]+blocks[block+1]))
+            return virtualCodepoint+codepoint-blocks[block];
+        else virtualCodepoint+=blocks[block+1];
     }
-
-    // we end up in the first range after our character,
-    // so need to go back
-    char32_t rangeBase=blocks[i-2];
-    unsigned short rangeOffset=codepoint-rangeBase;
-    if(codepoint <= (rangeBase+blocks[i-1]))
-        virtualCodepoint+=rangeOffset;
-    else
-        virtualCodepoint=numGlyphs-1;
-
+    //Last block always only contains the missing codepoint glyph
     return virtualCodepoint;
 }
 
