@@ -1,14 +1,14 @@
-#ifndef FONT_DROID21_H
-#define FONT_DROID21_H
+#pragma once
 //This font has been converted from BDF/TTF font format to .h
-//using fontrendering utility written by Terraneo Federico.
+//using the fontrendering utility which is part of mxgui,
+//the graphics library of the Miosix kernel.
 //Do not modify this file, it has been automatically generated.
 
+const unsigned int droid21NumGlyphs=96;
 const bool droid21IsAntialiased=true;
 const bool droid21IsFixedWidth=false;
 const unsigned char droid21Height=22;
 const unsigned char droid21DataSize=64;
-const unsigned int droid21NumGlyphs=96;
 const unsigned char droid21NumBlocks=2;
 
 // The start of range i is blocks[2*i], its size is at blocks[2*i+1]
@@ -19,133 +19,131 @@ const unsigned int droid21Blocks[]{
 
 //The width of character i is droid21Width[i]
 const unsigned char droid21Width[]={
- 5,6,8,14,12,17,15,5,
- 6,6,12,12,5,7,6,8,
- 12,12,12,12,12,12,12,12,
- 12,12,6,6,12,12,12,9,
- 18,13,13,13,14,11,10,14,
- 15,7,4,12,10,18,15,16,
- 12,16,12,11,11,15,12,19,
- 12,12,11,6,8,6,11,9,
- 12,11,12,10,12,11,8,11,
- 12,5,4,10,5,19,12,12,
- 12,12,8,9,7,12,11,16,
- 11,11,9,7,12,7,12,21
+ 5,5,8,13,11,17,14,5,
+ 6,5,11,11,5,6,5,8,
+ 11,11,11,11,11,11,11,11,
+ 11,11,5,5,11,11,11,9,
+ 17,13,12,12,14,11,10,14,
+ 13,7,4,11,10,17,14,16,
+ 12,16,12,11,11,13,12,18,
+ 11,11,11,6,8,6,11,8,
+ 12,11,12,9,12,10,7,11,
+ 12,5,4,10,5,19,12,11,
+ 12,12,8,8,7,12,10,15,
+ 10,10,9,7,11,7,11,20
 };
 
 //The first byte of character i is droid21Data[droid21Offset[i]]
 const unsigned short droid21Offset[]={
- 0,5,11,19,33,45,62,77,
- 82,88,94,106,118,123,130,136,
- 144,156,168,180,192,204,216,228,
- 240,252,264,270,276,288,300,312,
- 321,339,352,365,378,392,403,413,
- 427,442,449,453,465,475,493,508,
- 524,536,552,564,575,586,601,613,
- 632,644,656,667,673,681,687,698,
- 707,719,730,742,752,764,775,783,
- 794,806,811,815,825,830,849,861,
- 873,885,897,905,914,921,933,944,
- 960,971,982,991,998,1010,1017,1029
+ 0,5,10,18,31,42,59,73,
+ 78,84,89,100,111,116,122,127,
+ 135,146,157,168,179,190,201,212,
+ 223,234,245,250,255,266,277,288,
+ 297,314,327,339,351,365,376,386,
+ 400,413,420,424,435,445,462,476,
+ 492,504,520,532,543,554,567,579,
+ 597,608,619,630,636,644,650,661,
+ 669,681,692,704,713,725,735,742,
+ 753,765,770,774,784,789,808,820,
+ 831,843,855,863,871,878,890,900,
+ 915,925,935,944,951,962,969,980
 };
 
 const unsigned long long droid21Data[]={
  0ull,0ull,0ull,0ull,0ull, //U+20 (   )
- 0ull,0X40000010ull,0X3F0FFFFF0ull,0X2E06AAFF0ull,0ull,0ull, //U+21 ( ! )
- 0ull,0X15A0ull,0X3FF0ull,0X50ull,0ull,0X2AF0ull,0X2FF0ull,0ull, //U+22 ( " )
- 0X1000000ull,0X3406000ull,0X243407000ull,0X3FF907000ull,0X1BFFF900ull,0X345BFF0ull,0X3407060ull,0X3E7407000ull,0X1BFFAB000ull,0X3AFFF90ull,0X34076F0ull,0X3407000ull,0X1007000ull,0ull, //U+23 ( # )
- 0ull,0X60006400ull,0XB002FF00ull,0XF0079B80ull,0XE00F03C0ull,0XFFFFFFFFCull,0X5F57D57D4ull,0XB03803C0ull,0X3EF00380ull,0X1FD00240ull,0ull,0ull, //U+24 ( $ )
- 0ull,0X6FE40ull,0X1FABE0ull,0X3800B0ull,0X340340070ull,0X2F42E56E0ull,0X2F0BFF80ull,0X7E00000ull,0X7E0000ull,0X7D000ull,0X6FE4BD00ull,0X1FABD0BC0ull,0X3800B01F0ull,0X340070010ull,0X2E56E0000ull,0XBFF80000ull,0ull, //U+25 ( % )
- 0ull,0X2F800000ull,0XFFF01500ull,0X2E0B8FFC0ull,0X3C02FE6E0ull,0X3801F40B0ull,0X3807F80B0ull,0X3C1F6D0F0ull,0X1D7C0FFD0ull,0XFF002F40ull,0XBD000000ull,0X1FF900000ull,0X3C2F00000ull,0X300200000ull,0ull, //U+26 ( & )
- 0ull,0X15A0ull,0X3FF0ull,0X50ull,0ull, //U+27 ( ' )
- 0ull,0X6FFF9000ull,0XBFFFFFE00ull,0X7F40001FD0ull,0XE0000000F0ull,0X4000000010ull, //U+28 ( ( )
- 0ull,0XD000000070ull,0XBE00000BE0ull,0X1FFA5AFF40ull,0X1FFFFF400ull,0X5550000ull, //U+29 ( ) )
- 0ull,0XB00ull,0X10B00ull,0XB8E00ull,0X7FD00ull,0X7FFCull,0X1FEACull,0XBDD00ull,0X70E00ull,0XB00ull,0X600ull,0ull, //U+2A ( * )
- 0ull,0X2C0000ull,0X2C0000ull,0X2C0000ull,0X2C0000ull,0X1FFFFC00ull,0X1ABEA800ull,0X2C0000ull,0X2C0000ull,0X2C0000ull,0X180000ull,0ull, //U+2B ( + )
- 0ull,0XFE40000000ull,0X6FC0000000ull,0X1C0000000ull,0ull, //U+2C ( , )
- 0ull,0X2C00000ull,0X2C00000ull,0X2C00000ull,0X2C00000ull,0X2C00000ull,0ull, //U+2D ( - )
- 0ull,0X40000000ull,0X3F0000000ull,0X2E0000000ull,0ull,0ull, //U+2E ( . )
- 0X200000000ull,0X3F4000000ull,0XBF900000ull,0X6FE4000ull,0X1FF800ull,0XBFD0ull,0X6F0ull,0X10ull, //U+2F ( / )
- 0ull,0X6FFF800ull,0X7FFFFF80ull,0X1F40007D0ull,0X3C00000F0ull,0X3800000B0ull,0X3800000B0ull,0X2D00001E0ull,0XFE556FC0ull,0X2FFFFE00ull,0X16A5000ull,0ull, //U+30 ( 0 )
- 0ull,0ull,0XA00ull,0X740ull,0X2C0ull,0X2AAAAA5F0ull,0X3FFFFFFF0ull,0X155555550ull,0ull,0ull,0ull,0ull, //U+31 ( 1 )
- 0ull,0X3C0000140ull,0X3F00002C0ull,0X3FD0000E0ull,0X38F4000B0ull,0X383D000B0ull,0X380F800F0ull,0X3802F42E0ull,0X38007FFC0ull,0X380006900ull,0X100000000ull,0ull, //U+32 ( 2 )
- 0ull,0X1D00001C0ull,0X3C00001D0ull,0X3C00B00E0ull,0X3800B00B0ull,0X3800B00B0ull,0X3C00F40F0ull,0X2E01DD1E0ull,0XFEF8FFC0ull,0X3FE02E00ull,0X1000000ull,0ull, //U+33 ( 3 )
- 0XE000000ull,0XFD00000ull,0XEBC0000ull,0XE1F8000ull,0XE02F000ull,0XE003E00ull,0XE0007D0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0XE000000ull,0XE000000ull,0ull, //U+34 ( 4 )
- 0ull,0X90010000ull,0X2C00BFFF0ull,0X3C00BABF0ull,0X3800B00B0ull,0X3800B00B0ull,0X3C00F00B0ull,0X2D01E00B0ull,0XFABC00B0ull,0X3FF40010ull,0X1400000ull,0ull, //U+35 ( 5 )
- 0ull,0X6FE9000ull,0X7FFFFD00ull,0XF4286F80ull,0X2C00E03D0ull,0X3800B00E0ull,0X3800B00F0ull,0X3C00F00B0ull,0X1F46E00B0ull,0XBFF80050ull,0X6900000ull,0ull, //U+36 ( 6 )
- 0ull,0XB0ull,0XB0ull,0X3400000B0ull,0X3F80000B0ull,0XBFD000B0ull,0X7FD00B0ull,0X2FE0B0ull,0X1FEF0ull,0X1BF0ull,0X60ull,0ull, //U+37 ( 7 )
- 0ull,0X2F800500ull,0XFFF0BF80ull,0X2D07EE6D0ull,0X3C00F80F0ull,0X3800B00B0ull,0X3800F40B0ull,0X3C02FC0E0ull,0X1F5F4FFD0ull,0XBFE03F40ull,0X5000000ull,0ull, //U+38 ( 8 )
- 0ull,0X2FD00ull,0X2400FFFC0ull,0X3402D02E0ull,0X3803800F0ull,0X3803800B0ull,0X2C03800B0ull,0XF41C01E0ull,0X7FAB5BC0ull,0XBFFFE00ull,0X165000ull,0ull, //U+39 ( 9 )
- 0ull,0X40001000ull,0X3F000FC00ull,0X2E000B800ull,0ull,0ull, //U+3A ( : )
- 0ull,0XFE40001000ull,0X6FC000FC00ull,0X1C000B800ull,0ull,0ull, //U+3B ( ; )
- 0ull,0X380000ull,0X7C0000ull,0XBE0000ull,0XD70000ull,0X2C38000ull,0X341C000ull,0XB00E000ull,0XE00B000ull,0X2C003800ull,0X14001400ull,0ull, //U+3C ( < )
- 0ull,0X2C2C000ull,0X2C2C000ull,0X2C2C000ull,0X2C2C000ull,0X2C2C000ull,0X2C2C000ull,0X2C2C000ull,0X2C2C000ull,0X2C2C000ull,0X1818000ull,0ull, //U+3D ( = )
- 0ull,0X2C003800ull,0X1D007400ull,0XE00B000ull,0X700D000ull,0X382C000ull,0X1C34000ull,0XEB0000ull,0XBD0000ull,0X3C0000ull,0X140000ull,0ull, //U+3E ( > )
- 0X40ull,0X1D0ull,0X1900000F0ull,0X3F0F400B0ull,0X2E06D00B0ull,0XB40F0ull,0X3EBD0ull,0XBF80ull,0ull, //U+3F ( ? )
- 0ull,0X1BFA0000ull,0XFEAFF000ull,0X3D0007D00ull,0XF00000B40ull,0X1C02F902C0ull,0X281FFF80D0ull,0X383C01E0A0ull,0X343400B0B0ull,0X3438007070ull,0X381E407070ull,0X280BFFF0B0ull,0X1C2E5A90E0ull,0X4340002C0ull,0X38000B40ull,0XF96BD00ull,0X2FFE000ull,0ull, //U+40 ( @ )
- 0X340000000ull,0X3F9000000ull,0X7FE40000ull,0X3FF8000ull,0X2DBFD00ull,0X2C06FE0ull,0X2C007F0ull,0X2C1BFD0ull,0X2EFF800ull,0X7FE4000ull,0X1BF900000ull,0X3F4000000ull,0X200000000ull, //U+41 ( A )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0X3800B00B0ull,0X3800B00B0ull,0X3800B00B0ull,0X3800B00B0ull,0X3C00F40F0ull,0X1F47DEBD0ull,0XFFF4BFC0ull,0X1FD01500ull,0ull, //U+42 ( B )
- 0ull,0X1AA9000ull,0X1FFFFD00ull,0XBF55BF40ull,0XF40007C0ull,0X2D00001E0ull,0X3C00000F0ull,0X3800000B0ull,0X3800000B0ull,0X3800000B0ull,0X2C00000E0ull,0X400000D0ull,0ull, //U+43 ( C )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0X3800000B0ull,0X3800000B0ull,0X3800000B0ull,0X3C00000B0ull,0X2C00000E0ull,0XF00002D0ull,0XBD001F80ull,0X2FFFFE00ull,0X2FFE400ull,0ull, //U+44 ( D )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0X3800B00B0ull,0X3800B00B0ull,0X3800B00B0ull,0X3800B00B0ull,0X3800B00B0ull,0X340010070ull,0ull, //U+45 ( E )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0XB00B0ull,0XB00B0ull,0XB00B0ull,0XB00B0ull,0XB00B0ull,0X10070ull, //U+46 ( F )
- 0ull,0X1AA8000ull,0X1FFFFC00ull,0X7F95BF00ull,0XF40007C0ull,0X2D00001D0ull,0X3C00000E0ull,0X3800000B0ull,0X3802C00B0ull,0X3802C00B0ull,0X3802C00F0ull,0X2FFFC00E0ull,0X1FFFC0040ull,0ull, //U+47 ( G )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0XB0000ull,0XB0000ull,0XB0000ull,0XB0000ull,0XB0000ull,0XB0000ull,0XB0000ull,0X3FFFFFFF0ull,0X2AAAAAAA0ull,0ull,0ull, //U+48 ( H )
- 0ull,0X300000030ull,0X3955555B0ull,0X3FFFFFFF0ull,0X3AAAAAAB0ull,0X300000030ull,0X100000010ull, //U+49 ( I )
- 0X38000000000ull,0X2D000000000ull,0XFFFFFFFFF0ull,0X2BFFFFFFF0ull, //U+4A ( J )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0X2D0000ull,0XF8000ull,0XBFF000ull,0X7F47C00ull,0X2F801F40ull,0X1FC0003E0ull,0X3E00000B0ull,0X300000020ull, //U+4B ( K )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0X380000000ull,0X380000000ull,0X380000000ull,0X380000000ull,0X380000000ull,0X340000000ull, //U+4C ( L )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFBF0ull,0X1BF0ull,0X6FE40ull,0X1BFD000ull,0X6FF40000ull,0X3FD000000ull,0X3F8000000ull,0X6FE00000ull,0X1BF8000ull,0X7FD00ull,0X1FF0ull,0X2AAAAAAF0ull,0X3FFFFFFF0ull,0ull,0ull, //U+4D ( M )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFEBF0ull,0XBE0ull,0X7E00ull,0X7F400ull,0X2F4000ull,0X2F80000ull,0X1F800000ull,0XFD000000ull,0X3F56AAAA0ull,0X3FFFFFFF0ull,0X155555550ull,0ull, //U+4E ( N )
- 0ull,0X1AA9000ull,0X1FFFFD00ull,0XBE556F80ull,0XF00003C0ull,0X2C00000E0ull,0X3800000B0ull,0X3800000B0ull,0X3800000B0ull,0X3C00000F0ull,0X1D00001D0ull,0XF8000BC0ull,0X3FFBFF00ull,0X7FFF400ull,0X40000ull,0ull, //U+4F ( O )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0X3800B0ull,0X3800B0ull,0X3800B0ull,0X3C00F0ull,0X1E02E0ull,0XFFFC0ull,0X2FE00ull,0ull, //U+50 ( P )
- 0ull,0X1AA9000ull,0X1FFFFD00ull,0XBE556F80ull,0XF00003C0ull,0X2C00000E0ull,0X3800000B0ull,0X3800000B0ull,0X3800000B0ull,0X2FC00000F0ull,0XBED00001D0ull,0X2F0F8000BC0ull,0X1C03FFBFF00ull,0X7FFF400ull,0X40000ull,0ull, //U+51 ( Q )
- 0ull,0ull,0X3FFFFFFF0ull,0X3FFFFFFF0ull,0X3800B0ull,0X3800B0ull,0X7800B0ull,0X3FC00F0ull,0X2F9E02E0ull,0X1FD0BFFC0ull,0X3E001FE00ull,0X300000000ull, //U+52 ( R )
- 0ull,0X1D0006A00ull,0X3C002FFC0ull,0X38007D2E0ull,0X3800F00F0ull,0X3801E00B0ull,0X3C03C00B0ull,0X2D0B800F0ull,0XFFF000E0ull,0X2F800040ull,0ull, //U+53 ( S )
- 0X70ull,0XB0ull,0XB0ull,0XB0ull,0X2AAAAAAF0ull,0X3FFFFFFF0ull,0X1555555B0ull,0XB0ull,0XB0ull,0XB0ull,0X60ull, //U+54 ( T )
- 0ull,0ull,0X1FFFFFF0ull,0XBFFFFFF0ull,0X1F0000000ull,0X3C0000000ull,0X380000000ull,0X380000000ull,0X380000000ull,0X2C0000000ull,0XF9000000ull,0X7FFFFFF0ull,0X6FFFFF0ull,0ull,0ull, //U+55 ( U )
- 0XB0ull,0X2FF0ull,0XBFF40ull,0X2FFD000ull,0XBFE40000ull,0X3F9000000ull,0X3F9000000ull,0X6FF40000ull,0X1BFE000ull,0X6FF90ull,0X1FF0ull,0X70ull, //U+56 ( V )
- 0X60ull,0X6FF0ull,0X6FFF90ull,0X2FFF9000ull,0X3FF900000ull,0X3F9000000ull,0X6FF90000ull,0X1BFF900ull,0X1BFF0ull,0X7F0ull,0X6FF90ull,0X6FFE000ull,0X1BFE40000ull,0X3F8000000ull,0X2FFE40000ull,0X6FFE500ull,0X6FFF0ull,0X6F0ull,0ull, //U+57 ( W )
- 0X200000010ull,0X3E00000F0ull,0XFD000BE0ull,0X1F807F00ull,0X2FBF400ull,0X3F8000ull,0XBFE000ull,0XBE0FD00ull,0XBF001F80ull,0X3F40002F0ull,0X380000030ull,0ull, //U+58 ( X )
- 0X70ull,0X7F0ull,0X7FD0ull,0X7F800ull,0X1557F8000ull,0X3FFFC0000ull,0X1557F8000ull,0X7F800ull,0X7F80ull,0X7F0ull,0X70ull,0ull, //U+59 ( Y )
- 0ull,0X3D00000B0ull,0X3FD0000B0ull,0X3AF8000B0ull,0X383F400B0ull,0X3807F40B0ull,0X3800BE0B0ull,0X38000FDB0ull,0X380001FF0ull,0X3800002F0ull,0X140000010ull, //U+5A ( Z )
- 0ull,0X5555555550ull,0XFFFFFFFFF0ull,0XFAAAAAAAF0ull,0XE0000000B0ull,0XD000000070ull, //U+5B ( [ )
- 0X20ull,0X7F0ull,0X1BF80ull,0X2FE400ull,0X7FD0000ull,0X1BF800000ull,0X3E4000000ull,0X100000000ull, //U+5C ( \ )
- 0X5000000050ull,0XE0000000B0ull,0XE0000000B0ull,0XFFFFFFFFF0ull,0XAAAAAAAAA0ull,0ull, //U+5D ( ] )
- 0X100000ull,0X3D0000ull,0X1F8000ull,0X1F800ull,0X1F80ull,0X1F0ull,0XBD0ull,0XBD00ull,0XBD000ull,0X3D0000ull,0X100000ull, //U+5E ( ^ )
- 0X1C000000000ull,0X1C000000000ull,0X1C000000000ull,0X1C000000000ull,0X1C000000000ull,0X1C000000000ull,0X1C000000000ull,0X1C000000000ull,0X18000000000ull, //U+5F ( _ )
- 0ull,0ull,0ull,0ull,0X8ull,0X3Cull,0XB8ull,0XC0ull,0ull,0ull,0ull,0ull, //U+60 ( ` )
- 0ull,0XBF400000ull,0X2FFC03400ull,0X3C1E03800ull,0X380F02C00ull,0X380B02C00ull,0X1C0B03C00ull,0XB9B5B800ull,0X3FFFFF000ull,0X155554000ull,0ull, //U+61 ( a )
- 0ull,0ull,0X3FFFFFFFCull,0X1BFABFAA8ull,0XD0007000ull,0X380002C00ull,0X380002C00ull,0X3C0003C00ull,0X2E000B800ull,0XFFFFF000ull,0X1FFF4000ull,0ull, //U+62 ( b )
- 0ull,0XAFA0000ull,0X7FFFD000ull,0X1F401F400ull,0X3C0003800ull,0X380002C00ull,0X380002C00ull,0X3C0003C00ull,0X1C0002800ull,0ull, //U+63 ( c )
- 0ull,0XAFA0000ull,0XBFFFE000ull,0X1F401F400ull,0X3C0003C00ull,0X380002C00ull,0X380002C00ull,0X1C0003400ull,0XB956F554ull,0X3FFFFFFFCull,0X2AAAAAAA8ull,0ull, //U+64 ( d )
- 0ull,0X6F90000ull,0X7FFFD000ull,0XF4B1F400ull,0X2C0B03C00ull,0X3C0B02C00ull,0X380B02C00ull,0X380B07800ull,0X2C0BFF000ull,0X180BF8000ull,0ull, //U+65 ( e )
- 0X400ull,0X1C00ull,0X2AAAABE90ull,0X3FFFFFFF4ull,0X1C7Cull,0X1C2Cull,0X82Cull,0X14ull, //U+66 ( f )
- 0XA400000000ull,0X3FD001A4000ull,0XB4BBCFFF000ull,0XE03EFD07800ull,0XD02C3801C00ull,0XD02C3801C00ull,0XE02C3C03C00ull,0XB03C1FFFC00ull,0X3EB807FFC00ull,0X1FF00001C00ull,0X1000000400ull, //U+67 ( g )
- 0ull,0ull,0X3FFFFFFFCull,0X2AAAFFAA8ull,0X7000ull,0X2800ull,0X2C00ull,0X3C00ull,0X1B800ull,0X3FFFFF000ull,0X2AAAA4000ull,0ull, //U+68 ( h )
- 0ull,0ull,0X3FFFFFC3Cull,0X2AAAAA828ull,0ull, //U+69 ( i )
- 0XE0000000000ull,0XF4000000000ull,0X7FFFFFFFC3Cull,0XAAAAAAA828ull, //U+6A ( j )
- 0ull,0ull,0X3FFFFFFFCull,0X2AAFAAAA8ull,0XF80000ull,0X2FF0000ull,0X1FC7D000ull,0XBD01F400ull,0X3E0003C00ull,0X340000800ull, //U+6B ( k )
- 0ull,0ull,0X3FFFFFFFCull,0X2AAAAAAA8ull,0ull, //U+6C ( l )
- 0ull,0ull,0X3FFFFFC00ull,0X2AAAFE400ull,0X7000ull,0X2C00ull,0X2C00ull,0X3C00ull,0X15556F800ull,0X3FFFFF000ull,0X15556E000ull,0X3400ull,0X2C00ull,0X2C00ull,0X3C00ull,0X2AAABF800ull,0X3FFFFE000ull,0ull,0ull, //U+6D ( m )
- 0ull,0ull,0X3FFFFFC00ull,0X2AAAFE400ull,0X7000ull,0X2800ull,0X2C00ull,0X3C00ull,0X1B800ull,0X3FFFFF000ull,0X2AAAA4000ull,0ull, //U+6E ( n )
- 0ull,0X6F90000ull,0X7FFFD000ull,0X1F401F400ull,0X2C0003800ull,0X380002C00ull,0X380002C00ull,0X3C0003C00ull,0X1F401F400ull,0XBFFFD000ull,0XBFE0000ull,0ull, //U+6F ( o )
- 0ull,0ull,0XFFFFFFFFC00ull,0XAAAFFABE400ull,0XD0007000ull,0X380002800ull,0X380002C00ull,0X3C0003C00ull,0X2E000B800ull,0XFFFFF000ull,0X1FFF4000ull,0ull, //U+70 ( p )
- 0ull,0XAFA0000ull,0XBFFFE000ull,0X1F401F400ull,0X3C0003C00ull,0X380002C00ull,0X380002C00ull,0X1C0003400ull,0X555B956E000ull,0XFFFFFFFFC00ull,0XAAAAAAAA800ull,0ull, //U+71 ( q )
- 0ull,0ull,0X3FFFFFC00ull,0X2AAAFD400ull,0XB000ull,0X3800ull,0X2C00ull,0X2C00ull, //U+72 ( r )
- 0ull,0X2C00BD000ull,0X3C02FF400ull,0X3803C3C00ull,0X380B02C00ull,0X380F02C00ull,0X2E7D03C00ull,0XFF803800ull,0X15000000ull, //U+73 ( s )
- 0X400ull,0X1C00ull,0XBFFFFF80ull,0X2FFFFFFD0ull,0X3C0001C00ull,0X380001C00ull,0X240000800ull, //U+74 ( t )
- 0ull,0X5555400ull,0XBFFFFC00ull,0X2FAAAA800ull,0X3C0000000ull,0X380000000ull,0X380000000ull,0X1C0000000ull,0XB9555400ull,0X3FFFFFC00ull,0X2AAAAA800ull,0ull, //U+75 ( u )
- 0X2C00ull,0XBFC00ull,0X6FF9000ull,0X1BFE40000ull,0X3E4000000ull,0X3E4000000ull,0X1BFE00000ull,0X6FF9000ull,0X1BFC00ull,0X6C00ull,0ull, //U+76 ( v )
- 0X1800ull,0X1BFC00ull,0X6FFF9400ull,0X3FE900000ull,0X3E4000000ull,0X1BFE40000ull,0X1BFE400ull,0X1BC00ull,0X1BFC00ull,0X1BFF8000ull,0X3FF900000ull,0X3E4000000ull,0X2FFE40000ull,0X6FFF800ull,0X6FC00ull,0X400ull, //U+77 ( w )
- 0X100000000ull,0X380002C00ull,0X3F401FC00ull,0X7F0BE000ull,0XBFE0000ull,0X2FC0000ull,0X1FAF8000ull,0X1FD03F400ull,0X3E0007C00ull,0X300000800ull,0ull, //U+78 ( x )
- 0X90000001800ull,0XE000006FC00ull,0XF0001BFE000ull,0XB802FF80000ull,0X2FFFD000000ull,0X6FE4000000ull,0X1BF900000ull,0X6FF8000ull,0X1BFC00ull,0X6C00ull,0ull, //U+79 ( y )
- 0ull,0X3D0001C00ull,0X3FC001C00ull,0X36F801C00ull,0X342F41C00ull,0X3407F5C00ull,0X34007FC00ull,0X34000BC00ull,0X100000000ull, //U+7A ( z )
- 0X100000ull,0XB00000ull,0XF40000ull,0X1AFFEFFE40ull,0X7FFF4FFFD0ull,0XF4000000F0ull,0XE0000000B0ull, //U+7B ( { )
- 0ull,0ull,0ull,0ull,0ull,0XFFFFFFFFFFCull,0XAAAAAAAAAA8ull,0ull,0ull,0ull,0ull,0ull, //U+7C ( | )
- 0X5000000050ull,0XE0000000B0ull,0XBEAA06ABE0ull,0X2FFF9FFFC0ull,0X1FD0000ull,0XB00000ull,0X700000ull, //U+7D ( } )
- 0ull,0X1C0000ull,0XF0000ull,0XB0000ull,0XF0000ull,0X1E0000ull,0X2C0000ull,0X380000ull,0X380000ull,0X2C0000ull,0X50000ull,0ull, //U+7E ( ~ )
- 0ull,0X300000ull,0XFC0000ull,0X3FF0000ull,0XFFFC000ull,0X3FFFF000ull,0XFFFFFC00ull,0X3FFFF8F00ull,0XFFFFF47C0ull,0X3C0C3FC3F0ull,0XFC0C0FC3FCull,0X3F7F4243F0ull,0XFFFD007C0ull,0X3FFF41F00ull,0XFFFFFC00ull,0X3FFFF000ull,0XFFFC000ull,0X3FF0000ull,0XFC0000ull,0X300000ull,0ull //U+FFFD ( � )
+ 0ull,0xb82ffff0ull,0xfc3ffff0ull,0x10000050ull,0ull, //U+21 ( ! )
+ 0ull,0x2bf0ull,0x2af0ull,0ull,0ull,0x2bf0ull,0x2af0ull,0ull, //U+22 ( " )
+ 0xd00000ull,0xd07000ull,0xe5d07000ull,0xaff97000ull,0xfffe40ull,0xd07bf0ull,0x40d07010ull,0xfed07000ull,0x1bfff000ull,0xd6ffa0ull,0xd071b0ull,0xd07000ull,0x7000ull, //U+23 ( # )
+ 0ull,0x1c00bd00ull,0x3c02ff00ull,0x38038380ull,0x380742c0ull,0x3fffffffcull,0x17d5e56d4ull,0x2c2c02c0ull,0xff80380ull,0x7e00140ull,0ull, //U+24 ( $ )
+ 0ull,0x6ff40ull,0x1e9ae0ull,0x340070ull,0xd0340070ull,0xbd1e9ad0ull,0xb86fe40ull,0x1f80000ull,0x1f4000ull,0x2f400ull,0x1bfd2e00ull,0x7a6b87e0ull,0xd001c070ull,0xd001c000ull,0x7a6b4000ull,0x1ff90000ull,0ull, //U+25 ( % )
+ 0ull,0xbe00000ull,0x3ffd1fd0ull,0xb41fbff4ull,0xf003f03cull,0xe00bc02cull,0xe02fe02cull,0xb0b8783cull,0x7ae02ff4ull,0x2f800bd0ull,0x2fd00000ull,0xbafc0000ull,0xe02c0000ull,0x80000000ull, //U+26 ( & )
+ 0ull,0x2bf0ull,0x2af0ull,0ull,0ull, //U+27 ( ' )
+ 0ull,0x1bff9000ull,0x2fffffe00ull,0xfd0002fc0ull,0x3d000001f0ull,0x2000000020ull, //U+28 ( ( )
+ 0x3d000001f0ull,0xfe0006fc0ull,0x2fffffe00ull,0x1bff9000ull,0ull, //U+29 ( ) )
+ 0x600ull,0xb00ull,0xb0e00ull,0xbdd00ull,0xbebcull,0xbebcull,0xbdd00ull,0xb0e00ull,0xb00ull,0x600ull,0ull, //U+2a ( * )
+ 0ull,0x70000ull,0x70000ull,0x70000ull,0x70000ull,0x3ffff00ull,0x15b5500ull,0x70000ull,0x70000ull,0x70000ull,0x10000ull, //U+2b ( + )
+ 0x3a40000000ull,0x2ff0000000ull,0x1b0000000ull,0ull,0ull, //U+2c ( , )
+ 0ull,0xb00000ull,0xb00000ull,0xb00000ull,0xb00000ull,0ull, //U+2d ( - )
+ 0ull,0xb8000000ull,0xb8000000ull,0ull,0ull, //U+2e ( . )
+ 0xe4000000ull,0xbf400000ull,0x7f90000ull,0x6fd000ull,0x1fe40ull,0xbf0ull,0x70ull,0ull, //U+2f ( / )
+ 0ull,0x2fff800ull,0x2fffff80ull,0x7d0007d0ull,0xf00000f0ull,0xe00000b0ull,0xf00000f0ull,0x7d0007d0ull,0x2fffff80ull,0x2fff800ull,0ull, //U+30 ( 0 )
+ 0ull,0ull,0xa00ull,0x740ull,0x1d0ull,0xfffffff0ull,0xfffffff0ull,0ull,0ull,0ull,0ull, //U+31 ( 1 )
+ 0ull,0xf0000180ull,0xfc0001d0ull,0xef4000e0ull,0xe3d000b0ull,0xe0f800b0ull,0xe02f41e0ull,0xe007ffc0ull,0xe000bf40ull,0x90000000ull,0ull, //U+32 ( 2 )
+ 0ull,0x700001c0ull,0xb00001d0ull,0xe00b00f0ull,0xe00b00b0ull,0xe00b40b0ull,0xf00ec0f0ull,0x782cffd0ull,0x3ff42f40ull,0xbd00000ull,0ull, //U+33 ( 3 )
+ 0x3d00000ull,0x3f80000ull,0x39f0000ull,0x383d000ull,0x380b800ull,0x3801f00ull,0x38002d0ull,0xfffffff0ull,0xfffffff0ull,0x3800000ull,0x3800000ull, //U+34 ( 4 )
+ 0ull,0x7002fe90ull,0xf002fff0ull,0xe002c0b0ull,0xe002c0b0ull,0xe002c0b0ull,0xb003c0b0ull,0x780b40b0ull,0x2fff00b0ull,0x7f80000ull,0ull, //U+35 ( 5 )
+ 0ull,0x2ffe400ull,0x2fffff00ull,0x7c0b1bc0ull,0xf00281d0ull,0xe001c0e0ull,0xe002c0b0ull,0xb40780b0ull,0x3fff00b0ull,0xbf80000ull,0ull, //U+36 ( 6 )
+ 0ull,0xb0ull,0xb0ull,0xe00000b0ull,0xfe4000b0ull,0x1bf400b0ull,0xbf80b0ull,0x7f8b0ull,0x2ff0ull,0x2f0ull,0ull, //U+37 ( 7 )
+ 0ull,0x1fd01900ull,0x3ff4ffc0ull,0xb02ee5e0ull,0xe00f80b0ull,0xe00b00b0ull,0xe00f80b0ull,0xb43ee6e0ull,0x3ff4bfc0ull,0xbd01900ull,0ull, //U+38 ( 8 )
+ 0ull,0x2fe00ull,0xd00fffc0ull,0xd02d01e0ull,0xe03800b0ull,0xf03400b0ull,0x742800f0ull,0x3e0d02d0ull,0xfffff80ull,0xbff800ull,0ull, //U+39 ( 9 )
+ 0ull,0xb800b800ull,0xb800b800ull,0ull,0ull, //U+3a ( : )
+ 0x3a40000000ull,0x2ff000b800ull,0x1b000b800ull,0ull,0ull, //U+3b ( ; )
+ 0ull,0xe0000ull,0x1f0000ull,0x3a8000ull,0x70c000ull,0xe0a000ull,0x1c03000ull,0x3c03800ull,0x7401c00ull,0xf000e00ull,0ull, //U+3c ( < )
+ 0ull,0x707000ull,0x707000ull,0x707000ull,0x707000ull,0x707000ull,0x707000ull,0x707000ull,0x707000ull,0x707000ull,0ull, //U+3d ( = )
+ 0ull,0xf000e00ull,0x7401c00ull,0x3c03800ull,0x1c03000ull,0xe0a000ull,0x70c000ull,0x3a8000ull,0x1f0000ull,0xe0000ull,0ull, //U+3e ( > )
+ 0xc0ull,0xe0ull,0xf0ull,0xb83c00b0ull,0xfc2f00b0ull,0x1003c0f0ull,0xfbd0ull,0x2f40ull,0ull, //U+3f ( ? )
+ 0ull,0xaff8000ull,0x7e9bf400ull,0x1e0002e00ull,0x340000380ull,0xb01fe01c0ull,0xe0bebc0e0ull,0xd0e00e070ull,0xd0d007070ull,0xd0a007070ull,0xa02e5b0b0ull,0x707ffe0e0ull,0xe0001c0ull,0xe000b40ull,0x7e6bd00ull,0xbfe000ull,0ull, //U+40 ( @ )
+ 0xe4000000ull,0xff800000ull,0xbf90000ull,0xbfe000ull,0x71ff40ull,0x700bf0ull,0x700bf0ull,0x71ff40ull,0xbfe000ull,0xbf90000ull,0xff800000ull,0xe4000000ull,0ull, //U+41 ( A )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0xd0070070ull,0xd0070070ull,0xe00b00b0ull,0xe00b00b0ull,0xb41e81e0ull,0x3ffcffd0ull,0xbe07f40ull,0ull,0ull, //U+42 ( B )
+ 0ull,0x1bfe000ull,0xffffe00ull,0x2f401f80ull,0x780003d0ull,0xf00000e0ull,0xe00000b0ull,0xe00000b0ull,0xe00000b0ull,0xe00000f0ull,0xb00000d0ull,0ull, //U+43 ( C )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0xd0000070ull,0xd0000070ull,0xe00000b0ull,0xb00000b0ull,0xb00000e0ull,0x3c0002c0ull,0x2f401f80ull,0xbfffe00ull,0xbfe400ull,0ull,0ull, //U+44 ( D )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0xd0070070ull,0xd0070070ull,0xd0070070ull,0xd0070070ull,0xd0070070ull,0xd0070070ull,0ull,0ull, //U+45 ( E )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0x70070ull,0x70070ull,0x70070ull,0x70070ull,0x70070ull,0x70070ull,0ull, //U+46 ( F )
+ 0ull,0x1bfe000ull,0xbfffe00ull,0x2f401f80ull,0x780002c0ull,0xb00000e0ull,0xe00000b0ull,0xe01c00b0ull,0xd01c00b0ull,0xe01c00b0ull,0xbffc00e0ull,0x7ffc0050ull,0ull,0ull, //U+47 ( G )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0x70000ull,0x70000ull,0x70000ull,0x70000ull,0x70000ull,0x70000ull,0xfffffff0ull,0xfffffff0ull,0ull,0ull, //U+48 ( H )
+ 0x80000020ull,0xd0000070ull,0xfffffff0ull,0xfffffff0ull,0xd0000070ull,0x80000020ull,0ull, //U+49 ( I )
+ 0xe000000000ull,0xb400000000ull,0x3ffffffff0ull,0xbfffffff0ull, //U+4a ( J )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0xe0000ull,0xbc000ull,0x2ff000ull,0x1f83c00ull,0xbd00f00ull,0x3f0003d0ull,0xf40000f0ull,0xc0000030ull, //U+4b ( K )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0xd0000000ull,0xd0000000ull,0xd0000000ull,0xd0000000ull,0xd0000000ull,0xd0000000ull,0x80000000ull, //U+4c ( L )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0xbf0ull,0x2ff40ull,0x7fe000ull,0x1bf80000ull,0xfe400000ull,0xfe400000ull,0xbf80000ull,0x6fd000ull,0x1fe40ull,0x7f0ull,0xfffffff0ull,0xfffffff0ull,0ull,0ull, //U+4d ( M )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0x7e0ull,0x7f00ull,0x2f400ull,0x2f8000ull,0x1f80000ull,0xfd00000ull,0xbd000000ull,0xfffffff0ull,0xfffffff0ull,0ull,0ull, //U+4e ( N )
+ 0ull,0x1bfe400ull,0xbfffe00ull,0x2f401f80ull,0x780002d0ull,0xb00000e0ull,0xe00000b0ull,0xe00000b0ull,0xe00000b0ull,0xb00000e0ull,0x780002d0ull,0x2f401f80ull,0xbfffe00ull,0xbfe000ull,0ull,0ull, //U+4f ( O )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0x340070ull,0x340070ull,0x3800b0ull,0x3c00f0ull,0x1e02d0ull,0xbffc0ull,0x1fe00ull,0ull,0ull, //U+50 ( P )
+ 0ull,0x1bfe400ull,0xbfffe00ull,0x2f401f80ull,0x780002d0ull,0xb00000e0ull,0xe00000b0ull,0xe00000b0ull,0x1e00000b0ull,0xff00000e0ull,0x3e780002d0ull,0xb82f401f80ull,0x200bfffe00ull,0x1bfe000ull,0ull,0ull, //U+51 ( Q )
+ 0ull,0xfffffff0ull,0xfffffff0ull,0xd0070ull,0xd0070ull,0x1e00b0ull,0xbf00f0ull,0x7e781e0ull,0x3f43ffc0ull,0xf800be00ull,0xd0000000ull,0ull, //U+52 ( R )
+ 0ull,0xb0007f40ull,0xe002ffd0ull,0xe003c0e0ull,0xe00b40b0ull,0xe00f00b0ull,0xb43d00b0ull,0x3ff800e0ull,0xbe00050ull,0ull,0ull, //U+53 ( S )
+ 0x70ull,0x70ull,0x70ull,0x70ull,0xfffffff0ull,0xfffffff0ull,0x70ull,0x70ull,0x70ull,0x70ull,0ull, //U+54 ( T )
+ 0ull,0x7fffff0ull,0x2ffffff0ull,0x78000000ull,0xf0000000ull,0xe0000000ull,0xe0000000ull,0xb0000000ull,0x78000000ull,0x2ffffff0ull,0x7fffff0ull,0ull,0ull, //U+55 ( U )
+ 0x1b0ull,0x6ff0ull,0x1bfe00ull,0x6ff8000ull,0xbfe00000ull,0xf8000000ull,0xbfe00000ull,0x6ff8000ull,0x1bfe00ull,0x6ff0ull,0x1b0ull,0ull, //U+56 ( V )
+ 0x6f0ull,0x2fff0ull,0x1bff900ull,0xbff90000ull,0xfe000000ull,0x6ff90000ull,0x1bfe400ull,0x1bfe0ull,0x7f0ull,0x1bfe0ull,0x1bfe400ull,0xbfe40000ull,0xfd000000ull,0xbff90000ull,0x1bff900ull,0x1bff0ull,0x6f0ull,0ull, //U+57 ( W )
+ 0xd0000070ull,0xfc0002f0ull,0x1f801f80ull,0x2f4fd00ull,0x2fe000ull,0x2fd000ull,0x2f8fc00ull,0x2f801f80ull,0xfd0002f0ull,0xd0000070ull,0ull, //U+58 ( X )
+ 0xb0ull,0xbf0ull,0xbf40ull,0xbf400ull,0xfffe0000ull,0xffff4000ull,0x7f400ull,0x7f40ull,0x7f0ull,0x70ull,0ull, //U+59 ( Y )
+ 0ull,0xf4000070ull,0xff400070ull,0xebf00070ull,0xd0be0070ull,0xd00be070ull,0xd000feb0ull,0xd0001ff0ull,0xd00001f0ull,0ull,0ull, //U+5a ( Z )
+ 0ull,0x3ffffffff0ull,0x3ffffffff0ull,0x3400000070ull,0x3400000070ull,0ull, //U+5b ( [ )
+ 0x1b0ull,0x1fe0ull,0x6fd00ull,0x7f9000ull,0x1bf40000ull,0xfe400000ull,0xd0000000ull,0ull, //U+5c ( \ )
+ 0x3400000070ull,0x3400000070ull,0x3ffffffff0ull,0x3ffffffff0ull,0ull,0ull, //U+5d ( ] )
+ 0x200000ull,0x3e0000ull,0xbd000ull,0xbd00ull,0xbd0ull,0x1f0ull,0xbd0ull,0xbd00ull,0xbe000ull,0x3e0000ull,0x200000ull, //U+5e ( ^ )
+ 0x7000000000ull,0x7000000000ull,0x7000000000ull,0x7000000000ull,0x7000000000ull,0x7000000000ull,0x7000000000ull,0x7000000000ull, //U+5f ( _ )
+ 0ull,0ull,0ull,0ull,0x8ull,0x3cull,0xf8ull,0xc0ull,0ull,0ull,0ull,0ull, //U+60 ( ` )
+ 0x1fc00000ull,0x7ff02000ull,0xf0743800ull,0xe0382c00ull,0xe02c2c00ull,0xb02c2c00ull,0x381c3c00ull,0x7ffff400ull,0xffffd000ull,0ull,0ull, //U+61 ( a )
+ 0ull,0xfffffffcull,0xbffffffcull,0x3800b000ull,0xb0003800ull,0xe0002c00ull,0xe0002c00ull,0xf0003c00ull,0x7d01b400ull,0x2fffe000ull,0x6fe4000ull,0ull, //U+62 ( b )
+ 0x6fe4000ull,0x2fffe000ull,0x7d01f400ull,0xf0003c00ull,0xe0002c00ull,0xe0002c00ull,0xe0003c00ull,0x70002800ull,0ull, //U+63 ( c )
+ 0x6fe4000ull,0x2fffe000ull,0x7901f400ull,0xf0003c00ull,0xe0002c00ull,0xe0002c00ull,0xb0003800ull,0x3800b000ull,0xbffffffcull,0xfffffffcull,0ull,0ull, //U+64 ( d )
+ 0x6fe4000ull,0x2fffe000ull,0x7d1cb400ull,0xb01c2c00ull,0xe01c2c00ull,0xe01c2c00ull,0xe01c7800ull,0xb01ff000ull,0x201f8000ull,0ull, //U+65 ( e )
+ 0x1800ull,0x1c00ull,0xffffffe0ull,0xfffffff8ull,0x1c2cull,0x1c2cull,0x18ull, //U+66 ( f )
+ 0x7f00000000ull,0x1ffed1fd000ull,0x280fbbff400ull,0x340b1f03c00ull,0x340b0e01c00ull,0x340b0e01c00ull,0x380b0f03c00ull,0x1c0f07ffc00ull,0xffd01fec00ull,0x2f80001c00ull,0ull, //U+67 ( g )
+ 0ull,0xfffffffcull,0xfffffffcull,0xb000ull,0x3800ull,0x2c00ull,0x2c00ull,0x7c00ull,0xfffff400ull,0xffffd000ull,0ull,0ull, //U+68 ( h )
+ 0ull,0xfffffc3cull,0xfffffc3cull,0ull,0ull, //U+69 ( i )
+ 0x38000000000ull,0x2fffffffc3cull,0xbffffffc3cull,0ull, //U+6a ( j )
+ 0ull,0xfffffffcull,0xfffffffcull,0x740000ull,0x7e0000ull,0x2fb8000ull,0xbc2e000ull,0x3e00b800ull,0xf4002c00ull,0xc0000800ull, //U+6b ( k )
+ 0ull,0xfffffffcull,0xfffffffcull,0ull,0ull, //U+6c ( l )
+ 0ull,0xfffffc00ull,0xfffff800ull,0xb000ull,0x3800ull,0x2c00ull,0x2c00ull,0x7800ull,0xfffff400ull,0xffffd000ull,0xb000ull,0x3800ull,0x2c00ull,0x2c00ull,0x7c00ull,0xfffff400ull,0xffffd000ull,0ull,0ull, //U+6d ( m )
+ 0ull,0xfffffc00ull,0xfffff800ull,0xb000ull,0x3800ull,0x2c00ull,0x2c00ull,0x7c00ull,0xfffff400ull,0xffffd000ull,0ull,0ull, //U+6e ( n )
+ 0x2fe4000ull,0x2fffe000ull,0x7900b400ull,0xb0003800ull,0xe0002c00ull,0xe0002c00ull,0xb0003800ull,0x7901b400ull,0x2fffe000ull,0x6fe0000ull,0ull, //U+6f ( o )
+ 0ull,0x3fffffffc00ull,0x3fffffff800ull,0x3800b000ull,0xb0003800ull,0xe0002c00ull,0xe0002c00ull,0xf0003c00ull,0x7d01b400ull,0x2fffe000ull,0x6fe4000ull,0ull, //U+70 ( p )
+ 0x6fe4000ull,0x2fffe000ull,0x7901f400ull,0xf0003c00ull,0xe0002c00ull,0xe0002c00ull,0xb0003800ull,0x3800b000ull,0x3fffffff800ull,0x3fffffffc00ull,0ull,0ull, //U+71 ( q )
+ 0ull,0xfffffc00ull,0xffffe800ull,0xe000ull,0x3800ull,0x2c00ull,0x2c00ull,0ull, //U+72 ( r )
+ 0xb007e000ull,0xe00ff400ull,0xe02d3c00ull,0xd0382c00ull,0xe0742c00ull,0xb0f02c00ull,0x7fd03800ull,0x1f801400ull, //U+73 ( s )
+ 0x1800ull,0x1c00ull,0x2fffff80ull,0xbfffffd0ull,0xf0001c00ull,0xe0001c00ull,0xe0001c00ull, //U+74 ( t )
+ 0ull,0x1ffffc00ull,0x7ffffc00ull,0xf4000000ull,0xe0000000ull,0xe0000000ull,0xb0000000ull,0x38000000ull,0xbffffc00ull,0xfffffc00ull,0ull,0ull, //U+75 ( u )
+ 0x7c00ull,0x1ff800ull,0x7fe4000ull,0xff900000ull,0xf4000000ull,0xff900000ull,0x7fe4000ull,0x1ffc00ull,0x6c00ull,0ull, //U+76 ( v )
+ 0x1bc00ull,0x1bff800ull,0xbff90000ull,0xf8000000ull,0xbfd00000ull,0x1ff9000ull,0x6fc00ull,0x6bc00ull,0x1ff9000ull,0xbfe00000ull,0xf8000000ull,0xbff90000ull,0x1bff800ull,0x1bc00ull,0ull, //U+77 ( w )
+ 0x80000800ull,0xf8007c00ull,0xbf43f800ull,0xbff8000ull,0xfd0000ull,0xbff8000ull,0xbf43f800ull,0xf8007c00ull,0x80000800ull,0ull, //U+78 ( x )
+ 0x38000006c00ull,0x380001bfc00ull,0x3c002fe4000ull,0xfdbf900000ull,0x2ff8000000ull,0x1bf900000ull,0x6fe4000ull,0x1bfc00ull,0x6c00ull,0ull, //U+79 ( y )
+ 0xe0000800ull,0xfd001c00ull,0xdf801c00ull,0xd2f01c00ull,0xd07d1c00ull,0xd00b9c00ull,0xd001fc00ull,0xd0003c00ull,0ull, //U+7a ( z )
+ 0xb00000ull,0xb00000ull,0xf80000ull,0xbffdfff80ull,0x2ffe06ffe0ull,0x38000000b0ull,0ull, //U+7b ( { )
+ 0ull,0ull,0ull,0ull,0ull,0x3fffffffffcull,0x15555555554ull,0ull,0ull,0ull,0ull, //U+7c ( | )
+ 0ull,0x38000000b0ull,0x2ffe06ffe0ull,0xbffdfff80ull,0xf80000ull,0xb00000ull,0xb00000ull, //U+7d ( } )
+ 0ull,0x1c0000ull,0xb0000ull,0xb0000ull,0xf0000ull,0x1d0000ull,0x3c0000ull,0x380000ull,0x380000ull,0xd0000ull,0ull, //U+7e ( ~ )
+ 0x40000ull,0x2e0000ull,0xbf8000ull,0x2ffe000ull,0xbfff800ull,0x2ffffe00ull,0xbffff680ull,0x2ffffe1e0ull,0xb4b0ff0f8ull,0x1f0303f0fdull,0xb8be090f8ull,0x2fff402e0ull,0xbffe0780ull,0x2ffffe00ull,0xbfff800ull,0x2ffe000ull,0xbf8000ull,0x2e0000ull,0x40000ull,0ull //U+fffd ( � )
 };
-
-#endif //FONT_DROID21_H
