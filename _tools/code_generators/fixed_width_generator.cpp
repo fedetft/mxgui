@@ -38,13 +38,13 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     const bool aa=glyphs.at(0).isAntialiased();
     if(aa && log) *logStream<<"Font is antialiased"<<endl;
 
-    file.open(filename.c_str());
+    ofstream file(filename.c_str());
     file<<showbase;//So that it will print 0x in front of hexadecimal numbers
     //Write header part
-    file<<"#ifndef FONT_"<<toUpper(fontName)<<"_H\n"<<
-          "#define FONT_"<<toUpper(fontName)<<"_H\n"<<
+    file<<"#pragma once\n"<<
           "//This font has been converted from BDF/TTF font format to .h\n"<<
-          "//using fontrendering utility written by Terraneo Federico.\n"<<
+          "//using the fontrendering utility which is part of mxgui,\n"<<
+          "//the graphics library of the Miosix kernel.\n"<<
           "//Do not modify this file, it has been automatically generated.\n\n";
 
     //Calculate how many bits are necessary to store a row of a glyph
@@ -58,12 +58,12 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     
     //Write font info data
     std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
-    file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
+    file<<"const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n"<<
+          "const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=true;\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
           "const unsigned char "<<fontName<<"Width="<<width<<";\n"<<
           "const unsigned char "<<fontName<<"DataSize="<<roundedHeight<<";\n"<<
-          "const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n"<<
           "const unsigned char "<<fontName<<"NumBlocks="<<blocks.size()<<";\n\n";
 
     //Write range array
@@ -100,7 +100,7 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     for(int i=0;i<glyphs.size();i++)
     {
         Glyph glyph=glyphs.at(i);
-        file<<" { //U+"<<noshowbase<<hex<<uppercase<<static_cast<int>(glyph.getCodepoint())<<" ( "<<
+        file<<" { //U+"<<noshowbase<<hex<<static_cast<int>(glyph.getCodepoint())<<" ( "<<
             UnicodeBlockManager::codepointToString(glyph.getCodepoint())<<" )\n  ";
         for(int j=0;j<width;j++)
         {
@@ -127,10 +127,6 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     }
 
     file<<"};\n";
-
-    //Write last part
-    file<<"\n#endif //FONT_"<<toUpper(fontName)<<"_H\n";
-    file.close();
 }
 
 } //namepace fontcore

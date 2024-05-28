@@ -255,7 +255,6 @@ protected:
     std::ostream *logStream; ///< Valid only if debugFlag is true
     bool log; ///< True if debugMode has been called
     std::vector<Glyph> glyphs; ///< List of glyphs
-    std::ofstream file; ///< File where to write look up tables
 
 private:
     CodeGenerator(const CodeGenerator&);
