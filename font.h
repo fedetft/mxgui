@@ -32,7 +32,6 @@
 #include "point.h"
 #include "iterator_direction.h"
 #include <algorithm>
-#include <functional>
 #ifdef _MIOSIX
 #include <util/unicode.h>
 #else //_MIOSIX
@@ -174,16 +173,20 @@ public:
      * \return the widths of the characters, only if it is a variable width
      * Font. If you want to know the width of character c when
      * using font f, use:
-     * \code if(f.isInRange(c))
-     * result=f.getWidths()[f.getVirtualCodepoint(c)] \endcode
+     * \code f.getWidths()[f.getVirtualCodepoint(c)] \endcode
+     * or better still, just call calculateLength(c) that works with both fixed
+     * and variable width fonts.
+     * Note that either case, if the character is not in range you will get the
+     * "missing character" glyph width.
      */
     const unsigned char *getWidths() const { return widths; }
 
     /**
      * \return a table with the offset within data where a character starts
      * For example, character c in font f starts at:
-     * \code if(f.isInRange(c))
-     * result=f.getOffset()[f.getVirtualCodepoint(c)] \endcode
+     * \code f.getOffset()[f.getVirtualCodepoint(c)] \endcode
+     * Note that if the character is not in range you will get the "missing
+     * character" glyph.
      */
     const unsigned short *getOffset() const { return offset; }
 
