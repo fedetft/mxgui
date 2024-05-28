@@ -111,8 +111,9 @@ int main(int argc, char *argv[])
         for(string s : rangeList)
         {
             try {
-                start=stoi(s.substr(0,s.find(",")));
-                end=stoi(s.substr(s.find(",")+1,s.size()));
+                const int autodetectBase=0;
+                start=stoi(s.substr(0,s.find(",")),nullptr,autodetectBase);
+                end=stoi(s.substr(s.find(",")+1,s.size()),nullptr,autodetectBase);
             } catch(invalid_argument& e)
             {
                 throw(runtime_error("Wrongly formatted ranges! Expected \"<start>,<end>\""));
