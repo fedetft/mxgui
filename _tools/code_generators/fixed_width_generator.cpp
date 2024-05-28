@@ -58,8 +58,7 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     
     //Write font info data
     std::vector<UnicodeBlock> blocks = UnicodeBlockManager::getAvailableBlocks();
-    file<<"const unsigned int "<<fontName<<"NumGlyphs="<<glyphs.size()<<";\n"<<
-          "const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
+    file<<"const bool "<<fontName<<"IsAntialiased="<<(aa?"true;\n":"false;\n")<<
           "const bool "<<fontName<<"IsFixedWidth=true;\n"<<
           "const unsigned char "<<fontName<<"Height="<<height<<";\n"<<
           "const unsigned char "<<fontName<<"Width="<<width<<";\n"<<

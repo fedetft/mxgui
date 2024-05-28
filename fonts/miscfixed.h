@@ -4,7 +4,6 @@
 //the graphics library of the Miosix kernel.
 //Do not modify this file, it has been automatically generated.
 
-const unsigned int miscfixedNumGlyphs=96;
 const bool miscfixedIsAntialiased=false;
 const bool miscfixedIsFixedWidth=true;
 const unsigned char miscfixedHeight=16;

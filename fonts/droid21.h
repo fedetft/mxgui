@@ -4,7 +4,6 @@
 //the graphics library of the Miosix kernel.
 //Do not modify this file, it has been automatically generated.
 
-const unsigned int droid21NumGlyphs=96;
 const bool droid21IsAntialiased=true;
 const bool droid21IsFixedWidth=false;
 const unsigned char droid21Height=22;

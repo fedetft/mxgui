@@ -4,7 +4,6 @@
 //the graphics library of the Miosix kernel.
 //Do not modify this file, it has been automatically generated.
 
-const unsigned int tahomaNumGlyphs=96;
 const bool tahomaIsAntialiased=false;
 const bool tahomaIsFixedWidth=false;
 const unsigned char tahomaHeight=12;
