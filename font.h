@@ -486,10 +486,8 @@ template<typename T,typename U, typename W, typename L, typename D>
 void Font::drawingEngine(typename T::pixel_iterator first,
             short x, short xEnd, Color colors[], const char *s) const
 {
-    for(;;)
+    while(char32_t c=miosix::Unicode::nextUtf8(s))
     {
-        char32_t c = miosix::Unicode::nextUtf8(s);
-        if(c==0) break;
         unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<W::getWidth(this,vc);i++)
         {
