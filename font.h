@@ -274,10 +274,10 @@ private:
          * \param col the glyph pixel column
          */
         template<typename U>
-        static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned short col)
+        static inline const U *lookupGlyph(const Font *ref, unsigned int virtualCodepoint)
         {
             const U *fontData=reinterpret_cast<const U *>(ref->getData());
-            return fontData[(virtualCodepoint*ref->width)+col];
+            return fontData+(virtualCodepoint*ref->width);
         }
 
         static inline unsigned short getWidth(const Font *ref, unsigned int virtualCodepoint)
@@ -295,10 +295,10 @@ private:
          * \param col the glyph pixel column
          */
         template<typename U>
-        static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned short col)
+        static inline const U *lookupGlyph(const Font *ref, unsigned int virtualCodepoint)
         {
             const U *fontData=reinterpret_cast<const U *>(ref->getData());
-            return fontData[ref->offset[virtualCodepoint]+col];
+            return fontData+ref->offset[virtualCodepoint];
         }
 
         static inline unsigned short getWidth(const Font *ref, unsigned int virtualCodepoint)
@@ -483,10 +483,11 @@ void Font::drawingEngine(typename T::pixel_iterator first,
     {
         unsigned int vc=getVirtualCodepoint(c);
         unsigned short width=L::getWidth(this,vc);
+        const U *glyphData=L::template lookupGlyph<U>(this,vc);
         for(unsigned short i=0;i<width;i++)
         {
             if(x++==xEnd) break;
-            U row=L::template lookupGlyph<U>(this,vc,i);
+            U row=*glyphData++;
             for(int j=0;j<height;j++)
                 D::template drawGlyphPixel<T,U>(first,colors,row);
         }
@@ -527,6 +528,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     //code point from the last iteration of the previous loop
     if(partial>0)
     {
+        const U *glyphData=L::template lookupGlyph<U>(this,vc)+partial;
         for(unsigned short i=partial;i<width;i++)
         {
             if(x>b.x())
@@ -535,7 +537,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
                 return;
             }
             x++;
-            U row=L::template lookupGlyph<U>(this,vc,i);
+            U row=*glyphData++;
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
                 D::template drawGlyphPixel<T,U>(it,colors,row);
@@ -547,11 +549,12 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     {
         unsigned int vc=getVirtualCodepoint(c);
         unsigned short width=L::getWidth(this,vc);
+        const U *glyphData=L::template lookupGlyph<U>(this,vc);
         for(unsigned short i=0;i<width;i++)
         {
             if(x>b.x()) break;
             x++;
-            U row=L::template lookupGlyph<U>(this,vc,i);
+            U row=*glyphData++;
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
                 D::template drawGlyphPixel<T,U>(it,colors,row);
