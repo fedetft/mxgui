@@ -489,7 +489,7 @@ void Font::drawingEngine(typename T::pixel_iterator first,
     for(;;)
     {
         char32_t c = miosix::Unicode::nextUtf8(s);
-        if(c=='\0') break;
+        if(c==0) break;
         unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<W::getWidth(this,vc);i++)
         {
@@ -510,12 +510,13 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
 {
     //Walk the string till the first at least partially visible char
     int partial=0;
+    unsigned int vc;
     short x=p.x();
     while(x<a.x())
     {
-        char32_t c = miosix::Unicode::nextUtf8(s);
-        if(c=='\0') return; //String ends before draw area begins
-        unsigned int vc=getVirtualCodepoint(c);
+        char32_t c=miosix::Unicode::nextUtf8(s);
+        if(c==0) return; //String ends before draw area begins
+        vc=getVirtualCodepoint(c);
         if(x+W::getWidth(this,vc)>a.x())
         {
             //The current char is partially visible
@@ -531,11 +532,10 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     const short ySkipped=D::computeySkip(a,p);
     const short yHeight=b.y()-a.y()+1;
 
-    //Draw the first partially visible char, if it exists
+    //Draw the first partially visible char, if it exists it is the virtual
+    //code point from the last iteration of the previous loop
     if(partial>0)
     {
-        char32_t c = miosix::Unicode::nextUtf8(s);
-        unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=partial;i<W::getWidth(this,vc);i++)
         {
             if(x>b.x()) return;
@@ -552,7 +552,8 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     //Draw the rest of the string
     for(;;)
     {
-        char32_t c = miosix::Unicode::nextUtf8(s);
+        char32_t c=miosix::Unicode::nextUtf8(s);
+        if(c==0) return;
         unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<widths[vc];i++)
         {
