@@ -492,7 +492,7 @@ void Font::drawingEngine(typename T::pixel_iterator first,
         unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<W::getWidth(this,vc);i++)
         {
-            if(x++==xEnd) return;
+            if(x++==xEnd) break;
             U row=L::template lookupGlyph<U>(this,vc,i);
             for(int j=0;j<height;j++)
                 D::template drawGlyphPixel<T,U>(first,colors,row);
@@ -534,7 +534,11 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     {
         for(unsigned int i=partial;i<W::getWidth(this,vc);i++)
         {
-            if(x>b.x()) return;
+            if(x>b.x())
+            {
+                it.invalidate();
+                return;
+            }
             x++;
             U row=L::template lookupGlyph<U>(this,vc,i);
             row>>=ySkipped;
@@ -544,14 +548,12 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     }
 
     //Draw the rest of the string
-    for(;;)
+    while(char32_t c=miosix::Unicode::nextUtf8(s))
     {
-        char32_t c=miosix::Unicode::nextUtf8(s);
-        if(c==0) return;
         unsigned int vc=getVirtualCodepoint(c);
         for(unsigned int i=0;i<W::getWidth(this,vc);i++)
         {
-            if(x>b.x()) return;
+            if(x>b.x()) break;
             x++;
             U row=L::template lookupGlyph<U>(this,vc,i);
             row>>=ySkipped;
