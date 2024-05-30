@@ -555,7 +555,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
         char32_t c=miosix::Unicode::nextUtf8(s);
         if(c==0) return;
         unsigned int vc=getVirtualCodepoint(c);
-        for(unsigned int i=0;i<widths[vc];i++)
+        for(unsigned int i=0;i<W::getWidth(this,vc);i++)
         {
             if(x>b.x()) return;
             x++;
