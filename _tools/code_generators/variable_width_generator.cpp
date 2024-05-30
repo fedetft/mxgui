@@ -77,22 +77,6 @@ void VariableWidthGenerator::generateCode(const std::string filename,
     }
     file<<"\n};\n\n"<<dec;
 
-    //Write width look up table
-    file<<"//The width of character i is "<<fontName<<"Width[i]\n";
-    file<<"const unsigned char "<<fontName<<"Width[]={\n ";
-    int widthNewline=0;
-    for(int i=0;i<glyphs.size();i++)
-    {
-        if(i!=glyphs.size()-1)
-        {
-            file<<glyphs.at(i).getWidth()<<",";
-            if(++widthNewline==8) { widthNewline=0; file<<"\n "; }
-        } else {
-            file<<glyphs.at(i).getWidth();
-        }
-    }
-    file<<"\n};\n\n";
-
     //Write offsets look up table
     file<<"//The first byte of character i is "<<fontName<<"Data["<<
             fontName<<"Offset[i]]\n";
@@ -104,12 +88,12 @@ void VariableWidthGenerator::generateCode(const std::string filename,
     {
         file<<offsetCalculated;
         offsetCalculated+=glyphs.at(i).getWidth();
-        if(i!=glyphs.size()-1)
-        {
-            file<<",";
-            if(++offsetNewline==8) { offsetNewline=0; file<<"\n "; }
-        }
+        file<<",";
+        if(++offsetNewline==8) { offsetNewline=0; file<<"\n "; }
     }
+    //NOTE: the size of the offset array is equal to the number of glyphs + 1
+    //to be able to compute the width of the last glyph
+    file<<offsetCalculated;
     file<<"\n};\n\n";
 
     //Write font look up table

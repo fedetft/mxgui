@@ -65,7 +65,7 @@ short int Font::calculateLength(const char *s) const
     else {
         short int result=0;
         while(char32_t c=miosix::Unicode::nextUtf8(s))
-            result+=widths[getVirtualCodepoint(c)];
+            result+=variableWidthGetWidth(getVirtualCodepoint(c));
         return result;
     }
 }

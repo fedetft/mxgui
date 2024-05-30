@@ -16,22 +16,6 @@ const unsigned int tahomaBlocks[]{
  0xfffd,0x1
 };
 
-//The width of character i is tahomaWidth[i]
-const unsigned char tahomaWidth[]={
- 3,4,4,8,6,11,7,2,
- 4,4,6,8,4,4,4,4,
- 6,6,6,6,6,6,6,6,
- 6,6,4,4,8,8,8,5,
- 10,7,6,7,7,6,6,7,
- 7,4,5,6,5,8,7,8,
- 6,8,7,6,6,7,6,10,
- 6,6,6,4,4,4,8,6,
- 6,6,6,5,6,6,4,6,
- 6,2,3,5,2,8,6,6,
- 6,6,4,5,4,6,6,8,
- 6,6,5,5,4,5,8,8
-};
-
 //The first byte of character i is tahomaData[tahomaOffset[i]]
 const unsigned short tahomaOffset[]={
  0,3,7,11,19,25,36,43,
@@ -45,7 +29,8 @@ const unsigned short tahomaOffset[]={
  386,392,398,404,409,415,421,425,
  431,437,439,442,447,449,457,463,
  469,475,481,485,490,494,500,506,
- 514,520,526,531,536,540,545,553
+ 514,520,526,531,536,540,545,553,
+ 561
 };
 
 const unsigned short tahomaData[]={

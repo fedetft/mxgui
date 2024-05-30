@@ -16,22 +16,6 @@ const unsigned int droid11Blocks[]{
  0xfffd,0x1
 };
 
-//The width of character i is droid11Width[i]
-const unsigned char droid11Width[]={
- 3,3,5,7,6,9,8,3,
- 3,3,6,5,3,4,3,5,
- 6,6,6,6,6,6,6,6,
- 6,6,3,3,6,6,6,5,
- 10,8,6,7,7,5,5,7,
- 7,4,3,7,5,9,7,8,
- 5,8,6,5,6,7,8,10,
- 7,8,6,3,5,3,6,5,
- 6,6,6,5,6,6,4,6,
- 6,2,2,5,2,10,6,6,
- 6,6,4,5,4,6,6,8,
- 6,6,5,4,5,4,6,11
-};
-
 //The first byte of character i is droid11Data[droid11Offset[i]]
 const unsigned short droid11Offset[]={
  0,3,6,11,18,24,33,41,
@@ -45,7 +29,8 @@ const unsigned short droid11Offset[]={
  368,374,380,386,391,397,403,407,
  413,419,421,423,428,430,440,446,
  452,458,464,468,473,477,483,489,
- 497,503,509,514,518,523,527,533
+ 497,503,509,514,518,523,527,533,
+ 544
 };
 
 const unsigned int droid11Data[]={

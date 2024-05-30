@@ -53,38 +53,38 @@ public:
     /**
      * Creates a fixed width font.
      * \param blocks list of unicode blocks included in the font, in (base, size) pairs
+     * \param numBlocks number of unicode blocks
      * \param height the height of the glyphs
      * \param width the width of the glyphs (fixed width font)
-     * \param dataSize can be 8,16 or 32, it is the size of one element of data
      * \param antialiased true if font is antialiased
+     * \param dataSize can be 8,16 or 32, it is the size of one element of data
      * \param data pinter to the font data. This must point to a static array
      * so that no memory leak problems occur
      */
-    constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
-        unsigned char width, unsigned char dataSize, bool antialiased,
-        const void *data): height(height), width(width), dataSize(dataSize),
-        antialiased(antialiased), numBlocks(numBlocks), blocks(blocks),
-        widths(nullptr), offset(nullptr), data(data) {}
+    constexpr Font(const unsigned int *blocks, unsigned char numBlocks,
+        unsigned char height, unsigned char width, bool antialiased,
+        unsigned char dataSize, const void *data): blocks(blocks),
+        numBlocks(numBlocks), height(height), width(width), offset(nullptr),
+        antialiased(antialiased), dataSize(dataSize), data(data) {}
 
     /**
      * Creates a variable width font.
      * \param blocks list of unicode blocks included in the font, (base, size) pairs
+     * \param numBlocks number of unicode blocks
      * \param height the height of the glyphs
-     * \param dataSize can be 8,16 or 32, it is the size of one element of data
-     * \param antialiased true if font is antialiased
-     * \param widths pointer to a table that contains the widths of each glyph.
-     * This must point to a static array so that no memory leak problems occur
      * \param offset pointer to a table that contains where in data each glyph
-     * begins (data[offset[c]])
+     * begins (data[offset[c]]) (variable width font)
+     * \param antialiased true if font is antialiased
+     * \param dataSize can be 8,16 or 32, it is the size of one element of data
      * This must point to a static array so that no memory leak problems occur
      * \param data pinter to the font data. This must point to a static array
      * so that no memory leak problems occur
      */
-    constexpr Font(unsigned char numBlocks, const unsigned int *blocks, unsigned char height,
-        unsigned char dataSize, bool antialiased, const unsigned char *widths,
-        const unsigned short *offset, const void *data): height(height),
-        width(0), dataSize(dataSize), antialiased(antialiased), numBlocks(numBlocks),
-        blocks(blocks), widths(widths), offset(offset), data(data) {}
+    constexpr Font(const unsigned int *blocks, unsigned char numBlocks,
+        unsigned char height, const unsigned short *offset, bool antialiased,
+        unsigned char dataSize, const void *data): blocks(blocks),
+        numBlocks(numBlocks), height(height), width(0), offset(offset),
+        antialiased(antialiased), dataSize(dataSize), data(data) {}
 
     /**
      * Draw a string on a surface.
@@ -126,7 +126,7 @@ public:
      */
     short int calculateLength(char32_t c) const
     {
-        return width ? width : widths[getVirtualCodepoint(c)];
+        return width ? width : variableWidthGetWidth(getVirtualCodepoint(c));
     }
 
     /**
@@ -158,7 +158,7 @@ public:
 
     /**
      * \return the Font's width. Use this member function only if the Font is
-     * fixed width, otherwise see getWidths()
+     * fixed width, otherwise use calculateLength()
      */
     unsigned char getWidth() const { return width; }
 
@@ -168,18 +168,6 @@ public:
      * void* to unsigned short*
      */
     unsigned char getDataSize() const { return dataSize; }
-
-    /**
-     * \return the widths of the characters, only if it is a variable width
-     * Font. If you want to know the width of character c when
-     * using font f, use:
-     * \code f.getWidths()[f.getVirtualCodepoint(c)] \endcode
-     * or better still, just call calculateLength(c) that works with both fixed
-     * and variable width fonts.
-     * Note that either case, if the character is not in range you will get the
-     * "missing character" glyph width.
-     */
-    const unsigned char *getWidths() const { return widths; }
 
     /**
      * \return a table with the offset within data where a character starts
@@ -209,6 +197,16 @@ public:
     //without problems since there is no member function to modify them
     //nor to return a non-const pointer to them
 private:
+    /**
+     * Compute the glyph width. Can only be used if the font is variable width
+     * \param virtualCodePoint glyph virtual code point
+     * \return glyph width
+     */
+    unsigned short variableWidthGetWidth(unsigned int virtualCodePoint) const
+    {
+        return offset[virtualCodePoint+1]-offset[virtualCodePoint];
+    }
+
     class GlyphDrawer
     {
     public:
@@ -303,7 +301,7 @@ private:
 
         static inline unsigned short getWidth(const Font *ref, unsigned int virtualCodepoint)
         {
-            return ref->widths[virtualCodepoint];
+            return ref->variableWidthGetWidth(virtualCodepoint);
         }
     };
   
@@ -351,14 +349,13 @@ private:
     void drawingEngineClipped(T& surface, Point p, Point a, Point b,
             Color colors[], const char *s) const;
 
+    const unsigned int *blocks; // Codepoint ranges of the font
+    unsigned char numBlocks;
     unsigned char height;
     unsigned char width;// set to zero if variable width font
-    unsigned char dataSize;
-    bool antialiased;
-    unsigned char numBlocks;
-    const unsigned int *blocks; // Codepoint ranges of the font
-    const unsigned char *widths;// set to nullptr if fixed width
     const unsigned short *offset;// set to nullptr if fixed width
+    bool antialiased;
+    unsigned char dataSize;
     const void *data;
 };
 
