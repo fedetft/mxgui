@@ -224,6 +224,7 @@ private:
             if(col & 0x1) *it=colors[0];
             else *it=colors[1];
             col>>=1;
+            it++;
         }
 
         /**
@@ -251,6 +252,7 @@ private:
         {
             *it=colors[col & 0x3];
             col>>=2;
+            it++;
         }
 
         /**
@@ -494,10 +496,7 @@ void Font::drawingEngine(typename T::pixel_iterator first,
             if(x++==xEnd) return;
             U row=L::template lookupGlyph<U>(this,vc,i);
             for(int j=0;j<height;j++)
-            {
                 D::template drawGlyphPixel<T,U>(first,colors,row);
-                first++;
-            }
         }
     }
 }
@@ -541,9 +540,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
             U row=L::template lookupGlyph<U>(this,vc,i);
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
-            {
                 D::template drawGlyphPixel<T,U>(it,colors,row);
-            }
         }
     }
 
@@ -560,9 +557,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
             U row=L::template lookupGlyph<U>(this,vc,i);
             row>>=ySkipped;
             for(int j=0;j<yHeight;j++)
-            {
                 D::template drawGlyphPixel<T,U>(it,colors,row);
-            }
         }
     }
     it.invalidate(); //May not fill the requested window
