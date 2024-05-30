@@ -279,6 +279,11 @@ private:
             const U *fontData=reinterpret_cast<const U *>(ref->getData());
             return fontData[(virtualCodepoint*ref->width)+col];
         }
+
+        static inline unsigned short getWidth(const Font *ref, unsigned int virtualCodepoint)
+        {
+            return ref->width;
+        }
     };
 
     class VariableWidthGlyphLookup
@@ -295,20 +300,7 @@ private:
             const U *fontData=reinterpret_cast<const U *>(ref->getData());
             return fontData[ref->offset[virtualCodepoint]+col];
         }
-    };
 
-    class FixedWidth
-    {
-    public:
-        static inline unsigned short getWidth(const Font *ref, unsigned int virtualCodepoint)
-        {
-            return ref->width;
-        }
-    };
-
-    class VariableWidth
-    {
-    public:
         static inline unsigned short getWidth(const Font *ref, unsigned int virtualCodepoint)
         {
             return ref->widths[virtualCodepoint];
@@ -342,7 +334,7 @@ private:
      * \param colors background/foregound color pair
      * \param s string to write
      */
-    template<typename T,typename U, typename W, typename L, typename D>
+    template<typename T, typename U, typename L, typename D>
     void drawingEngine(typename T::pixel_iterator first,
             short x, short xEnd, Color colors[], const char *s) const;
 
@@ -355,7 +347,7 @@ private:
      * \param colors palette for antialiased drawing
      * \param s string to write
      */
-    template<typename T,typename U, typename W, typename L, typename D>
+    template<typename T, typename U, typename L, typename D>
     void drawingEngineClipped(T& surface, Point p, Point a, Point b,
             Color colors[], const char *s) const;
 
@@ -390,10 +382,10 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
         case 16:
             if(isAntialiased()) return;
             if(isFixedWidth())
-                drawingEngine<T,unsigned short,FixedWidth,
+                drawingEngine<T,unsigned short,
                         FixedWidthGlyphLookup,GlyphDrawer>(it,
                         p.x(),surface.getWidth(),fgBgColors,s);
-            else drawingEngine<T,unsigned short,VariableWidth,
+            else drawingEngine<T,unsigned short,
                         VariableWidthGlyphLookup,GlyphDrawer>(it,
                         p.x(),surface.getWidth(),fgBgColors,s);
             break;
@@ -401,22 +393,22 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
             if(isAntialiased())
             {
                 if(isFixedWidth()) return;
-                drawingEngine<T,unsigned int,VariableWidth,
+                drawingEngine<T,unsigned int,
                         VariableWidthGlyphLookup,GlyphDrawerAA>(it,
                         p.x(),surface.getWidth(),colors,s);
             } else {
                 if(isFixedWidth())
-                    drawingEngine<T,unsigned int,FixedWidth,
+                    drawingEngine<T,unsigned int,
                         FixedWidthGlyphLookup,GlyphDrawer>(it,p.x(),
                         surface.getWidth(),fgBgColors,s);
-                else drawingEngine<T,unsigned int,VariableWidth,
+                else drawingEngine<T,unsigned int,
                         VariableWidthGlyphLookup,GlyphDrawer>(it,
                         p.x(),surface.getWidth(),fgBgColors,s);
             }
             break;
         case 64:
             if(isAntialiased()==false || isFixedWidth()) return;
-            drawingEngine<T,unsigned long long,VariableWidth,
+            drawingEngine<T,unsigned long long,
                         VariableWidthGlyphLookup,GlyphDrawerAA>(it,
                         p.x(),surface.getWidth(),colors,s);
             break;
@@ -450,10 +442,10 @@ void Font::clippedDraw(T& surface, Color colors[4],
         case 16:
             if(isAntialiased()) return;
             if(isFixedWidth())
-                drawingEngineClipped<T,unsigned short,FixedWidth,
+                drawingEngineClipped<T,unsigned short,
                        FixedWidthGlyphLookup,GlyphDrawer>(surface,p,
                        Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
-            else drawingEngineClipped<T,unsigned short,VariableWidth,
+            else drawingEngineClipped<T,unsigned short,
                        VariableWidthGlyphLookup,GlyphDrawer>(surface,p,
                        Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
             break;
@@ -461,36 +453,36 @@ void Font::clippedDraw(T& surface, Color colors[4],
             if(isAntialiased())
             {
                 if(isFixedWidth()) return;
-                drawingEngineClipped<T,unsigned int,VariableWidth,
+                drawingEngineClipped<T,unsigned int,
                        VariableWidthGlyphLookup,GlyphDrawerAA>(surface,p,
                        Point(xa,ya),Point(b.x(),yb),colors,s);
             } else {
                 if(isFixedWidth())
-                    drawingEngineClipped<T,unsigned int,FixedWidth,
+                    drawingEngineClipped<T,unsigned int,
                        FixedWidthGlyphLookup,GlyphDrawer>(surface,p,
                        Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
-                else drawingEngineClipped<T,unsigned int,VariableWidth,
+                else drawingEngineClipped<T,unsigned int,
                        VariableWidthGlyphLookup,GlyphDrawer>(surface,p,
                        Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
             }
             break;
         case 64:
             if(isAntialiased()==false || isFixedWidth()) return;
-            drawingEngineClipped<T,unsigned long long,VariableWidth,
+            drawingEngineClipped<T,unsigned long long,
                        VariableWidthGlyphLookup,GlyphDrawerAA>(surface,p,
                        Point(xa,ya),Point(b.x(),yb),colors,s);
             break;
     }
 }
 
-template<typename T,typename U, typename W, typename L, typename D>
+template<typename T, typename U, typename L, typename D>
 void Font::drawingEngine(typename T::pixel_iterator first,
             short x, short xEnd, Color colors[], const char *s) const
 {
     while(char32_t c=miosix::Unicode::nextUtf8(s))
     {
         unsigned int vc=getVirtualCodepoint(c);
-        unsigned short width=W::getWidth(this,vc);
+        unsigned short width=L::getWidth(this,vc);
         for(unsigned short i=0;i<width;i++)
         {
             if(x++==xEnd) break;
@@ -501,7 +493,7 @@ void Font::drawingEngine(typename T::pixel_iterator first,
     }
 }
 
-template<typename T,typename U, typename W, typename L, typename D>
+template<typename T, typename U, typename L, typename D>
 void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
             Color colors[], const char *s) const
 {
@@ -515,7 +507,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
         char32_t c=miosix::Unicode::nextUtf8(s);
         if(c==0) return; //String ends before draw area begins
         vc=getVirtualCodepoint(c);
-        width=W::getWidth(this,vc);
+        width=L::getWidth(this,vc);
         if(x+width>a.x())
         {
             //The current char is partially visible
@@ -554,7 +546,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     while(char32_t c=miosix::Unicode::nextUtf8(s))
     {
         unsigned int vc=getVirtualCodepoint(c);
-        unsigned short width=W::getWidth(this,vc);
+        unsigned short width=L::getWidth(this,vc);
         for(unsigned short i=0;i<width;i++)
         {
             if(x>b.x()) break;
