@@ -274,7 +274,7 @@ private:
          * \param col the glyph pixel column
          */
         template<typename U>
-        static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned char col)
+        static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned short col)
         {
             const U *fontData=reinterpret_cast<const U *>(ref->getData());
             return fontData[(virtualCodepoint*ref->width)+col];
@@ -290,7 +290,7 @@ private:
          * \param col the glyph pixel column
          */
         template<typename U>
-        static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned char col)
+        static inline U lookupGlyph(const Font *ref, unsigned int virtualCodepoint, unsigned short col)
         {
             const U *fontData=reinterpret_cast<const U *>(ref->getData());
             return fontData[ref->offset[virtualCodepoint]+col];
@@ -300,7 +300,7 @@ private:
     class FixedWidth
     {
     public:
-        static inline unsigned char getWidth(const Font *ref, unsigned int virtualCodepoint)
+        static inline unsigned short getWidth(const Font *ref, unsigned int virtualCodepoint)
         {
             return ref->width;
         }
@@ -309,7 +309,7 @@ private:
     class VariableWidth
     {
     public:
-        static inline unsigned char getWidth(const Font *ref, unsigned int virtualCodepoint)
+        static inline unsigned short getWidth(const Font *ref, unsigned int virtualCodepoint)
         {
             return ref->widths[virtualCodepoint];
         }
@@ -490,7 +490,8 @@ void Font::drawingEngine(typename T::pixel_iterator first,
     while(char32_t c=miosix::Unicode::nextUtf8(s))
     {
         unsigned int vc=getVirtualCodepoint(c);
-        for(unsigned int i=0;i<W::getWidth(this,vc);i++)
+        unsigned short width=W::getWidth(this,vc);
+        for(unsigned short i=0;i<width;i++)
         {
             if(x++==xEnd) break;
             U row=L::template lookupGlyph<U>(this,vc,i);
@@ -505,21 +506,23 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
             Color colors[], const char *s) const
 {
     //Walk the string till the first at least partially visible char
-    int partial=0;
     unsigned int vc;
+    unsigned short width;
+    unsigned short partial=0;
     short x=p.x();
     while(x<a.x())
     {
         char32_t c=miosix::Unicode::nextUtf8(s);
         if(c==0) return; //String ends before draw area begins
         vc=getVirtualCodepoint(c);
-        if(x+W::getWidth(this,vc)>a.x())
+        width=W::getWidth(this,vc);
+        if(x+width>a.x())
         {
             //The current char is partially visible
             partial=a.x()-x;
             break; //Don't go past this char, since it has to be drawn
         }
-        x+=W::getWidth(this,vc);
+        x+=width;
     }
     x=a.x();
 
@@ -532,7 +535,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     //code point from the last iteration of the previous loop
     if(partial>0)
     {
-        for(unsigned int i=partial;i<W::getWidth(this,vc);i++)
+        for(unsigned short i=partial;i<width;i++)
         {
             if(x>b.x())
             {
@@ -551,7 +554,8 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
     while(char32_t c=miosix::Unicode::nextUtf8(s))
     {
         unsigned int vc=getVirtualCodepoint(c);
-        for(unsigned int i=0;i<W::getWidth(this,vc);i++)
+        unsigned short width=W::getWidth(this,vc);
+        for(unsigned short i=0;i<width;i++)
         {
             if(x>b.x()) break;
             x++;
