@@ -221,8 +221,7 @@ private:
         template<typename T, typename U>
         static inline void drawGlyphPixel(typename T::pixel_iterator& it, Color colors[2], U& col)
         {
-            if(col & 0x1) *it=colors[0];
-            else *it=colors[1];
+            *it=colors[col & 0x1];
             col>>=1;
             it++;
         }
@@ -385,7 +384,7 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
     // 16 bit : fixedWidth, variableWidth
     // 32 bit : fixedWidth, variableWidth, variableWidthAntialiased
     // 64 bit : variableWidthAntialiased
-    Color fgBgColors[2]={colors[3],colors[0]};
+    Color fgBgColors[2]={colors[0],colors[3]};
     switch(dataSize)
     {
         case 16:
@@ -445,7 +444,7 @@ void Font::clippedDraw(T& surface, Color colors[4],
     // 16 bit : fixedWidth, variableWidth
     // 32 bit : fixedWidth, variableWidth, variableWidthAntialiased
     // 64 bit : variableWidthAntialiased
-    Color fgBgColors[2]={colors[3],colors[0]};
+    Color fgBgColors[2]={colors[0],colors[3]};
     switch(dataSize)
     {
         case 16:
