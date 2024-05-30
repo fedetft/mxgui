@@ -11,7 +11,7 @@ const unsigned char droid21DataSize=64;
 const unsigned char droid21NumBlocks=2;
 
 // The start of range i is blocks[2*i], its size is at blocks[2*i+1]
-const unsigned int droid21Blocks[]{
+const unsigned int droid21Blocks[]={
  0x20,0x5f,
  0xfffd,0x1
 };

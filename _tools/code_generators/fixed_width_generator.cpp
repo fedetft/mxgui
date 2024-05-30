@@ -67,7 +67,7 @@ void FixedWidthGenerator::generateCode(const std::string filename,
 
     //Write range array
     file<<"// The start of range i is blocks[2*i], its size is at blocks[2*i+1]\n";
-    file<<"const unsigned int "<<fontName<<"Blocks[]{\n";
+    file<<"const unsigned int "<<fontName<<"Blocks[]={\n";
     for(int i=0;i<blocks.size();i++)
     {
         UnicodeBlock block = blocks[i];

@@ -11,7 +11,7 @@ const unsigned char tahomaDataSize=16;
 const unsigned char tahomaNumBlocks=2;
 
 // The start of range i is blocks[2*i], its size is at blocks[2*i+1]
-const unsigned int tahomaBlocks[]{
+const unsigned int tahomaBlocks[]={
  0x20,0x5f,
  0xfffd,0x1
 };
