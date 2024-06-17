@@ -310,10 +310,13 @@ DisplayImpl::DisplayImpl() : buffer(0)
         RCC_SYNC();
     }
 
+    // The ILI9341 datasheet says the SPI interface runs up to 10MHz but
+    // this controller has been overclocked up to 100MHz with no side-effects:
+    // https://www.eevblog.com/forum/microcontrollers/ili9341-lcd-driver-max-spi-clock-speed/
     SPI2->CR1=SPI_CR1_SSM   //Sowtware CS
             | SPI_CR1_SSI   //Software CS high
             | SPI_CR1_SPE   //SPI enabled
-            | (3<<3)        //Divide input clock by 16: 84/16=5.25MHz
+            | (0<<3)        //Divide input clock by 2: 42/2=21MHz
             | SPI_CR1_MSTR; //Master mode
     Thread::sleep(1);
 
