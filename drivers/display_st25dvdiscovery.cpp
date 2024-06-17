@@ -168,7 +168,36 @@ void DisplayImpl::setPixel(Point p, Color color)
 
 void DisplayImpl::line(Point a, Point b, Color color)
 {
-    // TODO - Horizontal line optimization
+    //Horizontal line speed optimization
+    if(a.y()==b.y())
+    {
+        imageWindow(Point(min(a.x(),b.x()),a.y()),
+                    Point(max(a.x(),b.x()),a.y()));
+        Transaction ts(0x2c);
+        int numPixels=abs(a.x()-b.x());
+        for(int i=0;i<=numPixels;i++)
+        {
+            ts.write(static_cast<unsigned char>(color >> 8));
+            ts.write(static_cast<unsigned char>(color & 0xFF));
+        }
+        return;
+    }
+    //Vertical line speed optimization
+    if(a.x()==b.x())
+    {
+        textWindow(Point(a.x(),min(a.y(),b.y())),
+                    Point(a.x(),max(a.y(),b.y())));
+        Transaction ts(0x2c);
+        int numPixels=abs(a.y()-b.y());
+        for(int i=0;i<=numPixels;i++)
+        {
+            ts.write(static_cast<unsigned char>(color >> 8));
+            ts.write(static_cast<unsigned char>(color & 0xFF));
+        }
+        return;
+    }
+    //General case, always works but it is much slower due to the display
+    //not having fast random access to pixels
     Line::draw(*this, a, b, color);
 }
 
