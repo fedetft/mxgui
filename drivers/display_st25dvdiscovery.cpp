@@ -57,21 +57,18 @@ static unsigned char spi2sendRev(unsigned char c=0)
 
 void sendCmd(unsigned char cmd, int len, ...)
 {
-
     // Send Command
     dcx::low();
     csx::low();
     spi2sendRev(cmd);
-    delayUs(1);
     dcx::high();
 
     // Send Arguments
     va_list arg;
     va_start(arg,len);
     for(int i=0;i<len;i++)
-    {   
+    {
         spi2sendRev(va_arg(arg,int));
-        delayUs(1);
     }
     va_end(arg);
     csx::high();
@@ -82,14 +79,12 @@ Transaction::Transaction(unsigned char cmd)
     dcx::low();
     csx::low();
     spi2sendRev(cmd);
-    delayUs(1);
     dcx::high();
 }
 
 void Transaction::write(unsigned char c)
 {
     spi2sendRev(c);
-    delayUs(1);
 }
 
 Transaction::~Transaction()
@@ -167,6 +162,7 @@ void DisplayImpl::setPixel(Point p, Color color)
 {
     unsigned char lsb = color & 0xFF;
     unsigned char msb = (color >> 8) & 0xFF;
+    imageWindow(p, p); // set cursor
     sendCmd(0x2c,2,msb,lsb); // RAMWR
 }
 
@@ -262,6 +258,7 @@ DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2, IteratorDirec
 
     if(d==DR) textWindow(p1,p2);
     else imageWindow(p1,p2);
+    sendCmd(0x2c,0);
 
     unsigned int numPixels=(p2.x()-p1.x()+1)*(p2.y()-p1.y()+1);
     return pixel_iterator(numPixels);
@@ -325,6 +322,7 @@ DisplayImpl::DisplayImpl() : buffer(0)
     sendCmd(0x2c,0);                          //LCD_GRAM
 
     imageWindow(Point(0,0), Point(width-1,height-1));
+    clear(black);
 };
 
 DisplayImpl::~DisplayImpl() 

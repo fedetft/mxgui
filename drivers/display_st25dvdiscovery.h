@@ -214,11 +214,10 @@ public:
     class pixel_iterator
     {
     public:
-
         /**
          * Default constructor, results in an invalid iterator.
          */
-        pixel_iterator(): pixelLeft(0), wr(nullptr) {}
+        pixel_iterator(): pixelLeft(0) {}
 
         /**
          * Set a pixel and move the pointer to the next one
@@ -228,13 +227,9 @@ public:
         pixel_iterator& operator= (Color color)
         {
             pixelLeft--;
-            
             unsigned char lsb = color & 0xFF;
             unsigned char msb = (color >> 8) & 0xFF;
-
-            wr->write(msb);
-            wr->write(lsb);
-
+            sendCmd(0x3c,2,msb,lsb);
             return *this;
         }
 
@@ -277,26 +272,14 @@ public:
          */
         void invalidate() {}
 
-        ~pixel_iterator()
-        {
-            if(wr) delete wr;
-        }
-
     private:
-
         /**
          * Constructor
          * \param pixelLeft number of remaining pixels
          */
-        pixel_iterator(unsigned int pixelLeft): pixelLeft(pixelLeft)
-        {
-            wr = new Transaction(0x2c);
-        }
+        pixel_iterator(unsigned int pixelLeft): pixelLeft(pixelLeft) {}
 
         unsigned int pixelLeft; ///< How many pixels are left to draw
-
-        Transaction* wr;
-
         friend class DisplayImpl;
     };
 
@@ -354,16 +337,15 @@ private:
      * \param p1 top-left point of the rectangle
      * \param p2 bottom-right point of the rectangle
      */
-    static inline void window(Point p1, Point p2)
+    static inline void window(unsigned sc, unsigned ec, unsigned sp, unsigned ep)
     {
-        int SC[] = {p1.x() & 0xff, (p1.x() >> 8) & 0xff};
-        int EC[] = {p2.x() & 0xff, (p2.x() >> 8) & 0xff};
-        int SP[] = {p1.y() & 0xff, (p1.y() >> 8) & 0xff};
-        int EP[] = {p2.y() & 0xff, (p2.y() >> 8) & 0xff};
+        unsigned SC[] = {sc & 0xff, (sc >> 8) & 0xff};
+        unsigned EC[] = {ec & 0xff, (ec >> 8) & 0xff};
+        unsigned SP[] = {sp & 0xff, (sp >> 8) & 0xff};
+        unsigned EP[] = {ep & 0xff, (ep >> 8) & 0xff};
 
         sendCmd(0x2a,4,SC[1],SC[0],EC[1],EC[0]); //LCD_COLUMN_ADDR
         sendCmd(0x2b,4,SP[1],SP[0],EP[1],EP[0]); //LCD_PAGE_ADDR
-        sendCmd(0x2c,0); //LCD_RAMWR
     }
 
     /**
@@ -376,9 +358,7 @@ private:
     static inline void textWindow(Point p1, Point p2)
     {
         #ifdef MXGUI_ORIENTATION_VERTICAL
-        // p3 is p2 transposed relative to p1. So that the column and page addresses exchanges
-        Point p3(p1.x()+p2.y()-p1.y(),p1.y()+p2.x()-p1.x());
-        window(p1,p3);
+        window(p1.y(),p2.y(),p1.x(),p2.x()); // all coordinates will be swapped
         sendCmd(0x36,1,0x28); //LCD_MAC
         #elif defined MXGUI_ORIENTATION_HORIZONTAL
             #error Not implemented
@@ -399,7 +379,7 @@ private:
     static inline void imageWindow(Point p1, Point p2)
     {
         #ifdef MXGUI_ORIENTATION_VERTICAL
-        window(p1,p2);
+        window(p1.x(),p2.x(),p1.y(),p2.y());
         sendCmd(0x36,1,0x08); //LCD_MAC
         #elif defined MXGUI_ORIENTATION_HORIZONTAL
             #error Not implemented
