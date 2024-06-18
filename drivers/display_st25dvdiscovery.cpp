@@ -295,8 +295,6 @@ DisplayImpl::pixel_iterator DisplayImpl::begin(Point p1, Point p2, IteratorDirec
 
 DisplayImpl::DisplayImpl() : buffer(0)
 {
-    // TODO - RCC Sequence needed for PLLSAI? There is no PLLSAI for this MCU
-
     // SPI2 Configuration
     {
         FastInterruptDisableLock dLock;
