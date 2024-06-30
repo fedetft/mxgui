@@ -296,7 +296,7 @@ DisplayImpl::DisplayImpl(): buffer(0)
     //Write burst disabled, Extended mode enabled, Wait signal disabled
     //Write enabled, Wait signal active before wait state, Wrap disabled
     //Burst disabled, Data width 16bit, Memory type SRAM, Data mux disabled
-    BCR1 = FSMC_BCR1_WREN | FSMC_BCR1_MWID_0 | FSMC_BCR1_MBKEN | FSMC_BCR1_EXTMOD;
+    BCR1 = FSMC_BCRx_WREN | FSMC_BCRx_MWID_0 | FSMC_BCRx_MBKEN | FSMC_BCRx_EXTMOD;
 
     //--Write timings--
     //Address setup=0 (+1), Data setup=3 (+1), Access mode=A
@@ -308,7 +308,7 @@ DisplayImpl::DisplayImpl(): buffer(0)
     //The fail is done on purpose to gain speed. Can be fixed if *really* needed
     //with an address setup of 1 instead of zero.
     //Maximum theoretical framerate is 187.5fps
-    BWTR1 = FSMC_BWTR1_DATAST_1 | FSMC_BWTR1_DATAST_0;
+    BWTR1 = FSMC_BWTRx_DATAST_1 | FSMC_BWTRx_DATAST_0;
     //--Read timings--
     //Address setup=15 (+1), Data setup=15 (+3), Access mode=A
     //NOE low    18 cycle 252ns: pass tWLR80(250ns)
@@ -318,9 +318,9 @@ DisplayImpl::DisplayImpl(): buffer(0)
     //The failures are the result of the fact that the maximum value of DATAST
     //and ADDSET is 15 so there's no simple way to fix them
     //Maximum theoretical framerate is 27.6fps
-    BTR1 = FSMC_BTR1_DATAST_3 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_DATAST_1 |
-           FSMC_BTR1_DATAST_0 | FSMC_BTR1_ADDSET_3 | FSMC_BTR1_ADDSET_2 |
-           FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_0;
+    BTR1 = FSMC_BTRx_DATAST_3 | FSMC_BTRx_DATAST_2 | FSMC_BTRx_DATAST_1 |
+           FSMC_BTRx_DATAST_0 | FSMC_BTRx_ADDSET_3 | FSMC_BTRx_ADDSET_2 |
+           FSMC_BTRx_ADDSET_1 | FSMC_BTRx_ADDSET_0;
     
     //
     //Power up sequence -- begin

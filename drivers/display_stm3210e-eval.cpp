@@ -259,14 +259,14 @@ DisplayImpl::DisplayImpl(): buffer(0), displayType(UNKNOWN)
     //Write burst disabled, Extended mode enabled, Wait signal disabled
     //Write enabled, Wait signal active before wait state, Wrap disabled
     //Burst disabled, Data width 16bit, Memory type SRAM, Data mux disabled
-    BCR4 = FSMC_BCR4_WREN | FSMC_BCR4_MWID_0 | FSMC_BCR4_MBKEN | FSMC_BCR4_EXTMOD;
+    BCR4 = FSMC_BCRx_WREN | FSMC_BCRx_MWID_0 | FSMC_BCRx_MBKEN | FSMC_BCRx_EXTMOD;
     // Write timings
     //Address setup=0, Data setup=4, Access mode=A
-    BWTR4 = FSMC_BTR4_DATAST_2;
+    BWTR4 = FSMC_BTRx_DATAST_2;
     // Read timings
     //Address setup=13, Data setup=10, Access mode=A
-    BTR4 = FSMC_BTR4_DATAST_3 | FSMC_BTR4_DATAST_1 | FSMC_BTR4_ADDSET_3 |
-           FSMC_BTR4_ADDSET_2 | FSMC_BTR4_ADDSET_0;
+    BTR4 = FSMC_BTRx_DATAST_3 | FSMC_BTRx_DATAST_1 | FSMC_BTRx_ADDSET_3 |
+           FSMC_BTRx_ADDSET_2 | FSMC_BTRx_ADDSET_0;
     
     //Detect what kind of display controller we are interfacing with and init it
     delayMs(10);
