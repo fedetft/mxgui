@@ -37,6 +37,7 @@
 #include "drivers/event_types_sony-newman.h"
 #include "drivers/event_types_stm32f4discovery.h"
 #include "drivers/event_types_stm3220g-eval.h"
+#include "drivers/event_types_st25dvdiscovery.h"
 
 #ifdef MXGUI_LEVEL_2
 

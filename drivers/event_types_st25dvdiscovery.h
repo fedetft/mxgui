@@ -1,5 +1,7 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Terraneo Federico                               *
+ *   Copyright (C) 2014 by Terraneo Federico                               *
+ *   Copyright (C) 2024 by Daniele Cattaneo                                *
+ *   Copyright (C) 2024 by Ignazio Neto dell'Acqua                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,53 +27,45 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include "input.h"
+#ifndef EVENT_TYPES_ST25DVDISCOVERY_H
+#define	EVENT_TYPES_ST25DVDISCOVERY_H
 
-#ifdef MXGUI_LEVEL_2
+#ifdef _BOARD_STM32F415VG_ST25DVDISCOVERY
 
-#include "drivers/event_qt.h"
-#include "drivers/event_win.h"
-#include "drivers/event_mp3v2.h"
-#include "drivers/event_strive.h"
-#include "drivers/event_stm3210e-eval.h"
-#include "drivers/event_redbull_v2.h"
-#include "drivers/event_sony-newman.h"
-#include "drivers/event_stm32f4discovery.h"
-#include "drivers/event_stm3220g-eval.h"
-#include "drivers/event_st25dvdiscovery.h"
-
-using namespace std;
-
-namespace mxgui {
-
-//
-// class InputHandler
-//
-
-InputHandler& InputHandler::instance()
+class EventType
 {
-    static InputHandlerImpl implementation;
-    static InputHandler singleton(&implementation);
-    return singleton;
-}
+public:
+    enum E
+    {
+        // These are a must on all backends -- begin
+        Default=0,           // This actually means 'no event'
+        WindowPartialRedraw=17, // At least one drawable has requested redraw
+        WindowForeground=18,    // Window manager moved this window to foreground
+        WindowBackground=19,    // Window manager moved this window to background
+        WindowQuit=20,          // Window manager requested the window to close
+        // These are a must on all backends -- end
+        
+        TouchDown=1,
+        TouchUp=2,
+        TouchMove=3,
+        ButtonA=4,      // The "Key" or "User" button
+        ButtonJoy=5,    // Center button on the joystick
+        ButtonUp=6,     // Up button on the joystick
+        ButtonDown=7,   // Down button on the joystick
+        ButtonLeft=8,   // Left button on the joystick
+        ButtonRight=9,  // Right button on the joystick
+        None = 10,
+        ButtonADown=11,      // The "Key" or "User" button become pressed
+        ButtonJoyDown=12,    // Center button on the joystick become pressed
+        ButtonUpDown=13,     // Up button on the joystick become pressed
+        ButtonDownDown=14,   // Down button on the joystick become pressed
+        ButtonLeftDown=15,   // Left button on the joystick become pressed
+        ButtonRightDown=16,  // Right button on the joystick become pressed
+    };
+private:
+    EventType();
+};
 
-Event InputHandler::getEvent()
-{
-    return pImpl->getEvent();
-}
+#endif //_BOARD_STM32F415VG_ST25DVDISCOVERY
 
-Event InputHandler::popEvent()
-{
-    return pImpl->popEvent();
-}
-
-function<void ()> InputHandler::registerEventCallback(function<void ()> cb)
-{
-    return pImpl->registerEventCallback(cb);
-}
-
-InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
-
-} //namespace mxgui
-
-#endif //MXGUI_LEVEL_2
+#endif //EVENT_TYPES_ST25DVDISCOVERY_H
