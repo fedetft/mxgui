@@ -226,10 +226,10 @@ public:
             y = 4095-y; // Y is swapped
 
             // Apply calibration. Values may vary from unit to unit
-            const int xMin = 220;
-            const int xMax = 3900;
-            const int yMin = 160;
-            const int yMax = 3900;
+            const int xMin = 240;
+            const int xMax = 3800;
+            const int yMin = 220;
+            const int yMax = 3700;
             x = (x - xMin) * 240 / (xMax - xMin);
             y = (y - yMin) * 320 / (yMax - yMin);
             x=min(239,max(0,x));
