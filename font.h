@@ -483,7 +483,7 @@ void Font::drawingEngine(typename T::pixel_iterator first,
         const U *glyphData=L::template lookupGlyph<U>(this,vc);
         for(unsigned short i=0;i<width;i++)
         {
-            if(x++==xEnd) break;
+            if(x++==xEnd) return;
             U row=*glyphData++;
             for(int j=0;j<height;j++)
                 D::template drawGlyphPixel<T,U>(first,colors,row);
@@ -528,11 +528,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
         const U *glyphData=L::template lookupGlyph<U>(this,vc)+partial;
         for(unsigned short i=partial;i<width;i++)
         {
-            if(x>b.x())
-            {
-                it.invalidate();
-                return;
-            }
+            if(x>b.x()) { it.invalidate(); return; }
             x++;
             U row=*glyphData++;
             row>>=ySkipped;
@@ -549,7 +545,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
         const U *glyphData=L::template lookupGlyph<U>(this,vc);
         for(unsigned short i=0;i<width;i++)
         {
-            if(x>b.x()) break;
+            if(x>b.x()) { it.invalidate(); return; }
             x++;
             U row=*glyphData++;
             row>>=ySkipped;
