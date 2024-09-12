@@ -31,6 +31,9 @@
 #include <misc_inst.h>
 #include <unistd.h>
 #include <cstdlib>
+#ifdef _MIOSIX
+#include "miosix.h"
+#endif
 
 using namespace mxgui;
 
@@ -78,6 +81,7 @@ void randomOptionsDemo()
     int borderBottom=random()%32;
     {
         DrawingContext dc(DisplayManager::instance().getDisplay());
+        dc.clear(grey);
         dc.setFont((loop/optionsSz)%2==0 ? droid11 : droid21);
         dc.setTextColor({black,white});
         TextBox::draw(dc,
@@ -103,11 +107,23 @@ void scrollingDemo()
     {
         DrawingContext dc(DisplayManager::instance().getDisplay());
         dispHeight=dc.getHeight();
+        dc.clear(grey);
     }
     bool reachedEnd=false;
     int endY=0;
-    for(int scrollY=-dispHeight-10; !reachedEnd; scrollY++)
+    #ifdef _MIOSIX
+    long long frameStartTime=miosix::getTime();
+    long long frameTime=0;
+    const long long targetFrameTime=16666666; // 50 FPS
+    #endif
+    for(int scrollY=-dispHeight-10; !reachedEnd;)
     {
+        char frameTimeBuf[32];
+        #ifdef _MIOSIX
+        sniprintf(frameTimeBuf, 32, "%04lld.%03lld ms", frameTime/1000000, (frameTime/1000)%1000);
+        #else
+        snprintf(frameTimeBuf, 32, "0000.000 ms");
+        #endif
         const char *stringPtr;
         {
             DrawingContext dc(DisplayManager::instance().getDisplay());
@@ -119,13 +135,26 @@ void scrollingDemo()
                 loremIpsum, 
                 options[loop%optionsSz],
                 0,0,0,0,scrollY);
+            dc.setFont(tahoma);
+            dc.write(Point(5,dc.getHeight()-13),frameTimeBuf);
         }
         if(*stringPtr=='\0')
         {
             if(endY == 0) endY=scrollY;
             if(scrollY-endY>dispHeight+10) reachedEnd=true;
         }
+        #ifdef _MIOSIX
+        // constant speed even when lagging
+        long long frameEndTime=miosix::getTime();
+        frameTime=frameEndTime-frameStartTime;
+        int dScrollY=static_cast<int>(frameTime/targetFrameTime)+1;
+        scrollY+=dScrollY;
+        frameStartTime+=dScrollY*targetFrameTime;
+        miosix::Thread::nanoSleepUntil(frameStartTime);
+        #else
         usleep(10000);
+        scrollY++;
+        #endif
     }
     loop++;
 }
