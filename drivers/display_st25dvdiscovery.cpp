@@ -352,6 +352,7 @@ DisplayImpl::DisplayImpl() : buffer(0)
     sendCmd(0x2c,0);                          //LCD_GRAM
 
     imageWindow(Point(0,0), Point(width-1,height-1));
+    setTextColor({white, black});
     clear(black);
 };
 
