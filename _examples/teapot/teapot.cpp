@@ -259,8 +259,10 @@ ENTRY()
                     }
                 }
                 break;
-            default:
+            case EventType::WindowQuit:
                 goto quit;
+            default:
+                break;
         }
     }
     quit:;
