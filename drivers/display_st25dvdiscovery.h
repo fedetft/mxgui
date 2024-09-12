@@ -318,13 +318,14 @@ private:
      */
     DisplayImpl();
     
-    #if defined MXGUI_ORIENTATION_VERTICAL
+    #if defined MXGUI_ORIENTATION_VERTICAL || \
+        defined MXGUI_ORIENTATION_VERTICAL_MIRRORED
     static const short int width=240;
     static const short int height=320;
     #elif defined MXGUI_ORIENTATION_HORIZONTAL || \
-          defined MXGUI_ORIENTATION_VERTICAL_MIRRORED || \
           defined MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
-    #error unsupported orientation
+    static const short int width=320;
+    static const short int height=240;
     #else
     #error No orientation defined
     #endif
@@ -357,15 +358,15 @@ private:
      */
     static inline void textWindow(Point p1, Point p2)
     {
-        #ifdef MXGUI_ORIENTATION_VERTICAL
         window(p1.y(),p2.y(),p1.x(),p2.x()); // all coordinates will be swapped
+        #ifdef MXGUI_ORIENTATION_VERTICAL
         sendCmd(0x36,1,0x28); //LCD_MAC
         #elif defined MXGUI_ORIENTATION_HORIZONTAL
-            #error Not implemented
+        sendCmd(0x36,1,0x88); //LCD_MAC
         #elif defined MXGUI_ORIENTATION_VERTICAL_MIRRORED
-            #error Not implemented
+        sendCmd(0x36,1,0xE8); //LCD_MAC
         #else //MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
-            #error Not implemented
+        sendCmd(0x36,1,0x48); //LCD_MAC
         #endif
     }
 
@@ -378,15 +379,15 @@ private:
      */
     static inline void imageWindow(Point p1, Point p2)
     {
-        #ifdef MXGUI_ORIENTATION_VERTICAL
         window(p1.x(),p2.x(),p1.y(),p2.y());
+        #ifdef MXGUI_ORIENTATION_VERTICAL
         sendCmd(0x36,1,0x08); //LCD_MAC
         #elif defined MXGUI_ORIENTATION_HORIZONTAL
-            #error Not implemented
+        sendCmd(0x36,1,0xA8); //LCD_MAC
         #elif defined MXGUI_ORIENTATION_VERTICAL_MIRRORED
-            #error Not implemented
+        sendCmd(0x36,1,0xC8); //LCD_MAC
         #else //MXGUI_ORIENTATION_HORIZONTAL_MIRRORED
-            #error Not implemented
+        sendCmd(0x36,1,0x68); //LCD_MAC
         #endif
     }
 };
