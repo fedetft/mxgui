@@ -32,68 +32,86 @@
 
 using namespace mxgui;
 
-static inline std::pair<int, short> computeLineEnd_charWrap(const Font& font, const char *p, short maxWidth)
+struct LineEndPos
+{
+    const char *nextChar;
+    short lineWidth;
+};
+
+static inline LineEndPos computeLineEnd_charWrap(const Font& font, const char *first, short maxWidth)
 {
     short lineWidth=0;
-    int i;
     char32_t c;
-    for(i=0; (c=miosix::Unicode::nextUtf8(p))!='\0'; i++)
+    const char *next=first, *cur=first;
+    while((c=miosix::Unicode::nextUtf8(next))!='\0')
     {
-        if(c=='\n') { i++; break; }
+        // If newline character exit.
+        // The first character of the next line is the one after the newline.
+        if(c=='\n') return LineEndPos{next, lineWidth};
+        // If this character exceeds line width, exit.
         short width=font.calculateLength(c);
-        if (lineWidth+width>maxWidth) break;
+        if (lineWidth+width>maxWidth)
+        {
+            // The first character doesn't fit, make it fit forcefully.
+            if(lineWidth==0) return LineEndPos{next, maxWidth};
+            // The first character of the next line is the current one.
+            return LineEndPos{cur, lineWidth};
+        }
+        // Not at the end of the line yet
         lineWidth+=width;
+        cur=next;
     }
-    return std::make_pair(i, lineWidth);
+    // End of the string
+    return LineEndPos{cur, lineWidth};
 }
 
-static inline std::pair<int, short> computeLineEnd_wordWrap(const Font& font, const char *p, short maxWidth)
+static inline LineEndPos computeLineEnd_wordWrap(const Font& font, const char *first, short maxWidth)
 {
+    // Cache the width of a single space for speed
     const short spaceWidth=font.calculateLength(' ');
     short lineWidth=0;
-    int i=0,j;
+    short lastInterwordSpacing=0;
     bool firstWord=true;
-    short lastTrailingSpaceWidth=0;
-    const char *prv=p;
-    char32_t c;
-    while((c=miosix::Unicode::nextUtf8(p))!='\0')
+    const char *next=first, *cur=next;
+    char32_t c=miosix::Unicode::nextUtf8(next);
+    while(c!='\0')
     {
-        if(c=='\n') { i++; break; }
-
+        // If newline character exit, next character is already in p
+        if(c=='\n') return LineEndPos{next, lineWidth};
+        
+        // Compute the length of the next word
+        const char *wordStart=cur;
         short wordWidth=0;
-        j=i;
         while(c!='\0' && c!=' ' && c!='\n')
         {
             wordWidth+=font.calculateLength(c);
-            prv=p;
-            c=miosix::Unicode::nextUtf8(p);
-            j++;
+            cur=next;
+            c=miosix::Unicode::nextUtf8(next);
         }
-        p=prv;
-        if(lineWidth+lastTrailingSpaceWidth+wordWidth>maxWidth) break;
-        
+        // If this word makes us exceed the end of the line, exit
+        if(lineWidth+lastInterwordSpacing+wordWidth>maxWidth) { cur=wordStart; break; }
+        lineWidth+=lastInterwordSpacing+wordWidth;
         firstWord=false;
-        lineWidth+=wordWidth+lastTrailingSpaceWidth;
-        lastTrailingSpaceWidth=0;
-        i=j;
-        while(miosix::Unicode::nextUtf8(p)==' ')
+        lastInterwordSpacing=0;
+
+        // Perform char wrap for spaces.
+        while(c==' ')
         {
-            lastTrailingSpaceWidth+=spaceWidth;
-            i++;
-            // with nextUtf8 we actually exit the loop with
-            // the iterator positioned one postion after the
-            // necessary, so save previous iterator
-            prv=p;
+            // When a space exceeds the width of a line, transform it into a
+            // newline
+            if(lineWidth+lastInterwordSpacing+spaceWidth>maxWidth)
+                return LineEndPos{next, (short)(lineWidth+lastInterwordSpacing)};
+            lastInterwordSpacing+=spaceWidth;
+            cur=next;
+            c=miosix::Unicode::nextUtf8(next);
         }
-        p=prv;
-        if(lineWidth+lastTrailingSpaceWidth>maxWidth) break;
     }
 
-    if(firstWord && i==0) return computeLineEnd_charWrap(font, p, maxWidth);
-    return std::make_pair(i, lineWidth);
+    if(firstWord && cur==first) return computeLineEnd_charWrap(font, first, maxWidth);
+    return LineEndPos{cur, lineWidth};
 }
 
-int TextBox::draw(DrawingContext& dc, Point p0, Point p1,
+const char *TextBox::draw(DrawingContext& dc, Point p0, Point p1,
     const char *str, unsigned int options, 
     unsigned short topMargin, unsigned short leftMargin,
     unsigned short rightMargin, unsigned short bottomMargin,
@@ -113,7 +131,7 @@ int TextBox::draw(DrawingContext& dc, Point p0, Point p1,
     return TextBox::draw(dc, Point(left,top), Point(right,btm), str, options, scrollY);
 }
 
-int TextBox::draw(DrawingContext& dc, Point p0, Point p1,
+const char *TextBox::draw(DrawingContext& dc, Point p0, Point p1,
     const char *str, unsigned int options, int scrollY)
 {
     int left=p0.x(), top=p0.y(), right=p1.x(), btm=p1.y();
@@ -125,16 +143,13 @@ int TextBox::draw(DrawingContext& dc, Point p0, Point p1,
 
     int lineTop=top-scrollY;
     if (withBG && lineTop>top) dc.clear(Point(left,top), Point(right,std::min(lineTop-1,btm)), bgColor);
-    const char *p=str, *prv=p;
-    char32_t c=miosix::Unicode::nextUtf8(p);
-    p=prv;
+    const char *cur=str;
     int stopY = withClip ? btm : btm-lineHeight;
-    while(c!=0 && lineTop<=stopY)
+    while(*cur!='\0' && lineTop<=stopY)
     {
-        std::pair<int, short> end;
-        if ((options&WrapMask)==WordWrap) end=computeLineEnd_wordWrap(font, p, right-left+1);
-        else end = computeLineEnd_charWrap(font, p, right-left+1);
-        // printf("nchar=%d lineWidth=%d\n", end.first, end.second);
+        LineEndPos end;
+        if ((options&WrapMask)==WordWrap) end=computeLineEnd_wordWrap(font, cur, right-left+1);
+        else end=computeLineEnd_charWrap(font, cur, right-left+1);
         
         const int lineBottom=std::min(lineTop+lineHeight, btm+1);
         if(!withClip && lineTop<top && lineBottom>top)
@@ -146,38 +161,29 @@ int TextBox::draw(DrawingContext& dc, Point p0, Point p1,
             int realLineTop = std::max(lineTop,top);
             if ((options&AlignmentMask) == LeftAlignment)
             {
-                const short textRight=left+end.second-1;
-                dc.clippedWrite(Point(left,lineTop), Point(left,realLineTop), Point(textRight,lineBottom-1), p);
+                const short textRight=left+end.lineWidth-1;
+                dc.clippedWrite(Point(left,lineTop), Point(left,realLineTop), Point(textRight,lineBottom-1), cur);
                 if (withBG && textRight+1<=right) dc.clear(Point(textRight+1,realLineTop), Point(right,lineBottom-1), bgColor);
             }
             if ((options&AlignmentMask) == CenterAlignment)
             {
-                const short leftPadding=((right-left)-end.second)/2;
+                const short leftPadding=((right-left)-end.lineWidth)/2;
                 const short textLeft=left+leftPadding;
-                const short rightBoxLeft=textLeft+end.second;
+                const short rightBoxLeft=textLeft+end.lineWidth;
                 if (withBG && leftPadding>0) dc.clear(Point(left,realLineTop), Point(textLeft-1,lineBottom-1), bgColor);
-                dc.clippedWrite(Point(textLeft,lineTop), Point(textLeft,realLineTop), Point(rightBoxLeft-1,lineBottom-1), p);
+                dc.clippedWrite(Point(textLeft,lineTop), Point(textLeft,realLineTop), Point(rightBoxLeft-1,lineBottom-1), cur);
                 if (withBG && rightBoxLeft<=right) dc.clear(Point(rightBoxLeft,realLineTop), Point(right,lineBottom-1), bgColor);
             }
             if ((options&AlignmentMask) == RightAlignment)
             {
-                const short textLeft=right-end.second+1;
+                const short textLeft=right-end.lineWidth+1;
                 if (withBG && textLeft>left) dc.clear(Point(left,realLineTop), Point(textLeft-1,lineBottom-1), bgColor);
-                dc.clippedWrite(Point(textLeft,lineTop), Point(textLeft,realLineTop), Point(right,lineBottom-1), p);
+                dc.clippedWrite(Point(textLeft,lineTop), Point(textLeft,realLineTop), Point(right,lineBottom-1), cur);
             }
         }
         lineTop=lineBottom;
-        for(int i=0; i<end.first+1; i++)
-        {
-            prv=p;
-            c=miosix::Unicode::nextUtf8(p);
-        }
-        p=prv;
+        cur=end.nextChar;
     }
     if (withBG && lineTop<=btm) dc.clear(Point(left,std::max(top,lineTop)), Point(right,btm), bgColor);
-    // compute offset inside str
-    int offset=0;
-    char32_t c2;
-    while((c2=miosix::Unicode::nextUtf8(str))==c) offset++;
-    return offset;
+    return cur;
 }

@@ -108,19 +108,19 @@ void scrollingDemo()
     int endY=0;
     for(int scrollY=-dispHeight-10; !reachedEnd; scrollY++)
     {
-        int stringIdx;
+        const char *stringPtr;
         {
             DrawingContext dc(DisplayManager::instance().getDisplay());
             dc.setFont(loop%2==0 ? droid11 : droid21);
             dc.setTextColor({black,white});
-            stringIdx=TextBox::draw(dc,
+            stringPtr=TextBox::draw(dc,
                 Point(5,5),
-                Point(dc.getWidth()-6,dc.getHeight()-6), 
+                Point(dc.getWidth()-6,dc.getHeight()-15), 
                 loremIpsum, 
                 options[loop%optionsSz],
                 0,0,0,0,scrollY);
         }
-        if(loremIpsum[stringIdx]=='\0')
+        if(*stringPtr=='\0')
         {
             if(endY == 0) endY=scrollY;
             if(scrollY-endY>dispHeight+10) reachedEnd=true;

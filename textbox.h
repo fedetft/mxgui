@@ -68,7 +68,7 @@ struct TextBox
      * \param rightMargin Size in pixel of the bottom margin of the box.
      * \returns The number of characters effectively drawn from the string.
      */
-    static int draw(mxgui::DrawingContext& dc, mxgui::Point p0,
+    static const char *draw(mxgui::DrawingContext& dc, mxgui::Point p0,
         mxgui::Point p1, const char *str, unsigned int options,
         unsigned short topMargin, unsigned short leftMargin, 
         unsigned short rightMargin, unsigned short bottomMargin,
@@ -83,7 +83,7 @@ struct TextBox
      * \param options A set of options for configuring the drawing process.
      * \returns The number of characters effectively drawn from the string.
      */
-    static int draw(mxgui::DrawingContext& dc, mxgui::Point p0,
+    static const char *draw(mxgui::DrawingContext& dc, mxgui::Point p0,
         mxgui::Point p1, const char *str, unsigned int options=0,
         int scrollY=0);
 };
