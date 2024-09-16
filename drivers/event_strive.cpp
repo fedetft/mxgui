@@ -27,7 +27,7 @@
 
 #include <config/mxgui_settings.h>
 
-#if defined(_BOARD_STRIVE_MINI) && defined(MXGUI_LEVEL_2)
+#if defined(_BOARD_STM32F103VE_STRIVE_MINI) && defined(MXGUI_LEVEL_2)
 
 #include "event_strive.h"
 #include "miosix.h"
@@ -342,4 +342,4 @@ function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
 
 } //namespace mxgui
 
-#endif //_BOARD_STRIVE_MINI
+#endif //_BOARD_STM32F103VE_STRIVE_MINI

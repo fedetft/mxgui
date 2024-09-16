@@ -2,9 +2,9 @@
 #include "miosix.h"
 #include "mxgui/drivers/display_st7735.h"
 
-#ifndef _BOARD_STM32F4DISCOVERY
-#warning "This SPI driver has only been tested on an STM32F4DISCOVERY"
-#endif //_BOARD_STM32F4DISCOVERY
+#ifndef _BOARD_STM32F407VG_DISCOVERY
+#warning "This SPI driver has only been tested on an _BOARD_STM32F407VG_DISCOVERY"
+#endif //_BOARD_STM32F407VG_DISCOVERY
 
 using namespace miosix;
 using namespace mxgui;

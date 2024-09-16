@@ -36,7 +36,7 @@
 #include <functional>
 #include "level2/input.h"
 
-#ifdef _BOARD_STM3210E_EVAL
+#ifdef _BOARD_STM32F103ZE_EVALUATION
 
 namespace mxgui {
 
@@ -74,6 +74,6 @@ public:
 
 } //namespace mxgui
 
-#endif //_BOARD_STM3210E_EVAL
+#endif //_BOARD_STM32F103ZE_EVALUATION
 
 #endif //EVENT_STM3210E_EVAL_H

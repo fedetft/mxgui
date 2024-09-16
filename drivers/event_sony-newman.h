@@ -36,7 +36,7 @@
 #ifndef EVENT_SONY_NEWMAN_H
 #define	EVENT_SONY_NEWMAN_H
 
-#ifdef _BOARD_SONY_NEWMAN
+#ifdef _BOARD_STM32F205RG_SONY_NEWMAN
 
 namespace mxgui {
 
@@ -74,6 +74,6 @@ public:
 
 } //namespace mxgui
 
-#endif //_BOARD_SONY_NEWMAN
+#endif //_BOARD_STM32F205RG_SONY_NEWMAN
 
 #endif //EVENT_SONY_NEWMAN_H

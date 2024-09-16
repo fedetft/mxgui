@@ -33,7 +33,7 @@
 #ifndef DISPLAY_BITSBOARD_H
 #define	DISPLAY_BITSBOARD_H
 
-#ifdef _BOARD_BITSBOARD
+#ifdef _BOARD_STM32F407VG_BITSBOARD
 
 #include <config/mxgui_settings.h>
 #include "display.h"
@@ -395,6 +395,6 @@ private:
 
 } //namespace mxgui
 
-#endif //_BOARD_BITSBOARD
+#endif //_BOARD_STM32F407VG_BITSBOARD
 
 #endif //DISPLAY_BITSBOARD_H

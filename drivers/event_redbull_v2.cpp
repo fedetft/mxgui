@@ -27,7 +27,7 @@
 
 #include <config/mxgui_settings.h>
 
-#if defined(_BOARD_REDBULL_V2) && defined(MXGUI_LEVEL_2)
+#if defined(_BOARD_STM32F103ZE_REDBULL_V2) && defined(MXGUI_LEVEL_2)
 
 #include "event_redbull_v2.h"
 #include "miosix.h"
@@ -391,4 +391,4 @@ function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
 
 } //namespace mxgui
 
-#endif //#if defined(_BOARD_REDBULL_V2) && defined(MXGUI_LEVEL_2)
+#endif //#if defined(_BOARD_STM32F103ZE_REDBULL_V2) && defined(MXGUI_LEVEL_2)

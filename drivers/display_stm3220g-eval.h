@@ -34,7 +34,7 @@
 #error "If your code depends on a private header, it IS broken."
 #endif //MXGUI_LIBRARY
 
-#ifdef _BOARD_STM3220G_EVAL
+#ifdef _BOARD_STM32F207IG_EVALUATION
 
 #include <config/mxgui_settings.h>
 #include "display.h"
@@ -485,4 +485,4 @@ private:
 
 } //namespace mxgui
 
-#endif //_BOARD_STM3220G_EVAL
+#endif //_BOARD_STM32F207IG_EVALUATION

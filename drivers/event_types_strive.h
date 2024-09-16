@@ -28,7 +28,7 @@
 #ifndef EVENT_TYPES_STRIVE_H
 #define	EVENT_TYPES_STRIVE_H
 
-#ifdef _BOARD_STRIVE_MINI
+#ifdef _BOARD_STM32F103VE_STRIVE_MINI
 
 class EventType
 {
@@ -55,6 +55,6 @@ private:
     EventType();
 };
 
-#endif //_BOARD_STRIVE_MINI
+#endif //_BOARD_STM32F103VE_STRIVE_MINI
 
 #endif //EVENT_TYPES_STRIVE_H

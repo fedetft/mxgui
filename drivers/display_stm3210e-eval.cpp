@@ -25,7 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifdef _BOARD_STM3210E_EVAL
+#ifdef _BOARD_STM32F103ZE_EVALUATION
 
 #include "display_stm3210e-eval.h"
 #include "miosix.h"
@@ -446,4 +446,4 @@ DisplayImpl::DisplayMemLayout *const DisplayImpl::DISPLAY=
 
 } //namespace mxgui
 
-#endif //_BOARD_STM3210E_EVAL
+#endif //_BOARD_STM32F103ZE_EVALUATION

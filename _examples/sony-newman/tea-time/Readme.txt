@@ -12,7 +12,7 @@ the mxgui gui library.
 2) The kernel works with many boards, so you have to configure it for the sony smartwatch
 Uncomment the line
 
-OPT_BOARD := stm32f205rg_sony-newman
+OPT_BOARD := stm32f205rg_sony_newman
 
 in miosix/config/Makefile.inc, and comment any other line defining OPT_BOARD.
 Also, disable filesystem support by commenting out the line

@@ -27,7 +27,7 @@
 
 #include <config/mxgui_settings.h>
 
-#if defined(_BOARD_MP3V2) && defined(MXGUI_LEVEL_2)
+#if defined(_BOARD_STM32F103VE_MP3V2) && defined(MXGUI_LEVEL_2)
 
 #include "event_mp3v2.h"
 #include "miosix.h"
@@ -249,4 +249,4 @@ function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
 
 } //namespace mxgui
 
-#endif //_BOARD_MP3V2
+#endif //_BOARD_STM32F103VE_MP3V2

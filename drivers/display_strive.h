@@ -33,7 +33,7 @@
 #ifndef DISPLAY_STRIVE_H
 #define DISPLAY_STRIVE_H
 
-#ifdef _BOARD_STRIVE_MINI
+#ifdef _BOARD_STM32F103VE_STRIVE_MINI
 
 #include <config/mxgui_settings.h>
 #include "display.h"
@@ -481,6 +481,6 @@ private:
 
 } //namespace mxgui
 
-#endif //_BOARD_STRIVE_MINI
+#endif //_BOARD_STM32F103VE_STRIVE_MINI
 
 #endif //DISPLAY_STRIVE_H

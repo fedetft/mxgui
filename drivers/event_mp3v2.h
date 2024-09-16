@@ -36,7 +36,7 @@
 #ifndef EVENT_MP3V2_H
 #define	EVENT_MP3V2_H
 
-#ifdef _BOARD_MP3V2
+#ifdef _BOARD_STM32F103VE_MP3V2
 
 namespace mxgui {
 
@@ -74,6 +74,6 @@ public:
 
 } //namespace mxgui
 
-#endif //_BOARD_MP3V2
+#endif //_BOARD_STM32F103VE_MP3V2
 
 #endif //EVENT_MP3V2_H

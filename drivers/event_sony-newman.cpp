@@ -28,7 +28,7 @@
 #include <config/mxgui_settings.h>
 #include "kernel/sync.h"
 
-#if defined(_BOARD_SONY_NEWMAN) && defined(MXGUI_LEVEL_2)
+#if defined(_BOARD_STM32F205RG_SONY_NEWMAN) && defined(MXGUI_LEVEL_2)
 
 #include "event_sony-newman.h"
 #include "miosix.h"
@@ -284,4 +284,4 @@ function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
 
 } //namespace mxgui
 
-#endif //_BOARD_SONY_NEWMAN
+#endif //_BOARD_STM32F205RG_SONY_NEWMAN

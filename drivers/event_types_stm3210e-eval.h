@@ -28,7 +28,7 @@
 #ifndef EVENT_TYPES_STM3210E_EVAL_H
 #define	EVENT_TYPES_STM3210E_EVAL_H
 
-#ifdef _BOARD_STM3210E_EVAL
+#ifdef _BOARD_STM32F103ZE_EVALUATION
 
 class EventType
 {
@@ -51,6 +51,6 @@ private:
     EventType();
 };
 
-#endif //_BOARD_STM3210E_EVAL
+#endif //_BOARD_STM32F103ZE_EVALUATION
 
 #endif //EVENT_TYPES_STM3210E_EVAL_H

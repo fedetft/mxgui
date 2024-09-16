@@ -28,7 +28,7 @@
 #ifndef EVENT_TYPES_MP3V2_H
 #define	EVENT_TYPES_MP3V2_H
 
-#ifdef _BOARD_MP3V2
+#ifdef _BOARD_STM32F103VE_MP3V2
 
 class EventType
 {
@@ -53,6 +53,6 @@ private:
     EventType();
 };
 
-#endif //_BOARD_MP3V2
+#endif //_BOARD_STM32F103VE_MP3V2
 
 #endif //EVENT_TYPES_MP3V2_H

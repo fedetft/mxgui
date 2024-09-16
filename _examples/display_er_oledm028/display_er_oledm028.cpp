@@ -32,8 +32,8 @@
 using namespace std;
 using namespace miosix;
 
-#ifndef _BOARD_STM32F4DISCOVERY
-#warning "The SPI driver has only been tested on an STM32F4DISCOVERY"
+#ifndef _BOARD_STM32F407VG_DISCOVERY
+#warning "The SPI driver has only been tested on an STM32F407VG_DISCOVERY"
 #endif
 
 //Display connection

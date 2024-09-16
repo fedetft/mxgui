@@ -28,7 +28,7 @@
 #ifndef EVENT_TYPES_SONY_NEWMAN_H
 #define	EVENT_TYPES_SONY_NEWMAN_H
 
-#ifdef _BOARD_SONY_NEWMAN
+#ifdef _BOARD_STM32F205RG_SONY_NEWMAN
 
 class EventType
 {
@@ -72,6 +72,6 @@ bool isTouchScreenEnabled();
 
 } //namespace mxxgui
 
-#endif //_BOARD_SONY_NEWMAN
+#endif //_BOARD_STM32F205RG_SONY_NEWMAN
 
 #endif //EVENT_TYPES_SONY_NEWMAN_H

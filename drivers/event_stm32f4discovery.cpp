@@ -28,7 +28,7 @@
 
 #include <config/mxgui_settings.h>
 
-#if defined(_BOARD_STM32F429ZI_STM32F4DISCOVERY) && defined(MXGUI_LEVEL_2)
+#if defined(_BOARD_STM32F429ZI_DISCOVERY) && defined(MXGUI_LEVEL_2)
 
 #include "event_stm32f4discovery.h"
 #include "miosix.h"
@@ -365,4 +365,4 @@ function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
 
 } //namespace mxgui
 
-#endif //_BOARD_STM32F429ZI_STM32F4DISCOVERY
+#endif //_BOARD_STM32F429ZI_DISCOVERY

@@ -33,7 +33,7 @@
 #ifndef DISPLAY_REDBULL_V2_H
 #define DISPLAY_REDBULL_V2_H
 
-#ifdef _BOARD_REDBULL_V2
+#ifdef _BOARD_STM32F103ZE_REDBULL_V2
 
 #include <config/mxgui_settings.h>
 #include "display.h"
@@ -346,7 +346,7 @@ private:
     /**
      * Memory layout of the display.
      * This backend is meant to connect an stm32f103re to an LCD display with
-     * an spfd5408 controller on the stm3210e_eval board.
+     * an spfd5408 controller on the stm3210e_evaluation board.
      */
     struct DisplayMemLayout
     {
@@ -413,6 +413,6 @@ private:
 
 } //namespace mxgui
 
-#endif //_BOARD_REDBULL_V2
+#endif //_BOARD_STM32F103ZE_REDBULL_V2
 
 #endif //DISPLAY_REDBULL_V2_H

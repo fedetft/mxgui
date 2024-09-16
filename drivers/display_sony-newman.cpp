@@ -25,7 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifdef _BOARD_SONY_NEWMAN
+#ifdef _BOARD_STM32F205RG_SONY_NEWMAN
 
 #include "display_sony-newman.h"
 #include <kernel/scheduler/scheduler.h>
@@ -496,4 +496,4 @@ void DisplayImpl::waitDmaCompletion()
 
 } //namespace mxgui
 
-#endif //_BOARD_SONY_NEWMAN
+#endif //_BOARD_STM32F205RG_SONY_NEWMAN
