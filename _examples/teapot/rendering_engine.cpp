@@ -189,6 +189,26 @@ void WireframeRenderingEngine::doRender(Display& disp)
     if(start>a.y()) dc.clear(a,Point(b.x(),start-1),black);
     list<BresenhamFSM> activeLines;
     //int ml=0;
+    for(;start<a.y();start++)
+    {
+        while(it!=lines.end() && minY(*it,xfmVertices)==start)
+        {
+            Point a(xfmVertices[2*it->first],xfmVertices[2*it->first+1]);
+            Point b(xfmVertices[2*it->second],xfmVertices[2*it->second+1]);
+            if(a.y()!=b.y()) activeLines.push_back(BresenhamFSM(a,b));
+            it++;
+        }
+        //ml=max<int>(ml,activeLines.size());
+
+        list<BresenhamFSM>::iterator it2;
+        for(it2=activeLines.begin();it2!=activeLines.end();)
+        {
+            if(it2->getLeftmost()<0) it2=activeLines.erase(it2);
+            else ++it2;
+        }
+
+        if(activeLines.empty() && it==lines.end()) break;
+    }
     for(;start<=b.y();start++)
     {
         Color *lineBuffer=dc.getScanLineBuffer();
@@ -274,6 +294,33 @@ void SolidRenderingEngine::doRender(Display& disp)
     if(start>a.y()) dc.clear(a,Point(b.x(),start-1),black);
     list<TriangleFSM> activeTriangles;
     //int mt=0;
+    for(;start<=a.y();start++)
+    {
+        list<TriangleFSM>::iterator it2;
+        for(it2=activeTriangles.begin();it2!=activeTriangles.end();)
+        {
+            if(!it2->advanceWithoutDrawing()) it2=activeTriangles.erase(it2);
+            else ++it2;
+        }
+
+        while(it!=triangles.end() && it->minY()==start)
+        {
+            //Insertion-sorting triangles by z coordinate
+            //which is faster than inserting at the end and then sorting
+            TriangleFSM newTriangle=it->toFSM(polygons,xfmVertices,colors);
+            for(it2=activeTriangles.begin();;++it2)
+            {
+                if(it2==activeTriangles.end() || newTriangle < *it2)
+                {
+                    activeTriangles.insert(it2,newTriangle);
+                    break;
+                }
+            }
+            it++;
+        }
+        //mt=max<int>(mt,activeTriangles.size());
+        if(activeTriangles.empty() && it==triangles.end()) break;
+    }
     for(;start<=b.y();start++)
     {
         Color *lineBuffer=dc.getScanLineBuffer();

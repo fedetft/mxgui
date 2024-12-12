@@ -136,6 +136,26 @@ bool TriangleFSM::drawScanLine(mxgui::Color scanLine[])
     return true;
 }
 
+bool TriangleFSM::advanceWithoutDrawing()
+{
+    short left=leftEdge.getLeftmost();
+    short right=rightEdge.getRightmost();
+    if(left<0 && right<0) return false;
+    if(left<0)
+    {
+        leftEdge=BresenhamFSM(mid,last);
+        leftEdge.getLeftmost(); //Advance the bresenham fsm
+        left=leftEdge.getLeftmost();
+    }
+    if(right<0)
+    {
+        rightEdge=BresenhamFSM(mid,last);
+        rightEdge.getRightmost(); //Advance the bresenham fsm
+        right=rightEdge.getRightmost();
+    }
+    return true;
+}
+
 /*
 // Testcase code for TriangleFSM class
 

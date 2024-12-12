@@ -64,6 +64,14 @@ public:
     bool drawScanLine(mxgui::Color scanLine[]);
 
     /**
+     * Advance the FSM by one line without drawing
+     * \return false if the triangle is finished and therefore there is no
+     * intersection between the triangle and the current scanline, in this case
+     * the scanLine parameter is not modified
+     */
+    bool advanceWithoutDrawing();
+
+    /**
      * \return the triangle's z coordinate
      */
     short getZ() const { return z; }
