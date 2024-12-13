@@ -25,13 +25,12 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #ifndef MXGUI_LIBRARY
 #error "This is header is private, it can be used only within mxgui."
 #error "If your code depends on a private header, it IS broken."
 #endif //MXGUI_LIBRARY
-
-#ifndef EVENT_QT_H
-#define	EVENT_QT_H
 
 #if !defined(_MIOSIX) && !defined(_WINDOWS)
 
@@ -79,5 +78,3 @@ public:
 } //namespace mxgui
 
 #endif //!defined(_MIOSIX) && !defined(_WINDOWS)
-
-#endif //EVENT_QT_H

@@ -44,7 +44,7 @@ Window::Window(QWidget *parent): QWidget(parent),
         QImage::Format_MonoLSB),
 #endif
         w(this), layout(&w), buttonA("<"), buttonB(">"),
-        sender(new UpdateSignalSender)
+        sender(std::make_shared<UpdateSignalSender>())
 {
     this->setFixedSize(FrameBuffer::width,FrameBuffer::height+50);
     w.setFixedSize(FrameBuffer::width,50);

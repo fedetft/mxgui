@@ -1,9 +1,9 @@
 
 #include <QtWidgets/QApplication>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include "window.h"
 
-using namespace boost::filesystem;
+using namespace std::filesystem;
 
 int main(int argc, char *argv[])
 {

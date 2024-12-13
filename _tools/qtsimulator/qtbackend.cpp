@@ -16,7 +16,8 @@
  ***************************************************************************/
 
 #include "qtbackend.h"
-#include <boost/thread.hpp>
+#include <cstdlib>
+#include <thread>
 
 /**
  * The mxgui application is started here.
@@ -44,11 +45,11 @@ QTBackend& QTBackend::instance()
     return result;
 }
 
-void QTBackend::start(boost::shared_ptr<UpdateSignalSender> sender)
+void QTBackend::start(std::shared_ptr<UpdateSignalSender> sender)
 {
     if(started==true) return;
     started=true;
     this->sender=sender;
-    boost::thread t(appThread);
+    std::thread t(appThread);
     t.detach();
 }

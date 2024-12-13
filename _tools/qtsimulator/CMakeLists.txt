@@ -3,7 +3,7 @@ project(QTSIMULATOR)
 cmake_minimum_required(VERSION 3.1)
 
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # Function to handle embedding images in the executable binary
 # It basically calls the pngconverter tool and generates the corresponding
@@ -86,9 +86,3 @@ else()
 	add_executable(qtsimulator ${LIB_SRCS} ${FOO_SRCS} ${IMG_OUT} ${FOO_HEADERS_MOC})
 endif()
 target_link_libraries(qtsimulator Qt5::Widgets)
-set(BOOST_LIBS thread filesystem system)
-find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
-target_link_libraries(qtsimulator ${Boost_LIBRARIES})
-target_include_directories(qtsimulator PRIVATE ${Boost_INCLUDE_DIRS})
-find_package(Threads REQUIRED)
-target_link_libraries(qtsimulator ${CMAKE_THREAD_LIBS_INIT})

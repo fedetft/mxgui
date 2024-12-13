@@ -29,21 +29,22 @@
 
 #include "event_qt.h"
 #include <list>
-#include <boost/thread.hpp>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 
 namespace mxgui {
 
-static boost::mutex eqMutex; ///< Mutex to guard the event queue
-static boost::condition_variable eqCond; ///< Condvar for blocking getEvent
+static mutex eqMutex; ///< Mutex to guard the event queue
+static condition_variable eqCond; ///< Condvar for blocking getEvent
 static std::list<Event> eventQueue; ///< Queue of events from the GUI
 static std::function<void ()> eventCallback;
 
 void addEvent(Event e)
 {
     {
-        boost::unique_lock<boost::mutex> l(eqMutex);
+        unique_lock<mutex> l(eqMutex);
         if(eventQueue.size()>=100) return;
         eventQueue.push_back(e); //Drop if queue too long
         eqCond.notify_one();
@@ -57,7 +58,7 @@ void addEvent(Event e)
 
 Event InputHandlerImpl::getEvent()
 {
-    boost::unique_lock<boost::mutex> l(eqMutex);
+    unique_lock<mutex> l(eqMutex);
     while(eventQueue.empty()) eqCond.wait(l);
     Event result=eventQueue.front();
     eventQueue.pop_front();
@@ -66,7 +67,7 @@ Event InputHandlerImpl::getEvent()
 
 Event InputHandlerImpl::popEvent()
 {
-    boost::unique_lock<boost::mutex> l(eqMutex);
+    unique_lock<mutex> l(eqMutex);
     if(eventQueue.empty()) return Event(); //Default constructed event
     Event result=eventQueue.front();
     eventQueue.pop_front();
@@ -75,7 +76,7 @@ Event InputHandlerImpl::popEvent()
 
 function<void ()> InputHandlerImpl::registerEventCallback(function<void ()> cb)
 {
-    boost::unique_lock<boost::mutex> l(eqMutex);
+    unique_lock<mutex> l(eqMutex);
     swap(eventCallback,cb);
     return cb;
 }

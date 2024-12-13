@@ -15,15 +15,12 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef WINDOW_H
-#define WINDOW_H
-
 #include <QWidget>
 #include <QImage>
 #include <QPushButton>
 #include <QBoxLayout>
 #include <QMouseEvent>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 /**
  * This class just provides the update() member function to refresh the GUI.
@@ -146,7 +143,5 @@ private:
     QHBoxLayout layout; ///< Horizontal layout for buttons
     QPushButton buttonA; ///< First button
     QPushButton buttonB; ///< Second button
-    boost::shared_ptr<UpdateSignalSender> sender; ///< Object that sends updates
+    std::shared_ptr<UpdateSignalSender> sender; ///< Object that sends updates
 };
-
-#endif //WINDOW_H

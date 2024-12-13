@@ -15,11 +15,10 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef QTBACKEND_H
-#define QTBACKEND_H
+#pragma once
 
 #include <cstring>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "config/mxgui_settings.h"
 #include "color.h"
 
@@ -172,7 +171,7 @@ public:
      * This starts the background thread.
      * \param sender the object to call to update the screen
      */
-    void start(boost::shared_ptr<UpdateSignalSender> sender);
+    void start(std::shared_ptr<UpdateSignalSender> sender);
 
     /**
      * Allows access to the framebuffer object
@@ -184,7 +183,7 @@ public:
      * \return the sender object with an update() member function to refresh
      * the GUI
      */
-    boost::shared_ptr<UpdateSignalSender> getSender() const { return sender; }
+    std::shared_ptr<UpdateSignalSender> getSender() const { return sender; }
 
 private:
     QTBackend(const QTBackend& );
@@ -197,7 +196,5 @@ private:
 
     FrameBuffer fb; ///< Framebuffer object
     bool started; ///< True if the background thread has already been started
-    boost::shared_ptr<UpdateSignalSender> sender; ///< Object to update GUI
+    std::shared_ptr<UpdateSignalSender> sender; ///< Object to update GUI
 };
-
-#endif //QTBACKEND_H
