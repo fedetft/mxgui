@@ -294,7 +294,7 @@ void SolidRenderingEngine::doRender(Display& disp)
     if(start>a.y()) dc.clear(a,Point(b.x(),start-1),black);
     list<TriangleFSM> activeTriangles;
     //int mt=0;
-    for(;start<=a.y();start++)
+    for(;start<a.y();start++)
     {
         list<TriangleFSM>::iterator it2;
         for(it2=activeTriangles.begin();it2!=activeTriangles.end();)
