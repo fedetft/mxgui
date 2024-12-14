@@ -25,6 +25,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #ifndef MXGUI_LIBRARY
 #error "This is header is private, it can be used only within mxgui."
 #error "If your code depends on a private header, it IS broken."
@@ -32,9 +34,6 @@
 
 #include <functional>
 #include "level2/input.h"
-
-#ifndef EVENT_SONY_NEWMAN_H
-#define	EVENT_SONY_NEWMAN_H
 
 #ifdef _BOARD_SONY_NEWMAN
 
@@ -75,5 +74,3 @@ public:
 } //namespace mxgui
 
 #endif //_BOARD_SONY_NEWMAN
-
-#endif //EVENT_SONY_NEWMAN_H

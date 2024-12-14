@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef INTBUTTON_H
-#define	INTBUTTON_H
+#pragma once
 
 #include <config/mxgui_settings.h>
 #include <functional>
@@ -191,5 +190,3 @@ protected:
 } //namesapce mxgui
 
 #endif //MXGUI_LEVEL_2
-
-#endif //INTBUTTON_H

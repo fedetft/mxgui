@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef CHECKBOX_H
-#define	CHECKBOX_H
+#pragma once
 
 #include "interactable_button.h"
 
@@ -92,5 +91,3 @@ private:
 } //namesapce mxgui
 
 #endif //MXGUI_LEVEL_2
-
-#endif //CHECKBOX_H

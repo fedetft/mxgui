@@ -25,6 +25,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #include <functional>
 #include <config/mxgui_settings.h>
 #include "point.h"
@@ -40,9 +42,6 @@
 #include "drivers/event_types_st25dvdiscovery.h"
 
 #ifdef MXGUI_LEVEL_2
-
-#ifndef INPUT_H
-#define	INPUT_H
 
 namespace mxgui {
 
@@ -215,7 +214,5 @@ private:
 };
 
 } //namespace mxgui
-
-#endif //INPUT_H
 
 #endif //MXGUI_LEVEL_2

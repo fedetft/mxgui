@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef DRAW_AREA_H
-#define	DRAW_AREA_H
+#pragma once
 
 #include <utility>
 #include "point.h"
@@ -65,5 +64,3 @@ private:
 };
 
 } //namespace mxgui
-
-#endif //DRAW_AREA_H

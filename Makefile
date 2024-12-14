@@ -14,7 +14,6 @@ display.cpp                            \
 font.cpp                               \
 misc_inst.cpp                          \
 tga_image.cpp                          \
-resource_image.cpp                     \
 textbox.cpp                            \
 level2/input.cpp                       \
 level2/application.cpp                 \
@@ -29,7 +28,6 @@ drivers/display_stm3210e-eval.cpp      \
 drivers/event_stm3210e-eval.cpp        \
 drivers/display_mp3v2.cpp              \
 drivers/event_mp3v2.cpp                \
-drivers/resfs_mp3v2.cpp                \
 drivers/display_strive.cpp             \
 drivers/display_st7735.cpp             \
 drivers/display_oledboard2.cpp         \

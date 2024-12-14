@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_STM32F4DISCOVERY_H
-#define	EVENT_TYPES_STM32F4DISCOVERY_H
+#pragma once
 
 #ifdef _BOARD_STM32F429ZI_STM32F4DISCOVERY
 
@@ -53,5 +52,3 @@ private:
 };
 
 #endif //_BOARD_STM32F429ZI_STM32F4DISCOVERY
-
-#endif //EVENT_TYPES_STM32F4DISCOVERY_H

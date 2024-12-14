@@ -25,11 +25,10 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #include "point.h"
 #include "color.h"
-
-#ifndef LINE_H
-#define	LINE_H
 
 namespace mxgui {
 
@@ -121,5 +120,3 @@ void Line::draw(T& surface, Point a, Point b, Color c)
 }
 
 } //namespace mxgui
-
-#endif //LINE_H

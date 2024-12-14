@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_SONY_NEWMAN_H
-#define	EVENT_TYPES_SONY_NEWMAN_H
+#pragma once
 
 #ifdef _BOARD_SONY_NEWMAN
 
@@ -73,5 +72,3 @@ bool isTouchScreenEnabled();
 } //namespace mxxgui
 
 #endif //_BOARD_SONY_NEWMAN
-
-#endif //EVENT_TYPES_SONY_NEWMAN_H

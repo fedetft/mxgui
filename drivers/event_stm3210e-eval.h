@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_STM3210E_EVAL_H
-#define	EVENT_STM3210E_EVAL_H
+#pragma once
 
 #ifndef MXGUI_LIBRARY
 #error "This is header is private, it can be used only within mxgui."
@@ -75,5 +74,3 @@ public:
 } //namespace mxgui
 
 #endif //_BOARD_STM3210E_EVAL
-
-#endif //EVENT_STM3210E_EVAL_H

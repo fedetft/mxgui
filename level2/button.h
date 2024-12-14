@@ -25,8 +25,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef BUTTON_H
-#define	BUTTON_H
+#pragma once
+
 #include "interactable_button.h"
 
 #ifdef MXGUI_LEVEL_2
@@ -85,5 +85,3 @@ protected:
 } //namesapce mxgui
 
 #endif //MXGUI_LEVEL_2
-
-#endif //BUTTON_H

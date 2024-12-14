@@ -25,13 +25,12 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #ifndef MXGUI_LIBRARY
 #error "This is header is private, it can be used only within mxgui."
 #error "If your code depends on a private header, it IS broken."
 #endif //MXGUI_LIBRARY
-
-#ifndef DISPLAY_REDBULL_V2_H
-#define DISPLAY_REDBULL_V2_H
 
 #ifdef _BOARD_REDBULL_V2
 
@@ -414,5 +413,3 @@ private:
 } //namespace mxgui
 
 #endif //_BOARD_REDBULL_V2
-
-#endif //DISPLAY_REDBULL_V2_H

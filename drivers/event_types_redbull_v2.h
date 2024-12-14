@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_REDBULL_V2_H
-#define	EVENT_TYPES_REDBULL_V2_H
+#pragma once
 
 #ifdef _BOARD_REDBULL_V2
 
@@ -56,5 +55,3 @@ private:
 };
 
 #endif //_BOARD_REDBULL_V2
-
-#endif //EVENT_TYPES_REDBULL_V2_H

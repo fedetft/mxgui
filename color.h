@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef COLOR_H
-#define	COLOR_H
+#pragma once
 
 #include <config/mxgui_settings.h>
 
@@ -61,5 +60,3 @@ typedef unsigned short Color;
 #endif
 
 } // namespace mxgui
-
-#endif //COLOR_H

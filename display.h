@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef DISPLAY_H
-#define	DISPLAY_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -642,5 +641,3 @@ private:
 };
 
 } //namespace mxgui
-
-#endif //DISPLAY_H

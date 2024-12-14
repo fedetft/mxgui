@@ -26,6 +26,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #ifndef MXGUI_LIBRARY
 #error "This is header is private, it can be used only within mxgui."
 #error "If your code depends on a private header, it IS broken."
@@ -33,9 +35,6 @@
 
 #include <functional>
 #include "level2/input.h"
-
-#ifndef EVENT_STM3220G_EVAL_H
-#define	EVENT_STM3220G_EVAL_H
 
 #ifdef _BOARD_STM3220G_EVAL
 
@@ -76,5 +75,3 @@ public:
 } //namespace mxgui
 
 #endif //_BOARD_STM3220G_EVAL
-
-#endif //EVENT_STM3220G_EVAL_H

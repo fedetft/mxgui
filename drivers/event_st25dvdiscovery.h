@@ -27,6 +27,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #ifndef MXGUI_LIBRARY
 //#error "This is header is private, it can be used only within mxgui."
 //#error "If your code depends on a private header, it IS broken."
@@ -34,9 +36,6 @@
 
 #include <functional>
 #include "level2/input.h"
-
-#ifndef EVENT_ST25DVDISCOVERY_H
-#define	EVENT_ST25DVDISCOVERY_H
 
 #ifdef _BOARD_STM32F415VG_ST25DVDISCOVERY
 
@@ -77,5 +76,3 @@ public:
 } //namespace mxgui
 
 #endif //_BOARD_STM32F415VG_ST25DVDISCOVERY
-
-#endif //EVENT_ST25DVDISCOVERY_H

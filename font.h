@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef FONT_H
-#define FONT_H
+#pragma once
 
 #include "color.h"
 #include "point.h"
@@ -366,6 +365,7 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
     if(p.y()+height>surface.getHeight()) return;
     //If no X space to draw font, draw it until the screen margin reached
     typename T::pixel_iterator it;
+
     it=surface.begin(p,Point(surface.getWidth()-1,p.y()+height-1),DR);
     // For code size minimization not all the combinations of 8,16,32,64 bit
     // fixed, variable width and antialiased fonts are supported, but only these
@@ -557,5 +557,3 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
 }
 
 } //namespace mxgui
-
-#endif //FONT_H

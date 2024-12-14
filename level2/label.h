@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef LABEL_H
-#define	LABEL_H
+#pragma once
 
 #include <string>
 #include <config/mxgui_settings.h>
@@ -141,5 +140,3 @@ private:
 } //namesapce mxgui
 
 #endif //MXGUI_LEVEL_2
-
-#endif //LABEL_H

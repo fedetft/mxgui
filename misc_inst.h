@@ -31,8 +31,7 @@
  * default colors such as white and black, and font types such as droid11()
  */
 
-#ifndef MISC_INST_H
-#define	MISC_INST_H
+#pragma once
 
 #include "color.h"
 #include "font.h"
@@ -109,5 +108,3 @@ const Color blue(0x001f);     ///< Blue color constant
  */
 
 } // namespace mxgui
-
-#endif //MISC_INST_H

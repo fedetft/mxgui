@@ -25,14 +25,13 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #include <config/mxgui_settings.h>
 #include "point.h"
 #include "color.h"
 #include "iterator_direction.h"
 #include <algorithm>
-
-#ifndef IMAGE_H
-#define	IMAGE_H
 
 namespace mxgui {
 
@@ -407,5 +406,3 @@ private:
 typedef basic_image<Color> Image;
 
 } // namespace mxgui
-
-#endif //IMAGE_H

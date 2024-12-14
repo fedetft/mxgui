@@ -25,11 +25,10 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #include "image.h"
 #include <cstdio>
-
-#ifndef TGA_IMAGE_H
-#define	TGA_IMAGE_H
 
 namespace mxgui {
 
@@ -138,5 +137,3 @@ private:
 };
 
 } //namespace mmxgui
-
-#endif //TGA_IMAGE_H

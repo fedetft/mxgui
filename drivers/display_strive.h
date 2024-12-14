@@ -25,13 +25,12 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#pragma once
+
 #ifndef MXGUI_LIBRARY
 #error "This is header is private, it can be used only within mxgui."
 #error "If your code depends on a private header, it IS broken."
 #endif //MXGUI_LIBRARY
-
-#ifndef DISPLAY_STRIVE_H
-#define DISPLAY_STRIVE_H
 
 #ifdef _BOARD_STRIVE_MINI
 
@@ -482,5 +481,3 @@ private:
 } //namespace mxgui
 
 #endif //_BOARD_STRIVE_MINI
-
-#endif //DISPLAY_STRIVE_H

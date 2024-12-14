@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_STRIVE_H
-#define	EVENT_TYPES_STRIVE_H
+#pragma once
 
 #ifdef _BOARD_STRIVE_MINI
 
@@ -56,5 +55,3 @@ private:
 };
 
 #endif //_BOARD_STRIVE_MINI
-
-#endif //EVENT_TYPES_STRIVE_H

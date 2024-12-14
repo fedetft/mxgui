@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef DRAWINGCONTEXTPROXY_H
-#define	DRAWINGCONTEXTPROXY_H
+#pragma once
 
 #include <utility>
 #include <config/mxgui_settings.h>
@@ -373,5 +372,3 @@ public:
 } //namespace mxgui
 
 #endif //MXGUI_LEVEL_2
-
-#endif //DRAWINGCONTEXTPROXY_H

@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef SCROLLINGLIST_H
-#define	SCROLLINGLIST_H
+#pragma once
 
 #include "button.h"
 #include <thread>
@@ -327,5 +326,3 @@ private:
 } //namesapce mxgui
 
 #endif //MXGUI_LEVEL_2
-
-#endif //SCROLLINGLIST_H

@@ -51,7 +51,6 @@ set(LIB_SRCS
     ../../font.cpp
     ../../misc_inst.cpp
     ../../display.cpp
-    ../../resource_image.cpp
     ../../tga_image.cpp
     ../../textbox.cpp
     ../../drivers/display_qt.cpp

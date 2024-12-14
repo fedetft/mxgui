@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_WIN_H
-#define	EVENT_TYPES_WIN_H
+#pragma once
 
 #if !defined(_MIOSIX) && defined(_WINDOWS)
 
@@ -54,5 +53,3 @@ private:
 };
 
 #endif //!defined(_MIOSIX) && defined(_WINDOWS)
-
-#endif //EVENT_TYPES_WIN_H

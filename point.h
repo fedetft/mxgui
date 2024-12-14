@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef POINT_H
-#define	POINT_H
+#pragma once
 
 namespace mxgui {
 
@@ -90,5 +89,3 @@ inline bool within(Point a, Point b, Point c)
 }
 
 } // namespace mxgui
-
-#endif //POINT_H

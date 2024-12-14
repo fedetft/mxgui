@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef APPLICATION_H
-#define	APPLICATION_H
+#pragma once
 
 #include <vector>
 #include <list>
@@ -256,5 +255,3 @@ private:
 } //namespace mxgui
 
 #endif //MXGUI_LEVEL_2
-
-#endif //APPLICATION_H

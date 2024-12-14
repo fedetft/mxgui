@@ -27,8 +27,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_ST25DVDISCOVERY_H
-#define	EVENT_TYPES_ST25DVDISCOVERY_H
+#pragma once
 
 #ifdef _BOARD_STM32F415VG_ST25DVDISCOVERY
 
@@ -67,5 +66,3 @@ private:
 };
 
 #endif //_BOARD_STM32F415VG_ST25DVDISCOVERY
-
-#endif //EVENT_TYPES_ST25DVDISCOVERY_H

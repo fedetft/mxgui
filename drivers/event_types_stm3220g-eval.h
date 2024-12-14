@@ -26,8 +26,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef EVENT_TYPES_STM3220G_EVAL_H
-#define	EVENT_TYPES_STM3220G_EVAL_H
+#pragma once
 
 #ifdef _BOARD_STM3220G_EVAL
 
@@ -61,5 +60,3 @@ private:
 };
 
 #endif //_BOARD_STM3220G_EVAL
-
-#endif //EVENT_TYPES_STM3220G_EVAL_H

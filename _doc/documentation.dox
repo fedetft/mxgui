@@ -34,9 +34,6 @@ to aid in the design of graphical user interfaces for embedded systems, namely
 - \ref fontr, a tool to generate font lookup tables from standard .ttf and
   .bdf file format. These lookup tables are again designed to be embedded into
   a firmware
-- \ref resfs a tool to generate a filesystem image specifically designed to
-  store large amounts of images on an external flash memory to design rich
-  user interfaces even on microcontroller with little FLASH memory
 - \ref sim a pixel-perfect simulator of the mxgui library making possible
   to debug the visual aspect of an user interface on an host PC instead of
   directly on the embedded device
@@ -204,67 +201,6 @@ to use fontrendering, or type
 \code
 ./fontrendering --help
 \endcode
-
-\subsection resfs resourcefs
-resourcefs is a tool designed to address the need to store large amounts
-of images even on microcontroller with little flash memory, for which the
-pngconverter+embedding approach isn't suitable.
-
-The idea is simple, preprocess the images as usual using pngconverter, but
-this time generate binary files instead of source files, group those files
-in a readonly filesystem and store it inside an external flash memory,
-most likely one with an SPI interface.
-
-To use resourcefs, consider you have a directory named images_in full of
-png images, and you want to make a filesystem with it. This script will
-do this:
-\code
-#!/bin/bash
-
-export PATH=$PATH:<path where pngconverter and resourcefs are located>
-
-rm -rf resource
-cp -R images_in resource
-cd resource
-for i in `ls`; do
-    pngconverter --in=$i --depth 16 --binary
-done
-rm *.png
-cd ..
-resourcefs --in resource --out resource.fs
-\endcode
-Keep in mind that resourcefs currently does not support subdirectories.
-
-Then you need to flash the genearted resource.fs onto the flash memory
-on your device, and write the code to allow mxgui to read from it. An
-example of how to do so is available in mxgui/drivers/resfs_mp3v2.h
-and mxgui/drivers/resfs_mp3v2.cpp. Basically, you need to implement two
-functions, backendInit() and backendRead().
-
-At this point you can draw an image by using the ResourceImage class.
-Assuming that the filesystem contains an image named test, the code to draw
-it is this:
-
-\code
-#include "mxgui/entry.h"
-#include "mxgui/display.h"
-#include "mxgui/resource_image.h"
-
-using namespace mxgui;
-
-ENTRY()
-{
-    {
-        DrawingContext dc(DisplayManager::instance().getDisplay());
-        ResourceImage image("test");
-        dc.drawImage(Point(0,0),image);
-    }
-    for(;;) ;
-\endcode
-
-Note that when using the mxgui simulator the ResourceImage class works
-by searching images inside a "resource" directory that must be present in
-the same directory where the qtsimulator binary is.
 
 \section sim Mxgui simulator
 The Mxgui simulator, also called qtsimulator is a Qt gui application that

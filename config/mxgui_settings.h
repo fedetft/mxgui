@@ -30,18 +30,13 @@
  * This file contains configuration parameters for the mxusb library.
  */
 
-#ifndef MXGUI_SETTINGS_H
-#define	MXGUI_SETTINGS_H
+#pragma once
 
 #define MXGUI_SETTINGS_VERSION 102
 
 // Before you can compile mxgui you have to configure it by editing this
 // file. After that, comment out this line to disable the reminder error.
-// The PARSING_FROM_IDE is because Netbeans gets confused by this, it is never
-// defined when compiling the code.
-#ifndef PARSING_FROM_IDE
 #error This error is a reminder that you have not edited mxgui_settings.h yet.
-#endif //PARSING_FROM_IDE
 
 namespace mxgui {
 
@@ -160,5 +155,3 @@ static const unsigned int SIMULATOR_BGCOLOR=0;
 #endif //_MIOSIX
 
 } //namespace mxgui
-
-#endif //MXGUI_SETTINGS_H

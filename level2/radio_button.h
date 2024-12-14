@@ -25,8 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#ifndef RADIOBUTTON_H
-#define	RADIOBUTTON_H
+#pragma once
 
 #include "checkbox.h"
 
@@ -100,5 +99,3 @@ private:
 } //namesapce mxgui
 
 #endif //MXGUI_LEVEL_2
-
-#endif //RADIOBUTTON_H
