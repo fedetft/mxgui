@@ -210,7 +210,7 @@ public:
         /**
          * Default constructor, results in an invalid iterator.
          */
-        pixel_iterator(): disp(0) {}
+        pixel_iterator(): disp(nullptr) {}
 
         /**
          * Set a pixel and move the pointer to the next one
@@ -225,6 +225,7 @@ public:
             if(disp==0)
                 throw(std::logic_error("default constructed pixel iterator"));
 
+            left--;
             disp->backend.getFrameBuffer().setPixel(cur.x(),cur.y(),color);
             if(direction==DR)
             {
@@ -276,6 +277,15 @@ public:
          */
         void invalidate() {}
 
+        //Uncomment only to check precise algorithms, used for displays that due
+        //to hardware quirks require to always fill the entire region of a pixel
+        //iterator
+        // ~pixel_iterator()
+        // {
+        //     if(left!=0 && left!=total)
+        //         throw(std::logic_error("pixel iterator incomplete fill"));
+        // }
+
     private:
         /**
          * Constructor
@@ -286,13 +296,17 @@ public:
          */
         pixel_iterator(Point start, Point end, IteratorDirection direction,
                 DisplayImpl *disp): start(start), cur(start), end(end),
-                direction(direction), disp(disp) {}
+                direction(direction), disp(disp)
+        {
+            total=left=(end.x()-start.x()+1)*(end.y()-start.y()+1);
+        }
 
         Point start; ///< Upper left corner of window
         Point cur; ///< Current pixel we're pointing at
         Point end; ///< Lower right corner of window
         IteratorDirection direction; ///< Iterator direction
         DisplayImpl *disp; ///< Display we're associated
+        int total, left; ///< Total # of pixels to draw and amount left
 
         friend class DisplayImpl; //Needs access to ctor
     };
