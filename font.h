@@ -87,17 +87,24 @@ public:
 
     /**
      * Draw a string on a surface.
-     * \param surface an object that provides pixel iterators.
+     * \tparam T surface type
+     * \tparam pedantic if true, spend extra time calculating the exact number
+     * of pixel that will be drawn, only useful for displays with quirks in the
+     * hardware implementation of pixel_iterator
+     * \param surface an object that provides pixel iterators
      * \param colors colors for drawing antialiased text
      * \param p point of the upper left corner where the string will be drawn.
      * \param s string to write
      */
-    template<typename T>
+    template<typename T, bool pedantic=false>
     void draw(T& surface, Color colors[4], Point p, const char *s) const;
 
     /**
      * Draw part of a string on a surface
-     * \param surface an object that provides pixel iterators.
+     * \tparam pedantic if true, spend extra time calculating the exact number
+     * of pixel that will be drawn, only useful for displays with quirks in the
+     * hardware implementation of pixel_iterator
+     * \param surface an object that provides pixel iterators
      * \param colors colors for drawing antialiased text
      * \param p point of the upper left corner where the string will be drawn.
      * Negative coordinates are allowed, as long as the clipped view has
@@ -106,7 +113,7 @@ public:
      * \param b Lower right corner of clipping rectangle
      * \param s string to draw
      */
-    template<typename T>
+    template<typename T, bool pedantic=false>
     void clippedDraw(T& surface, Color colors[4],
         Point p, Point a, Point b, const char *s) const;
 
@@ -344,7 +351,7 @@ private:
      * \param colors palette for antialiased drawing
      * \param s string to write
      */
-    template<typename T, typename U, typename L, typename D>
+    template<typename T, typename U, typename L, typename D, bool pedantic>
     void drawingEngineClipped(T& surface, Point p, Point a, Point b,
             Color colors[], const char *s) const;
 
@@ -358,7 +365,7 @@ private:
     const void *data;
 };
 
-template<typename T>
+template<typename T, bool pedantic>
 void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
 {
     //If no Y space to draw font, stop
@@ -366,7 +373,9 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
     //If no X space to draw font, draw it until the screen margin reached
     typename T::pixel_iterator it;
 
-    it=surface.begin(p,Point(surface.getWidth()-1,p.y()+height-1),DR);
+    short xEnd=surface.getWidth()-1;
+    if(pedantic) xEnd=std::min<short>(xEnd,p.x()+calculateLength(s)-1);
+    it=surface.begin(p,Point(xEnd,p.y()+height-1),DR);
     // For code size minimization not all the combinations of 8,16,32,64 bit
     // fixed, variable width and antialiased fonts are supported, but only these
     //  8 bit : none (too small for large displays)
@@ -410,10 +419,10 @@ void Font::draw(T& surface, Color colors[4], Point p, const char *s) const
                         p.x(),surface.getWidth(),colors,s);
             break;
     }
-    it.invalidate(); //May not fill the requested window
+    if(!pedantic) it.invalidate(); //May not fill the requested window
 }
 
-template<typename T>
+template<typename T, bool pedantic>
 void Font::clippedDraw(T& surface, Color colors[4],
         Point p, Point a, Point b, const char *s) const
 {
@@ -424,8 +433,10 @@ void Font::clippedDraw(T& surface, Color colors[4],
     short yb=min<short>(p.y()+this->getHeight()-1,b.y());
     if(ya>yb) return; //Empty intersection
 
-    if(p.x()>b.x()) return; //Empty intersection
     short xa=max(p.x(),a.x());
+    short xb=b.x();
+    if(pedantic) xb=std::min<short>(xb,p.x()+calculateLength(s)-1);
+    if(xa>xb) return; //Empty intersection
 
     // For code size minimization not all the combinations of 8,16,32,64 bit
     // fixed, variable width and antialiased fonts are supported, but only these
@@ -440,34 +451,34 @@ void Font::clippedDraw(T& surface, Color colors[4],
             if(isAntialiased()) return;
             if(isFixedWidth())
                 drawingEngineClipped<T,unsigned short,
-                       FixedWidthGlyphLookup,GlyphDrawer>(surface,p,
-                       Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
+                       FixedWidthGlyphLookup,GlyphDrawer,pedantic>(surface,p,
+                       Point(xa,ya),Point(xb,yb),fgBgColors,s);
             else drawingEngineClipped<T,unsigned short,
-                       VariableWidthGlyphLookup,GlyphDrawer>(surface,p,
-                       Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
+                       VariableWidthGlyphLookup,GlyphDrawer,pedantic>(surface,p,
+                       Point(xa,ya),Point(xb,yb),fgBgColors,s);
             break;
         case 32:
             if(isAntialiased())
             {
                 if(isFixedWidth()) return;
                 drawingEngineClipped<T,unsigned int,
-                       VariableWidthGlyphLookup,GlyphDrawerAA>(surface,p,
-                       Point(xa,ya),Point(b.x(),yb),colors,s);
+                       VariableWidthGlyphLookup,GlyphDrawerAA,pedantic>(surface,p,
+                       Point(xa,ya),Point(xb,yb),colors,s);
             } else {
                 if(isFixedWidth())
                     drawingEngineClipped<T,unsigned int,
-                       FixedWidthGlyphLookup,GlyphDrawer>(surface,p,
-                       Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
+                       FixedWidthGlyphLookup,GlyphDrawer,pedantic>(surface,p,
+                       Point(xa,ya),Point(xb,yb),fgBgColors,s);
                 else drawingEngineClipped<T,unsigned int,
-                       VariableWidthGlyphLookup,GlyphDrawer>(surface,p,
-                       Point(xa,ya),Point(b.x(),yb),fgBgColors,s);
+                       VariableWidthGlyphLookup,GlyphDrawer,pedantic>(surface,p,
+                       Point(xa,ya),Point(xb,yb),fgBgColors,s);
             }
             break;
         case 64:
             if(isAntialiased()==false || isFixedWidth()) return;
             drawingEngineClipped<T,unsigned long long,
-                       VariableWidthGlyphLookup,GlyphDrawerAA>(surface,p,
-                       Point(xa,ya),Point(b.x(),yb),colors,s);
+                       VariableWidthGlyphLookup,GlyphDrawerAA,pedantic>(surface,p,
+                       Point(xa,ya),Point(xb,yb),colors,s);
             break;
     }
 }
@@ -491,7 +502,7 @@ void Font::drawingEngine(typename T::pixel_iterator first,
     }
 }
 
-template<typename T, typename U, typename L, typename D>
+template<typename T, typename U, typename L, typename D, bool pedantic>
 void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
             Color colors[], const char *s) const
 {
@@ -528,7 +539,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
         const U *glyphData=L::template lookupGlyph<U>(this,vc)+partial;
         for(unsigned short i=partial;i<width;i++)
         {
-            if(x>b.x()) { it.invalidate(); return; }
+            if(x>b.x()) return;
             x++;
             U row=*glyphData++;
             row>>=ySkipped;
@@ -545,7 +556,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
         const U *glyphData=L::template lookupGlyph<U>(this,vc);
         for(unsigned short i=0;i<width;i++)
         {
-            if(x>b.x()) { it.invalidate(); return; }
+            if(x>b.x()) return;
             x++;
             U row=*glyphData++;
             row>>=ySkipped;
@@ -553,7 +564,7 @@ void Font::drawingEngineClipped(T& surface, Point p, Point a, Point b,
                 D::template drawGlyphPixel<T,U>(it,colors,row);
         }
     }
-    it.invalidate(); //May not fill the requested window
+    if(!pedantic) it.invalidate(); //May not fill the requested window
 }
 
 } //namespace mxgui

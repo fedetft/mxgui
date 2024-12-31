@@ -31,7 +31,10 @@
 #include "misc_inst.h"
 #include "_tools/qtsimulator/window.h"
 #include "line.h"
-#include <iostream>
+
+//Uncomment only to check precise pixel_iterator algorithms, used for displays
+//that due to hardware quirks require to always fill the entire region
+// #define PEDANTIC_ITERATORS_CHECK
 
 using namespace std;
 
@@ -79,7 +82,11 @@ void DisplayImpl::write(Point p, const char *text)
     if(p.x()>=width || p.y()>=height)
         throw(logic_error("DisplayImpl::write: point outside display bounds"));
 
+    #ifndef PEDANTIC_ITERATORS_CHECK
     font.draw(*this,textColor,p,text);
+    #else //PEDANTIC_ITERATORS_CHECK
+    font.draw<DisplayImpl,true>(*this,textColor,p,text);
+    #endif //PEDANTIC_ITERATORS_CHECK
     beginPixelCalled=false;
 }
 
@@ -95,7 +102,11 @@ void DisplayImpl::clippedWrite(Point p, Point a, Point b, const char *text)
     if(a.x()>b.x() || a.y()>b.y())
         throw(logic_error("DisplayImpl::clippedWrite: reversed points"));
 
+    #ifndef PEDANTIC_ITERATORS_CHECK
     font.clippedDraw(*this,textColor,p,a,b,text);
+    #else //PEDANTIC_ITERATORS_CHECK
+    font.clippedDraw<DisplayImpl,true>(*this,textColor,p,a,b,text);
+    #endif //PEDANTIC_ITERATORS_CHECK
     beginPixelCalled=false;
 }
 

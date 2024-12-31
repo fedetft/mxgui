@@ -43,6 +43,7 @@
 #include "iterator_direction.h"
 #include "_tools/qtsimulator/qtbackend.h"
 #include <stdexcept>
+#include <iostream>
 
 //This display is 16 or 1 bit per pixel, check that the color depth is properly
 //configured
@@ -275,16 +276,16 @@ public:
          * Must be called if not all pixels of the required window are going
          * to be written.
          */
-        void invalidate() {}
+        void invalidate() { left=0; }
 
-        //Uncomment only to check precise algorithms, used for displays that due
-        //to hardware quirks require to always fill the entire region of a pixel
-        //iterator
-        // ~pixel_iterator()
-        // {
-        //     if(left!=0 && left!=total)
-        //         throw(std::logic_error("pixel iterator incomplete fill"));
-        // }
+        ~pixel_iterator()
+        {
+            if(left!=0 && left!=total)
+            {
+                std::cerr<<"pixel iterator incomplete fill\n";
+                std::terminate();
+            }
+        }
 
     private:
         /**
