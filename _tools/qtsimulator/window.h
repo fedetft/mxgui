@@ -69,7 +69,7 @@ public:
      * Constructor.
      * \param parent parent widget
      */
-    explicit Window(QWidget *parent=0);
+    explicit Window(QWidget *parent=nullptr);
 
 private slots:
     /**

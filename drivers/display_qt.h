@@ -222,7 +222,7 @@ public:
             //Safety checks.
             if(cur.x()>end.x() || cur.y()>end.y())
                 throw(std::logic_error("pixel iterator out of bounds"));
-            if(disp==0)
+            if(disp==nullptr)
                 throw(std::logic_error("default constructed pixel iterator"));
 
             left--;

@@ -166,7 +166,7 @@ void DisplayImpl::scanLine(Point p, const Color *colors, unsigned short length)
 
 Color *DisplayImpl::getScanLineBuffer()
 {
-    if(buffer==0) buffer=new Color[getWidth()];
+    if(buffer==nullptr) buffer=new Color[getWidth()];
     return buffer;
 }
 
@@ -242,7 +242,7 @@ DisplayImpl::~DisplayImpl()
     if(buffer) delete[] buffer;
 }
 
-DisplayImpl::DisplayImpl(): buffer(0), last(), beginPixelCalled(false),
+DisplayImpl::DisplayImpl(): buffer(nullptr), last(), beginPixelCalled(false),
                             backend(QTBackend::instance())
 {
     setTextColor(make_pair(Color(SIMULATOR_FGCOLOR),Color(SIMULATOR_BGCOLOR)));
