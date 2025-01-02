@@ -44,7 +44,7 @@ DisplayGeneric4BPP::DisplayGeneric4BPP(short width, short height)
     : width(width), height(height), fbSize(width*height/2),
       backbuffer(new unsigned char[fbSize]), buffer(new Color[width])
 {
-    setTextColor(make_pair(Color(0xf),Color(0x0)));
+    setTextColor(make_pair(Color(0xffff),Color(0x0)));
 }
 
 pair<short int, short int> DisplayGeneric4BPP::doGetSize() const

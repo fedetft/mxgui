@@ -307,9 +307,13 @@ protected:
     unsigned char *backbuffer; ///< Display backbuffer (frontbuffer is in the display chip)
 
 private:
-
-    static unsigned char conv1(Color c) { return c & 0xf; }
-    static unsigned char conv2(Color c) { unsigned char x=c & 0xf; return x | x<<4; }
+    //FIXME: these displays are black and white with 4 bit per pixel, but we
+    //still don't have 4 bit per pixel color format in the rest of the library,
+    //so for now use 16 bit per pixel RGB565 format and take the 4 MSBs from the
+    //blue channel. Images should be exported as RGB565 even if they are black
+    //and white until this is fixed
+    static unsigned char conv1(Color c) { return (c & 0x1f)>>1; }
+    static unsigned char conv2(Color c) { unsigned char x=(c & 0x1f)>>1; return x | x<<4; }
     
     /**
      * Non bound checked no color conversion non virtual setPixel.
