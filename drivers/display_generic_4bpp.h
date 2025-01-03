@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2018 by Terraneo Federico                               *
+ *   Copyright (C) 2018-2025 by Terraneo Federico                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -32,6 +32,10 @@
 #include "point.h"
 #include "color.h"
 #include "iterator_direction.h"
+#include "font.h"
+#include "image.h"
+#include "misc_inst.h"
+#include "line.h"
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
@@ -49,7 +53,14 @@ namespace mxgui {
  *   member functions
  * - the update() member function which shall copy the backbuffer which is in
  *   the microcontroller memory to the display memory
+ * \tparam swapNibbles if false, pixel x=0,y=0 is stored in bit 7..4 of the
+ * first framebuffer byte, pixel x=1,y=0 in bit 3..0 of the first framebuffer
+ * byte and so on. If true, swap each nibble
+ * \tparam swapBytes if false, pixels x=0,y=0 and x=1,y=0 are stored in the
+ * first framebuffer byte and pixels x=2,y=0 and x=3,y=0 are stored in the
+ * second framebuffer byte and so on. If true, swap each byte
  */
+template<bool swapNibbles, bool swapBytes>
 class DisplayGeneric4BPP : public Display
 {
 public:
@@ -100,7 +111,7 @@ public:
     /**
      * This backend does not require it, so it is a blank.
      */
-    void beginPixel() override;
+    void beginPixel() override {}
 
     /**
      * Draw a pixel with desired color. You have to call beginPixel() once
@@ -294,7 +305,7 @@ public:
     /**
      * Destructor
      */
-    ~DisplayGeneric4BPP();
+    ~DisplayGeneric4BPP() {}
     
 protected:
     
@@ -320,8 +331,8 @@ private:
      */
     void doSetPixel(short x, short y, unsigned char cc)
     {
-        int offset=(x+y*width)/2;
-        if(x & 1)
+        int offset=((x+y*width)/2)^swapBytes;
+        if((x & 1)^swapNibbles)
             backbuffer[offset]=(backbuffer[offset] & 0b11110000) | cc;
         else
             backbuffer[offset]=(backbuffer[offset] & 0b00001111) | (cc<<4);
@@ -330,5 +341,197 @@ private:
     Color *buffer;             ///< For scanLineBuffer
     pixel_iterator last;       ///< Last iterator for end of iteration check
 };
+
+
+//
+// Class DisplayGeneric4BPP
+//
+
+template<bool swapNibbles, bool swapBytes>
+DisplayGeneric4BPP<swapNibbles, swapBytes>::DisplayGeneric4BPP(short width, short height)
+    : width(width), height(height), fbSize(width*height/2),
+      backbuffer(new unsigned char[fbSize]), buffer(new Color[width])
+{
+    setTextColor(std::make_pair(Color(0xffff),Color(0x0)));
+}
+
+template<bool swapNibbles, bool swapBytes>
+std::pair<short, short> DisplayGeneric4BPP<swapNibbles, swapBytes>::doGetSize() const
+{
+    return std::make_pair(height,width);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::write(Point p, const char *text)
+{
+    font.draw(*this,textColor,p,text);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::clippedWrite(Point p, Point a,
+        Point b, const char *text)
+{
+    font.clippedDraw(*this,textColor,p,a,b,text);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::clear(Color color)
+{
+    memset(backbuffer,conv2(color),fbSize);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::clear(Point p1, Point p2, Color color)
+{
+    if(p1.x()<0 || p2.x()<p1.x() || p2.x()>=width
+     ||p1.y()<0 || p2.y()<p1.y() || p2.y()>=height) return;
+
+    //Horizontal line is memeset-optimized
+    for(short y=p1.y();y<=p2.y();y++) line(Point(p1.x(),y),Point(p2.x(),y),color);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::setPixel(Point p, Color color)
+{
+    int offset=((p.x()+p.y()*width)/2)^swapBytes;
+    if(offset<0 || offset>=fbSize) return;
+    if((p.x() & 1)^swapNibbles)
+        backbuffer[offset]=(backbuffer[offset] & 0b11110000) | conv1(color);
+    else
+        backbuffer[offset]=(backbuffer[offset] & 0b00001111) | (conv1(color)<<4);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::line(Point a, Point b, Color color)
+{
+    using namespace std;
+    //Horizontal line speed optimization
+    if(a.y()==b.y())
+    {
+        short minx=min(a.x(),b.x());
+        short maxx=max(a.x(),b.x());
+        if(minx<0 || maxx>=width || a.y()<0 || a.y()>=height) return;
+        unsigned char c1=conv1(color);
+        short alignment=swapBytes ? 3 : 1;
+        while(minx & alignment)
+        {
+            doSetPixel(minx++,a.y(),c1);
+            if(minx>maxx) return;
+        }
+        unsigned char c2=conv2(color);
+        short maxxaligned=(maxx+1) & ~alignment;
+        memset(backbuffer+(minx+width*a.y())/2,c2,(maxxaligned-minx)/2);
+        while(maxxaligned<=maxx) doSetPixel(maxxaligned++,a.y(),c1);
+        return;
+    }
+    //Vertical line speed optimization
+    if(a.x()==b.x())
+    {
+        short miny=min(a.y(),b.y());
+        short maxy=max(a.y(),b.y());
+        if(a.x()<0 || a.x()>=width || miny<0 || maxy>=height) return;
+        unsigned char *ptr=&backbuffer[((a.x()+width*miny)/2)^swapBytes];
+        if((a.x() & 1)^swapNibbles)
+        {
+            unsigned char c=conv1(color);
+            for(short i=miny;i<=maxy;i++)
+            {
+                *ptr=(*ptr & 0b11110000) | c;
+                ptr+=width/2;
+            }
+        } else {
+            unsigned char c=conv1(color)<<4;
+            for(short i=miny;i<=maxy;i++)
+            {
+                *ptr=(*ptr & 0b00001111) | c;
+                ptr+=width/2;
+            }
+        }
+        return;
+    }
+    //General case
+    Line::draw(*this,a,b,color);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::scanLine(Point p,
+        const Color *colors, unsigned short length)
+{
+    if(p.x()<0 || static_cast<int>(p.x())+static_cast<int>(length)>width
+        ||p.y()<0 || p.y()>=height) return;
+    for(short x=0;x<length;x++) doSetPixel(p.x()+x,p.y(),conv1(colors[x]));
+}
+
+template<bool swapNibbles, bool swapBytes>
+Color *DisplayGeneric4BPP<swapNibbles, swapBytes>::getScanLineBuffer()
+{
+    return buffer;
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::scanLineBuffer(Point p,
+        unsigned short length)
+{
+    scanLine(p,buffer,length);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::drawImage(Point p, const ImageBase& img)
+{
+    short int xEnd=p.x()+img.getWidth()-1;
+    short int yEnd=p.y()+img.getHeight()-1;
+    if(p.x()<0 || p.y()<0 || xEnd<p.x() || yEnd<p.y()
+        ||xEnd >= width || yEnd >= height) return;
+
+//    const unsigned short *imgData=img.getData();
+//    if(imgData!=0)
+//    {
+//        //TODO Optimized version for in-memory images
+//    } else
+    img.draw(*this,p);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::clippedDrawImage(Point p,
+        Point a, Point b, const ImageBase& img)
+{
+//    const unsigned short *imgData=img.getData();
+//    if(imgData!=0)
+//    {
+//        //TODO Optimized version for in-memory images
+//    } else
+    img.clippedDraw(*this,p,a,b);
+}
+
+template<bool swapNibbles, bool swapBytes>
+void DisplayGeneric4BPP<swapNibbles, swapBytes>::drawRectangle(Point a, Point b, Color c)
+{
+    line(a,Point(b.x(),a.y()),c);
+    line(Point(b.x(),a.y()),b,c);
+    line(b,Point(a.x(),b.y()),c);
+    line(Point(a.x(),b.y()),a,c);
+}
+
+template<bool swapNibbles, bool swapBytes>
+typename DisplayGeneric4BPP<swapNibbles, swapBytes>::pixel_iterator
+DisplayGeneric4BPP<swapNibbles, swapBytes>::begin(Point p1, Point p2, IteratorDirection d)
+{
+    bool fail=false;
+    if(p1.x()<0 || p1.y()<0 || p2.x()<0 || p2.y()<0) fail=true;
+    if(p1.x()>=width || p1.y()>=height || p2.x()>=width || p2.y()>=height) fail=true;
+    if(p2.x()<p1.x() || p2.y()<p1.y()) fail=true;
+    if(fail)
+    {
+        //Return invalid (dummy) iterators
+        this->last=pixel_iterator();
+        return this->last;
+    }
+
+    //Set the last iterator to a suitable one-past-the last value
+    if(d==DR) this->last=pixel_iterator(Point(p2.x()+1,p1.y()),p2,d,this);
+    else this->last=pixel_iterator(Point(p1.x(),p2.y()+1),p2,d,this);
+
+    return pixel_iterator(p1,p2,d,this);
+}
 
 } //namespace mxgui

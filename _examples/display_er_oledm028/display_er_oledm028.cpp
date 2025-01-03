@@ -32,6 +32,10 @@
 using namespace std;
 using namespace miosix;
 
+#ifndef MXGUI_ORIENTATION_HORIZONTAL
+#error "Unsupported orintation"
+#endif
+
 #ifndef _BOARD_STM32F4DISCOVERY
 #warning "The SPI driver has only been tested on an STM32F4DISCOVERY"
 #endif
@@ -147,8 +151,8 @@ DisplayErOledm028::DisplayErOledm028() : DisplayGeneric4BPP(256,64)
     cmd(0xae);                         // Display off
     cmd(0xb3); data(0x91);             // Oscillator settings 0x9, divide by 2
     cmd(0xca); data(0x3f);             // Mux ratio 64
-    cmd(0xa2); data(0x00);             // Display offset 0
     cmd(0xa1); data(0x00);             // Display start line 0
+    cmd(0xa2); data(0x00);             // Display offset 0
     cmd(0xa0); data(0x14); data(0x11); // Remap: dual com enabled, nibble remap
     cmd(0xab); data(0x01);             // Select internal VDD
     cmd(0xb4); data(0xa0); data(0xfd); // ?
@@ -194,7 +198,7 @@ void DisplayErOledm028::update()
 
     dc::high();
     cs::low();
-    for(int i=0;i<fbSize;i++) spi3sendOnly(backbuffer[i]);
+    for(int i=0;i<fbSize;i++) spi3sendOnly(backbuffer[i]); //TODO: DMA
     spi3waitCompletion();
     cs::high();
     delayUs(1);

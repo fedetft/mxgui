@@ -31,7 +31,7 @@
 
 namespace mxgui {
 
-class DisplayErOledm028 : public DisplayGeneric4BPP
+class DisplayErOledm028 : public DisplayGeneric4BPP<false,false>
 {
 public:
     /*
