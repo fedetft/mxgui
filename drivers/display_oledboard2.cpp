@@ -27,6 +27,7 @@
 
 #include "display_oledboard2.h"
 #include "miosix.h"
+#include "interfaces-impl/hwmapping.h"
 #include <algorithm>
 
 using namespace std;
