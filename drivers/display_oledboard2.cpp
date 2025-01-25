@@ -27,13 +27,14 @@
 
 #include "display_oledboard2.h"
 #include "miosix.h"
-#include "interfaces-impl/hwmapping.h"
 #include <algorithm>
 
 using namespace std;
 using namespace miosix;
 
 #ifdef _BOARD_STM32F429ZI_OLEDBOARD2
+
+#include "interfaces-impl/hwmapping.h" //This file may not exist in other boards
 
 namespace mxgui {
 
