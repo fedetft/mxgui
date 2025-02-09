@@ -1,0 +1,4 @@
+Shortcut 'n' show/hide size editing for primitives
+Menu "Add > Mesh" has plane, cube, cylinder, ...
+Only immediately after adding the cylinder a menu appears in lower left corner
+where you can change number of faces of cylinder
