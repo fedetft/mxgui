@@ -32,10 +32,6 @@
 #include "_tools/qtsimulator/window.h"
 #include "line.h"
 
-//Uncomment only to check precise pixel_iterator algorithms, used for displays
-//that due to hardware quirks require to always fill the entire region
-// #define PEDANTIC_ITERATORS_CHECK
-
 using namespace std;
 
 namespace mxgui {

@@ -51,6 +51,10 @@
 #error The Qt driver requires a color depth of 16 or 1bit per pixel
 #endif
 
+//Uncomment only to check precise pixel_iterator algorithms, used for displays
+//that due to hardware quirks require to always fill the entire region
+// #define PEDANTIC_ITERATORS_CHECK
+
 namespace mxgui {
 
 class DisplayImpl : public Display
@@ -280,11 +284,13 @@ public:
 
         ~pixel_iterator()
         {
+            #ifdef PEDANTIC_ITERATORS_CHECK
             if(left!=0 && left!=total)
             {
                 std::cerr<<"pixel iterator incomplete fill\n";
                 std::terminate();
             }
+            #endif //PEDANTIC_ITERATORS_CHECK
         }
 
     private:
