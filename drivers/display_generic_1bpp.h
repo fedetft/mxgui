@@ -49,14 +49,64 @@ namespace mxgui {
  *   member functions
  * - the update() member function which shall copy the backbuffer which is in
  *   the microcontroller memory to the display memory
+ * In vertical orientation, the backbuffer memory layout uses each 8-bit byte as
+ * a vertical stripe of 8 pixels, and each vertical stripe is horizontally
+ * adjacent. In a (hypotetical) 16x16 display, the pattern {0,1,2,3...} looks
+ * like this:
+ * 
+ *       0123456789ABCDEF  <- addr (low nybble)
+ *       ................
+ *       ................
+ *       ................
+ *       ................
+ *       ........XXXXXXXX
+ *       ....XXXX....XXXX
+ *       ..XX..XX..XX..XX
+ *    0x .X.X.X.X.X.X.X.X
+ *       ................
+ *       ................
+ *       ................
+ *       XXXXXXXXXXXXXXXX
+ *       ........XXXXXXXX
+ *       ....XXXX....XXXX
+ *       ..XX..XX..XX..XX
+ *    1x .X.X.X.X.X.X.X.X
+ * 
+ * In horizontal orientation, the backbuffer memory layout uses each 8-bit byte
+ * as a horizontal stripe of 8 pixels, and each horizontal stripe is vertically
+ * adjacent. In a (hypotetical) 16x16 display, the pattern {0,1,2,3...} looks
+ * like this:
+ * 
+ *             0x      1x  <- addr (high nybble)
+ *     0 ...........X....
+ *     1 .......X...X...X
+ *     2 ......X....X..X.
+ *     3 ......XX...X..XX
+ *     4 .....X.....X.X..
+ *     5 .....X.X...X.X.X
+ *     6 .....XX....X.XX.
+ *     7 .....XXX...X.XXX
+ *     8 ....X......XX...
+ *     9 ....X..X...XX..X
+ *     A ....X.X....XX.X.
+ *     B ....X.XX...XX.XX
+ *     C ....XX.....XXX..
+ *     D ....XX.X...XXX.X
+ *     E ....XXX....XXXX.
+ *     F ....XXXX...XXXXX
+ * 
+ * This is the same exact memory layout that is expected for the backbuffer in
+ * the SSD1306 controller and other similar controllers.
+ * Mirrored orientations (which are really 180 degree rotations) are assumed to
+ * be handled in hardware by the display controller and are ignored.
  */
 class DisplayGeneric1BPP : public Display
 {
 public:
     /**
      * Constructor.
-     * \param width display width
-     * \param height display height
+     * \param width display width. Flip appropriately for vertical orientation.
+     * \param height display height. Flip appropriately for vertical orientation.
      */
     DisplayGeneric1BPP(short width, short height);
     
@@ -297,8 +347,6 @@ public:
     ~DisplayGeneric1BPP();
     
 protected:
-    
-    //FIXME: ignoring MXGUI_ORIENTATION
     const short int width;
     const short int height;
     
@@ -315,10 +363,17 @@ private:
      */
     void doSetPixel(short x, short y, Color c)
     {
+        #if defined(MXGUI_ORIENTATION_VERTICAL) || defined(MXGUI_ORIENTATION_VERTICAL_MIRRORED)
         int offset=x+(y/8)*width;
         //TODO: optimize with bit banding
         if(c) backbuffer[offset] |=  (1<<(y & 0x7));
         else  backbuffer[offset] &= ~(1<<(y & 0x7));
+        #else
+        int offset=y+(x/8)*height;
+        //TODO: optimize with bit banding
+        if(c) backbuffer[offset] |=  (1<<(x & 0x7));
+        else  backbuffer[offset] &= ~(1<<(x & 0x7));
+        #endif
     }
     
     Color *buffer;             ///< For scanLineBuffer
