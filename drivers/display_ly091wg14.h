@@ -36,6 +36,7 @@ namespace mxgui {
 /**
  * A small (0.91"), 128x32 pixel monochrome inexpensive and not particularly
  * fast (I2C interface) OLED display that can be easily found on ebay.
+ * Based on the SSD1306 controller.
  * 
  * This driver uses software I2C
  * 
