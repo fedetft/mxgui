@@ -1,5 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2018 by Terraneo Federico                               *
+ *   Copyright (C) 2025 by Daniele Cattaneo                                *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -33,21 +34,28 @@ using namespace std;
 using namespace miosix;
 
 #ifndef MXGUI_ORIENTATION_HORIZONTAL
-#error "Unsupported orintation"
-#endif
-
-#ifndef _BOARD_STM32F4DISCOVERY
-#warning "The SPI driver has only been tested on an STM32F4DISCOVERY"
+#error Unsupported orientation
 #endif
 
 //Display connection
-
-using cs   = Gpio<GPIOB_BASE,7>; //Display pin 16
-using sck  = Gpio<GPIOB_BASE,3>; //Display pin  4, used as HW SPI
-using mosi = Gpio<GPIOB_BASE,5>; //Display pin  5, used as HW SPI
-using dc   = Gpio<GPIOB_BASE,8>; //Display pin 14
-using res = Gpio<GPIOB_BASE,15>; //Display pin 15
 //Display pin 2 is Vbat (3.3..5V), while display pins 1,7,8,9,10,11,12,13 are GND
+#if defined(_BOARD_STM32F4DISCOVERY)
+using cs   = Gpio<PB, 7>; //Display pin 16
+using sck  = Gpio<PB, 3>; //Display pin  4, used as HW SPI
+using mosi = Gpio<PB, 5>; //Display pin  5, used as HW SPI
+using dc   = Gpio<PB, 8>; //Display pin 14
+using res  = Gpio<PB,15>; //Display pin 15
+SPI_TypeDef * const spi=SPI3;
+#elif defined(_BOARD_STM32F765II_MARCO_RAM_BOARD)
+using cs   = Gpio<PA,4>; //Display pin 16 
+using sck  = Gpio<PA,5>; //Display pin  4, used as HW SPI
+using mosi = Gpio<PD,7>; //Display pin  5, used as HW SPI
+using dc   = Gpio<PA,6>; //Display pin 14
+using res  = Gpio<PD,6>; //Display pin 15
+SPI_TypeDef * const spi=SPI1;
+#else
+#warning This SPI display driver is not supported on this board
+#endif
 
 /**
  * Send and receive a byte, thus returning only after transmission is complete
@@ -56,9 +64,18 @@ using res = Gpio<GPIOB_BASE,15>; //Display pin 15
  */
 static unsigned char spi3sendRecv(unsigned char x=0)
 {
-    SPI3->DR=x;
-    while((SPI3->SR & SPI_SR_RXNE)==0) ;
-    return SPI3->DR;
+    // Accessing the data register with 8 bit accesses to defeat packed mode,
+    // an amazing feature where if you accidentally set the word size to 8 bit
+    // by mistake, ST will correct that to 16 bit for you. (Only For STM32F7)
+    // Me: Hey ST maybe if I wanted 16 bit words in my SPI I would have set the
+    //     word size register to 16 bit, right?
+    // ST: No no we're helping, see, it's not 16 bit words, it's two 8-bit words
+    //     one after the other! There's a difference!
+    // Me: *looks at the oscilloscope trace which is identical to a single 16
+    //     bit transfer* <facepalm> Fuck off ST you're clearly drunk
+    *((volatile unsigned char *)&(spi->DR))=x;
+    while((spi->SR & SPI_SR_RXNE)==0) ;
+    return *((volatile unsigned char *)&(spi->DR));
 }
 
 /**
@@ -72,8 +89,8 @@ static unsigned char spi3sendRecv(unsigned char x=0)
 static void spi3sendOnly(unsigned char x)
 {
     //NOTE: data is sent after the function returns, watch out!
-    while((SPI3->SR & SPI_SR_TXE)==0) ;
-    SPI3->DR=x;
+    while((spi->SR & SPI_SR_TXE)==0) ;
+    *((volatile unsigned char *)&(spi->DR))=x;
 }
 
 /**
@@ -81,11 +98,9 @@ static void spi3sendOnly(unsigned char x)
  */
 static void spi3waitCompletion()
 {
-    while(SPI3->SR & SPI_SR_BSY) ;
-    //Reading DR and then SR clears overrun flag
-    [[gnu::unused]] volatile int unused;
-    unused=SPI3->DR;
-    unused=SPI3->SR;
+    while(spi->SR & SPI_SR_BSY) ;
+    //clears overrun flags
+    while(spi->SR & SPI_SR_RXNE) (void)*((volatile unsigned char *)&(spi->DR));
 }
 
 /**
@@ -123,22 +138,41 @@ namespace mxgui {
 DisplayErOledm028::DisplayErOledm028() : DisplayGeneric4BPP(256,64)
 {
     {
-        FastInterruptDisableLock dLock;
+        GlobalIrqLock dLock;
+        #if defined(_BOARD_STM32F4DISCOVERY)
+        int af=6;
+        #elif defined(_BOARD_STM32F765II_MARCO_RAM_BOARD)
+        int af=5;
+        #endif
         cs::mode(Mode::OUTPUT);      cs::high();
-        sck::mode(Mode::ALTERNATE);  sck::alternateFunction(6);
-        mosi::mode(Mode::ALTERNATE); mosi::alternateFunction(6);
+        sck::mode(Mode::ALTERNATE);  sck::alternateFunction(af);
+        mosi::mode(Mode::ALTERNATE); mosi::alternateFunction(af);
         dc::mode(Mode::OUTPUT);
         res::mode(Mode::OUTPUT);
         
+        #if defined(_BOARD_STM32F4DISCOVERY)
         RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
+        #elif defined(_BOARD_STM32F765II_MARCO_RAM_BOARD)
+        RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+        #endif
         RCC_SYNC();
     }
 
-    SPI3->CR1=SPI_CR1_SSM  //No HW cs
+    #if defined(_BOARD_STM32F4DISCOVERY)
+    spi->CR1=SPI_CR1_SSM  //No HW cs
             | SPI_CR1_SSI
             | SPI_CR1_SPE  //SPI enabled
             | SPI_CR1_BR_1 //SPI clock 42/8=5.25MHz (Fmax=10MHz)
             | SPI_CR1_MSTR;//Master mode
+    #elif defined(_BOARD_STM32F765II_MARCO_RAM_BOARD)
+    spi->CR1=SPI_CR1_SSM  //No HW cs
+            | SPI_CR1_SSI
+            | SPI_CR1_SPE  //SPI enabled
+            | SPI_CR1_BR_1 //SPI clock 216/8=27MHz (works fine!)
+            | SPI_CR1_MSTR;//Master mode
+    spi->CR2=7<<SPI_CR2_DS_Pos // 8 bit per word (warning, this field is an illusion, see the rant above on packed mode)
+            | SPI_CR2_FRXTH; // RXNE on 8 bit in fifo
+    #endif
 
     res::high();
     Thread::sleep(1);
@@ -155,11 +189,11 @@ DisplayErOledm028::DisplayErOledm028() : DisplayGeneric4BPP(256,64)
     cmd(0xa2); data(0x00);             // Display offset 0
     cmd(0xa0); data(0x14); data(0x11); // Remap: dual com enabled, nibble remap
     cmd(0xab); data(0x01);             // Select internal VDD
-    cmd(0xb4); data(0xa0); data(0xfd); // ?
+    cmd(0xb4); data(0xa0); data(0xfd); // Display enhancement A
     cmd(0xc1); data(0x80);             // Contrast current 0x80
     cmd(0xc7); data(0x0f);             // Maximum brightness
     cmd(0xb1); data(0xe2);             // Phase length
-    cmd(0xd1); data(0x82); data(0x20); // ?
+    cmd(0xd1); data(0x82); data(0x20); // Display enhancement B
     cmd(0xbb); data(0x1f);             // Precharge voltage
     cmd(0xb6); data(0x08);             // Second precharge period
     cmd(0xbe); data(0x07);             // VCOMH
