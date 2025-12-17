@@ -63,6 +63,11 @@ static void spiInit()
     reset::mode(Mode::OUTPUT);
     back::mode(Mode::OUTPUT);
     back::high();
+    // TODO use SPI driver
+    clocks_hw->wake_en0|=CLOCKS_WAKE_EN0_CLK_SYS_SPI1_BITS
+                       | CLOCKS_WAKE_EN0_CLK_PERI_SPI1_BITS;
+    clocks_hw->sleep_en0|=CLOCKS_SLEEP_EN0_CLK_SYS_SPI1_BITS
+                        | CLOCKS_SLEEP_EN0_CLK_PERI_SPI1_BITS;
     unreset_block_wait(RESETS_RESET_SPI1_BITS);
 
     spi1_hw->cr0 = 0 << 8 | 0b111; // Speed 62.5 MHz
