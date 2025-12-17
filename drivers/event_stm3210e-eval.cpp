@@ -47,7 +47,7 @@ static function<void ()> eventCallback;
 static void callback(Event e)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         if(eventQueue.IRQput(e)==false) return;
     }
     if(eventCallback) eventCallback();
@@ -107,7 +107,7 @@ Event InputHandlerImpl::getEvent()
 
 Event InputHandlerImpl::popEvent()
 {
-    FastInterruptDisableLock dLock;
+    FastGlobalIrqLock dLock;
     Event result;
     if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
     return result;

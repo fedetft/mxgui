@@ -97,7 +97,7 @@ static std::function<void ()> eventCallback;
 static void callback(Event e)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         if(eventQueue.IRQput(e)==false) return;
     }
     if(eventCallback) eventCallback();
@@ -286,7 +286,7 @@ void ButtonDescr::Poll()
             {
                 m_BtnCounter = 0;
                 m_BtnState = BTN_PRESSED;
-                FastInterruptDisableLock dLock;
+                FastGlobalIrqLock dLock;
                 callback(Event(m_Event,EventDirection::DOWN));
             }
         }
@@ -377,7 +377,7 @@ Event InputHandlerImpl::getEvent()
 
 Event InputHandlerImpl::popEvent()
 {
-    FastInterruptDisableLock dLock;
+    FastGlobalIrqLock dLock;
     Event result;
     if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
     return result;

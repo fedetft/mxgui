@@ -43,7 +43,7 @@ namespace mxgui {
  */
 static void adcInit()
 {
-    FastInterruptDisableLock dLock;
+    FastGlobalIrqLock dLock;
 	//Gpio to adc mapping. Note: using adc2 to read all pins to save power
 	//pwrmgmt::vbat c5 adc12_in15
 	//disp::yp      b0 adc12_in8
@@ -92,12 +92,12 @@ static Point getTouchData()
 {
     int x,y;
     {
-        InterruptDisableLock dLock;
+        GlobalIrqLock dLock;
         disp::ym::high(); //Raising ym instead of yp because y is flipped
         disp::xp::mode(Mode::INPUT_ANALOG);
         disp::xm::mode(Mode::INPUT_ANALOG);
         {
-            InterruptEnableLock eLock(dLock);
+            GlobalIrqUnlock eLock(dLock);
             Thread::sleep(1);
         }
         y=(adcRead(13)+adcRead(14)+adcRead(13)+adcRead(14))/4;
@@ -142,7 +142,7 @@ static std::function<void ()> eventCallback;
 static void callback(Event e)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         if(eventQueue.IRQput(e)==false) return;
     }
     if(eventCallback) eventCallback();
@@ -235,7 +235,7 @@ Event InputHandlerImpl::getEvent()
 
 Event InputHandlerImpl::popEvent()
 {
-    FastInterruptDisableLock dLock;
+    FastGlobalIrqLock dLock;
     Event result;
     if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
     return result;

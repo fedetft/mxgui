@@ -90,7 +90,7 @@ void DisplayImpl::doTurnOn()
     oled::OLED_A0_Pin::high();
     
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         //Gpios are already configured in the BSP
         RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
         RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
@@ -459,7 +459,7 @@ void DisplayImpl::waitDmaCompletion()
     if(dmaTransferActivated==false) return; //Nothing to do
     
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         if(dmaTransferInProgress)
         {
             waiting=Thread::IRQgetCurrentThread();

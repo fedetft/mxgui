@@ -330,7 +330,7 @@ DisplayImpl::DisplayImpl()
       buffer(framebuffer1+numPixels)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         //PLLSAI runs @ 192MHz, both Q and R outputs are divided by 4 so 48MHz
         RCC->PLLSAICFGR=4<<28 | 4<<24 | 192<<6;
         //PLLSAI R output divided by 8 resulting in a 6MHz LTDC clock
@@ -341,7 +341,7 @@ DisplayImpl::DisplayImpl()
     while((RCC->CR & RCC_CR_PLLSAIRDY)==0) ;
     
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         
         scl::mode(Mode::ALTERNATE);    scl::alternateFunction(5); //SPI5
         sda::mode(Mode::ALTERNATE);    sda::alternateFunction(5);
@@ -833,7 +833,7 @@ DisplayImpl::DisplayImpl()
     
     // Enable clock for DSI and LTDC then force their reset
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
 
         en::mode(Mode::ALTERNATE);     en::alternateFunction(14);       en::speed(Speed::_100MHz);
         dotclk::mode(Mode::ALTERNATE); dotclk::alternateFunction(14);   dotclk::speed(Speed::_100MHz);
@@ -870,7 +870,7 @@ DisplayImpl::DisplayImpl()
 
     // Configure PLLSAI for LTDC, turn it ON and wait for its lock
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         
         // LTDC clock depends on PLL_M which is fixed at boot with value 8
         // It also depends on PLLSAI which can be freely configured

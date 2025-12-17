@@ -274,7 +274,7 @@ static std::function<void ()> eventCallback;
 static void callback(Event e)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         if(eventQueue.IRQput(e)==false) return;
     }
     if(eventCallback) eventCallback();
@@ -381,7 +381,7 @@ static void eventThread(void *)
 InputHandlerImpl::InputHandlerImpl()
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         buttonKey::mode(Mode::INPUT);
         interrupt::mode(Mode::INPUT);
         joySel::mode(Mode::INPUT);
@@ -420,7 +420,7 @@ Event InputHandlerImpl::getEvent()
 
 Event InputHandlerImpl::popEvent()
 {
-    FastInterruptDisableLock dLock;
+    FastGlobalIrqLock dLock;
     Event result;
     if(eventQueue.isEmpty() == false) {
         eventQueue.IRQget(result);

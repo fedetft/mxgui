@@ -105,7 +105,7 @@ namespace mxgui {
 DisplayErOledm024::DisplayErOledm024() : DisplayGeneric1BPP(128,64)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         cs::mode(Mode::OUTPUT);      cs::high();
         sck::mode(Mode::ALTERNATE);  sck::alternateFunction(5);
         mosi::mode(Mode::ALTERNATE); mosi::alternateFunction(5);

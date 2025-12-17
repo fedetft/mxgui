@@ -27,6 +27,7 @@
 
 #include "display_mp3v2.h"
 #include "miosix.h"
+#include "interfaces/bsp.h"
 
 using namespace std;
 using namespace miosix;

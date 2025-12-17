@@ -119,7 +119,7 @@ namespace mxgui {
 DisplaySer2p7s::DisplaySer2p7s() : DisplayGeneric4BPP(256,128)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         cs::mode(Mode::OUTPUT);      cs::high();
         sck::mode(Mode::ALTERNATE);  sck::alternateFunction(5);
         mosi::mode(Mode::ALTERNATE); mosi::alternateFunction(5);

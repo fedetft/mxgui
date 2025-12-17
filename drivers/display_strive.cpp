@@ -27,6 +27,7 @@
 
 #include "display_strive.h"
 #include "miosix.h"
+#include "interfaces/bsp.h"
 
 using namespace std;
 using namespace miosix;
@@ -379,11 +380,11 @@ DisplayImpl::DisplayImpl(): buffer(0)
     RCC->AHBENR |= RCC_AHBENR_FSMCEN;
 
     volatile uint32_t& BCR1=FSMC_Bank1->BTCR[0];
-    BCR1 = FSMC_BCR1_MBKEN  | //memory bank enable
-           FSMC_BCR1_MTYP_1 | //memory type: NOR
-           FSMC_BCR1_MWID_0 | //memory data width: 16
-           FSMC_BCR1_WREN   | //Write Operation Enable
-           FSMC_BCR1_FACCEN;  //Flash access enable
+    BCR1 = FSMC_BCRx_MBKEN  | //memory bank enable
+           FSMC_BCRx_MTYP_1 | //memory type: NOR
+           FSMC_BCRx_MWID_0 | //memory data width: 16
+           FSMC_BCRx_WREN   | //Write Operation Enable
+           FSMC_BCRx_FACCEN;  //Flash access enable
 
     volatile uint32_t& BTR1=FSMC_Bank1->BTCR[1];
     BTR1 = 2 << 0 |  // Address setup phase duration

@@ -33,7 +33,7 @@ private:
     MyDisplay() : DisplayGenericST7735(csx::getPin(),dcx::getPin(),resx::getPin())
     {
         {
-            FastInterruptDisableLock dLock;
+            FastGlobalIrqLock dLock;
 
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
             SPI2->CR1 = 0;

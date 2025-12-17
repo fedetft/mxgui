@@ -145,7 +145,7 @@ static void spi1SendDMA(const Color *data, int size)
                    | DMA_SxCR_EN;     //Start DMA
     
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         while(waiting!=nullptr)
         {
             waiting->IRQwait();
@@ -256,7 +256,7 @@ namespace mxgui {
 DisplayErOledm015::DisplayErOledm015() : buffer(nullptr), buffer2(nullptr)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         cs::mode(Mode::OUTPUT);      cs::high();
         sck::mode(Mode::ALTERNATE);  sck::alternateFunction(5);
         mosi::mode(Mode::ALTERNATE); mosi::alternateFunction(5);

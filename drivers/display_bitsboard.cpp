@@ -271,7 +271,7 @@ DisplayImpl::DisplayImpl(): buffer(0), last()
 {
     setTextColor(make_pair(Color(black),Color(white)));
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
         RCC->APB1ENR |= RCC_APB1ENR_SPI2EN | RCC_APB1ENR_TIM7EN;
         sck::mode(Mode::ALTERNATE_OD);

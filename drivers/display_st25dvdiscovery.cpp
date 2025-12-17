@@ -297,7 +297,7 @@ DisplayImpl::DisplayImpl() : buffer(0)
 {
     // SPI2 Configuration
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         
         scl::mode(Mode::ALTERNATE);    scl::alternateFunction(5); //SPI5
         sda::mode(Mode::ALTERNATE);    sda::alternateFunction(5);

@@ -215,7 +215,7 @@ static std::function<void ()> eventCallback;
 static void callback(Event e)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         if(eventQueue.IRQput(e)==false) return;
     }
     if(eventCallback) eventCallback();
@@ -224,7 +224,7 @@ static void callback(Event e)
 static void waitForTouchOrButton()
 {
     {
-        FastInterruptDisableLock dLock2;
+        FastGlobalIrqLock dLock2;
         if(irq==false)
         {
             waiting=Thread::IRQgetCurrentThread();
@@ -293,7 +293,7 @@ static void eventThread(void *)
 InputHandlerImpl::InputHandlerImpl()
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         buttonA::mode(Mode::INPUT_PULL_DOWN);
         interrupt::mode(Mode::INPUT);
         stmpe811::init();
@@ -351,7 +351,7 @@ Event InputHandlerImpl::getEvent()
 
 Event InputHandlerImpl::popEvent()
 {
-    FastInterruptDisableLock dLock;
+    FastGlobalIrqLock dLock;
     Event result;
     if(eventQueue.isEmpty()==false) eventQueue.IRQget(result);
     return result;

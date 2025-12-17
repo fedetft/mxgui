@@ -135,7 +135,7 @@ namespace mxgui {
 DisplayDepg0290b01::DisplayDepg0290b01() : DisplayGeneric1BPP(296,128)
 {
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         mosi::mode(Mode::ALTERNATE); mosi::alternateFunction(5);
         sck::mode(Mode::ALTERNATE);  sck::alternateFunction(5);
         cs::mode(Mode::OUTPUT);      cs::high();

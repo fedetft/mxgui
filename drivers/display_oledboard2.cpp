@@ -350,7 +350,7 @@ DisplayImpl::DisplayImpl()
     // First of all, enable peripherals and LDTC PLL
     //
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         //PLLSAI runs @ <pllfreq>MHz, both Q and R outputs are divided by 4
         RCC->PLLSAICFGR=4<<28 | 4<<24 | pllFreq<<6;
         //The display dotclock is additionally divided by 2
@@ -359,7 +359,7 @@ DisplayImpl::DisplayImpl()
     }
     while((RCC->CR & RCC_CR_PLLSAIRDY)==0) ;
     {
-        FastInterruptDisableLock dLock;
+        FastGlobalIrqLock dLock;
         RCC->APB2ENR |= RCC_APB2ENR_LTDCEN | RCC_APB2ENR_SPI6EN;
         RCC_SYNC();
     }
