@@ -35,7 +35,6 @@
 
 #include "event_st25dvdiscovery.h"
 #include "miosix.h"
-#include "kernel/scheduler/scheduler.h"
 #include "util/software_i2c.h"
 #include <algorithm>
 
@@ -45,19 +44,9 @@ using namespace miosix;
 static Semaphore touchIntSema;
 
 /**
- * Touchscreen interrupt
- */
-void __attribute__((naked)) EXTI9_5_IRQHandler()
-{
-    saveContext();
-    asm volatile("bl EXTI9_5_HandlerImpl");
-    restoreContext();
-}
-
-/**
  * Touchscreen interrupt actual implementation
  */
-extern "C" void __attribute__((used)) EXTI9_5_HandlerImpl()
+void EXTI9_5_HandlerImpl()
 {
     EXTI->PR = EXTI_PR_PR5;
     touchIntSema.IRQsignal();
@@ -381,7 +370,8 @@ static void eventThread(void *)
 InputHandlerImpl::InputHandlerImpl()
 {
     {
-        FastGlobalIrqLock dLock;
+        GlobalIrqLock dLock;
+        IRQregisterIrq(dLock,EXTI9_5_IRQn,&EXTI9_5_HandlerImpl);
         buttonKey::mode(Mode::INPUT);
         interrupt::mode(Mode::INPUT);
         joySel::mode(Mode::INPUT);
