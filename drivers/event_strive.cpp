@@ -31,6 +31,7 @@
 
 #include "event_strive.h"
 #include "miosix.h"
+#include "interfaces/bsp.h"
 
 using namespace std;
 using namespace miosix;

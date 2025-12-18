@@ -31,6 +31,7 @@
 
 #include "event_redbull_v2.h"
 #include "miosix.h"
+#include "interfaces/bsp.h"
 #include <cstdio>
 
 using namespace std;

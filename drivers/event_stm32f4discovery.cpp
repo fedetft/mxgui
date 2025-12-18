@@ -32,63 +32,31 @@
 
 #include "event_stm32f4discovery.h"
 #include "miosix.h"
-#include "kernel/scheduler/scheduler.h"
 #include "util/software_i2c.h"
 #include <algorithm>
 
 using namespace std;
 using namespace miosix;
 
-static Thread *waiting=0;
-static volatile bool irq=false;
 static volatile int flag=0;
-
-/**
- * Touchscreen interrupt
- */
-void __attribute__((naked)) EXTI15_10_IRQHandler()
-{
-    saveContext();
-    asm volatile("bl _Z20EXTI15_10HandlerImplv");
-    restoreContext();
-}
+static Semaphore evtIntSema;
 
 /**
  * Tochscreen interrupt actual implementation
  */
-void __attribute__((used)) EXTI15_10HandlerImpl()
+void EXTI15_10HandlerImpl()
 {
     EXTI->PR=EXTI_PR_PR15;
-    
-    irq=true;
-    if(waiting==0) return;
-    waiting->IRQwakeup();
-    if(waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority()) Scheduler::IRQfindNextThread();
-    waiting=0;
-}
-
-/**
- * Button interrupt
- */
-void __attribute__((naked)) EXTI0_IRQHandler()
-{
-    saveContext();
-    asm volatile("bl _Z16EXTI0HandlerImplv");
-    restoreContext();
+    evtIntSema.IRQsignal();
 }
 
 /**
  * Button interrupt actual implementation
  */
-void __attribute__((used)) EXTI0HandlerImpl()
+void EXTI0HandlerImpl()
 {
     EXTI->PR=EXTI_PR_PR0;
-    
-    if(waiting==0) return;
-    waiting->IRQwakeup();
-    if(waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority())
-        Scheduler::IRQfindNextThread();
-    waiting=0;
+    evtIntSema.IRQsignal();
 }
 
 namespace mxgui {
@@ -223,20 +191,9 @@ static void callback(Event e)
 
 static void waitForTouchOrButton()
 {
-    {
-        FastGlobalIrqLock dLock2;
-        if(irq==false)
-        {
-            waiting=Thread::IRQgetCurrentThread();
-            while(waiting)   
-            {   
-                Thread::IRQwait();
-                FastInterruptEnableLock eLock(dLock2);
-               Thread::yield();
-            }
-        }
-        irq=false;
-    }
+    long long t = miosix::getTime();
+    // Wait until the touchscreen interrupt fires or 20ms
+    if (!evtIntSema.reset()) evtIntSema.timedWait(t+20000000LL);
     stmpe811writeReg(INT_STA,0x03);
 }
 
@@ -293,7 +250,8 @@ static void eventThread(void *)
 InputHandlerImpl::InputHandlerImpl()
 {
     {
-        FastGlobalIrqLock dLock;
+        GlobalIrqLock dLock;
+        IRQregisterIrq(dLock,EXTI15_10_IRQn,&EXTI15_10HandlerImpl);
         buttonA::mode(Mode::INPUT_PULL_DOWN);
         interrupt::mode(Mode::INPUT);
         stmpe811::init();

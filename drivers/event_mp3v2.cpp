@@ -31,6 +31,7 @@
 
 #include "event_mp3v2.h"
 #include "miosix.h"
+#include "interfaces/bsp.h"
 #include <algorithm>
 
 using namespace std;
@@ -109,7 +110,7 @@ static Point getTouchData()
         disp::yp::mode(Mode::INPUT_ANALOG);
         disp::ym::mode(Mode::INPUT_ANALOG);
         {
-            InterruptEnableLock eLock(dLock);
+            GlobalIrqUnlock eLock(dLock);
             Thread::sleep(1);
         }
         x=(adcRead(8)+adcRead(9)+adcRead(8)+adcRead(9))/4;
