@@ -38,6 +38,8 @@
 using namespace mxgui;
 
 #ifdef _MIOSIX
+#include "miosix.h"
+#include "interfaces/bsp.h"
 using namespace miosix;
 #else //_MIOSIX
 #define siprintf sprintf //On a non MCU environment siprintf doesn't exist
