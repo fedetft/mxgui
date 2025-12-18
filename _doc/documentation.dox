@@ -41,17 +41,17 @@ to aid in the design of graphical user interfaces for embedded systems, namely
 \section start Getting started
 The mxgui library depends on the Miosix kernel, so you should start by
 downloading the kernel before. You can find it at
-http://gitorious.org/miosix-kernel . If this is the first time you are
+http://miosix.org . If this is the first time you are
 downloading Miosix, you need to install the Miosix specific compiler, you can
 find a guide to do so here:
-http://www.webalice.it/fede.tft/miosix/miosix_toolchain_1.54_linux.html .
+https://miosix.org/wiki/index.php?title=Quick_start .
 Once you have downloaded the Miosix kernel, download the mxgui library in the
 miosix-kernel directory. A simple way to download both Miosix and mxgui is to
 use git, like this:
 \code
-git clone git://gitorious.org/miosix-kernel/miosix-kernel.git
+git clone https://miosix.org/git-public/miosix-kernel.git
 cd miosix-kernel # To download mxgui within the miosix-kernel folder
-git clone git://gitorious.org/mxgui/mxgui.git
+git clone https://github.com/fedetft/mxgui.git
 \endcode
 
 The miosix-kernel folder is from now named the 'top level directory' of your
@@ -64,10 +64,25 @@ variable and append the "mxgui" string, like this:
 ##
 ## List here subdirectories which contains makefiles
 ##
-SUBDIRS := miosix mxgui
+SUBDIRS += mxgui
 \endcode
 
-Also change the SRC variable by replacing testsuite.cpp with main.cpp
+Then, modify the INCLUDE_DIRS variable to allow the compiler to find mxgui's
+headers:
+\code
+##
+## List here additional include directories (in the form -Iinclude_dir)
+##
+INCLUDE_DIRS := -Imxgui
+\endcode
+
+And the LIBS variable to link mxgui with your application:
+\code
+##
+## List here subdirectories which contains makefiles
+##
+LIBS := mxgui/libmxgui.a
+\endcode
 
 Lastly, replace the content of main.cpp with this code:
 \code
