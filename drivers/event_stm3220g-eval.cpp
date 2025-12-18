@@ -34,7 +34,6 @@
 
 #include "event_stm3220g-eval.h"
 #include "miosix.h"
-#include "kernel/scheduler/scheduler.h"
 #include "util/software_i2c.h"
 #include <algorithm>
 
@@ -44,19 +43,9 @@ using namespace miosix;
 static Semaphore touchIntSema;
 
 /**
- * Touchscreen interrupt
- */
-void __attribute__((naked)) EXTI2_IRQHandler()
-{
-    saveContext();
-    asm volatile("bl EXTI2HandlerImpl");
-    restoreContext();
-}
-
-/**
  * Tochscreen interrupt actual implementation
  */
-extern "C" void __attribute__((used)) EXTI2HandlerImpl()
+void EXTI2HandlerImpl()
 {
     EXTI->PR=EXTI_PR_PR2;
     touchIntSema.IRQsignal();
@@ -380,7 +369,8 @@ static void eventThread(void *)
 InputHandlerImpl::InputHandlerImpl()
 {
     {
-        FastGlobalIrqLock dLock;
+        GlobalIrqLock dLock;
+        IRQregisterIrq(dLock,EXTI2_IRQn,&EXTI2HandlerImpl);
         buttonKey::mode(Mode::INPUT);
         buttonTamper::mode(Mode::INPUT);
         buttonWakeup::mode(Mode::INPUT);
