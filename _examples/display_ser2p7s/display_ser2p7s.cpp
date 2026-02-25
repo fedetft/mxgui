@@ -38,11 +38,11 @@ using namespace miosix;
 
 //Display connection
 
-using cs   = Gpio<GPIOB_BASE,7>;
-using sck  = Gpio<GPIOB_BASE,3>; //Used as HW SPI
-using mosi = Gpio<GPIOB_BASE,5>; //Used as HW SPI
-using dc   = Gpio<GPIOB_BASE,6>;
-using res  = Gpio<GPIOB_BASE,4>;
+using cs   = Gpio<PB,7>;
+using sck  = Gpio<PB,3>; //Used as HW SPI
+using mosi = Gpio<PB,5>; //Used as HW SPI
+using dc   = Gpio<PB,6>;
+using res  = Gpio<PB,4>;
 
 /**
  * Send and receive a byte, thus returning only after transmission is complete
@@ -154,7 +154,7 @@ DisplaySer2p7s::DisplaySer2p7s() : DisplayGeneric4BPP(256,128)
     cmd(0xa2); data(0x80);             // Display offset 160-32
     cmd(0xa0); data(0x20); data(0x00); // Remap: COM split
     #else
-    #error "Unsupported orintation"
+    #error "Unsupported orientation"
     #endif
     cmd(0xb4); data(0x32); data(0x0c); // ?
     cmd(0xc1); data(0x80);             // Contrast current 0x80

@@ -27,7 +27,6 @@
 
 #include "display_gc9a01.h"
 #include <miosix.h>
-#include <kernel/scheduler/scheduler.h>
 #include <interfaces/endianness.h>
 #include <algorithm>
 #include <line.h>
@@ -42,12 +41,12 @@ using namespace mxgui;
 #endif
 
 //Display connection
-using spi0_mosi = Gpio<GPIO0_BASE, 11>;
-using spi0_sck = Gpio<GPIO0_BASE, 10>;
-using dc = Gpio<GPIO0_BASE, 8>;
-using cs = Gpio<GPIO0_BASE, 9>;
-using reset = Gpio<GPIO0_BASE, 12>;
-using back = Gpio<GPIO0_BASE, 25>;
+using spi0_mosi = Gpio<P0, 11>;
+using spi0_sck = Gpio<P0, 10>;
+using dc = Gpio<P0, 8>;
+using cs = Gpio<P0, 9>;
+using reset = Gpio<P0, 12>;
+using back = Gpio<P0, 25>;
 
 static void spiInit()
 {

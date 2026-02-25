@@ -10,11 +10,11 @@ using namespace miosix;
 using namespace mxgui;
 
 //Hardware mapping
-using scl  = Gpio<GPIOB_BASE, 13>; //PB13,  SPI1_SCK (af5)
-using sda  = Gpio<GPIOB_BASE, 15>; //PB15,  SPI1_MOSI (af5)
-using csx  = Gpio<GPIOB_BASE, 4>;  //PB4,   free I/O pin
-using dcx  = Gpio<GPIOA_BASE, 8>;  //PA8,   free I/O pin, used only in 4-line SPI
-using resx = Gpio<GPIOC_BASE, 6>;  //PC6,   free I/O pin
+using scl  = Gpio<PB, 13>; //PB13,  SPI1_SCK (af5)
+using sda  = Gpio<PB, 15>; //PB15,  SPI1_MOSI (af5)
+using csx  = Gpio<PB, 4>;  //PB4,   free I/O pin
+using dcx  = Gpio<PA, 8>;  //PA8,   free I/O pin, used only in 4-line SPI
+using resx = Gpio<PC, 6>;  //PC6,   free I/O pin
 
 /**
  * Non-abstract class retargeting DisplayGenericST7735 to the correct

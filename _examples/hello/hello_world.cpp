@@ -8,7 +8,7 @@ ENTRY()
 {
     {
         DrawingContext dc(DisplayManager::instance().getDisplay());
-        dc.write(Point(0,1),u8"Hello World!");
+        dc.write(Point(0,1),"Hello World!");
     }
     for(;;) ;
 }

@@ -10,9 +10,9 @@ using namespace miosix;
 using namespace mxgui;
 
 // Configure these GPIOs to match how you connected the display
-typedef Gpio<GPIOA_BASE,1> reset;
-typedef Gpio<GPIOA_BASE,2> scl;
-typedef Gpio<GPIOA_BASE,3> sda;
+typedef Gpio<PA,1> reset;
+typedef Gpio<PA,2> scl;
+typedef Gpio<PA,3> sda;
 
 /*
  * On boards which do not have a built-in display, MXGUI requires you to

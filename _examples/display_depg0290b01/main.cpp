@@ -1,10 +1,10 @@
 
 #include <cstdio>
 #include "miosix.h"
+#include "interfaces/bsp.h"
 #include "mxgui/display.h"
 #include "mxgui/misc_inst.h"
 #include "display_depg0290b01.h"
-#include "pic.h"
 
 using namespace std;
 using namespace miosix;

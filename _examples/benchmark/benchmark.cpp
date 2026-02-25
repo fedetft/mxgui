@@ -27,7 +27,6 @@
 
 #include "benchmark.h"
 #include "mxgui/misc_inst.h"
-#include "mxgui/resource_image.h"
 #include "checkpattern2.h"
 #include "micro_qr_code_from_wikipedia.h"
 #include "benchmark.h"

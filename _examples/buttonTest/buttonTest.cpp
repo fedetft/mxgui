@@ -57,7 +57,7 @@ ENTRY()
     r3.setCallback(cb);
     rg.setChecked(&r1);
     b1.setCallback([&l1,&counter](){
-        counter=++counter%10;
+        counter=(counter+1)%10;
         l1.setText(to_string(counter));
     });
 
