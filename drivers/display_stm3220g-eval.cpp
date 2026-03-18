@@ -27,13 +27,14 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#ifdef _BOARD_STM3220G_EVAL
+
 #include "display_stm3220g-eval.h"
+#include "board_settings.h"
 #include "miosix.h"
 
 using namespace std;
 using namespace miosix;
-
-#ifdef _BOARD_STM3220G_EVAL
 
 //Helper to set gamma register values
 #define GREGVAL(byte1, byte2) (uint16_t)(((byte1) << 8) | ((byte2) & 0xFF))
@@ -311,11 +312,8 @@ DisplayImpl::DisplayImpl(): buffer(0)
     #ifndef __ENABLE_XRAM
     #error "The display controller needs external RAM to be enabled"
     #endif
-    #ifdef SYSCLK_FREQ_120MHz
+    static_assert(cpuFrequency==120000000,"Unknown SYSCLK");
     const int hclkMhz=120;
-    #else
-    #error "Unknown SYSCLK"
-    #endif
 
     // Configure PG10 (Display CS)
     Gpio<GPIOG_BASE,10>::mode(Mode::ALTERNATE);

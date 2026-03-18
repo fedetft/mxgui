@@ -25,14 +25,15 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#ifdef _BOARD_STM32F429ZI_STM32F4DISCOVERY
+
 #include "display_stm32f4discovery.h"
+#include "board_settings.h"
 #include "miosix.h"
 #include <cstdarg>
 
 using namespace std;
 using namespace miosix;
-
-#ifdef _BOARD_STM32F429ZI_STM32F4DISCOVERY
 
 namespace mxgui {
 
@@ -807,13 +808,12 @@ DisplayImpl::DisplayImpl()
     
     // Parameters for DSI PLL
     // These values assume HSE oscillator is 8 MHz and system clock is 168 MHz
-    #if HSE_VALUE != 8000000
-    #error The display driver requires an HSE oscillator running at 8 MHz
-    #endif
+    static_assert(hseFrequency==8000000,"The display driver requires an HSE oscillator running at 8 MHz");
+    static_assert(cpuFrequency==168000000,"The display driver requires SYSCLK running at 168 MHz");
     const unsigned int IDF = 4;     // must be in the range 1..7
     const unsigned int ODF = 1;     // must be in the set {1, 2, 4, 8}
     const unsigned int NDIV = 125;  // must be in the range 10..125
-    const unsigned int F_VCO = (HSE_VALUE/IDF)*2*NDIV;          // 500 MHz - must be between 500 and 1000 MHz
+    const unsigned int F_VCO = (hseFrequency/IDF)*2*NDIV;          // 500 MHz - must be between 500 and 1000 MHz
     const unsigned int F_PHY_MHz = (F_VCO/(2*ODF))/1000000;     // 250 MHz - HS clock for D-PHY must be between 80 and 500 MHz
     const unsigned int lane_byte_clk = F_VCO/(2*ODF*8);         // 31,25 MHz - must be no more than 62,5 MHz
     const unsigned int TXECLKDIV = 2;                           // must be at least 2 and ensure lane_byte_clk/TXECLKDIV <= 20 MHz
@@ -878,7 +878,7 @@ DisplayImpl::DisplayImpl()
         const unsigned int PLLSAI_R = 7;
         //const unsigned int PLLSAI_DIVR = 0;
         
-        // Input VCO Frequency = HSE_VALUE/PPL_M must be between 1 and 2 MHz, so 8/8 = 1 MHz
+        // Input VCO Frequency = hseFrequency/PPL_M must be between 1 and 2 MHz, so 8/8 = 1 MHz
         // N must be in the range 50..432 and ensure a frequency between 100 and 432 MHz
         // if N = 384 then 1 MHz * 384 = 384 MHz
         // R must be in the range 2..7, we choose R = 7 so 384/7 = 54,857 MHz
@@ -962,11 +962,11 @@ DisplayImpl::DisplayImpl()
     while ((DSI->WISR & DSI_WISR_RRS) == 0);
     
     // Configure the DSI PLL, turn it ON and wait for its lock 
-    // F_VCO = (HSE_VALUE / IDF) * 2 * NDIV
+    // F_VCO = (hseFrequency / IDF) * 2 * NDIV
     // Lane_Byte_CLK = F_VCO / (2 * ODF * 8)
     // F_VCO must be in the range from 500 MHz to 1 GHz
     // To obtain 500 Mbit/s rate, Lane_Byte_CLK must be 31,25 MHz
-    // Since HSE_VALUE = 8 MHz this is possible with NDIV = 125, IDF = 4, ODF = 1
+    // Since hseFrequency = 8 MHz this is possible with NDIV = 125, IDF = 4, ODF = 1
     DSI->WRPCR &= ~(DSI_WRPCR_PLL_NDIV | DSI_WRPCR_PLL_IDF | DSI_WRPCR_PLL_ODF);
     DSI->WRPCR |= ((NDIV << 2) | (IDF << 11) | (ODF << 16));
     DSI->WRPCR |= DSI_WRPCR_PLLEN;
