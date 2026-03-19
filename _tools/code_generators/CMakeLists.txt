@@ -26,7 +26,7 @@ include_directories(${PNG_INCLUDE_DIR})
 target_link_libraries(fontrendering fontcore ${PNG_LIBRARY})
 target_link_libraries(pngconverter ${PNG_LIBRARY})
 
-set(BOOST_LIBS program_options filesystem system)
+set(BOOST_LIBS program_options filesystem)
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 target_link_libraries(fontrendering ${Boost_LIBRARIES})
 target_link_libraries(pngconverter ${Boost_LIBRARIES})
