@@ -87,12 +87,11 @@ bool TgaImage::getScanLine(mxgui::Point p, mxgui::Color colors[],
     if(p.x()>=this->getWidth() || p.y()>=this->getHeight()) return false;
     int o=p.x()+this->getWidth()*p.y();
     fseek(f,this->offset+3*o,SEEK_SET);
-    //TODO: specialize: this only works if MXGUI_COLOR_DEPTH_16_BIT
     for(int i=0;i<length;i++)
     {
         unsigned char pix[3];
         if(fread(pix,1,3,f)!=3) return false;
-        colors[i]=(pix[2] & 0xf8)<<8 | (pix[1] & 0xfc)<<3 | pix[0]>>3;
+        colors[i]=Color(pix[2], pix[1], pix[0]); // Red, Green, Blue
     }
     return true;
 }

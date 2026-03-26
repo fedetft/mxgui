@@ -61,9 +61,18 @@ static const unsigned int level2MaxNumApps=4;
 ///
 /// Choose color depth. Three options are provided for 1, 8 or 16 bit per pixel
 ///
-//#define MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-//#define MXGUI_COLOR_DEPTH_8_BIT //Untested
-#define MXGUI_COLOR_DEPTH_16_BIT
+//#define MXGUI_PIXEL_FORMAT_GRAY1
+//#define MXGUI_PIXEL_FORMAT_GRAY4
+//#define MXGUI_PIXEL_FORMAT_RGB332 //Untested
+#define MXGUI_PIXEL_FORMAT_RGB565
+
+///
+/// 1BPP color threshold.
+/// The threshold at which a color is considered white in 1BPP mode.
+/// The value is the sum of the red, green and blue components (0-255 each).
+/// Default is 384 (128*3, or 50% gray).
+///
+#define MXGUI_1BPP_THRESHOLD 384
 
 ///
 /// Display orientation settings. Four options are provided for HORIZONTAL or
@@ -116,16 +125,29 @@ static const int level2MaxNumApps=4;
 //#define MXGUI_ENABLE_RESOURCEFS
 
 //
-// Choose color depth.
+// Choose pixel format.
 //
-//#define MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-//#define MXGUI_COLOR_DEPTH_8_BIT //Untested
-#define MXGUI_COLOR_DEPTH_16_BIT
+// #define MXGUI_PIXEL_FORMAT_GRAY1
+// #define MXGUI_PIXEL_FORMAT_GRAY4
+// #define MXGUI_PIXEL_FORMAT_RGB332
+#define MXGUI_PIXEL_FORMAT_RGB565
+
+///
+/// 1BPP color threshold.
+/// The threshold at which a color is considered white in 1BPP mode.
+/// The value is the sum of the red, green and blue components (0-255 each).
+/// Default is 384 (128*3, or 50% gray).
+///
+#define MXGUI_1BPP_THRESHOLD 384
 
 static const unsigned int SIMULATOR_DISP_HEIGHT=320;
 static const unsigned int SIMULATOR_DISP_WIDTH=240;
-static const unsigned int SIMULATOR_FGCOLOR=0xffff;
-static const unsigned int SIMULATOR_BGCOLOR=0;
+static const unsigned char SIMULATOR_FG_R=255;
+static const unsigned char SIMULATOR_FG_G=255;
+static const unsigned char SIMULATOR_FG_B=255;
+static const unsigned char SIMULATOR_BG_R=0;
+static const unsigned char SIMULATOR_BG_G=0;
+static const unsigned char SIMULATOR_BG_B=0;
 
 //
 // Display orientation settings, choose ONE of these. Their meaninig depends
