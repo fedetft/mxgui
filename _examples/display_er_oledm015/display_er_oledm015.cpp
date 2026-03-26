@@ -293,7 +293,7 @@ DisplayErOledm015::DisplayErOledm015() : buffer(nullptr), buffer2(nullptr)
     clear(0);
     cmd(0xaf);                                  // Display ON
 
-    setTextColor(make_pair(Color(0xffff),Color(0x0)));
+    setTextColor(make_pair(Color::white(),Color::black()));
 }
 
 void DisplayErOledm015::doTurnOn()

@@ -6,6 +6,6 @@
 
 #include "mxgui/image.h"
 
-extern const mxgui::basic_image<mxgui::Color1bitlinear> checkpattern2;
+extern const mxgui::basic_image<mxgui::Gray1Color> checkpattern2;
 
 #endif //CHECKPATTERN2_H

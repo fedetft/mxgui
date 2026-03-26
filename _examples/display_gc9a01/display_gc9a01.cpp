@@ -184,7 +184,7 @@ DisplayGc9a01::DisplayGc9a01() : buffer(nullptr)
     clear(0x00);
     cmd(0x29); // Display ON
     this_thread::sleep_for(20ms);
-    setTextColor(make_pair(Color(0xffff),Color(0x0)));
+    setTextColor(make_pair(Color::white(),Color::black()));
 }
 
 void DisplayGc9a01::doTurnOn()

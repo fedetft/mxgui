@@ -212,7 +212,8 @@ void WireframeRenderingEngine::doRender(Display& disp)
     for(;start<=b.y();start++)
     {
         Color *lineBuffer=dc.getScanLineBuffer();
-        memset(lineBuffer,0,sizeof(Color)*lineBufferSize);
+        // Use a loop to assign default Color for pixel format flexibility
+        for(int i=0; i<lineBufferSize; ++i) lineBuffer[i] = Color();
         while(it!=lines.end() && minY(*it,xfmVertices)==start)
         {
             Point a(xfmVertices[2*it->first],xfmVertices[2*it->first+1]);
@@ -324,7 +325,8 @@ void SolidRenderingEngine::doRender(Display& disp)
     for(;start<=b.y();start++)
     {
         Color *lineBuffer=dc.getScanLineBuffer();
-        memset(lineBuffer,0,sizeof(Color)*lineBufferSize);
+        // Use a loop to assign default Color for pixel format flexibility
+        for(int i=0; i<lineBufferSize; ++i) lineBuffer[i] = Color();
         list<TriangleFSM>::iterator it2;
         for(it2=activeTriangles.begin();it2!=activeTriangles.end();)
         {

@@ -13,4 +13,4 @@ static const unsigned char pixelData[]={
  51,94,51,174,51,214,51,43,51,53,51,58,51,61,51,50
 };
 
-const basic_image<Color1bitlinear> checkpattern2(height,width,pixelData);
+const basic_image<Gray1Color> checkpattern2(height,width,pixelData);

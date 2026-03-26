@@ -175,7 +175,7 @@ DisplayErOledm024::DisplayErOledm024() : DisplayGeneric1BPP(128,64)
     clear(0);
     update();
     cmd(0xaf);                // Display ON
-    setTextColor(std::make_pair(Color(0xf),Color(0x0)));
+    setTextColor(std::make_pair(Color::white(),Color::black()));
 }
 
 void DisplayErOledm024::doTurnOn()

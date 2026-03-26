@@ -43,7 +43,7 @@ SRC2 := $(IMG:.png=.cpp)
 # Images should be compiled first to prevent missing includes
 SRC := $(SRC2) $(SRC)
 %.cpp : %.png
-	./mxgui/_tools/code_generators/build/pngconverter --in $< --depth 16
+	./mxgui/_tools/code_generators/build/pngconverter --in $< --format rgb565
 
 # This prevents make from deleting the intermediate .cpp files
 .PRECIOUS: $(SRC2)
