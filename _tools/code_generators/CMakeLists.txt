@@ -4,42 +4,65 @@ project(GUIUTILS)
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 14)
+# Force static linking on Windows to avoid having to copy
+# the dlls to the executable's directory
+if(WIN32)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+    list(APPEND CMAKE_EXE_LINKER_FLAGS -static)
+endif()
 
-## This script has to run before CMake looks for libraries, since it builds
-## freetype 2.4.3
-execute_process(COMMAND bash ../compile_freetype.sh COMMAND_ERROR_IS_FATAL ANY)
+# Note: disabling this option adds a requirement for pkg-config
+option(BUILD_FREETYPE "Build freetype from source" ON)
 
-## Targets
-set(FONTCORE_SRCS bdfparser.cpp ttfparser.cpp fixed_width_generator.cpp
-                  variable_width_generator.cpp fixes_parser.cpp font_core.cpp unicode_blocks.cpp)
-add_library(fontcore STATIC ${FONTCORE_SRCS})
-
-set(FONTRENDERING_SRCS fontrendering.cpp)
-add_executable(fontrendering ${FONTRENDERING_SRCS})
-
-set(PNGCONV_SRCS pngconverter.cpp)
-add_executable(pngconverter ${PNGCONV_SRCS})
-
-## Link libraries
+## Find dependencies
+if(BUILD_FREETYPE)
+    execute_process(COMMAND
+        bash ${CMAKE_CURRENT_SOURCE_DIR}/compile_freetype.sh
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND_ERROR_IS_FATAL ANY)
+    find_library(FREETYPE
+        NAMES freetype
+        HINTS ${CMAKE_CURRENT_BINARY_DIR}/freetype-2.4.3/objs/.libs
+        REQUIRED)
+    # Freetype 2.4.3 depends on ZLIB
+    find_package(ZLIB REQUIRED)
+else()
+    # Find Freetype using pkg-config because CMake's FindFreetype module is
+    # completely incompetent at figuring out transitive dependencies
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(Freetype REQUIRED freetype2)
+    find_package(Freetype REQUIRED)
+endif()
 find_package(PNG REQUIRED)
-include_directories(${PNG_INCLUDE_DIR})
-target_link_libraries(fontrendering fontcore ${PNG_LIBRARY})
-target_link_libraries(pngconverter ${PNG_LIBRARY})
-
 set(BOOST_LIBS program_options filesystem)
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
-target_link_libraries(fontrendering ${Boost_LIBRARIES})
-target_link_libraries(pngconverter ${Boost_LIBRARIES})
 
-## Uncomment this if you want to use the system's freetype library
-#find_package(Freetype REQUIRED)
-#include_directories(${FREETYPE_INCLUDE_DIRS})
-#target_link_libraries(fontrendering ${FREETYPE_LIBRARIES})
-## Uncomment this if you want to build and use freetype 2.4.3
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/freetype-2.4.3/include)
-find_library(FREETYPE NAMES freetype HINTS ${CMAKE_CURRENT_BINARY_DIR}/freetype-2.4.3/objs/.libs)
-target_link_libraries(fontrendering ${FREETYPE})
+## Targets
+# fontcore
+set(FONTCORE_SRCS bdfparser.cpp ttfparser.cpp fixed_width_generator.cpp
+                  variable_width_generator.cpp fixes_parser.cpp font_core.cpp
+                  unicode_blocks.cpp)
+add_library(fontcore STATIC ${FONTCORE_SRCS})
+if(BUILD_FREETYPE)
+    target_include_directories(fontcore PUBLIC
+        ${CMAKE_CURRENT_BINARY_DIR}/freetype-2.4.3/include)
+    target_link_libraries(fontcore ${FREETYPE} ZLIB::ZLIB)
+else()
+    target_include_directories(fontcore PUBLIC ${Freetype_INCLUDE_DIRS})
+    if(WIN32)
+        target_link_libraries(fontcore ${Freetype_STATIC_LDFLAGS})
+    else()
+        target_link_libraries(fontcore ${Freetype_LDFLAGS})
+    endif()
+endif()
+target_link_libraries(fontcore PNG::PNG)
 
-find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIR})
-target_link_libraries(fontrendering fontcore ${ZLIB_LIBRARY})
+# fontrendering
+set(FONTRENDERING_SRCS fontrendering.cpp)
+add_executable(fontrendering ${FONTRENDERING_SRCS})
+target_link_libraries(fontrendering fontcore ${Boost_LIBRARIES})
+
+# pngconverter
+set(PNGCONV_SRCS pngconverter.cpp)
+add_executable(pngconverter ${PNGCONV_SRCS})
+target_link_libraries(pngconverter PNG::PNG ${Boost_LIBRARIES})
