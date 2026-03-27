@@ -16,7 +16,7 @@
  ***************************************************************************/
 
 #ifndef FONT_CORE_H
-#define    FONT_CORE_H
+#define FONT_CORE_H
 
 #include "unicode_blocks.h"
 #include <bitset>
@@ -26,6 +26,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <memory>
+#include <cstdint>
 
 namespace fontcore {
 
