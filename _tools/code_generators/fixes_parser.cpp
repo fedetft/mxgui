@@ -93,7 +93,7 @@ float FixesParser::getContrast(unsigned char c)
 void FixesParser::parseOpt(string line, unsigned char current)
 {
     stringstream ss(line);
-    ss.exceptions();
+    ss.exceptions(ifstream::failbit);
     string command;
     ss>>command;
     if(command=="lshift")
