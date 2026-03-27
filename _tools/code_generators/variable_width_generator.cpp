@@ -130,7 +130,7 @@ void VariableWidthGenerator::generateCode(const std::string filename,
                     unsigned char pixel=glyph.getPixelAt(j,k);
                     //if(pixel & 2) column|=1ull<<(roundedHeight-1-2*k);
                     //if(pixel & 1) column|=1ull<<(roundedHeight-1-2*k-1);
-                    if(pixel & 2) column|=1ull<<2*k+1;
+                    if(pixel & 2) column|=1ull<<(2*k+1);
                     if(pixel & 1) column|=1ull<<2*k;
                 }
             }
