@@ -168,7 +168,7 @@ void BDFParser::generateGlyph(const vector<string>& data)
     }
 
     char32_t chr=result.getCodepoint();
-    if(log) *logStream<<showbase<<hex<<"Parsing glyph "<<static_cast<int>(result.getCodepoint())<<
+    if(log) *logStream<<showbase<<hex<<"Parsing glyph "<<result.getCodepointValue()<<
             " ("<<dec<<UnicodeBlockManager::codepointToString(chr)<<")...";
 
     //Look for the DWIDTH tag
@@ -183,7 +183,7 @@ void BDFParser::generateGlyph(const vector<string>& data)
             if(dWidth<=0 || dWidth>Glyph::maxWidth)
             {
                 stringstream ss;
-                ss<<"Error: Glyph "<<result.getCodepoint()<<
+                ss<<"Error: Glyph "<<result.getCodepointValue()<<
                     " has invalid DWIDTH ("<<dec<<dWidth<<")";
                 throw(runtime_error(ss.str()));
             }
@@ -194,7 +194,7 @@ void BDFParser::generateGlyph(const vector<string>& data)
     if(dwidthFound==false)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<showbase<<hex<<result.getCodepoint()<<" has no DWIDTH tag";
+        ss<<"Error: Glyph "<<showbase<<hex<<result.getCodepointValue()<<" has no DWIDTH tag";
         throw(runtime_error(ss.str()));
     }
 
@@ -214,7 +214,7 @@ void BDFParser::generateGlyph(const vector<string>& data)
     if(bbxFound==false)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getCodepoint()<<" has no BBX tag";
+        ss<<"Error: Glyph "<<result.getCodepointValue()<<" has no BBX tag";
         throw(runtime_error(ss.str()));
     }
 
@@ -222,7 +222,7 @@ void BDFParser::generateGlyph(const vector<string>& data)
     if(bbxA<0 || bbxB<0)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getCodepoint()<<" has bbxA or bbxB<0";
+        ss<<"Error: Glyph "<<result.getCodepointValue()<<" has bbxA or bbxB<0";
         throw(runtime_error(ss.str()));
     }
 
@@ -232,7 +232,7 @@ void BDFParser::generateGlyph(const vector<string>& data)
     if(fontAscent-bbxB-bbxD<0)
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<showbase<<hex<<result.getCodepoint()<<
+        ss<<"Error: Glyph "<<showbase<<hex<<result.getCodepointValue()<<
             " has bad alignment. This might be caused by an insufficent "
             "fontAscent for the boundingBox of this character";
         throw(runtime_error(ss.str()));
@@ -284,7 +284,7 @@ void BDFParser::generateGlyph(const vector<string>& data)
     if(theBitmap.size()>getHeight())
     {
         stringstream ss;
-        ss<<"Error: Glyph "<<result.getCodepoint()<<
+        ss<<"Error: Glyph "<<result.getCodepointValue()<<
             " has a bigger height ("<<dec<<theBitmap.size()<<") than the "
             "maximum allowed. This might be caused by an insufficient "
             "fontAscent or fontDescent to fit the boundingBox";

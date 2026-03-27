@@ -140,7 +140,7 @@ void VariableWidthGenerator::generateCode(const std::string filename,
             }
             else file<<showbase<<hex<<column<<dec<<(roundedHeight==64?"ull":"")<<",";
         }
-        file<<" //U+"<<noshowbase<<hex<<static_cast<int>(glyph.getCodepoint())<<" ( "
+        file<<" //U+"<<noshowbase<<hex<<glyph.getCodepointValue()<<" ( "
             <<UnicodeBlockManager::codepointToString(glyph.getCodepoint())<<" )";
         if(i!=glyphs.size()-1) file<<"\n";
     }

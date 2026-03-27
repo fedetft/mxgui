@@ -99,7 +99,7 @@ void FixedWidthGenerator::generateCode(const std::string filename,
     for(int i=0;i<glyphs.size();i++)
     {
         Glyph glyph=glyphs.at(i);
-        file<<" { //U+"<<noshowbase<<hex<<static_cast<int>(glyph.getCodepoint())<<" ( "<<
+        file<<" { //U+"<<noshowbase<<hex<<glyph.getCodepointValue()<<" ( "<<
             UnicodeBlockManager::codepointToString(glyph.getCodepoint())<<" )\n  ";
         for(int j=0;j<width;j++)
         {

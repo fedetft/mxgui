@@ -96,6 +96,15 @@ public:
      * \return the Unicode codepoint value that corresponds to this glyph
      */
     char32_t getCodepoint() const;
+    
+    /**
+     * \return the Unicode codepoint value that corresponds to this glyph
+     * as an integer
+     */
+    uint32_t getCodepointValue() const
+    {
+        return static_cast<uint32_t>(getCodepoint());
+    }
 
     /**
      * \return true if glyph is 2 bit per pixel antialiased
