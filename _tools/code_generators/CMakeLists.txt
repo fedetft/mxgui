@@ -38,29 +38,24 @@ set(BOOST_LIBS program_options filesystem)
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
 ## Targets
-# fontcore
-set(FONTCORE_SRCS bdfparser.cpp ttfparser.cpp fixed_width_generator.cpp
+# fontrendering
+set(FONTRENDERING_SRCS bdfparser.cpp ttfparser.cpp fixed_width_generator.cpp
                   variable_width_generator.cpp fixes_parser.cpp font_core.cpp
-                  unicode_blocks.cpp)
-add_library(fontcore STATIC ${FONTCORE_SRCS})
+                  unicode_blocks.cpp fontrendering.cpp)
+add_executable(fontrendering ${FONTRENDERING_SRCS})
 if(BUILD_FREETYPE)
-    target_include_directories(fontcore PUBLIC
+    target_include_directories(fontrendering PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}/freetype-2.4.3/include)
-    target_link_libraries(fontcore ${FREETYPE} ZLIB::ZLIB)
+    target_link_libraries(fontrendering ${FREETYPE} ZLIB::ZLIB)
 else()
-    target_include_directories(fontcore PUBLIC ${Freetype_INCLUDE_DIRS})
+    target_include_directories(fontrendering PUBLIC ${Freetype_INCLUDE_DIRS})
     if(WIN32)
-        target_link_libraries(fontcore ${Freetype_STATIC_LDFLAGS})
+        target_link_libraries(fontrendering ${Freetype_STATIC_LDFLAGS})
     else()
-        target_link_libraries(fontcore ${Freetype_LDFLAGS})
+        target_link_libraries(fontrendering ${Freetype_LDFLAGS})
     endif()
 endif()
-target_link_libraries(fontcore PNG::PNG)
-
-# fontrendering
-set(FONTRENDERING_SRCS fontrendering.cpp)
-add_executable(fontrendering ${FONTRENDERING_SRCS})
-target_link_libraries(fontrendering fontcore ${Boost_LIBRARIES})
+target_link_libraries(fontrendering PNG::PNG ${Boost_LIBRARIES})
 
 # pngconverter
 set(PNGCONV_SRCS pngconverter.cpp)
