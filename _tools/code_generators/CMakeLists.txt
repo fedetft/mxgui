@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.19)
 project(GUIUTILS)
 
 set(CMAKE_BUILD_TYPE Release)
@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 ## This script has to run before CMake looks for libraries, since it builds
 ## freetype 2.4.3
-execute_process(COMMAND ../compile_freetype.sh)
+execute_process(COMMAND bash ../compile_freetype.sh COMMAND_ERROR_IS_FATAL ANY)
 
 ## Targets
 set(FONTCORE_SRCS bdfparser.cpp ttfparser.cpp fixed_width_generator.cpp

@@ -31,11 +31,11 @@
 #ifndef PNGPP_ERROR_HPP_INCLUDED
 #define PNGPP_ERROR_HPP_INCLUDED
 
-/* check if we have strerror_s or strerror_r, prefer the former which is C11 std */
-#ifdef __STDC_LIB_EXT1__
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <string.h>
 
+/* check if we have strerror_s or strerror_r, prefer the former which is C11 std */
+#if defined(__STDC_LIB_EXT1__) || defined(_UCRT)
 #define HAVE_STRERROR_S 1
 #else
 #undef  HAVE_STRERROR_S
