@@ -16,10 +16,7 @@
  ***************************************************************************/
 
 #include "unicode_blocks.h"
-#include <clocale>
-#include <climits>
-#include <cuchar>
-#include <cstring>
+#include <boost/locale.hpp>
 
 using namespace std;
 using namespace fontcore;
@@ -110,14 +107,7 @@ unsigned int UnicodeBlockManager::numSupportedCharacters()
 
 std::string UnicodeBlockManager::codepointToString(char32_t codepoint)
 {
-    char unistr[MB_LEN_MAX+1]={0};
-    mbstate_t ps;
-
-    setlocale(LC_ALL,"en_GB.UTF-8");
-    memset(&ps,0,sizeof(ps));
-    c32rtomb(unistr,codepoint,&ps);
-
-    return unistr;
+    return boost::locale::conv::utf_to_utf<char>(&codepoint,&codepoint+1);
 }
 
 std::vector<UnicodeBlock> UnicodeBlockManager::knownUnicodeBlocks =

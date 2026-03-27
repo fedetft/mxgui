@@ -34,7 +34,7 @@ else()
     find_package(Freetype REQUIRED)
 endif()
 find_package(PNG REQUIRED)
-set(BOOST_LIBS program_options filesystem)
+set(BOOST_LIBS program_options filesystem locale)
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
 ## Targets
