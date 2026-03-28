@@ -35,6 +35,7 @@
 
 #include "event_st25dvdiscovery.h"
 #include "miosix.h"
+#include "kernel/scheduler/scheduler.h"
 #include "util/software_i2c.h"
 #include <algorithm>
 
@@ -44,15 +45,30 @@ using namespace miosix;
 static Semaphore touchIntSema;
 
 /**
+ * Touchscreen interrupt
+ */
+void __attribute__((naked)) EXTI9_5_IRQHandler()
+{
+    saveContext();
+    asm volatile("bl EXTI9_5_HandlerImpl");
+    restoreContext();
+}
+
+/**
  * Touchscreen interrupt actual implementation
  */
-void EXTI9_5_HandlerImpl()
+extern "C" void __attribute__((used)) EXTI9_5_HandlerImpl()
 {
     EXTI->PR = EXTI_PR_PR5;
     touchIntSema.IRQsignal();
 }
 
 namespace mxgui {
+
+static int g_xMin;
+static int g_xMax;
+static int g_yMin;
+static int g_yMax;
 
 typedef Gpio<GPIOC_BASE,14> buttonKey;
 typedef Gpio<GPIOE_BASE,8> joySel;
@@ -219,10 +235,17 @@ public:
             const int xMax = 3800;
             const int yMin = 220;
             const int yMax = 3700;
-            x = (x - xMin) * 240 / (xMax - xMin);
-            y = (y - yMin) * 320 / (yMax - yMin);
-            x=min(239,max(0,x));
-            y=min(319,max(0,y));
+            int x = static_cast<int>(tsData[0]) << 4 | tsData[1] >> 4;
+            int y = ((static_cast<int>(tsData[1]) & 0xf) << 8) | tsData[2];
+            y = 4095 - y; // Y is swapped
+
+            if (g_xMax != g_xMin && g_yMax != g_yMin)
+            {
+                x = (x - g_xMin) * 240 / (g_xMax - g_xMin);
+                y = (y - g_yMin) * 320 / (g_yMax - g_yMin);
+                x = min(239, max(0, x));
+                y = min(319, max(0, y));
+            }
             
             #if defined(MXGUI_ORIENTATION_VERTICAL)
             lastTouchPoint=Point(x,y);
@@ -263,7 +286,7 @@ static std::function<void ()> eventCallback;
 static void callback(Event e)
 {
     {
-        FastGlobalIrqLock dLock;
+        FastInterruptDisableLock dLock;
         if(eventQueue.IRQput(e)==false) return;
     }
     if(eventCallback) eventCallback();
@@ -370,8 +393,7 @@ static void eventThread(void *)
 InputHandlerImpl::InputHandlerImpl()
 {
     {
-        GlobalIrqLock dLock;
-        IRQregisterIrq(dLock,EXTI9_5_IRQn,&EXTI9_5_HandlerImpl);
+        FastInterruptDisableLock dLock;
         buttonKey::mode(Mode::INPUT);
         interrupt::mode(Mode::INPUT);
         joySel::mode(Mode::INPUT);
@@ -401,6 +423,14 @@ InputHandlerImpl::InputHandlerImpl()
     Thread::create(eventThread,STACK_MIN);
 }
 
+void InputHandlerImpl::setTouchscreenCalibration(double xMin, double xMax, double yMin, double yMax)
+{
+    g_xMin = (int)xMin;
+    g_xMax = (int)xMax;
+    g_yMin = (int)yMin;
+    g_yMax = (int)yMax;
+}
+
 Event InputHandlerImpl::getEvent()
 {
     Event result;
@@ -410,7 +440,7 @@ Event InputHandlerImpl::getEvent()
 
 Event InputHandlerImpl::popEvent()
 {
-    FastGlobalIrqLock dLock;
+    FastInterruptDisableLock dLock;
     Event result;
     if(eventQueue.isEmpty() == false) {
         eventQueue.IRQget(result);

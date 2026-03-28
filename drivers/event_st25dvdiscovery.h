@@ -71,6 +71,8 @@ public:
      * \return the previous callback
      */
     std::function<void ()> registerEventCallback(std::function<void ()> cb);
+
+    void setTouchscreenCalibration(double xMin, double xMax, double yMin, double yMax);
 };
 
 } //namespace mxgui
