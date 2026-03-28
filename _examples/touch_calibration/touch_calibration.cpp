@@ -48,10 +48,7 @@ struct Calib
 
 // The transformation from RAW to pixels is performed through a linear transformation of the form:
 //    pixel = a * raw + b
-static void calibrationFrom2Points(double raw1, double pix1,
-                                   double raw2, double pix2,
-                                   double W,
-                                   Calib &out)
+static void calibrationFrom2Points(double raw1, double pix1, double raw2, double pix2, double W, Calib &out)
 {
     double a = (pix2 - pix1) / (raw2 - raw1);
     double b = pix1 - a * raw1;
@@ -98,9 +95,7 @@ ENTRY()
     {
         Event e = backend.getEvent();
 
-        if (e.getEvent() != EventType::TouchDown &&
-            e.getEvent() != EventType::TouchMove &&
-            e.getEvent() != EventType::TouchUp)
+        if (e.getEvent() != EventType::TouchDown && e.getEvent() != EventType::TouchMove && e.getEvent() != EventType::TouchUp)
         {
             continue;
         }
@@ -120,7 +115,6 @@ ENTRY()
             if (e.getEvent() == EventType::TouchUp)
             {
                 idx++;
-
                 if (idx >= 4)
                 {
                     dc.clear(black);
@@ -155,28 +149,28 @@ ENTRY()
                         Event e2 = backend.getEvent();
                         switch (e2.getEvent())
                         {
-                        case EventType::ButtonA:
-                            display.turnOff();
-                            return 0;
-                        case EventType::TouchDown:
-                        case EventType::TouchUp:
-                        case EventType::TouchMove:
-                        {
-                            dc.line(Point(0, oldY), Point(w, oldY), black);
-                            dc.line(Point(oldX, 0), Point(oldX, h), black);
-                            oldX = e2.getPoint().x();
-                            oldY = e2.getPoint().y();
+                            case EventType::ButtonA:
+                                display.turnOff();
+                                return 0;
+                            case EventType::TouchDown:
+                            case EventType::TouchUp:
+                            case EventType::TouchMove:
+                            {
+                                dc.line(Point(0, oldY), Point(w, oldY), black);
+                                dc.line(Point(oldX, 0), Point(oldX, h), black);
+                                oldX = e2.getPoint().x();
+                                oldY = e2.getPoint().y();
 
-                            dc.line(Point(0, oldY), Point(w, oldY), white);
-                            dc.line(Point(oldX, 0), Point(oldX, h), white);
-                            char line[128];
-                            siprintf(line, "(%d, %d)          ", oldX, oldY);
-                            dc.write(Point(0, 0), line);
-                            break;
-                        }
-                        default:
-                            break;
-                        }
+                                dc.line(Point(0, oldY), Point(w, oldY), white);
+                                dc.line(Point(oldX, 0), Point(oldX, h), white);
+                                char line[128];
+                                siprintf(line, "(%d, %d)          ", oldX, oldY);
+                                dc.write(Point(0, 0), line);
+                                break;
+                            }
+                            default:
+                                break;
+                            }
                     }
                 }
 

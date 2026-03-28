@@ -42,47 +42,43 @@
 
 using namespace std;
 
-namespace mxgui
+namespace mxgui {
+
+//
+// class InputHandler
+//
+
+InputHandler& InputHandler::instance()
 {
+    static InputHandlerImpl implementation;
+    static InputHandler singleton(&implementation);
+    return singleton;
+}
 
-    //
-    // class InputHandler
-    //
+Event InputHandler::getEvent()
+{
+    return pImpl->getEvent();
+}
 
-    InputHandler &InputHandler::instance()
-    {
-        static InputHandlerImpl implementation;
-        static InputHandler singleton(&implementation);
-        return singleton;
-    }
+Event InputHandler::popEvent()
+{
+    return pImpl->popEvent();
+}
 
-    Event InputHandler::getEvent()
-    {
-        return pImpl->getEvent();
-    }
-
-    Event InputHandler::popEvent()
-    {
-        return pImpl->popEvent();
-    }
-
-    function<void()> InputHandler::registerEventCallback(function<void()> cb)
-    {
-        return pImpl->registerEventCallback(cb);
-    }
+function<void ()> InputHandler::registerEventCallback(function<void ()> cb)
+{
+    return pImpl->registerEventCallback(cb);
+}
 
 #if defined(_BOARD_STM32F415VG_ST25DVDISCOVERY)
-    void InputHandler::setTouchscreenCalibration(double xMin,
-                                                 double xMax,
-                                                 double yMin,
-                                                 double yMax)
-    {
-        pImpl->setTouchscreenCalibration(xMin, xMax, yMin, yMax);
-    }
+void InputHandler::setTouchscreenCalibration(double xMin, double xMax, double yMin, double yMax)
+{
+    pImpl->setTouchscreenCalibration(xMin, xMax, yMin, yMax);
+}
 #endif
 
-    InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
+InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
 
-} // namespace mxgui
+} //namespace mxgui
 
-#endif // MXGUI_LEVEL_2
+#endif //MXGUI_LEVEL_2

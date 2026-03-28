@@ -30,52 +30,51 @@
 #pragma once
 
 #ifndef MXGUI_LIBRARY
-// #error "This is header is private, it can be used only within mxgui."
-// #error "If your code depends on a private header, it IS broken."
-#endif // MXGUI_LIBRARY
+//#error "This is header is private, it can be used only within mxgui."
+//#error "If your code depends on a private header, it IS broken."
+#endif //MXGUI_LIBRARY
 
 #include <functional>
 #include "level2/input.h"
 
 #ifdef _BOARD_STM32F415VG_ST25DVDISCOVERY
 
-namespace mxgui
+namespace mxgui {
+
+/**
+ * Implementation class to handle events in the Mp3v2 backend
+ */
+class InputHandlerImpl
 {
+public:
+    InputHandlerImpl();
 
     /**
-     * Implementation class to handle events in the Mp3v2 backend
+     * \return an event, blocking
      */
-    class InputHandlerImpl
-    {
-    public:
-        InputHandlerImpl();
+    Event getEvent();
 
-        /**
-         * \return an event, blocking
-         */
-        Event getEvent();
+    /**
+     * \return an event, nonblocking. A default constructed event is returned
+     * if there are no events.
+     */
+    Event popEvent();
+    
+    /**
+     * Register a callback that will be called every time an event is generated
+     * 
+     * Note: the thread calling the callback has a very small stack.
+     *
+     * Note: concurrent access to this member function causes undefined behaviour
+     * 
+     * \param cb new callback to register
+     * \return the previous callback
+     */
+    std::function<void ()> registerEventCallback(std::function<void ()> cb);
 
-        /**
-         * \return an event, nonblocking. A default constructed event is returned
-         * if there are no events.
-         */
-        Event popEvent();
+    void setTouchscreenCalibration(double xMin, double xMax, double yMin, double yMax);
+};
 
-        /**
-         * Register a callback that will be called every time an event is generated
-         *
-         * Note: the thread calling the callback has a very small stack.
-         *
-         * Note: concurrent access to this member function causes undefined behaviour
-         *
-         * \param cb new callback to register
-         * \return the previous callback
-         */
-        std::function<void()> registerEventCallback(std::function<void()> cb);
-
-        void setTouchscreenCalibration(double xMin, double xMax, double yMin, double yMax);
-    };
-
-} // namespace mxgui
+} //namespace mxgui
 
 #endif //_BOARD_STM32F415VG_ST25DVDISCOVERY
