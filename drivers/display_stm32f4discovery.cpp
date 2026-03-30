@@ -482,6 +482,14 @@ Color DisplayImpl::pixel_iterator::dummy;
 
 #ifdef _BOARD_STM32F469NI_STM32F469I_DISCO
 
+#include "display_stm32f4discovery.h"
+#include "board_settings.h"
+#include "miosix.h"
+#include <cstdarg>
+
+using namespace std;
+using namespace miosix;
+
 namespace mxgui {
 
 //Control interface
