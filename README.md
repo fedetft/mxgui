@@ -18,7 +18,7 @@ Then, modify the Makefile to add mxgui as a library to your project by setting
 the following variables:
 
 ```
-INCLUDE_DIRS := -Imxgui
+INCLUDE_DIRS := -Imxgui -Imxgui/config
 LIBS := mxgui/libmxgui.a
 SUBDIRS += mxgui
 ```

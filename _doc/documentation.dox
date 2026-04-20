@@ -73,7 +73,7 @@ headers:
 ##
 ## List here additional include directories (in the form -Iinclude_dir)
 ##
-INCLUDE_DIRS := -Imxgui
+INCLUDE_DIRS := -Imxgui -Imxgui/config
 \endcode
 
 And the LIBS variable to link mxgui with your application:
