@@ -28,7 +28,7 @@
 #pragma once
 
 #include <functional>
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "point.h"
 #include "drivers/event_types_qt.h"
 #include "drivers/event_types_win.h"

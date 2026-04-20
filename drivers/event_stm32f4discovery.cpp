@@ -26,7 +26,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 
 #if defined(_BOARD_STM32F429ZI_STM32F4DISCOVERY) && defined(MXGUI_LEVEL_2)
 

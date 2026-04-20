@@ -34,7 +34,7 @@
 
 #ifdef _BOARD_STM32F429ZI_STM32F4DISCOVERY
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "display.h"
 #include "point.h"
 #include "color.h"
@@ -362,7 +362,7 @@ private:
 
 #ifdef _BOARD_STM32F469NI_STM32F469I_DISCO
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "display.h"
 #include "point.h"
 #include "color.h"

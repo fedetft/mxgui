@@ -27,7 +27,7 @@
 
 #include <string>
 #include <utility>
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "display.h"
 #include "image.h"
 

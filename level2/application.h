@@ -31,7 +31,7 @@
 #include <list>
 #include <functional>
 #include <memory>
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "display.h"
 #include "input.h"
 #include "drawing_context_proxy.h"

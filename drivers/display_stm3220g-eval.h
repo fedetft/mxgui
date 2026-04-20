@@ -36,7 +36,7 @@
 
 #ifdef _BOARD_STM3220G_EVAL
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "display.h"
 #include "point.h"
 #include "color.h"

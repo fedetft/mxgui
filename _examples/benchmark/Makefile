@@ -3,9 +3,9 @@
 ##
 
 ## Path to kernel/config directories (edited by init_project_out_of_git_repo.pl)
-KPATH := ../../../miosix
+KPATH := ../../../miosix-kernel/miosix
 CONFPATH := $(KPATH)
-MAKEFILE_VERSION := 1.16
+MAKEFILE_VERSION := 3.01
 include $(KPATH)/Makefile.kcommon
 
 ##
@@ -16,7 +16,7 @@ SRC := bm_main.cpp benchmark.cpp micro_qr_code_from_wikipedia.cpp
 ##
 ## List here additional include directories (in the form -Iinclude_dir)
 ##
-INCLUDE_DIRS := -I../../../mxgui -I../../..
+INCLUDE_DIRS := -I../../../mxgui -I../../../mxgui/config -I../../..
 
 ##
 ## List here additional static libraries with relative path

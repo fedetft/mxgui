@@ -28,7 +28,7 @@
 #pragma once
 
 #include <string>
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "application.h"
 
 #ifdef MXGUI_LEVEL_2

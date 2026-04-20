@@ -34,7 +34,7 @@
 
 #if !defined(_MIOSIX) && !defined(_WINDOWS)
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "display.h"
 #include "point.h"
 #include "color.h"

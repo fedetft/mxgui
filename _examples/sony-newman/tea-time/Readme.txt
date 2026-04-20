@@ -19,7 +19,7 @@ Also, disable filesystem support by commenting out the line
 
 #define WITH_FILESYSTEM
 
-in miosix/config/miosix_settings.h
+in miosix/miosix_settings.h
 
 3) Open a shell in the
 

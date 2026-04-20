@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 
 namespace mxgui {
 

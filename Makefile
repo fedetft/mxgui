@@ -4,7 +4,7 @@
 ##
 
 ## KPATH and CONFPATH are forwarded by the parent Makefile
-MAKEFILE_VERSION := 1.16
+MAKEFILE_VERSION := 3.01
 include $(KPATH)/Makefile.kcommon
 
 ## List of all mxgui source files (both .c and .cpp)
@@ -48,6 +48,8 @@ drivers/event_st25dvdiscovery.cpp
 
 CFLAGS   += -DMXGUI_LIBRARY
 CXXFLAGS += -DMXGUI_LIBRARY
+
+INCLUDE_DIRS := -I. -Iconfig
 
 all: $(OBJ)
 	$(ECHO) "[AR  ] libmxgui.a"

@@ -34,7 +34,7 @@
 
 #ifdef _BOARD_STM32F429ZI_OLEDBOARD2
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "display.h"
 #include "point.h"
 #include "color.h"

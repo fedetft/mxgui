@@ -29,7 +29,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 
 #if defined(_BOARD_STM32F415VG_ST25DVDISCOVERY) && defined(MXGUI_LEVEL_2)
 

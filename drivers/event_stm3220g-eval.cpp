@@ -28,7 +28,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 
 #if defined(_BOARD_STM3220G_EVAL) && defined(MXGUI_LEVEL_2)
 

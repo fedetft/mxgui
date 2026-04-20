@@ -34,7 +34,7 @@
 
 #ifdef _BOARD_SONY_NEWMAN
 
-#include <config/mxgui_settings.h>
+#include "mxgui_settings.h"
 #include "display.h"
 #include "point.h"
 #include "color.h"
