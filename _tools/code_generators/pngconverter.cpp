@@ -18,8 +18,7 @@
 /*
  * pngconverter.cpp
  * convert a png image into a .cpp file to be used with mxgui.
- * number of bit per pixel of output image can be configured as
- * 1bitlinear, 8, 16, 18 or 24.
+ * Supported pixel formats: gray1, gray4, rgb332, rgb565.
  */
 
 #include <iostream>
@@ -69,23 +68,21 @@ static string toUpper(const string& x)
 // class ImageWriter
 //
 
-std::shared_ptr<ImageWriter> ImageWriter::fromPixDepth(image<rgb_pixel>& img,
-        bool binary, PixDepth pd)
+std::shared_ptr<ImageWriter> ImageWriter::fromPixelFormat(image<rgb_pixel>& img,
+        bool binary, PixelFormat pf)
 {
-    switch(pd)
+    switch(pf)
     {
-        case _1bitlinear:
-            return shared_ptr<ImageWriter>(new ImageWriter1bitLinear(img,binary));
-        case _8:
-            return shared_ptr<ImageWriter>(new ImageWriter8bit(img,binary));
-        case _16:
-            return shared_ptr<ImageWriter>(new ImageWriter16bit(img,binary));
-        case _18:
-            return shared_ptr<ImageWriter>(new ImageWriter18bit(img,binary));
-        case _24:
-            return shared_ptr<ImageWriter>(new ImageWriter24bit(img,binary));
+        case PixelFormat::Gray1:
+            return shared_ptr<ImageWriter>(new ImageWriterGray1(img,binary));
+         case PixelFormat::Gray4:
+            return shared_ptr<ImageWriter>(new ImageWriterGray4(img,binary));
+        case PixelFormat::RGB332:
+            return shared_ptr<ImageWriter>(new ImageWriterRGB332(img,binary));
+        case PixelFormat::RGB565:
+            return shared_ptr<ImageWriter>(new ImageWriterRGB565(img,binary));
         default:
-            throw runtime_error("Unsupported pixel depth");
+            throw runtime_error("Unsupported pixel format");
     }
 }
 
@@ -114,10 +111,10 @@ void ImageWriter::write(ofstream& out, image<rgb_pixel> *outImage)
 }
 
 //
-// class  ImageWriter1bitLinear
+// class  ImageWriterGray1
 //
 
-void ImageWriter1bitLinear::write(ofstream& out,
+void ImageWriterGray1::write(ofstream& out,
         image<rgb_pixel> *outImage)
 {
     int numPerLine=0;//Number of pixel per line. when reaches limit, wrap
@@ -180,10 +177,88 @@ void ImageWriter1bitLinear::write(ofstream& out,
 }
 
 //
-// class  ImageWriter8bit
+// class  ImageWriterGray4
 //
 
-void ImageWriter8bit::writePixel(int x, int y, ofstream& out,
+void ImageWriterGray4::write(ofstream& out,
+        image<rgb_pixel> *outImage)
+{
+    int numPerLine=0;//Number of pixel per line. when reaches limit, wrap
+    int ctr=0;
+    unsigned char buffer=0;
+    for(int y=0;y<img.get_height();y++)
+    {
+        for(int x=0;x<img.get_width();x++)
+        {
+            rgb_pixel pix=img.get_pixel(x,y);
+            // Convert to grayscale 4 bit (0-15)
+            // Using same coefficients as Gray4Color: (r * 77 + g * 150 + b * 29) >> 12
+            unsigned char gray = (pix.red * 77 + pix.green * 150 + pix.blue * 29) >> 12;
+            if (gray > 15) gray = 15;
+
+            if(outImage)
+            {
+                // Convert back to RGB for preview
+                unsigned char c = (gray << 4) | gray;
+                outImage->set_pixel(x,y,rgb_pixel(c,c,c));
+            }
+            
+            // Pack into buffer. MSB first means first pixel is in high nibble.
+            if(ctr==0)
+            {
+                buffer = (gray << 4);
+                ctr++;
+            }
+            else
+            {
+                buffer |= (gray & 0x0F);
+                ctr=0;
+                
+                // Write byte
+                if(binary) out.write(reinterpret_cast<char*>(&buffer),1);
+                else {
+                    out<<"0x"<<hex<<static_cast<int>(buffer)<<dec;
+                    if(x!=img.get_width()-1 || y!=img.get_height()-1) 
+                    {
+                        out<<',';
+                        if(++numPerLine==16) // 16 bytes per line
+                        {
+                            numPerLine=0;
+                            out<<endl<<' ';
+                        }
+                    }
+                }
+                buffer=0;
+            }
+        }
+        //End of a line, flush buffer if we have an odd number of pixels
+        if(ctr!=0)
+        { 
+            // buffer already has the high nibble set, low nibble is 0
+            if(binary) out.write(reinterpret_cast<char*>(&buffer),1);
+            else {
+                out<<"0x"<<hex<<static_cast<int>(buffer)<<dec;
+                if(y!=img.get_height()-1) 
+                {
+                    out<<',';
+                    if(++numPerLine==16)
+                    {
+                        numPerLine=0;
+                        out<<endl<<' ';
+                    }
+                }
+            }
+            buffer=0;
+            ctr=0;
+        }
+    }    
+}
+
+//
+// class  ImageWriterRGB332
+//
+
+void ImageWriterRGB332::writePixel(int x, int y, ofstream& out,
         png::image<rgb_pixel> *outImage, rgb_pixel pix)
 {
     unsigned int r=pix.red & (7<<5);
@@ -194,15 +269,16 @@ void ImageWriter8bit::writePixel(int x, int y, ofstream& out,
     {
         unsigned char c=static_cast<unsigned char>(i);
         out.write(reinterpret_cast<char*>(&c),1);
-    } else out<<i;
+    } else out<<"0x"<<hex<<i<<dec;
+
     if(outImage) outImage->set_pixel(x,y,rgb_pixel(r,g,b));
 }
 
 //
-// class  ImageWriter16bit
+// class  ImageWriterRGB565
 //
 
-void ImageWriter16bit::writePixel(int x, int y, ofstream& out,
+void ImageWriterRGB565::writePixel(int x, int y, ofstream& out,
         png::image<rgb_pixel> *outImage, rgb_pixel pix)
 {
     unsigned int r=(pix.red & (31<<3))>>3;
@@ -213,37 +289,8 @@ void ImageWriter16bit::writePixel(int x, int y, ofstream& out,
     {
         unsigned short s=toLittleEndian(static_cast<unsigned short>(i));
         out.write(reinterpret_cast<char*>(&s),2);
-    } else out<<i;
+    } else out<<"0x"<<hex<<i<<dec;
     if(outImage) outImage->set_pixel(x,y,rgb_pixel(r,g,b));
-}
-
-//
-// class  ImageWriter18bit
-//
-
-void ImageWriter18bit::writePixel(int x, int y, ofstream& out,
-        png::image<rgb_pixel> *outImage, rgb_pixel pix)
-{
-    throw(runtime_error("Implement me"));
-//     r=pix.red & 0xfc;
-//     g=pix.green & 0xfc;
-//     b=pix.blue & 0xfc;
-//     file<<(r>>2)<<','<<(g>>2)<<','<<(b>>2);
-//     if(outRequested) outImage.set_pixel(x,y,rgb_pixel(r,g,b));
-}
-
-//
-// class  ImageWriter24bit
-//
-
-void ImageWriter24bit::writePixel(int x, int y, ofstream& out,
-        png::image<rgb_pixel> *outImage, rgb_pixel pix)
-{
-    throw(runtime_error("Implement me"));
-//     file<<(int)(pix.red)<<','
-//         <<(int)(pix.green)<<','
-//         <<(int)(pix.blue);
-//     if(outRequested) outImage.set_pixel(x,y,pix);
 }
 
 int main(int argc, char *argv[])
@@ -254,7 +301,7 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("help", "Prints this.")
         ("in", value<string>(), "Input png file (required)")
-        ("depth", value<string>(), "Color depth, 1bitlinear,8,16,18 or 24 bits (required)")
+        ("format", value<string>(), "Pixel format: gray1, gray4, rgb332, rgb565 (required)")
         ("out", value<string>(), "Output png file for validation")
         ("outdir", value<string>(), "Directory where to generate files (default is src dir)")
         ("binary", "Generate a binary file instead of a .cpp/.h file")
@@ -264,7 +311,7 @@ int main(int argc, char *argv[])
     store(parse_command_line(argc,argv,desc),vm);
     notify(vm);
 
-    if(vm.count("help") || (!vm.count("in")) || (!vm.count("depth")))
+    if(vm.count("help") || (!vm.count("in")) || (!vm.count("format")))
     {
         cerr<<desc<<endl;
         return 1;
@@ -276,32 +323,22 @@ int main(int argc, char *argv[])
     cout<<"Height  = "<<img.get_height()<<endl;
     cout<<"Width   = "<<img.get_width()<<endl;
 
-    string depth=vm["depth"].as<string>();
-    PixDepth pixDepth;
-    int pixDepthInt=0;
-    if(depth=="1bitlinear")
+    string format=vm["format"].as<string>();
+    PixelFormat pf;
+    if(format=="gray1")
     {
-        pixDepth=_1bitlinear;
-        pixDepthInt=1 | 0x80; //Bit #0=1bit, bit #16=linear
-    } else if(depth=="8")
+        pf=PixelFormat::Gray1;
+    } else if(format=="gray4")
     {
-        pixDepth=_8;
-        pixDepthInt=8;
-    } else if(depth=="16")
+        pf=PixelFormat::Gray4;
+    } else if(format=="rgb332")
     {
-        pixDepth=_16;
-        pixDepthInt=16;
-    } else if(depth=="18")
+        pf=PixelFormat::RGB332;
+    } else if(format=="rgb565")
     {
-        pixDepth=_16;
-        pixDepthInt=18;
-    } else if(depth=="24")
-    {
-        pixDepth=_24;
-        pixDepthInt=24;
+        pf=PixelFormat::RGB565;
     } else
-    throw runtime_error("Unsupported pixel depth (not 1bitlinear,8,16,18,24)");
-
+    throw runtime_error("Unsupported pixel format (not gray1, gray4, rgb332, rgb565)");
     /*
      * Get output filemane from input filename
      * Example: if in is "/home/mypng.png"
@@ -343,54 +380,53 @@ int main(int argc, char *argv[])
  
     if(binary==false)
     {
-        file<<endl<<"//This file has been automatcally generated by "
+        file<<endl<<"//This file has been automatically generated by "
                 "pngconverter utility"<<endl<<"//Please do not edit"<<endl
                 <<"#include \""<<filename<<".h\""<<endl<<endl
                 <<"using namespace mxgui;"<<endl<<endl
                 <<"static const short int height="<<img.get_height()<<';'<<endl
                 <<"static const short int width ="<<img.get_width()<<';'<<endl
                 <<endl;
-        //Optimization for 16 bit per pixel
-        if(pixDepth==_16) 
+        //RGB565 uses unsigned short storage
+        if(pf==PixelFormat::RGB565) 
+        {
             file<<"static const unsigned short pixelData[]={"<<endl<<' ';
-        else file<<"static const unsigned char pixelData[]={"<<endl<<' ';
+        }
+        else file<<"static const unsigned char pixelData[]={"<<endl<<' '; // Gray1, Gray4, RGB332 use raw byte storage
     } else {
         unsigned short header[3];
         header[0]=toLittleEndian((unsigned short)img.get_height());
         header[1]=toLittleEndian((unsigned short)img.get_width());
-        header[2]=toLittleEndian((unsigned short)pixDepthInt);
+        header[2]=toLittleEndian(static_cast<unsigned short>(pf));
         file.write(reinterpret_cast<char*>(&header),sizeof(header));
     }
 
-    shared_ptr<ImageWriter> imgw=ImageWriter::fromPixDepth(img,binary,pixDepth);
+    shared_ptr<ImageWriter> imgw=ImageWriter::fromPixelFormat(img,binary,pf);
     imgw->write(file, outRequested ? &outImage : 0);
 
     if(!binary)
     {
         // The image is declared simply as "Image" in the .h, while as
         // "basic_image<type>" in the .cpp. This is a trick to allow a
-        // compile time check that the image pixel depth is correct.
+        // compile time check that the image pixel format is correct.
         // If both the image and the mxgui configurations agree the file
         // will compile. Also, using "Image" in the .h allows to include
-        // heaer files that refer to "optional" images without causing
+        // header files that refer to "optional" images without causing
         // compiler errors
         string classname;
-        switch(pixDepth)
+        switch(pf)
         {
-            case _1bitlinear:
-                classname="Color1bitlinear";
+            case PixelFormat::Gray1:
+                classname="Gray1Color";
                 break;
-            case _8:
-                classname="unsigned char";
+            case PixelFormat::Gray4:
+                classname="Gray4Color";
                 break;
-            case _16:
-                classname="unsigned short";
+            case PixelFormat::RGB332:
+                classname="RGB332Color";
                 break;
-            case _18:
-                throw runtime_error("TODO");
-                break;
-            case _24:
-                throw runtime_error("TODO");
+            case PixelFormat::RGB565:
+                classname="RGB565Color";
                 break;
         }
         file<<endl<<"};"<<endl<<endl<<"const basic_image<"<<classname<<"> "

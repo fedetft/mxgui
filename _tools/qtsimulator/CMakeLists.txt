@@ -19,7 +19,7 @@ function(preprocess_png out_var)
     set(cpp "${CMAKE_CURRENT_SOURCE_DIR}/${path}/${basename}.cpp")
     set(h   "${CMAKE_CURRENT_SOURCE_DIR}/${path}/${basename}.h")
     add_custom_command(OUTPUT ${cpp} ${h}
-      COMMAND ${PNGCONV_EXECUTABLE} --in ${png} --depth 16
+      COMMAND ${PNGCONV_EXECUTABLE} --in ${png} --format rgb565
       DEPENDS ${png}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Preprocessing ${file}"
@@ -39,12 +39,28 @@ set(FOO_IMG
 preprocess_png(IMG_OUT ${FOO_IMG})
 
 # List here your application files
+# set(FOO_SRCS
+#     ../../_examples/benchmark/benchmark.cpp
+#     ../../_examples/benchmark/checkpattern2.cpp
+#     ../../_examples/benchmark/micro_qr_code_from_wikipedia.cpp
+#     ../../_examples/benchmark/bm_main.cpp)
+# set(FOO_SRCS
+#     ../../_examples/swarm/swarm.cpp)
 set(FOO_SRCS
     ../../_examples/teapot/fps_counter.cpp
     ../../_examples/teapot/bresenham_fsm.cpp
     ../../_examples/teapot/triangle_fsm.cpp
     ../../_examples/teapot/rendering_engine.cpp
     ../../_examples/teapot/teapot.cpp)
+# set(FOO_SRCS
+#       ../../_examples/hello/hello_world.cpp)
+# set(FOO_SRCS
+#       ../../_examples/drawboard/drawboard.cpp)
+# set(FOO_SRCS
+#       ../../_examples/particles/fps_counter.cpp
+#       ../../_examples/particles/particles.cpp)
+# set(FOO_SRCS
+#       ../../_examples/clipped-image/clipped_image.cpp)
 
 # These are the sources of the mxgui library and the simulator
 set(LIB_SRCS
