@@ -487,7 +487,7 @@ DisplayImpl::DisplayImpl()
     sendCommand8(0x23,0x00);
     sendCommand8(0x26,0xa0);
     
-    setTextColor(make_pair(Color(0xffff),Color(0x0000)));
+    setTextColor(make_pair(Color::white(),Color::black()));
     clear(black);
     doTurnOn();
 }

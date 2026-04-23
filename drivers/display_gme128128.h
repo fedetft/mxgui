@@ -146,7 +146,7 @@ DisplayGME128128<SDA,SCL,RESET>::DisplayGME128128() : DisplayGeneric1BPP(128,128
     clear(0);
     update();
     cmd(0xaf);                         // Display on
-    setTextColor(std::make_pair(Color(0xf),Color(0x0)));
+    setTextColor(std::make_pair(Color::white(),Color::black()));
 }
 
 template<typename SDA, typename SCL, typename RESET>

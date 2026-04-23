@@ -134,7 +134,7 @@ DisplayLy091wg14<SDA,SCL,RESET>::DisplayLy091wg14() : DisplayGeneric1BPP(128,32)
     clear(0);
     update();
     cmd(0xaf);                         // Display on
-    setTextColor(std::make_pair(Color(0xf),Color(0x0)));
+    setTextColor(std::make_pair(Color::white(),Color::black()));
 }
 
 template<typename SDA, typename SCL, typename RESET>

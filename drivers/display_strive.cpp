@@ -269,7 +269,7 @@ void DisplayImpl::drawImage(Point p, const ImageBase& img)
     short int yEnd=p.y()+img.getHeight()-1;
     if(xEnd >= width || yEnd >= height) return;
 
-    const unsigned short *imgData=img.getData();
+    const unsigned short *imgData=reinterpret_cast<const unsigned short*>(img.getData());
     if(imgData!=0)
     {
         //Optimized version for memory-loaded images
@@ -313,7 +313,7 @@ void DisplayImpl::clippedDrawImage(Point p, Point a, Point b, const ImageBase& i
     short nx=xb-xa+1;
     short ny=yb-ya+1;
     int skipStart=(ya-p.y())*img.getWidth()+(xa-p.x());
-    const unsigned short *pix=img.getData()+skipStart;
+    const unsigned short *pix=reinterpret_cast<const unsigned short*>(img.getData())+skipStart;
     int toSkip=(xa-p.x())+((p.x()+img.getWidth()-1)-xb);
     short fastNx=nx/2;
     if((nx & 0x1)==0) //Scanline has odd number of pixels

@@ -45,10 +45,10 @@
 #include <stdexcept>
 #include <iostream>
 
-//This display is 16 or 1 bit per pixel, check that the color depth is properly
-//configured
-#if !defined(MXGUI_COLOR_DEPTH_16_BIT) && !defined(MXGUI_COLOR_DEPTH_1_BIT_LINEAR)
-#error The Qt driver requires a color depth of 16 or 1bit per pixel
+//This display supports multiple pixel formats
+#if !defined(MXGUI_PIXEL_FORMAT_RGB565) && !defined(MXGUI_PIXEL_FORMAT_GRAY1) \
+ && !defined(MXGUI_PIXEL_FORMAT_RGB332) && !defined(MXGUI_PIXEL_FORMAT_GRAY4)
+#error The Qt driver requires a supported pixel format
 #endif
 
 //Uncomment only to check precise pixel_iterator algorithms, used for displays

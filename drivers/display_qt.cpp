@@ -252,7 +252,8 @@ DisplayImpl::~DisplayImpl()
 DisplayImpl::DisplayImpl(): buffer(nullptr), last(), beginPixelCalled(false),
                             backend(QTBackend::instance())
 {
-    setTextColor(make_pair(Color(SIMULATOR_FGCOLOR),Color(SIMULATOR_BGCOLOR)));
+    setTextColor(make_pair(Color(SIMULATOR_FG_R, SIMULATOR_FG_G, SIMULATOR_FG_B),
+                           Color(SIMULATOR_BG_R, SIMULATOR_BG_G, SIMULATOR_BG_B)));
 }
 
 } //namespace mxgui

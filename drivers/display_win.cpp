@@ -250,7 +250,7 @@ DisplayImpl::DisplayImpl():
         beginPixelCalled(false),
         backend(WinBackend::instance())
 {
-    setTextColor(make_pair(Color(0xffff), Color(0x0000)));
+    setTextColor(make_pair(Color::white(), Color::black()));
 }
 
 } //namespace mxgui
