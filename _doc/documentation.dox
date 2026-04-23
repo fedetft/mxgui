@@ -156,15 +156,15 @@ Designed by TFT : Terraneo Federico Technologies
 Options:
   --help                Prints this.
   --in arg              Input png file (required)
-  --depth arg           Color depth, 1,8,16,18 or 24 bits (required)
+  --format arg          Pixel format, gray1,gray4,RGB332,RGB565 (required)
   --out arg             Output png file for validation
   --binary              Generate a binary file instead of a .cpp/.h file
 \endcode
 
 To use it, assume you have an image called test.png that needs to be embedded
-into a firmware at a 16 bit per pixel color depth, the command line to do so is
+into a firmware with RGB565 pixel format, the command line to do so is
 \code
-./pngconverter --in test.png --depth 16
+./pngconverter --in test.png --format rgb565
 \endcode
 As a result, the program will produce, in the same directory where the test.png
 file is, two files: test.cpp and test.h
