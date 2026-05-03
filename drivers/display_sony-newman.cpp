@@ -28,20 +28,9 @@
 #ifdef _BOARD_SONY_NEWMAN
 
 #include "display_sony-newman.h"
-#include <kernel/scheduler/scheduler.h>
 
 using namespace std;
 using namespace miosix;
-
-/**
- * DMA TX end of transfer
- */
-void __attribute__((naked)) DMA2_Stream3_IRQHandler()
-{
-    saveContext();
-    asm volatile("bl _Z20SPI1txDmaHandlerImplv");
-    restoreContext();
-}
 
 static Thread *waiting=0;     //Eventual thread waiting for the DMA to complete
 static bool dmaTransferInProgress=false; //DMA transfer is in progress, requires waiting
@@ -51,17 +40,14 @@ static bool dmaTransferActivated=false;  //DMA transfer has been activated, and 
 /**
  * DMA TX end of transfer actual implementation
  */
-void __attribute__((used)) SPI1txDmaHandlerImpl()
+void SPI1txDmaHandler()
 {
     DMA2->LIFCR=DMA_LIFCR_CTCIF3
               | DMA_LIFCR_CTEIF3
               | DMA_LIFCR_CDMEIF3;
     dmaTransferInProgress=false;
-    if(waiting==0) return;
-    waiting->IRQwakeup();
-    if(waiting->IRQgetPriority()>Thread::IRQgetCurrentThread()->IRQgetPriority())
-        Scheduler::IRQfindNextThread();
-    waiting=0;
+    if(waiting) waiting->IRQwakeup();
+    waiting=nullptr;
 }
 
 namespace mxgui {
@@ -90,8 +76,9 @@ void DisplayImpl::doTurnOn()
     oled::OLED_A0_Pin::high();
     
     {
-        FastGlobalIrqLock dLock;
+        GlobalIrqLock dLock;
         //Gpios are already configured in the BSP
+        IRQregisterIrq(dLock,DMA2_Stream3_IRQn,&SPI1txDmaHandler);
         RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
         RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
         SPI1->CR2=0;
@@ -433,9 +420,6 @@ void DisplayImpl::startDmaTransfer(const unsigned short *data, int length,
 
     dmaTransferActivated=true;
     dmaTransferInProgress=true;
-    NVIC_ClearPendingIRQ(DMA2_Stream3_IRQn);//DMA2 stream 3 channel 3 = SPI1_TX
-    NVIC_SetPriority(DMA2_Stream3_IRQn,10);//Low priority for DMA
-    NVIC_EnableIRQ(DMA2_Stream3_IRQn);
 
     DMA2_Stream3->CR=0;
     DMA2_Stream3->PAR=reinterpret_cast<unsigned int>(&SPI1->DR);
@@ -473,8 +457,6 @@ void DisplayImpl::waitDmaCompletion()
         }
     }
     dmaTransferActivated=false;
-    
-    NVIC_DisableIRQ(DMA2_Stream3_IRQn);
 
     //Wait for last byte to be sent
     while((SPI1->SR & SPI_SR_TXE)==0) ;

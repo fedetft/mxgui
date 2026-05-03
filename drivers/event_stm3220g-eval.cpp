@@ -395,8 +395,6 @@ InputHandlerImpl::InputHandlerImpl()
     SYSCFG->EXTICR[0] = (SYSCFG->EXTICR[0] & ~SYSCFG_EXTICR1_EXTI2_Msk) | (8 << SYSCFG_EXTICR1_EXTI2_Pos);
     EXTI->IMR |= EXTI_IMR_MR2;
     EXTI->FTSR |= EXTI_FTSR_TR2;
-    NVIC_EnableIRQ(EXTI2_IRQn);
-    NVIC_SetPriority(EXTI2_IRQn,15); //Low priority
 
     //Note that this class is instantiated only once. Otherwise
     //we'd have to think a way to avoid creating multiple threads

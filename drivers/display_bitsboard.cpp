@@ -271,7 +271,9 @@ DisplayImpl::DisplayImpl(): buffer(0), last()
 {
     setTextColor(make_pair(Color(black),Color(white)));
     {
-        FastGlobalIrqLock dLock;
+        GlobalIrqLock dLock;
+        IRQregisterIrq(dLock,DMA1_Stream4_IRQn,&DMA1_Stream4_IRQHandler);
+        IRQregisterIrq(dLock,TIM7_IRQn,&TIM7_IRQHandler);
         RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
         RCC->APB1ENR |= RCC_APB1ENR_SPI2EN | RCC_APB1ENR_TIM7EN;
         sck::mode(Mode::ALTERNATE_OD);
@@ -304,10 +306,6 @@ DisplayImpl::DisplayImpl(): buffer(0), last()
     TIM7->CNT=0;
 
     dmaRefill();
-    NVIC_SetPriority(DMA1_Stream4_IRQn,2);//High priority for DMA
-    NVIC_EnableIRQ(DMA1_Stream4_IRQn);
-    NVIC_SetPriority(TIM7_IRQn,3);//High priority for TIM7
-    NVIC_EnableIRQ(TIM7_IRQn);
 
     SPI2->CR2=SPI_CR2_TXDMAEN;
     SPI2->CR1=SPI_CR1_DFF      | //16bit mode

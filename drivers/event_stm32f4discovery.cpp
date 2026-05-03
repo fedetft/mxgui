@@ -252,6 +252,7 @@ InputHandlerImpl::InputHandlerImpl()
     {
         GlobalIrqLock dLock;
         IRQregisterIrq(dLock,EXTI15_10_IRQn,&EXTI15_10HandlerImpl);
+        IRQregisterIrq(dLock,EXTI0_IRQn,&EXTI0HandlerImpl);
         buttonA::mode(Mode::INPUT_PULL_DOWN);
         interrupt::mode(Mode::INPUT);
         stmpe811::init();
@@ -285,15 +286,11 @@ InputHandlerImpl::InputHandlerImpl()
     //impostiamo l'interrupt del touchscreen
     EXTI->IMR |= EXTI_IMR_MR15;
     EXTI->FTSR |= EXTI_FTSR_TR15;
-    NVIC_EnableIRQ(EXTI15_10_IRQn);
-    NVIC_SetPriority(EXTI15_10_IRQn,15); //Low priority
 
     //impostiamo l'interrupt del bottone
     EXTI->IMR |= EXTI_IMR_MR0;
     EXTI->RTSR |= EXTI_RTSR_TR0;
     EXTI->FTSR |= EXTI_FTSR_TR0;
-    NVIC_EnableIRQ(EXTI0_IRQn);
-    NVIC_SetPriority(EXTI0_IRQn,15); //Low priority
 
     //Note that this class is instantiated only once. Otherwise
     //we'd have to think a way to avoid creating multiple threads

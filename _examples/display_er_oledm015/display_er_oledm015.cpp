@@ -101,7 +101,7 @@ void SPI1txDmaHandlerImpl()
               | DMA_LIFCR_CTEIF3
               | DMA_LIFCR_CDMEIF3
               | DMA_LIFCR_CFEIF3;
-    waiting->IRQwakeup();
+    if(waiting) waiting->IRQwakeup();
     waiting=nullptr;
 }
 
@@ -114,9 +114,6 @@ static void spi1SendDMA(const Color *data, int size)
     SPI1->CR1=tempCr1;
     
     waiting=Thread::getCurrentThread();
-    NVIC_ClearPendingIRQ(DMA2_Stream3_IRQn);
-    NVIC_SetPriority(DMA2_Stream3_IRQn,10);//Low priority for DMA
-    NVIC_EnableIRQ(DMA2_Stream3_IRQn);
 
     DMA2_Stream3->CR=0;
     DMA2_Stream3->PAR=reinterpret_cast<unsigned int>(&SPI1->DR);
@@ -138,8 +135,7 @@ static void spi1SendDMA(const Color *data, int size)
         FastGlobalIrqLock dLock;
         while(waiting) Thread::IRQglobalIrqUnlockAndWait(dLock);
     }
-                
-    NVIC_DisableIRQ(DMA2_Stream3_IRQn);
+
     spi1waitCompletion();
     SPI1->CR1=0;
     SPI1->CR2=0;
