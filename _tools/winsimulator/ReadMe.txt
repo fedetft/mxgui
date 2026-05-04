@@ -12,7 +12,7 @@ I hope this simple simulator will help in designing MXGUI
 applications without the need to use real boards.
 
 The limitations:
-* Currently only MXGUI_COLOR_DEPTH_16_BIT is supported.
+* Currently only MXGUI_PIXEL_FORMAT_RGB565 is supported.
 * MXGUI_ORIENTATION_VERTICAL and MXGUI_ORIENTATION_HORIZONTAL
   are supported, of course, if application supports them.
   But you should take care of properly setting 

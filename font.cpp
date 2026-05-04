@@ -72,7 +72,7 @@ short int Font::calculateLength(const char *s) const
 
 void Font::generatePalette(Color out[4], Color fgcolor, Color bgcolor)
 {
-    #ifdef MXGUI_COLOR_DEPTH_16_BIT
+    #ifdef MXGUI_PIXEL_FORMAT_RGB565
     unsigned short fgR=fgcolor; //& 0xf800; Optimization, & not required
     unsigned short bgR=bgcolor; //& 0xf800; Optimization, & not required
     unsigned short fgG=fgcolor & 0x7e0;
@@ -83,17 +83,21 @@ void Font::generatePalette(Color out[4], Color fgcolor, Color bgcolor)
     unsigned short deltaG=((fgG-bgG)/3) & 0x7e0;
     unsigned short deltaB=((fgB-bgB)/3) & 0x1f;
     unsigned short delta=deltaR | deltaG | deltaB;
-    out[3]=fgcolor;
-    out[2]=Color(bgcolor+2*delta);
-    out[1]=Color(bgcolor+delta);
-    out[0]=bgcolor;
-    #elif defined(MXGUI_COLOR_DEPTH_8_BIT)
-    #error TODO
-    #elif defined(MXGUI_COLOR_DEPTH_1_BIT_LINEAR)
-    out[0]=out[1]=bgcolor ? white : black;
-    out[2]=out[3]=fgcolor ? white : black;
+    out[3]=Color::fromRaw(fgcolor);
+    out[2]=Color::fromRaw(bgcolor+2*delta);
+    out[1]=Color::fromRaw(bgcolor+delta);
+    out[0]=Color::fromRaw(bgcolor);
+    #elif  defined(MXGUI_PIXEL_FORMAT_GRAY1)
+    // For 1bpp, we want a hard threshold to keep fonts sharp and thick.
+    // Mapping Level 0,1 to background and 2,3 to foreground.
+    out[0] = out[1] = bgcolor;
+    out[2] = out[3] = fgcolor;
     #else
-    #error unsupported color depth
+    // For all other pixel formats
+    out[0] = bgcolor;
+    out[3] = fgcolor;
+    out[1] = Color::mix(bgcolor, fgcolor, 85);  // ~33% foreground
+    out[2] = Color::mix(bgcolor, fgcolor, 170); // ~66% foreground
     #endif
 }
 

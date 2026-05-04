@@ -32,6 +32,7 @@
 #include "color.h"
 #include "iterator_direction.h"
 #include <algorithm>
+#include <type_traits>
 
 namespace mxgui {
 
@@ -156,7 +157,85 @@ bool basic_image_base<T>::getScanLine(mxgui::Point p, mxgui::Color colors[],
     const T* data=this->getData();
     if(data==0) return false;
     data+=p.x()+p.y()*this->getWidth();
-    for(unsigned short i=0;i<length;i++) colors[i]=data[i];
+    
+    // If the image pixel format matches display pixel format, we can do a direct copy
+    if constexpr (std::is_same<T, mxgui::Color>::value)
+    {
+        for(unsigned short i=0;i<length;i++) colors[i]=data[i];
+    }
+    // Otherwise conversion is needed 
+    // (consider to re-generate the image in the display format
+    // using _tools/code_generator/pngconverter)
+    else
+    {
+        for(unsigned short i=0;i<length;i++)
+        {
+            colors[i]=mxgui::Color(data[i].getR(), data[i].getG(), data[i].getB());
+        }
+    }
+    return true;
+}
+
+// Specialization for Gray1Color
+template<>
+inline bool basic_image_base<Gray1Color>::getScanLine(mxgui::Point p, mxgui::Color colors[],
+            unsigned short length) const
+{
+    if(p.x()<0 || p.y()<0) return false;
+    if(p.x()>=this->getWidth() || p.y()>=this->getHeight()) return false;
+    const unsigned char* data = reinterpret_cast<const unsigned char*>(this->getData());
+    if(data==0) return false;
+
+    // Calculate stride: 1bpp are byte aligned
+    int stride = ((this->getWidth() + 7) & (~7)) / 8;
+    const unsigned char* rowData = data + (p.y() * stride);
+    
+    for(unsigned short i=0; i<length; i++)
+    {
+        int x = p.x() + i;
+        if(x >= this->getWidth()) break;
+        
+        unsigned char byte = rowData[x / 8];
+        int bitIndex = x & 7;
+        
+        bool set = (byte & (0x80 >> bitIndex));
+        colors[i] = set ? Color::white() : Color::black();
+    }
+    return true;
+}
+
+// Specialization for Gray4Color
+template<>
+inline bool basic_image_base<Gray4Color>::getScanLine(mxgui::Point p, mxgui::Color colors[],
+            unsigned short length) const
+{
+    if(p.x()<0 || p.y()<0) return false;
+    if(p.x()>=this->getWidth() || p.y()>=this->getHeight()) return false;
+    const unsigned char* data = reinterpret_cast<const unsigned char*>(this->getData());
+    if(data==0) return false;
+
+    // Calculate stride: 4bpp are byte aligned
+    int stride = (this->getWidth() + 1) / 2;
+    const unsigned char* rowData = data + (p.y() * stride);
+    
+    for(unsigned short i=0; i<length; i++)
+    {
+        int x = p.x() + i;
+        if(x >= this->getWidth()) break;
+        
+        unsigned char byte = rowData[x / 2];
+        unsigned char val = (x % 2 == 0) ? (byte >> 4) : (byte & 0x0F);
+
+        if constexpr (std::is_same<mxgui::Color, Gray4Color>::value)
+        {
+            colors[i] = Color::fromRaw(val);
+        }
+        else
+        {
+            Gray4Color srcColor = Gray4Color::fromRaw(val);
+            colors[i] = Color(srcColor.getR(), srcColor.getG(), srcColor.getB());
+        }
+    }
     return true;
 }
 
@@ -171,8 +250,22 @@ void basic_image_base<T>::draw(U& surface, Point p) const
         short int yEnd=p.y()+this->getHeight()-1;
         typename U::pixel_iterator it=surface.begin(p,Point(xEnd,yEnd),RD);
         int imgSize=this->getHeight()*this->getWidth();
-        for(int i=0;i<imgSize;i++) *it=Color(imgData[i]);
+        
+        // Block copy optimization for matching formats
+        if constexpr (std::is_same<T, mxgui::Color>::value)
+        {
+             for(int i=0;i<imgSize;i++) *it=*imgData++; 
+        }
+        else
+        {
+               for(int i=0;i<imgSize;i++)
+               {
+                  const T& src=*imgData++;
+                  *it=Color(src.getR(), src.getG(), src.getB());
+               }
+        }
     } else {
+        // Fallback for non-memory-mapped images
         short length=this->width;
         impl::AutoArray<Color> line(new Color[length]);
         for(short i=0;i<this->height;i++)
@@ -183,12 +276,12 @@ void basic_image_base<T>::draw(U& surface, Point p) const
     }
 }
 
-// Specialization for Color1bitlinear
+// Specialization for Gray1Color
 template<> template<typename U>
-void basic_image_base<Color1bitlinear>::draw(U& surface, Point p) const
+void basic_image_base<Gray1Color>::draw(U& surface, Point p) const
 {
     using namespace std;
-    const Color1bitlinear *imgData=this->getData();
+    const unsigned char *imgData=reinterpret_cast<const unsigned char*>(this->getData());
     if(imgData!=0)
     {
         short int xEnd=p.x()+this->getWidth()-1;
@@ -197,27 +290,96 @@ void basic_image_base<Color1bitlinear>::draw(U& surface, Point p) const
         int h=this->getHeight();
         int w=this->getWidth();
         int stride=((w+7) & (~7))/8; //1bpp images have lines byte aligned
-        int last= w/8==stride ? stride : stride-1;
+        int last= w/8;
         for(int i=0;i<h;i++)
         {
             int base=i*stride;
             for(int j=0;j<last;j++)
             {
                 unsigned char data=imgData[base+j];
-                for(int k=0;k<8;k++)
+                // Pixels are packed MSB first
+                *it = (data & 0x80) ? Color::white() : Color::black(); data<<=1;
+                *it = (data & 0x80) ? Color::white() : Color::black(); data<<=1;
+                *it = (data & 0x80) ? Color::white() : Color::black(); data<<=1;
+                *it = (data & 0x80) ? Color::white() : Color::black(); data<<=1;
+                *it = (data & 0x80) ? Color::white() : Color::black(); data<<=1;
+                *it = (data & 0x80) ? Color::white() : Color::black(); data<<=1;
+                *it = (data & 0x80) ? Color::white() : Color::black(); data<<=1;
+                *it = (data & 0x80) ? Color::white() : Color::black();
+            }
+            if (w & 7)
+            {
+                unsigned char data=imgData[base+last]; // Last partial byte
+                for(int k=0; k<(w & 7); k++)
                 {
-                    *it=Color(data & 0x80 ? 1 : 0);
+                    *it = (data & 0x80) ? Color::white() : Color::black();
                     data<<=1;
                 }
             }
-            unsigned char data=imgData[base+stride-1];
-            for(int k=0;k<(w & 7);k++)
+        }
+    } else {
+        // Fallback for non-memory-mapped images
+        short length=this->width;
+        impl::AutoArray<Color> line(new Color[length]);
+        for(short i=0;i<this->height;i++)
+        {
+            if(this->getScanLine(Point(0,i),line.get(),length)==false) return;
+            surface.scanLine(Point(p.x(),p.y()+i),line.get(),length);
+        }
+    }
+}
+
+// Specialization for Gray4Color
+template<> template<typename U>
+void basic_image_base<Gray4Color>::draw(U& surface, Point p) const
+{
+    using namespace std;
+    const unsigned char *imgData=reinterpret_cast<const unsigned char*>(this->getData());
+    if(imgData!=0)
+    {
+        short int xEnd=p.x()+this->getWidth()-1;
+        short int yEnd=p.y()+this->getHeight()-1;
+        typename U::pixel_iterator it=surface.begin(p,Point(xEnd,yEnd),RD);
+        int h=this->getHeight();
+        int w=this->getWidth();
+        int stride=((w+1) & (~1))/2; // 4bpp images have lines byte aligned (2 pixels per byte)
+        int pairs= w/2; 
+        
+        for(int i=0;i<h;i++)
+        {
+            int base=i*stride;
+            for(int j=0;j<pairs;j++)
             {
-                *it=Color(data & 0x80 ? 1 : 0);
-                data<<=1;
+                unsigned char data=imgData[base+j];
+                if constexpr (std::is_same<mxgui::Color, Gray4Color>::value)
+                {
+                    *it = Color::fromRaw(data >> 4);
+                    *it = Color::fromRaw(data & 0x0F);
+                }
+                else
+                {
+                    Gray4Color srcHigh = Gray4Color::fromRaw(data >> 4);
+                    Gray4Color srcLow = Gray4Color::fromRaw(data & 0x0F);
+                    *it = Color(srcHigh.getR(), srcHigh.getG(), srcHigh.getB());
+                    *it = Color(srcLow.getR(), srcLow.getG(), srcLow.getB());
+                }
+            }
+            if (w & 1)
+            {
+                unsigned char data=imgData[base+pairs]; // Last partial byte
+                if constexpr (std::is_same<mxgui::Color, Gray4Color>::value)
+                {
+                    *it = Color::fromRaw(data >> 4);
+                }
+                else
+                {
+                    Gray4Color srcHigh = Gray4Color::fromRaw(data >> 4);
+                    *it = Color(srcHigh.getR(), srcHigh.getG(), srcHigh.getB());
+                }
             }
         }
     } else {
+        // Fallback for non-memory-mapped images
         short length=this->width;
         impl::AutoArray<Color> line(new Color[length]);
         for(short i=0;i<this->height;i++)
@@ -256,10 +418,22 @@ void basic_image_base<T>::clippedDraw(U& surface,
         int toSkip=(xa-p.x())+((p.x()+this->getWidth()-1)-xb);
         for(short i=0;i<ny;i++)
         {
-            for(short j=0;j<nx;j++) *it=Color(*imgData++);
+            if constexpr (std::is_same<T, mxgui::Color>::value)
+            {
+                for(short j=0;j<nx;j++) *it=*imgData++;
+            }
+            else
+            {
+                for(short j=0;j<nx;j++)
+                {
+                    const T& src=*imgData++;
+                    *it=Color(src.getR(), src.getG(), src.getB());
+                }
+            }
             imgData+=toSkip;
         }      
     } else {
+        // Fallback for non-memory-mapped images
         impl::AutoArray<Color> line(new Color[nx]);
         for(short i=0;i<ny;i++)
         {
@@ -270,9 +444,9 @@ void basic_image_base<T>::clippedDraw(U& surface,
     }
 }
 
-// Specialization for Color1bitlinear
+// Specialization for Gray1Color
 template<> template<typename U>
-void basic_image_base<Color1bitlinear>::clippedDraw(U& surface,
+void basic_image_base<Gray1Color>::clippedDraw(U& surface,
         Point p, Point a, Point b) const
 {
     using namespace std;
@@ -286,54 +460,101 @@ void basic_image_base<Color1bitlinear>::clippedDraw(U& surface,
     short yb=min<short>(p.y()+this->getHeight()-1,b.y());
     if(ya>yb) return; //Empty intersection
 
-    //Draw image
     short nx=xb-xa+1;
     short ny=yb-ya+1;
-    const Color1bitlinear *imgData=this->getData();
+    const unsigned char *imgData=reinterpret_cast<const unsigned char*>(this->getData());
     if(imgData!=0)
     {
         typename U::pixel_iterator it=surface.begin(Point(xa,ya),
                 Point(xb,yb),RD);
-        int stride=(this->getWidth()+7) & (~7); //1bpp images have lines byte aligned
-        int skipStart=(ya-p.y())*stride/8+(xa-p.x())/8;
-        imgData+=skipStart;
-        int toSkip=(xa-p.x())/8+((p.x()+stride-1)-xb)/8;
-        int head=(xa-p.x()) & 7;
-        int body=head ? nx-(8-head) : nx;
-        int tail=body & 7;
-        body/=8;
+        
+        int w=this->getWidth();
+        int stride=((w+7) & (~7))/8;
+        
+        // Loop over rows in the clipped region
         for(int i=0;i<ny;i++)
         {
-            if(head)
+            int y = ya + i; // Absolute Y coordinate in image
+            int rowBase = (y - p.y()) * stride; // Offset to start of row
+            
+            // Loop over columns in clipped region
+            for(int j=0; j<nx; j++)
             {
-                unsigned char data=*imgData++;
-                data<<=head;
-                for(int k=0;k<8-head;k++)
-                {
-                    *it=Color(data & 0x80 ? 1 : 0);
-                    data<<=1;
-                }
+                int x = xa + j; // Absolute X coordinate in image
+                int imgX = x - p.x(); // Image relative X
+                
+                unsigned char data = imgData[rowBase + (imgX / 8)];
+                int bitIndex = imgX & 7; // 0..7
+                bool set = (data & (0x80 >> bitIndex));
+                *it = set ? Color::white() : Color::black();
             }
-            for(int j=0;j<body;j++)
-            {
-                unsigned char data=*imgData++;
-                for(int k=0;k<8;k++)
-                {
-                    *it=Color(data & 0x80 ? 1 : 0);
-                    data<<=1;
-                }
-            }
-            if(tail)
-            {
-                unsigned char data=*imgData++;
-                for(int k=0;k<tail;k++)
-                {
-                    *it=Color(data & 0x80 ? 1 : 0);
-                    data<<=1;
-                }
-            }
-            imgData+=toSkip;
+        }       
+    } else {
+        // Fallback for non-memory-mapped images
+        impl::AutoArray<Color> line(new Color[nx]);
+        for(short i=0;i<ny;i++)
+        {
+            if(this->getScanLine(Point(xa-p.x(),ya-p.y()+i),
+                    line.get(),nx)==false) return;
+            surface.scanLine(Point(xa,ya+i),line.get(),nx);
         }
+    }
+}
+
+// Specialization for clippedDraw Gray4Color
+template<> template<typename U>
+void basic_image_base<Gray4Color>::clippedDraw(U& surface,
+        Point p, Point a, Point b) const
+{
+    using namespace std;
+     //Find rectangle wich is the non-empty intersection of the image rectangle
+    //with the clip rectangle
+    short xa=max(p.x(),a.x());
+    short xb=min<short>(p.x()+this->getWidth()-1,b.x());
+    if(xa>xb) return; //Empty intersection
+
+    short ya=max(p.y(),a.y());
+    short yb=min<short>(p.y()+this->getHeight()-1,b.y());
+    if(ya>yb) return; //Empty intersection
+
+    short nx=xb-xa+1;
+    short ny=yb-ya+1;
+    const unsigned char *imgData=reinterpret_cast<const unsigned char*>(this->getData());
+    if(imgData!=0)
+    {
+        typename U::pixel_iterator it=surface.begin(Point(xa,ya),
+                Point(xb,yb),RD);
+        
+        int w=this->getWidth();
+        int stride=((w+1) & (~1))/2;
+        
+        // Loop over rows in the clipped region
+        for(int i=0;i<ny;i++)
+        {
+            int y = ya + i; // Absolute Y coordinate in image
+            int rowBase = (y - p.y()) * stride; // Offset to start of row
+            
+            // Loop over columns in clipped region
+            for(int j=0; j<nx; j++)
+            {
+                int x = xa + j; // Absolute X coordinate in image
+                int imgX = x - p.x(); // Image relative X
+                
+                unsigned char data = imgData[rowBase + (imgX / 2)];
+                bool highNibble = (imgX & 1) == 0;
+                unsigned char val = highNibble ? (data >> 4) : (data & 0x0F);
+
+                if constexpr (std::is_same<mxgui::Color, Gray4Color>::value)
+                {
+                    *it = Color::fromRaw(val);
+                }
+                else
+                {
+                    Gray4Color srcColor = Gray4Color::fromRaw(val);
+                    *it = Color(srcColor.getR(), srcColor.getG(), srcColor.getB());
+                }
+            }
+        }       
     } else {
         impl::AutoArray<Color> line(new Color[nx]);
         for(short i=0;i<ny;i++)

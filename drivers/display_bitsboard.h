@@ -46,7 +46,7 @@
 
 //This display is 1 bit per pixel, check that the color depth is properly
 //configured
-#ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+#ifndef MXGUI_PIXEL_FORMAT_GRAY1
 #error The bitsboard driver requires a color depth of 1bit per pixel
 #endif
 

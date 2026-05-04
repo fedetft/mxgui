@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #include "display_ser2p7s.h"
+#include "misc_inst.h"
 #include "miosix.h"
 #include <algorithm>
 
@@ -166,7 +167,7 @@ DisplaySer2p7s::DisplaySer2p7s() : DisplayGeneric4BPP(256,128)
     cmd(0xbe); data(0x04);             // VCOMH
     cmd(0xb9);                         // Linear gamma table
     cmd(0xa6);                         // Normal display mode
-    clear(0);
+    clear(black);
     update();
     cmd(0xaf);                         // Display on
 }

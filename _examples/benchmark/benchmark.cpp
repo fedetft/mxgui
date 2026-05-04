@@ -85,17 +85,17 @@ void Benchmark::start()
     //Then, do benchmarks
     fixedWidthTextBenchmark();
     variableWidthTextBenchmark();
-    #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+    #ifndef MXGUI_PIXEL_FORMAT_GRAY1
     antialiasingBenchmark();
-    #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+    #endif //MXGUI_PIXEL_FORMAT_GRAY1
     horizontalLineBenchmark();
     verticalLineBenchmark();
     obliqueLineBenchmark();
     clearScreenBenchmark();
     imageBenchmark();
-    #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+    #ifndef MXGUI_PIXEL_FORMAT_GRAY1
     scanLineBenchmark();
-    #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+    #endif //MXGUI_PIXEL_FORMAT_GRAY1
     clippedDrawBenchmark();
     clippedWriteBenchmark();
     #ifdef MXGUI_ENABLE_RESOURCEFS
@@ -150,11 +150,11 @@ void Benchmark::fixedWidthTextBenchmark()
         {
             DrawingContext dc(display);
             dc.setFont(miscFixed);
-            #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            #ifndef MXGUI_PIXEL_FORMAT_GRAY1
             dc.setTextColor(i%2==0 ? red : green,black);
-            #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            #else //MXGUI_PIXEL_FORMAT_GRAY1
             i%2==0 ? dc.setTextColor(white,black) : dc.setTextColor(black,white);
-            #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            #endif //MXGUI_PIXEL_FORMAT_GRAY1
         }
         auto t=system_clock::now();
         {
@@ -186,11 +186,11 @@ void Benchmark::variableWidthTextBenchmark()
         {
             DrawingContext dc(display);
             dc.setFont(tahoma);
-            #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            #ifndef MXGUI_PIXEL_FORMAT_GRAY1
             dc.setTextColor(i%2==0 ? red : green,black);
-            #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            #else //MXGUI_PIXEL_FORMAT_GRAY1
             i%2==0 ? dc.setTextColor(white,black) : dc.setTextColor(black,white);
-            #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            #endif //MXGUI_PIXEL_FORMAT_GRAY1
         }
         auto t=system_clock::now();
         {
@@ -206,7 +206,7 @@ void Benchmark::variableWidthTextBenchmark()
 }
 
 
-#ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+#ifndef MXGUI_PIXEL_FORMAT_GRAY1
 void Benchmark::antialiasingBenchmark()
 {
     unsigned int totalTime=0;
@@ -237,18 +237,18 @@ void Benchmark::antialiasingBenchmark()
     totalTime/=4;
     results[index++]=BenchmarkResult("Antialiased text",totalTime);
 }
-#endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+#endif //MXGUI_PIXEL_FORMAT_GRAY1
 
 void Benchmark::horizontalLineBenchmark()
 {
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
-        #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #ifndef MXGUI_PIXEL_FORMAT_GRAY1
         Color color=i%2==0?red:green;
-        #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #else //MXGUI_PIXEL_FORMAT_GRAY1
         Color color=i%2==0?white:black;
-        #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #endif //MXGUI_PIXEL_FORMAT_GRAY1
         auto t=system_clock::now();
         {
             DrawingContext dc(display);
@@ -268,11 +268,11 @@ void Benchmark::verticalLineBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
-        #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #ifndef MXGUI_PIXEL_FORMAT_GRAY1
         Color color=i%2==0?red:green;
-        #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #else //MXGUI_PIXEL_FORMAT_GRAY1
         Color color=i%2==0?white:black;
-        #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #endif //MXGUI_PIXEL_FORMAT_GRAY1
         auto t=system_clock::now();
         {
             DrawingContext dc(display);
@@ -292,18 +292,18 @@ void Benchmark::obliqueLineBenchmark()
     unsigned int totalTime=0; 
     for(int i=0;i<4;i++)
     {
-        #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
-        const Color darkRed(0x7800);
-        const Color darkGreen(0x3e00);
-        const Color darkBlue(0x000f);
+        #ifndef MXGUI_PIXEL_FORMAT_GRAY1
+        const Color darkRed = Color::fromRGB565(0x7800);
+        const Color darkGreen = Color::fromRGB565(0x3e00);
+        const Color darkBlue = Color::fromRGB565(0x000f);
         Color colorA=i%2==0?darkRed:darkGreen;
         Color colorB=i%2==0?darkGreen:darkBlue;
         Color colorC=i%2==0?darkBlue:darkRed;
-        #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #else //MXGUI_PIXEL_FORMAT_GRAY1
         Color colorA=i%2==0?white:black;
         Color colorB=colorA;
         Color colorC=i%2==0?black:white;
-        #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #endif //MXGUI_PIXEL_FORMAT_GRAY1
         auto t=system_clock::now();
         {
             DrawingContext dc(display);
@@ -355,11 +355,11 @@ void Benchmark::clearScreenBenchmark()
     unsigned int totalTime=0;
     for(int i=0;i<4;i++)
     {
-        #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #ifndef MXGUI_PIXEL_FORMAT_GRAY1
         Color color=i%2==0?red:green;
-        #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #else //MXGUI_PIXEL_FORMAT_GRAY1
         Color color=i%2==0?white:black;
-        #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+        #endif //MXGUI_PIXEL_FORMAT_GRAY1
         auto t=system_clock::now();
         {
             DrawingContext dc(display);
@@ -383,11 +383,11 @@ void Benchmark::imageBenchmark()
             DrawingContext dc(display);
             for(int j=0;j<dc.getWidth();j+=16)
                 for(int k=0;k<dc.getHeight();k+=16)
-                    #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+                    #ifndef MXGUI_PIXEL_FORMAT_GRAY1
                     dc.drawImage(Point(j,k),micro_qr_code_from_wikipedia);
-                    #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+                    #else //MXGUI_PIXEL_FORMAT_GRAY1
                     dc.drawImage(Point(j,k),checkpattern2);
-                    #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+                    #endif //MXGUI_PIXEL_FORMAT_GRAY1
         }
         auto d=system_clock::now()-t;
         delayMs(250);
@@ -402,38 +402,248 @@ void Benchmark::imageBenchmark()
     results[index++]=BenchmarkResult("Draw image",totalTime);
 }
 
-#ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+#ifndef MXGUI_PIXEL_FORMAT_GRAY1
 static const Color rainbow[]={
- 63488,63520,63584,63616,63680,63744,63776,63840,
- 63872,63936,64000,64032,64096,64128,64192,64256,
- 64288,64352,64384,64448,64512,64544,64608,64640,
- 64704,64768,64800,64864,64896,64960,65024,65056,
- 65120,65152,65216,65280,65312,65376,65408,65472,
- 65504,63456,63456,61408,59360,57312,55264,55264,
- 53216,51168,49120,49120,47072,45024,42976,40928,
- 38880,38880,36832,34784,32736,30688,30688,28640,
- 26592,24544,24544,22496,20448,18400,16352,16352,
- 14304,12256,10208,8160,8160,6112,4064,2016,
- 2016,2017,2017,2018,2019,2020,2021,2021,
- 2022,2023,2024,2025,2025,2026,2027,2028,
- 2029,2029,2030,2031,2032,2033,2033,2034,
- 2035,2036,2037,2037,2038,2039,2040,2041,
- 2041,2042,2043,2044,2045,2045,2046,2047,
- 2047,1983,1919,1887,1823,1791,1727,1663,
- 1631,1567,1535,1471,1407,1375,1311,1279,
- 1215,1151,1119,1055,1023,959,895,863,
- 799,767,703,639,607,543,479,447,
- 383,351,287,255,191,127,95,31,
- 31,2079,4127,6175,6175,8223,10271,12319,
- 14367,14367,16415,18463,20511,20511,22559,24607,
- 26655,28703,30751,30751,32799,34847,36895,38943,
- 38943,40991,43039,45087,47135,47135,49183,51231,
- 53279,55327,55327,57375,59423,61471,63519,63519,
- 63519,63518,63517,63516,63516,63515,63514,63513,
- 63512,63512,63511,63510,63509,63508,63508,63507,
- 63506,63505,63504,63504,63503,63502,63501,63500,
- 63500,63499,63498,63497,63496,63496,63495,63494,
- 63493,63492,63492,63491,63490,63489,63488,63488
+ Color::fromRGB565(63488),
+ Color::fromRGB565(63520),
+ Color::fromRGB565(63584),
+ Color::fromRGB565(63616),
+ Color::fromRGB565(63680),
+ Color::fromRGB565(63744),
+ Color::fromRGB565(63776),
+ Color::fromRGB565(63840),
+ Color::fromRGB565(63872),
+ Color::fromRGB565(63936),
+ Color::fromRGB565(64000),
+ Color::fromRGB565(64032),
+ Color::fromRGB565(64096),
+ Color::fromRGB565(64128),
+ Color::fromRGB565(64192),
+ Color::fromRGB565(64256),
+ Color::fromRGB565(64288),
+ Color::fromRGB565(64352),
+ Color::fromRGB565(64384),
+ Color::fromRGB565(64448),
+ Color::fromRGB565(64512),
+ Color::fromRGB565(64544),
+ Color::fromRGB565(64608),
+ Color::fromRGB565(64640),
+ Color::fromRGB565(64704),
+ Color::fromRGB565(64768),
+ Color::fromRGB565(64800),
+ Color::fromRGB565(64864),
+ Color::fromRGB565(64896),
+ Color::fromRGB565(64960),
+ Color::fromRGB565(65024),
+ Color::fromRGB565(65056),
+ Color::fromRGB565(65120),
+ Color::fromRGB565(65152),
+ Color::fromRGB565(65216),
+ Color::fromRGB565(65280),
+ Color::fromRGB565(65312),
+ Color::fromRGB565(65376),
+ Color::fromRGB565(65408),
+ Color::fromRGB565(65472),
+ Color::fromRGB565(65504),
+ Color::fromRGB565(63456),
+ Color::fromRGB565(63456),
+ Color::fromRGB565(61408),
+ Color::fromRGB565(59360),
+ Color::fromRGB565(57312),
+ Color::fromRGB565(55264),
+ Color::fromRGB565(55264),
+ Color::fromRGB565(53216),
+ Color::fromRGB565(51168),
+ Color::fromRGB565(49120),
+ Color::fromRGB565(49120),
+ Color::fromRGB565(47072),
+ Color::fromRGB565(45024),
+ Color::fromRGB565(42976),
+ Color::fromRGB565(40928),
+ Color::fromRGB565(38880),
+ Color::fromRGB565(38880),
+ Color::fromRGB565(36832),
+ Color::fromRGB565(34784),
+ Color::fromRGB565(32736),
+ Color::fromRGB565(30688),
+ Color::fromRGB565(30688),
+ Color::fromRGB565(28640),
+ Color::fromRGB565(26592),
+ Color::fromRGB565(24544),
+ Color::fromRGB565(24544),
+ Color::fromRGB565(22496),
+ Color::fromRGB565(20448),
+ Color::fromRGB565(18400),
+ Color::fromRGB565(16352),
+ Color::fromRGB565(16352),
+ Color::fromRGB565(14304),
+ Color::fromRGB565(12256),
+ Color::fromRGB565(10208),
+ Color::fromRGB565(8160),
+ Color::fromRGB565(8160),
+ Color::fromRGB565(6112),
+ Color::fromRGB565(4064),
+ Color::fromRGB565(2016),
+ Color::fromRGB565(2016),
+ Color::fromRGB565(2017),
+ Color::fromRGB565(2017),
+ Color::fromRGB565(2018),
+ Color::fromRGB565(2019),
+ Color::fromRGB565(2020),
+ Color::fromRGB565(2021),
+ Color::fromRGB565(2021),
+ Color::fromRGB565(2022),
+ Color::fromRGB565(2023),
+ Color::fromRGB565(2024),
+ Color::fromRGB565(2025),
+ Color::fromRGB565(2025),
+ Color::fromRGB565(2026),
+ Color::fromRGB565(2027),
+ Color::fromRGB565(2028),
+ Color::fromRGB565(2029),
+ Color::fromRGB565(2029),
+ Color::fromRGB565(2030),
+ Color::fromRGB565(2031),
+ Color::fromRGB565(2032),
+ Color::fromRGB565(2033),
+ Color::fromRGB565(2033),
+ Color::fromRGB565(2034),
+ Color::fromRGB565(2035),
+ Color::fromRGB565(2036),
+ Color::fromRGB565(2037),
+ Color::fromRGB565(2037),
+ Color::fromRGB565(2038),
+ Color::fromRGB565(2039),
+ Color::fromRGB565(2040),
+ Color::fromRGB565(2041),
+ Color::fromRGB565(2041),
+ Color::fromRGB565(2042),
+ Color::fromRGB565(2043),
+ Color::fromRGB565(2044),
+ Color::fromRGB565(2045),
+ Color::fromRGB565(2045),
+ Color::fromRGB565(2046),
+ Color::fromRGB565(2047),
+ Color::fromRGB565(2047),
+ Color::fromRGB565(1983),
+ Color::fromRGB565(1919),
+ Color::fromRGB565(1887),
+ Color::fromRGB565(1823),
+ Color::fromRGB565(1791),
+ Color::fromRGB565(1727),
+ Color::fromRGB565(1663),
+ Color::fromRGB565(1631),
+ Color::fromRGB565(1567),
+ Color::fromRGB565(1535),
+ Color::fromRGB565(1471),
+ Color::fromRGB565(1407),
+ Color::fromRGB565(1375),
+ Color::fromRGB565(1311),
+ Color::fromRGB565(1279),
+ Color::fromRGB565(1215),
+ Color::fromRGB565(1151),
+ Color::fromRGB565(1119),
+ Color::fromRGB565(1055),
+ Color::fromRGB565(1023),
+ Color::fromRGB565(959),
+ Color::fromRGB565(895),
+ Color::fromRGB565(863),
+ Color::fromRGB565(799),
+ Color::fromRGB565(767),
+ Color::fromRGB565(703),
+ Color::fromRGB565(639),
+ Color::fromRGB565(607),
+ Color::fromRGB565(543),
+ Color::fromRGB565(479),
+ Color::fromRGB565(447),
+ Color::fromRGB565(383),
+ Color::fromRGB565(351),
+ Color::fromRGB565(287),
+ Color::fromRGB565(255),
+ Color::fromRGB565(191),
+ Color::fromRGB565(127),
+ Color::fromRGB565(95),
+ Color::fromRGB565(31),
+ Color::fromRGB565(31),
+ Color::fromRGB565(2079),
+ Color::fromRGB565(4127),
+ Color::fromRGB565(6175),
+ Color::fromRGB565(6175),
+ Color::fromRGB565(8223),
+ Color::fromRGB565(10271),
+ Color::fromRGB565(12319),
+ Color::fromRGB565(14367),
+ Color::fromRGB565(14367),
+ Color::fromRGB565(16415),
+ Color::fromRGB565(18463),
+ Color::fromRGB565(20511),
+ Color::fromRGB565(20511),
+ Color::fromRGB565(22559),
+ Color::fromRGB565(24607),
+ Color::fromRGB565(26655),
+ Color::fromRGB565(28703),
+ Color::fromRGB565(30751),
+ Color::fromRGB565(30751),
+ Color::fromRGB565(32799),
+ Color::fromRGB565(34847),
+ Color::fromRGB565(36895),
+ Color::fromRGB565(38943),
+ Color::fromRGB565(38943),
+ Color::fromRGB565(40991),
+ Color::fromRGB565(43039),
+ Color::fromRGB565(45087),
+ Color::fromRGB565(47135),
+ Color::fromRGB565(47135),
+ Color::fromRGB565(49183),
+ Color::fromRGB565(51231),
+ Color::fromRGB565(53279),
+ Color::fromRGB565(55327),
+ Color::fromRGB565(55327),
+ Color::fromRGB565(57375),
+ Color::fromRGB565(59423),
+ Color::fromRGB565(61471),
+ Color::fromRGB565(63519),
+ Color::fromRGB565(63519),
+ Color::fromRGB565(63519),
+ Color::fromRGB565(63518),
+ Color::fromRGB565(63517),
+ Color::fromRGB565(63516),
+ Color::fromRGB565(63516),
+ Color::fromRGB565(63515),
+ Color::fromRGB565(63514),
+ Color::fromRGB565(63513),
+ Color::fromRGB565(63512),
+ Color::fromRGB565(63512),
+ Color::fromRGB565(63511),
+ Color::fromRGB565(63510),
+ Color::fromRGB565(63509),
+ Color::fromRGB565(63508),
+ Color::fromRGB565(63508),
+ Color::fromRGB565(63507),
+ Color::fromRGB565(63506),
+ Color::fromRGB565(63505),
+ Color::fromRGB565(63504),
+ Color::fromRGB565(63504),
+ Color::fromRGB565(63503),
+ Color::fromRGB565(63502),
+ Color::fromRGB565(63501),
+ Color::fromRGB565(63500),
+ Color::fromRGB565(63500),
+ Color::fromRGB565(63499),
+ Color::fromRGB565(63498),
+ Color::fromRGB565(63497),
+ Color::fromRGB565(63496),
+ Color::fromRGB565(63496),
+ Color::fromRGB565(63495),
+ Color::fromRGB565(63494),
+ Color::fromRGB565(63493),
+ Color::fromRGB565(63492),
+ Color::fromRGB565(63492),
+ Color::fromRGB565(63491),
+ Color::fromRGB565(63490),
+ Color::fromRGB565(63489),
+ Color::fromRGB565(63488),
+ Color::fromRGB565(63488)
 };
 
 void Benchmark::scanLineBenchmark()
@@ -460,7 +670,7 @@ void Benchmark::scanLineBenchmark()
     totalTime/=4;
     results[index++]=BenchmarkResult("ScanLine",totalTime);
 }
-#endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+#endif //MXGUI_PIXEL_FORMAT_GRAY1
 
 void Benchmark::clippedDrawBenchmark()
 {
@@ -476,11 +686,11 @@ void Benchmark::clippedDrawBenchmark()
                     Point p(j-8,k-8);
                     Point a(j,k);
                     Point b(j+8,k+8);
-                    #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+                    #ifndef MXGUI_PIXEL_FORMAT_GRAY1
                     dc.clippedDrawImage(p,a,b,micro_qr_code_from_wikipedia);
-                    #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+                    #else //MXGUI_PIXEL_FORMAT_GRAY1
                     dc.clippedDrawImage(p,a,b,checkpattern2);
-                    #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+                    #endif //MXGUI_PIXEL_FORMAT_GRAY1
                 }
         }
         auto d=system_clock::now()-t;
@@ -511,15 +721,15 @@ void Benchmark::clippedWriteBenchmark()
     {
         {
             DrawingContext dc(display);
-            #ifndef MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            #ifndef MXGUI_PIXEL_FORMAT_GRAY1
             dc.setFont(droid11);
             if(i%2==0) dc.setTextColor(red,black);
             else dc.setTextColor(green,black);
-            #else //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            #else //MXGUI_PIXEL_FORMAT_GRAY1
             dc.setFont(tahoma);
             if(i%2==0) dc.setTextColor(white,black);
             else dc.setTextColor(black,white);
-            #endif //MXGUI_COLOR_DEPTH_1_BIT_LINEAR
+            #endif //MXGUI_PIXEL_FORMAT_GRAY1
         }
         auto t=system_clock::now();
         {

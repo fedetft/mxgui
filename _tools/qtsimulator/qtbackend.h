@@ -52,7 +52,7 @@ public:
      */
     void clear()
     {
-        for(int i=0;i<M;i++) for(int j=0;j<N;j++) data[i][j]=F;
+        for(int i=0;i<M;i++) for(int j=0;j<N;j++) data[i][j]=T::fromRaw(F);
     }
 
     /**
@@ -90,7 +90,7 @@ private:
  * \param F framebuffer fill, used for clear()
  */
 template<unsigned int N, unsigned int M, unsigned int F>
-class basic_framebuffer<mxgui::Color1bitlinear, N, M, F>
+class basic_framebuffer<mxgui::Gray1Color, N, M, F>
 {
 public:
     /// Height of framebuffer
@@ -119,9 +119,9 @@ public:
      * \param y
      * \return the pixel
      */
-    mxgui::Color1bitlinear getPixel(int x, int y) const
+    mxgui::Gray1Color getPixel(int x, int y) const
     {
-        return data[y][x/8] & (1<<(x & 7)) ? 1 : 0;
+        return (data[y][x/8] & (1<<(x & 7))) ? mxgui::Gray1Color::white() : mxgui::Gray1Color::black();
     }
 
     /**
@@ -130,7 +130,7 @@ public:
      * \param y
      * \param pixel pixel to set
      */
-    void setPixel(int x, int y, mxgui::Color1bitlinear pixel)
+    void setPixel(int x, int y, mxgui::Gray1Color pixel)
     {
         if(pixel) data[y][x/8] |= (1<<(x & 7));
         else data[y][x/8] &=~ (1<<(x & 7));
@@ -144,14 +144,15 @@ public:
 
 private:
     ///Pixel data, stored as [M][N] because matches QImage's representation
-    unsigned char data[M][(N+7)/8];
+    ///Note: QImage requires scanlines to be 32-bit aligned.
+    unsigned char data[M][((N+31)/32)*4];
 };
 
 ///Framebuffer instantiation
 typedef basic_framebuffer<mxgui::Color,
     mxgui::SIMULATOR_DISP_WIDTH,
     mxgui::SIMULATOR_DISP_HEIGHT,
-    mxgui::SIMULATOR_BGCOLOR> FrameBuffer;
+    0> FrameBuffer;
 
 /**
  * Class that interfaces QT GUI (running from main thread) and mxgui (running

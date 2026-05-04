@@ -163,7 +163,7 @@ void DisplayImpl::drawImage(Point p, const ImageBase& img)
     short int yEnd=p.y()+img.getHeight()-1;
     if(xEnd >= width || yEnd >= height) return;
 
-    const unsigned short *imgData=img.getData();
+    const unsigned short *imgData=reinterpret_cast<const unsigned short*>(img.getData());
     if(imgData!=0)
     {
         //Optimized version for memory-loaded images

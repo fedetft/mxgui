@@ -40,7 +40,7 @@
 namespace mxgui {
 
 //The ST7735 driver requires a color depth 16 per pixel
-#ifdef MXGUI_COLOR_DEPTH_16_BIT
+#ifdef MXGUI_PIXEL_FORMAT_RGB565
 
 //Used to transiently pull low either the csx or dcx pin
 class Transaction
@@ -437,6 +437,6 @@ private:
     Color *buffer;          ///< For scanLineBuffer
 };
 
-#endif //MXGUI_COLOR_DEPTH_16_BIT
+#endif //MXGUI_PIXEL_FORMAT_RGB565
 
 } //namespace mxgui

@@ -19,6 +19,7 @@
 #include "qtbackend.h"
 #include "drivers/event_qt.h"
 #include <cstring>
+#include <iostream>
 #include <QPainter>
 
 using namespace mxgui;
@@ -38,14 +39,23 @@ void UpdateSignalSender::update()
 
 Window::Window(QWidget *parent): QWidget(parent),
         image(QSize(FrameBuffer::width,FrameBuffer::height),
-#ifdef MXGUI_COLOR_DEPTH_16_BIT
-        QImage::Format_RGB16),
-#elif defined(MXGUI_COLOR_DEPTH_1_BIT_LINEAR)
+#if defined(MXGUI_PIXEL_FORMAT_GRAY1)
         QImage::Format_MonoLSB),
+#elif defined(MXGUI_PIXEL_FORMAT_RGB565)
+        QImage::Format_RGB16),
+#else
+        QImage::Format_ARGB32),
 #endif
         w(this), layout(&w), buttonA("<"), buttonB(">"),
         sender(std::make_shared<UpdateSignalSender>())
 {
+#ifdef MXGUI_PIXEL_FORMAT_GRAY1
+    image.setColorCount(2);
+    image.setColor(0,qRgb(0,0,0));
+    image.setColor(1,qRgb(255,255,255));
+#elif !defined(MXGUI_PIXEL_FORMAT_RGB565)
+    std::cout<<"Warning: using generic pixel format fallback in qtsimulator"<<std::endl;
+#endif
     this->setFixedSize(FrameBuffer::width,FrameBuffer::height+50);
     w.setFixedSize(FrameBuffer::width,50);
     w.move(QPoint(0,FrameBuffer::height));
@@ -63,7 +73,7 @@ Window::Window(QWidget *parent): QWidget(parent),
     this->setWindowTitle(tr("Mxgui simulator"));
     this->show();
     QTBackend& qb=QTBackend::instance();
-    std::memcpy(image.bits(),qb.getFrameBuffer().getData(),image.sizeInBytes());
+    updateFrameBuffer();
     this->update();
     qb.start(sender);
 }
@@ -71,7 +81,24 @@ Window::Window(QWidget *parent): QWidget(parent),
 void Window::updateFrameBuffer()
 {
     FrameBuffer& buffer=QTBackend::instance().getFrameBuffer();
+#if defined(MXGUI_PIXEL_FORMAT_GRAY1) || defined(MXGUI_PIXEL_FORMAT_RGB565)
     std::memcpy(image.bits(),buffer.getData(),image.sizeInBytes());
+#else
+    static bool warned = false;
+    if(!warned)
+    {
+        qDebug("Warning: using slow fallback for pixel format conversion in simulator.");
+        warned = true;
+    }
+    for(int y=0;y<FrameBuffer::height;y++)
+    {
+        for(int x=0;x<FrameBuffer::width;x++)
+        {
+            Color c=buffer.getPixel(x,y);
+            image.setPixel(x,y,qRgb(c.getR(),c.getG(),c.getB()));
+        }
+    }
+#endif
     this->update();
 }
 

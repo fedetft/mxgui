@@ -89,24 +89,36 @@ static void shadowRectangle(DrawingContext& dc, Point a, Point b)
  */
 void drawButton(DrawingContext& dc, Point a, Point b, const char *s, bool click)
 {
-    static const unsigned short tlp[]={
-        61276,46420,31661,48565,33741,46452,31661,46452,57050
+    static const Color tlp[]={
+        Color::fromRGB565(61276),Color::fromRGB565(46420),Color::fromRGB565(31661),
+        Color::fromRGB565(48565),Color::fromRGB565(33741),Color::fromRGB565(46452),
+        Color::fromRGB565(31661),Color::fromRGB565(46452),Color::fromRGB565(57050)
     };
     const Image tl(3,3,tlp); //Button top left
-    static const unsigned short trp[]={
-        31661,46420,61276,57050,31628,48565,48499,42161,31661
+    static const Color trp[]={
+        Color::fromRGB565(31661),Color::fromRGB565(46420),Color::fromRGB565(61276),
+        Color::fromRGB565(57050),Color::fromRGB565(31628),Color::fromRGB565(48565),
+        Color::fromRGB565(48499),Color::fromRGB565(42161),Color::fromRGB565(31661)
     };
     const Image tr(3,3,trp); //Button top right
-    static const unsigned short blp[]={
-        31661,57050,48499,48565,33741,42225,61276,46420,31661
+    static const Color blp[]={
+        Color::fromRGB565(31661),Color::fromRGB565(57050),Color::fromRGB565(48499),
+        Color::fromRGB565(48565),Color::fromRGB565(33741),Color::fromRGB565(42225),
+        Color::fromRGB565(61276),Color::fromRGB565(46420),Color::fromRGB565(31661)
     };
     const Image bl(3,3,blp); //Button bottom left
-    static const unsigned short brp[]={
-        48499,42161,31661,42225,33741,48565,31661,46420,61276
+    static const Color brp[]={
+        Color::fromRGB565(48499),Color::fromRGB565(42161),Color::fromRGB565(31661),
+        Color::fromRGB565(42225),Color::fromRGB565(33741),Color::fromRGB565(48565),
+        Color::fromRGB565(31661),Color::fromRGB565(46420),Color::fromRGB565(61276)
     };
     const Image br(3,3,brp); //Button bottom right
-    static const unsigned short topColors[]={31628,59131,48499};
-    static const unsigned short botColors[]={48499,48499,31628};
+    static const Color topColors[]={
+        Color::fromRGB565(31628),Color::fromRGB565(59131),Color::fromRGB565(48499)
+    };
+    static const Color botColors[]={
+        Color::fromRGB565(48499),Color::fromRGB565(48499),Color::fromRGB565(31628)
+    };
     //Draw button corners
     dc.drawImage(a,tl);
     dc.drawImage(Point(b.x()-2,a.y()),tr);
@@ -145,7 +157,7 @@ static RenderingEngine *configureSolid()
 {
     SolidRenderingEngine *result=new SolidRenderingEngine;
     result->setModel(vertices,numVertices,polygons,numPolygons);
-    result->setColors((const Color*)colors);
+    result->setColors(colors);
     result->setDrawArea(Point(1,1),Point(238,158));
     result->setTranslation(Point(120,160));
     return result;

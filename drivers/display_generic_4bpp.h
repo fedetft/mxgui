@@ -318,13 +318,9 @@ protected:
     unsigned char *backbuffer; ///< Display backbuffer (frontbuffer is in the display chip)
 
 private:
-    //FIXME: these displays are black and white with 4 bit per pixel, but we
-    //still don't have 4 bit per pixel color format in the rest of the library,
-    //so for now use 16 bit per pixel RGB565 format and take the 4 MSBs from the
-    //blue channel. Images should be exported as RGB565 even if they are black
-    //and white until this is fixed
-    static unsigned char conv1(Color c) { return (c & 0x1f)>>1; }
-    static unsigned char conv2(Color c) { unsigned char x=(c & 0x1f)>>1; return x | x<<4; }
+    // These displays are black and white with 4 bit per pixel.
+    static unsigned char conv1(Color c) { return static_cast<unsigned char>(c); }
+    static unsigned char conv2(Color c) { unsigned char x=static_cast<unsigned char>(c); return x | x<<4; }
     
     /**
      * Non bound checked no color conversion non virtual setPixel.
@@ -352,7 +348,7 @@ DisplayGeneric4BPP<swapNibbles, swapBytes>::DisplayGeneric4BPP(short width, shor
     : width(width), height(height), fbSize(width*height/2),
       backbuffer(new unsigned char[fbSize]), buffer(new Color[width])
 {
-    setTextColor(std::make_pair(Color(0xffff),Color(0x0)));
+    setTextColor(std::make_pair(Color::white(),Color::black()));
 }
 
 template<bool swapNibbles, bool swapBytes>

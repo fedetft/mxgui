@@ -307,7 +307,7 @@ void DisplayImpl::drawImage(Point p, const ImageBase& img)
     
     waitDmaCompletion();
 
-    const unsigned short *imgData=img.getData();
+    const unsigned short *imgData=reinterpret_cast<const unsigned short*>(img.getData());
     if(imgData!=0)
     {
         //Optimized version for memory-loaded images
@@ -362,7 +362,7 @@ DisplayImpl::~DisplayImpl() {}
 DisplayImpl::DisplayImpl(): which(0)
 {
     doTurnOn();
-    setTextColor(make_pair(Color(0xffff),Color(0x0000)));
+    setTextColor(make_pair(Color::white(),Color::black()));
 }
 
 void DisplayImpl::window(Point p1, Point p2)

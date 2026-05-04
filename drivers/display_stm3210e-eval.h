@@ -49,7 +49,7 @@ namespace mxgui {
 
 //This display is 16 bit per pixel, chech that the color depth is properly
 //configured
-#ifndef MXGUI_COLOR_DEPTH_16_BIT
+#ifndef MXGUI_PIXEL_FORMAT_RGB565
 #error The SPFD5408 driver requires a color depth of 16bit per pixel
 #endif
 

@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #include "display_er_oledm024.h"
+#include "misc_inst.h"
 #include <miosix.h>
 #include <algorithm>
 
@@ -172,10 +173,10 @@ DisplayErOledm024::DisplayErOledm024() : DisplayGeneric1BPP(128,64)
     cmd(0xdb); cmd(0x34);     // VCOMH=.78*VCC 
     cmd(0xa6);                // Normal display mode
     cmd(0xa4);                // Disable test mode
-    clear(0);
+    clear(black);
     update();
     cmd(0xaf);                // Display ON
-    setTextColor(std::make_pair(Color(0xf),Color(0x0)));
+    setTextColor(std::make_pair(Color::white(),Color::black()));
 }
 
 void DisplayErOledm024::doTurnOn()

@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #include "display_er_oledm015.h"
+#include "misc_inst.h"
 #include <miosix.h>
 #include <interfaces/endianness.h>
 #include <algorithm>
@@ -286,10 +287,10 @@ DisplayErOledm015::DisplayErOledm015() : buffer(nullptr), buffer2(nullptr)
     cmd(0xc1); dat(0x88); dat(0x70); dat(0x88); // A B C brightness
     cmd(0xc7); dat(0x0f);                       // Master brightness
     cmd(0xca); dat(0x7f);                       // Duty 1:128
-    clear(0);
+    clear(black);
     cmd(0xaf);                                  // Display ON
 
-    setTextColor(make_pair(Color(0xffff),Color(0x0)));
+    setTextColor(make_pair(Color::white(),Color::black()));
 }
 
 void DisplayErOledm015::doTurnOn()

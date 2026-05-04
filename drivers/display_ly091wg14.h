@@ -28,6 +28,7 @@
 #pragma once
 
 #include "display_generic_1bpp.h"
+#include "misc_inst.h"
 #include <util/software_i2c.h>
 #include <algorithm>
 
@@ -131,10 +132,10 @@ DisplayLy091wg14<SDA,SCL,RESET>::DisplayLy091wg14() : DisplayGeneric1BPP(128,32)
     cmd(0xd9); cmd(0xf1);              // Precharge periods
     cmd(0xdb); cmd(0x40);              // VCOMH
     cmd(0xa6);                         // Normal display mode
-    clear(0);
+    clear(black);
     update();
     cmd(0xaf);                         // Display on
-    setTextColor(std::make_pair(Color(0xf),Color(0x0)));
+    setTextColor(std::make_pair(Color::white(),Color::black()));
 }
 
 template<typename SDA, typename SCL, typename RESET>

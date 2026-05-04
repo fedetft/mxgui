@@ -11,7 +11,7 @@ void drawGradientBar(DrawingContext& dc, int y0, int y1, int r, int g, int b)
         unsigned int rr = x * r / (dc.getWidth()-1);
         unsigned int gg = x * g / (dc.getWidth()-1);
         unsigned int bb = x * b / (dc.getWidth()-1);
-        Color col = bb + (gg << 5) + (rr << 11);
+        Color col = Color::fromRGB565(bb + (gg << 5) + (rr << 11));
         dc.line(Point(x,y0), Point(x,y1-1), col);
     }
 }
@@ -49,7 +49,7 @@ void drawDitherBar(DrawingContext& dc, int y0, int y1, int r, int g, int b)
             unsigned int rr = cap ? r : 0;
             unsigned int gg = cap ? g : 0;
             unsigned int bb = cap ? b : 0;
-            Color col = bb + (gg << 5) + (rr << 11);
+            Color col = Color::fromRGB565((rr << 11) | (gg << 5) | bb);
             dc.setPixel(Point(x, y0+y), col);
         }
         // Shift columns to the left by 1 in the error matrix
@@ -64,7 +64,7 @@ void drawDitherBar(DrawingContext& dc, int y0, int y1, int r, int g, int b)
 
 ENTRY()
 {
-    #ifndef MXGUI_COLOR_DEPTH_16_BIT
+    #ifndef MXGUI_PIXEL_FORMAT_RGB565
     #error "selected color depth not yet handled by this program"
     #endif
     // Display four gradients, one for gray and one for each primary color,

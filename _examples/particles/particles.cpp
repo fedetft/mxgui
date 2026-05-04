@@ -26,20 +26,19 @@ public:
      */
     void fadeColor()
     {
-        if(color>0x800) color-=0x800;
-        if((color & 0x7c0)>0) color-=0x40;
-        if((color & 0x01f)>0) color--;
+        static constexpr RGB565Color decrement = RGB565Color::fromRaw(0x0841);
+        color = color - decrement; 
     }
 
     /**
      * \return particle color
      */
-    Color getColor() const { return color; }
+    Color getColor() const { return Color::fromRGB565(color); }
 
     /**
      * \param c new color of the particle
      */
-    void setColor(Color c) { color=c; }
+    void setColor(RGB565Color c) { color=c; }
 
     /**
      * \return particle position
@@ -65,7 +64,7 @@ private:
     //Object size 8byte
     Point position;
     signed char xSpeed_, ySpeed_;
-    unsigned short color;
+    RGB565Color color;
 };
 
 /**
@@ -75,11 +74,19 @@ private:
  */
 static bool particleAnimation(Particle *particles)
 {
-    static const unsigned short rainbow[]=
+    static constexpr RGB565Color rainbow[]=
     {
-        63489,63495,63501,63507,63513,63519,53279,40991,28703,16415,4127,287,
-        671,1055,1439,1823,2045,2039,2033,2027,2021,2016,14304,26592,38880,
-        51168,63456,65216,64832,64448,64064,65535
+        RGB565Color::fromRaw(63489),RGB565Color::fromRaw(63495),RGB565Color::fromRaw(63501),
+        RGB565Color::fromRaw(63507),RGB565Color::fromRaw(63513),RGB565Color::fromRaw(63519),
+        RGB565Color::fromRaw(53279),RGB565Color::fromRaw(40991),RGB565Color::fromRaw(28703),
+        RGB565Color::fromRaw(16415),RGB565Color::fromRaw(4127),RGB565Color::fromRaw(287),
+        RGB565Color::fromRaw(671),RGB565Color::fromRaw(1055),RGB565Color::fromRaw(1439),
+        RGB565Color::fromRaw(1823),RGB565Color::fromRaw(2045),RGB565Color::fromRaw(2039),
+        RGB565Color::fromRaw(2033),RGB565Color::fromRaw(2027),RGB565Color::fromRaw(2021),
+        RGB565Color::fromRaw(2016),RGB565Color::fromRaw(14304),RGB565Color::fromRaw(26592),
+        RGB565Color::fromRaw(38880),RGB565Color::fromRaw(51168),RGB565Color::fromRaw(63456),
+        RGB565Color::fromRaw(65216),RGB565Color::fromRaw(64832),RGB565Color::fromRaw(64448),
+        RGB565Color::fromRaw(64064),RGB565Color::fromRaw(65535)
     };
 
     static const int cosTab[]={0, 1, 1, 1, 0,-1,-1,-1};

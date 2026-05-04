@@ -18,7 +18,7 @@ function(preprocess_png out_var)
     set(cpp "${CMAKE_CURRENT_SOURCE_DIR}/${path}/${basename}.cpp")
     set(h   "${CMAKE_CURRENT_SOURCE_DIR}/${path}/${basename}.h")
     add_custom_command(OUTPUT ${cpp} ${h}
-      COMMAND ${PNGCONV_EXECUTABLE} --in ${png} --depth 16
+      COMMAND ${PNGCONV_EXECUTABLE} --in ${png} --format rgb565
       DEPENDS ${png}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Preprocessing ${file}"

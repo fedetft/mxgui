@@ -51,6 +51,7 @@ from the X Consortium.
 
 #include "mxgui/entry.h"
 #include "mxgui/display.h"
+#include "mxgui/color.h"
 #include "mxgui/misc_inst.h"
 #include <cmath>
 #include <sys/time.h>
@@ -491,20 +492,12 @@ static void randomSmallChange(state *st)
 static int redValueForHSBPhase(int phase, int value)
 {
     switch (phase%6) {
-        case 0: case 5: return 31;
-        case 1: return 31-value;
+        case 0: case 5: return 255;
+        case 1: return 255-value;
         case 2: case 3: return 0;
         default:
         case 4: return value;
     }
-}
-
-static mxgui::Color mixColor(int r, int g, int b, int l)
-{
-    r = r * l / 31;
-    g = g * l / 31;
-    b = b * l / 31;
-    return r + (g << 6) + (b << (5+6));
 }
 
 static void eraseLastBugsTrail(DrawingContext& dc, state *st)
@@ -536,18 +529,24 @@ static void drawBugs(DrawingContext& dc, state *st)
 
     int huePhase = st->colorWheelTime / (COLOR_CHANGE_PERIOD/6);
     int value = st->colorWheelTime % (COLOR_CHANGE_PERIOD/6);
-    value = value*31/(COLOR_CHANGE_PERIOD/6);
+    value = value*255/(COLOR_CHANGE_PERIOD/6);
     int bugR, bugG, bugB, targetR, targetG, targetB;
     bugR = targetB = redValueForHSBPhase(huePhase, value);
     bugG = targetR = redValueForHSBPhase(huePhase+2, value);
     bugB = targetG = redValueForHSBPhase(huePhase+4, value);
+    mxgui::RGB888Color fullBugColor(bugR, bugG, bugB);
+    mxgui::RGB888Color fullTargetColor(targetR, targetG, targetB);
     
     for (j = st->tail; j != st->head; j = temp) {
         int t = (j-st->head)%st->trailLen-1;
         if (t<0) t += st->trailLen;
-        t = t*31/(st->trailLen-2);
-        mxgui::Color bugSegmentColor = mixColor(bugR, bugG, bugB, t);
-        mxgui::Color targetSegmentColor = mixColor(targetR, targetG, targetB, t);
+        unsigned char scale = t*255/(st->trailLen-2);
+        mxgui::RGB888Color bugDimmed = mxgui::RGB888Color::mix(
+            mxgui::RGB888Color::black(), fullBugColor, scale);
+        mxgui::RGB888Color targetDimmed = mxgui::RGB888Color::mix(
+            mxgui::RGB888Color::black(), fullTargetColor, scale);
+        mxgui::Color bugSegmentColor(bugDimmed.getR(), bugDimmed.getG(), bugDimmed.getB());
+        mxgui::Color targetSegmentColor(targetDimmed.getR(), targetDimmed.getG(), targetDimmed.getB());
         temp = (j+1)%st->trailLen;
         b = st->bugs;
         for (i = 0; i < st->nbugs; i++, b++)
@@ -597,10 +596,6 @@ static void free(state *st)
 
 ENTRY()
 {
-    #ifndef MXGUI_COLOR_DEPTH_16_BIT
-    #error "selected color depth not yet handled by this program"
-    #endif
-
     state *st = init();
     #ifndef _MIOSIX
     for(;;)
