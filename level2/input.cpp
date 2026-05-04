@@ -70,6 +70,13 @@ function<void ()> InputHandler::registerEventCallback(function<void ()> cb)
     return pImpl->registerEventCallback(cb);
 }
 
+#if defined(_BOARD_STM32F415VG_ST25DVDISCOVERY)
+void InputHandler::setTouchscreenCalibration(double xMin, double xMax, double yMin, double yMax)
+{
+    pImpl->setTouchscreenCalibration(xMin, xMax, yMin, yMax);
+}
+#endif
+
 InputHandler::InputHandler(InputHandlerImpl *impl) : pImpl(impl) {}
 
 } //namespace mxgui
