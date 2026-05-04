@@ -148,6 +148,7 @@ std::pair<short,short> BresenhamFSM::getLinePoints()
 #include "mxgui/entry.h"
 #include "mxgui/display.h"
 #include "mxgui/misc_inst.h"
+#include "misc_inst.h"
 #include <cmath>
 #include <unistd.h>
 
@@ -156,7 +157,7 @@ using namespace mxgui;
 void ll(float angle)
 {
     DrawingContext dc(DisplayManager::instance().getDisplay());
-    dc.clear(0);
+    dc.clear(black);
     Point a(240/2,320/2),b(240/2+100*std::cos(angle),320/2+100*std::sin(angle));
 
     //Testcase for BresenhamFSM::drawScanLine()

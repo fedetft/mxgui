@@ -29,6 +29,7 @@
 #pragma once
 
 #include "display_generic_1bpp.h"
+#include "misc_inst.h"
 #include <util/software_i2c.h>
 #include <algorithm>
 
@@ -143,7 +144,7 @@ DisplayGME128128<SDA,SCL,RESET>::DisplayGME128128() : DisplayGeneric1BPP(128,128
     cmd(0xd9); cmd(0xf1);              // Precharge periods
     cmd(0xdb); cmd(0x40);              // VCOMH
     cmd(0xa6);                         // Normal display mode
-    clear(0);
+    clear(black);
     update();
     cmd(0xaf);                         // Display on
     setTextColor(std::make_pair(Color::white(),Color::black()));

@@ -27,6 +27,7 @@
  ***************************************************************************/
 
 #include "display_er_oledm028.h"
+#include "misc_inst.h"
 #include "miosix.h"
 #include <algorithm>
 
@@ -198,7 +199,7 @@ DisplayErOledm028::DisplayErOledm028() : DisplayGeneric4BPP(256,64)
     cmd(0xb6); data(0x08);             // Second precharge period
     cmd(0xbe); data(0x07);             // VCOMH
     cmd(0xa6);                         // Normal display mode
-    clear(0);
+    clear(black);
     update();
     cmd(0xaf);                         // Display on
 }
